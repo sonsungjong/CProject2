@@ -14,7 +14,7 @@ void Client()
 	cout << "I am Client" << endl;
 }
 
-int main()
+int main236()
 {
 	PrintHello();			// 서버 호출
 
