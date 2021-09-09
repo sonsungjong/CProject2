@@ -149,6 +149,19 @@
     <ClCompile Include="_22_FunctionPointer05.cpp" />
     <ClCompile Include="_23_FunctionPointer06.cpp" />
     <ClCompile Include="_23_FunctionPointer08.cpp" />
+    <ClCompile Include="_5204_deque.cpp" />
+    <ClCompile Include="_5205_find.cpp" />
+    <ClCompile Include="_5202_iterator.cpp" />
+    <ClCompile Include="_5206_sort.cpp" />
+    <ClCompile Include="_5207_sort2.cpp" />
+    <ClCompile Include="_5208_stack.cpp" />
+    <ClCompile Include="_5201_vector.cpp" />
+    <ClCompile Include="_5203_iterator2.cpp" />
+    <ClCompile Include="_5209_stack2.cpp" />
+    <ClCompile Include="_5210_reverse_iterator1.cpp" />
+    <ClCompile Include="_5211_reverse_iterator2.cpp" />
+    <ClCompile Include="_5212_iterator3.cpp" />
+    <ClCompile Include="_5213_not2.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

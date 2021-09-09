@@ -1,9 +1,8 @@
 #include <iostream>
-
+#include <functional>
 using namespace std;
 
-int main141414()
-{
+int main() {
 
 
 	return 0;
