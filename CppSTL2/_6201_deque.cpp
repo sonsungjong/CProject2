@@ -2,7 +2,7 @@
 #include <deque>
 using namespace std;
 
-int main()
+int main6201()
 {
 	deque<int> dq;
 
