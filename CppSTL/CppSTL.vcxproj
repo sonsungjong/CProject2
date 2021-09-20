@@ -156,6 +156,7 @@
     <ClCompile Include="_3205_FunctorLess.cpp" />
     <ClCompile Include="_3207_FunctorFunctional.cpp" />
     <ClCompile Include="_3208_FunctorFunctional2.cpp" />
+    <ClCompile Include="_3902_FunctorEqual.cpp" />
     <ClCompile Include="_5204_deque.cpp" />
     <ClCompile Include="_5205_find.cpp" />
     <ClCompile Include="_5202_iterator.cpp" />

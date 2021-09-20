@@ -141,5 +141,8 @@
     <ClCompile Include="_3208_FunctorFunctional2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="_3902_FunctorEqual.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
