@@ -141,6 +141,7 @@
   <ItemGroup>
     <ClCompile Include="MusicPlayer.c" />
     <ClCompile Include="MusicPlayer2.c" />
+    <ClCompile Include="MusicPlayer3.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
