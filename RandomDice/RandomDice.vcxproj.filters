@@ -15,13 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="MusicPlayer.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MusicPlayer2.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MusicPlayer3.c">
+    <ClCompile Include="RandomDice.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

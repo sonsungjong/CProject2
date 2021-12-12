@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{8d3cb664-d8c7-479d-871b-627cc602c9fb}</ProjectGuid>
-    <RootNamespace>MusicPlayer</RootNamespace>
+    <ProjectGuid>{9f828daf-ed59-4ff5-94da-97d23df3c34e}</ProjectGuid>
+    <RootNamespace>RandomDice</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -139,9 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="MusicPlayer.c" />
-    <ClCompile Include="MusicPlayer2.c" />
-    <ClCompile Include="MusicPlayer3.c" />
+    <ClCompile Include="RandomDice.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
