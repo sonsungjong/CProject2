@@ -54,5 +54,8 @@
     <ClCompile Include="_08_CProject2.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="_06_CProject1.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
