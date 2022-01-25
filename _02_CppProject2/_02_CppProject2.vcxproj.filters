@@ -84,5 +84,11 @@
     <ClCompile Include="_08_WindowsDraw.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="_0606_union.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="_0908_FuncPointer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -25,7 +25,7 @@ int main63() {
 	void (*p_msg_proc[3])(int, int) = { OnLButtonDown, OnLButtonUp, OnMouseMove};
 	int msg_id;
 
-	(*p_msg_proc[msg_id])(2, 3);
+	//(*p_msg_proc[msg_id])(2, 3);
 
 	App(MyUser);
 

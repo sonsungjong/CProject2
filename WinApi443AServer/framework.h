@@ -3,9 +3,12 @@
 #include "targetver.h"
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
 // Windows Header Files
-#include <windows.h>
+#include <Windows.h>
 // C RunTime Header Files
-#include <stdlib.h>
+#include <cstdlib>
 #include <malloc.h>
-#include <memory.h>
+#include <memory>
 #include <tchar.h>
+#include <string>
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+typedef std::basic_string<TCHAR> TSTRING;
