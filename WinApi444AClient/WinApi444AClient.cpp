@@ -5,177 +5,220 @@
 #include "framework.h"
 #include "WinApi444AClient.h"
 
-#define MAX_LOADSTRING 100
+#include <WinSock2.h>
+#include <WS2tcpip.h>
+#pragma comment(lib, "Ws2_32.lib")
 
 // Global Variables:
 HINSTANCE hInst;                                // current instance
-WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
-WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
+#define PORT 10000
+#define IP  "127.0.0.1"
 
-// Forward declarations of functions included in this code module:
-ATOM                MyRegisterClass(HINSTANCE hInstance);
-BOOL                InitInstance(HINSTANCE, int);
-LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
-INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK DlgProc(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK DlgProcLogin(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
                      _In_ LPWSTR    lpCmdLine,
                      _In_ int       nCmdShow)
 {
-    UNREFERENCED_PARAMETER(hPrevInstance);
-    UNREFERENCED_PARAMETER(lpCmdLine);
+    hInst = hInstance;
+    DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG1), nullptr, DlgProc);
 
-    // TODO: Place code here.
-
-    // Initialize global strings
-    LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-    LoadStringW(hInstance, IDC_WINAPI444ACLIENT, szWindowClass, MAX_LOADSTRING);
-    MyRegisterClass(hInstance);
-
-    // Perform application initialization:
-    if (!InitInstance (hInstance, nCmdShow))
-    {
-        return FALSE;
-    }
-
-    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_WINAPI444ACLIENT));
-
-    MSG msg;
-
-    // Main message loop:
-    while (GetMessage(&msg, nullptr, 0, 0))
-    {
-        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-        {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
-    }
-
-    return (int) msg.wParam;
-}
-
-
-
-//
-//  FUNCTION: MyRegisterClass()
-//
-//  PURPOSE: Registers the window class.
-//
-ATOM MyRegisterClass(HINSTANCE hInstance)
-{
-    WNDCLASSEXW wcex;
-
-    wcex.cbSize = sizeof(WNDCLASSEX);
-
-    wcex.style          = CS_HREDRAW | CS_VREDRAW;
-    wcex.lpfnWndProc    = WndProc;
-    wcex.cbClsExtra     = 0;
-    wcex.cbWndExtra     = 0;
-    wcex.hInstance      = hInstance;
-    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_WINAPI444ACLIENT));
-    wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
-    wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
-    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_WINAPI444ACLIENT);
-    wcex.lpszClassName  = szWindowClass;
-    wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
-
-    return RegisterClassExW(&wcex);
-}
-
-//
-//   FUNCTION: InitInstance(HINSTANCE, int)
-//
-//   PURPOSE: Saves instance handle and creates main window
-//
-//   COMMENTS:
-//
-//        In this function, we save the instance handle in a global variable and
-//        create and display the main program window.
-//
-BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
-{
-   hInst = hInstance; // Store instance handle in our global variable
-
-   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
-
-   if (!hWnd)
-   {
-      return FALSE;
-   }
-
-   ShowWindow(hWnd, nCmdShow);
-   UpdateWindow(hWnd);
-
-   return TRUE;
-}
-
-//
-//  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
-//
-//  PURPOSE: Processes messages for the main window.
-//
-//  WM_COMMAND  - process the application menu
-//  WM_PAINT    - Paint the main window
-//  WM_DESTROY  - post a quit message and return
-//
-//
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-    switch (message)
-    {
-    case WM_COMMAND:
-        {
-            int wmId = LOWORD(wParam);
-            // Parse the menu selections:
-            switch (wmId)
-            {
-            case IDM_ABOUT:
-                DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-                break;
-            case IDM_EXIT:
-                DestroyWindow(hWnd);
-                break;
-            default:
-                return DefWindowProc(hWnd, message, wParam, lParam);
-            }
-        }
-        break;
-    case WM_PAINT:
-        {
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
-            // TODO: Add any drawing code that uses hdc here...
-            EndPaint(hWnd, &ps);
-        }
-        break;
-    case WM_DESTROY:
-        PostQuitMessage(0);
-        break;
-    default:
-        return DefWindowProc(hWnd, message, wParam, lParam);
-    }
     return 0;
 }
 
-// Message handler for about box.
-INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+// 대화상자 메시지 처리기
+#define WM_CLIENT WM_USER+1
+#define WM_CONNECT WM_USER+2
+#define BUFSIZE 512
+typedef enum {
+    LOGIN = 1, LOGEXIST, LOGOUT, OTHERLOGIN, OTHERLOGOUT, TALK
+}PACKET_TYPE;
+
+typedef struct {
+    PACKET_TYPE ptype;
+    unsigned short len;         // length(data)
+    char data[BUFSIZE];
+} PACKET;
+
+TCHAR loginID[BUFSIZE];
+INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    UNREFERENCED_PARAMETER(lParam);
+    static HWND hList;
+    static SOCKET client;
+    static SOCKADDR_IN addr;
+    PACKET packet;
+    static bool bConnected = false;             // 서버 연결
+    static bool bLogin = false;                 // 로그인
     switch (message)
     {
-    case WM_INITDIALOG:
-        return (INT_PTR)TRUE;
-
-    case WM_COMMAND:
-        if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
+        case WM_INITDIALOG:
         {
-            EndDialog(hDlg, LOWORD(wParam));
+            hList = GetDlgItem(hDlg, IDC_LIST1);
+            // Winsock2.2 초기화
+            WSADATA wsaData;
+            WSAStartup(0x0202, &wsaData);
+
+            ZeroMemory(&addr, sizeof(addr));
+            addr.sin_family = AF_INET;
+            addr.sin_port = 10000;
+            // 서버가 다른 컴퓨터라면 IP를 변경할 것
+            inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr.s_addr);
+            SendMessage(hDlg, WM_CONNECT, 0, 0);
             return (INT_PTR)TRUE;
         }
-        break;
+        case WM_CONNECT:
+        {
+            // IPv4, TCP stream, protocol
+            client = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+            if (connect(client, (LPSOCKADDR)&addr, sizeof(addr)) == SOCKET_ERROR) {
+                closesocket(client);
+                bConnected = false;
+                SetWindowText(hDlg, _T("Disconnected..."));
+                SetWindowText(GetDlgItem(hDlg, IDC_BUTTON_CONNECT), _T("서버 연결"));
+            }
+            else {              // 연결 완료
+                bConnected = true;
+                WSAAsyncSelect(client, hDlg, WM_CLIENT, FD_READ | FD_CLOSE);
+                SetWindowText(hDlg, _T("Connected..."));
+                SetWindowText(GetDlgItem(hDlg, IDC_BUTTON_CONNECT), _T("서버 나가기"));
+            }
+            return (INT_PTR)TRUE;
+        }
+        // wParam : socket, LOWORD(lParam): network event
+        case WM_CLIENT:
+            switch (WSAGETSELECTEVENT(lParam))
+            {
+                case FD_CLOSE:                  // 소켓 닫힐 때
+                    closesocket((SOCKET)wParam);
+                    bLogin = false;
+                    bConnected = false;
+
+                    SetWindowText(hDlg, _T("Disconnected..."));
+                    SetWindowText(GetDlgItem(hDlg, IDC_BUTTON_LOGIN), _T("로그인"));
+                    SetWindowText(GetDlgItem(hDlg, IDC_BUTTON_CONNECT), _T("서버 연결"));
+                    SendMessage(hList, LB_RESETCONTENT, 0, 0);
+                    break;
+                case FD_READ:
+                {
+                    // client = (SOCKET)wParam;
+                    TCHAR recvID[BUFSIZE];
+                    TCHAR strTemp[BUFSIZE];
+                    int nR = recv(client, (char*)&packet, sizeof(PACKET), 0);
+                    switch (packet.ptype)
+                    {
+                    case LOGIN:
+                        bLogin = true;
+                        memcpy(loginID, packet.data, packet.len);
+                        _stprintf_s(strTemp, sizeof(strTemp) / sizeof(TCHAR), _T("[%s]님 환영합니다."), loginID);
+                        SetWindowText(hDlg, strTemp);
+                        SetWindowText(GetDlgItem(hDlg, IDC_BUTTON_LOGIN), _T("로그 아웃"));
+                        break;
+                    case LOGOUT:
+                    {
+                        bLogin = false;
+                        memset(loginID, 0, BUFSIZE);
+                        SetWindowText(hDlg, _T("로그인이 필요합니다."));
+                        SetWindowText(GetDlgItem(hDlg, IDC_BUTTON_LOGIN), _T("로그인"));
+                        SendMessage(hList, LB_RESETCONTENT, 0, 0);
+                        break;
+                    }
+                    case LOGEXIST:
+                        bLogin = false;
+                        SetWindowText(hDlg, _T("서버에 같은 아이디가 존재합니다."));
+                        break;
+                    case OTHERLOGIN:                    // IDC_LIST1에 추가
+                    {
+                        memcpy(recvID, packet.data, packet.len);
+                        SendMessage(hList, LB_ADDSTRING, 0, (LPARAM)recvID);
+                        break;
+                    }
+                    case OTHERLOGOUT:                       // IDC_LIST1에서 삭제
+                        memcpy(recvID, packet.data, packet.len);
+                        unsigned int k = SendMessage(hList, LB_FINDSTRINGEXACT, 1, (LPARAM)recvID);
+                        SendMessage(hList, LB_DELETESTRING, k, 0);
+                        break;
+                    }
+                    break;
+                }
+            }
+            return (INT_PTR)TRUE;
+        case WM_COMMAND:
+            switch (LOWORD(wParam))
+            {
+            case IDC_BUTTON_CONNECT:
+                if (!bConnected) { SendMessage(hDlg, WM_CONNECT, 0, 0); }
+                else {
+                    closesocket(client);
+                    SendMessage(hDlg, WM_CLIENT, 0, MAKEWORD(FD_CLOSE, 0));
+                }
+                break;
+            case IDC_BUTTON_LOGIN:
+                if (!bConnected) { break; }
+                if (!bLogin) {
+                    if (DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG2), hDlg, DlgProcLogin) == IDOK)
+                    {
+                        if (_tcslen(loginID) == 0) { break; }
+                        packet.ptype = LOGIN;
+                        packet.len = (unsigned short)(_tcslen(loginID) + 1) * sizeof(TCHAR);
+                        memcpy(packet.data, loginID, packet.len);
+                        send(client, (char*)&packet, sizeof(PACKET), 0);
+                    }
+                }
+                else {
+                    packet.ptype = LOGOUT;
+                    packet.len = (unsigned short)(_tcslen(loginID) + 1) * sizeof(TCHAR);
+                    memcpy(packet.data, loginID, packet.len);
+                    send(client, (char*)&packet, sizeof(PACKET), 0);
+                }
+                return (INT_PTR)TRUE;
+            }
+            return (INT_PTR)TRUE;
+        case WM_CLOSE:
+            if (bLogin)
+            {
+                packet.ptype = LOGOUT;
+                packet.len = (unsigned short)(_tcslen(loginID) + 1) * sizeof(TCHAR);
+                memcpy(packet.data, loginID, packet.len);
+                send(client, (char*)&packet, sizeof(PACKET), 0);
+            }
+            DestroyWindow(hDlg);
+            return TRUE;
+        case WM_DESTROY:
+            return (INT_PTR)FALSE;
+    }
+}
+
+INT_PTR CALLBACK DlgProcLogin(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    switch (message)
+    {
+        case WM_INITDIALOG:
+        {
+            // 로그인 대화상자를 부모 대화상자 가운데에 출력
+            HWND hParent = GetParent(hDlg);
+            RECT rcParent, rcDlg, rc;
+            GetWindowRect(hParent, &rcParent);
+            GetWindowRect(hDlg, &rcDlg);
+            CopyRect(&rc, &rcParent);           // rc = rcDlgMain;
+
+            OffsetRect(&rcDlg, -rcDlg.left, -rcDlg.top);
+            OffsetRect(&rc, -rc.left, -rc.top);
+            OffsetRect(&rc, -rcDlg.right, -rcDlg.bottom);
+            SetWindowPos(hDlg, HWND_TOP, rcParent.left + (rc.right / 2), rcParent.top + (rc.bottom / 2), 0, 0, SWP_NOSIZE);
+            return (INT_PTR)TRUE;
+        }
+        case WM_COMMAND:
+            switch (LOWORD(wParam))
+            {
+                case IDOK:
+                    GetDlgItemText(hDlg, IDC_EDIT_LOGIN, loginID, 128);
+                    EndDialog(hDlg, LOWORD(wParam));
+                case IDCANCEL:
+                    EndDialog(hDlg, LOWORD(wParam));
+                    return (INT_PTR)TRUE;
+            }
     }
     return (INT_PTR)FALSE;
 }

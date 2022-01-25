@@ -97,7 +97,7 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
                             {
                                 clients.insert(std::pair<TSTRING, SOCKET>(TSTRING(recvID), client));
                                 SendMessage(hList, LB_ADDSTRING, 0, (LPARAM)recvID);
-                                _stprintf_s(strTemp, _countof(strTemp), _T("%d"), clients.size());
+                                _stprintf_s(strTemp, _countof(strTemp), _T("%zd"), clients.size());
                                 SetWindowText(GetDlgItem(hDlg, IDC_STATIC_COUNT), strTemp);
                                 send(client, (char*)&packet, sizeof(PACKET), 0);
                             }
@@ -123,7 +123,7 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
                                     // 로그인 피드백
                                     clients.insert(std::pair<TSTRING, SOCKET>(TSTRING(recvID), client));
                                     SendMessage(hList, LB_ADDSTRING, 0, (LPARAM)recvID);
-                                    _stprintf_s(strTemp, _countof(strTemp), _T("%d"), clients.size());
+                                    _stprintf_s(strTemp, _countof(strTemp), _T("%zd"), clients.size());
                                     SetWindowText(GetDlgItem(hDlg, IDC_STATIC_COUNT), strTemp);
                                     packet.ptype = LOGIN;
                                     packet.len = (unsigned short)(_tcslen(recvID) + 1) * sizeof(TCHAR);
@@ -153,11 +153,11 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
                             memcpy(recvID, packet.data, packet.len);
                             clients.erase(TSTRING(recvID));
 
-                            _stprintf_s(strTemp, _countof(strTemp), _T("%d"), clients.size());
+                            _stprintf_s(strTemp, _countof(strTemp), _T("%zd"), clients.size());
                             SetWindowText(GetDlgItem(hDlg, IDC_STATIC_COUNT), strTemp);
 
                             // ID를 찾아 리스트박스에서 삭제
-                            unsigned int k = SendMessage(hList, LB_FINDSTRINGEXACT, 1, (LPARAM)recvID);
+                            unsigned int k = (unsigned int)SendMessage(hList, LB_FINDSTRINGEXACT, 1, (LPARAM)recvID);
                             SendMessage(hList, LB_DELETESTRING, k, 0);
                             break;
                         }
@@ -168,9 +168,51 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
                 }
                 case FD_CLOSE:
                 {
+                    TCHAR strID[256];
+                    SOCKET client = (SOCKET)wParam;
+                    BOOL bFound = FALSE;
 
+                    // 닫은 소켓을 찾아, 삭제
+                    for (it = clients.begin(); it != clients.end(); it++)
+                    {
+                        if (it->second == client)
+                        {
+                            _tcscpy_s(strID, it->first.c_str());
+                            bFound = TRUE;
+                            break;
+                        }
+                    }
+                    // 로그인 안하고 연결을 끊은 경우
+                    if (!bFound) { break; }
+                    // 로그인하고 연결을 끊은 경우, 로그아웃 브로드 캐스팅
+                    for (it = clients.begin(); it != clients.end(); it++)
+                    {
+                        if (it->second != client)
+                        {
+                            packet.ptype = OTHERLOGOUT;
+                            packet.len = (unsigned short)(_tcslen(strID) + 1) * sizeof(TCHAR);
+                            memcpy(packet.data, strID, packet.len);
+                            send(it->second, (char*)&packet, sizeof(PACKET), 0);
+                        }
+                    }
+                    clients.erase(TSTRING(strID));              // 소켓 삭제
+                    unsigned int k;             // 리스트 박스에서 찾아 ID 삭제
+                    k = (unsigned int)SendMessage(hList, LB_FINDSTRINGEXACT, 1, (LPARAM)strID);
+                    SendMessage(hList, LB_DELETESTRING, k, 0);
+                    _stprintf_s(strID, sizeof(strID) / sizeof(TCHAR), _T("%zd"), clients.size());
+                    SetWindowText(GetDlgItem(hDlg, IDC_STATIC_COUNT), strID);
+                    closesocket(client);
                 }
+                break;
             }
+            return (INT_PTR)TRUE;
+        case WM_CLOSE:
+            DestroyWindow(hDlg);
+            return TRUE;
+        case WM_DESTROY:
+            closesocket(server);
+            WSACleanup();
+            return (INT_PTR)TRUE;
     }
-    return 0;
+    return (INT_PTR)FALSE;
 }
