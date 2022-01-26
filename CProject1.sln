@@ -63,6 +63,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinApi443AServer", "WinApi4
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinApi444AClient", "WinApi444AClient\WinApi444AClient.vcxproj", "{7BB593DE-6337-4B91-A1C7-87EA8F917830}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TicTacToeServer", "TicTacToeServer\TicTacToeServer.vcxproj", "{6976E507-6B80-460A-BFF0-D20D0092DA45}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TicTacToeClient", "TicTacToeClient\TicTacToeClient.vcxproj", "{F456F3EC-08CB-4620-B8A1-C3DE0F9A6859}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -311,6 +315,22 @@ Global
 		{7BB593DE-6337-4B91-A1C7-87EA8F917830}.Release|x64.Build.0 = Release|x64
 		{7BB593DE-6337-4B91-A1C7-87EA8F917830}.Release|x86.ActiveCfg = Release|Win32
 		{7BB593DE-6337-4B91-A1C7-87EA8F917830}.Release|x86.Build.0 = Release|Win32
+		{6976E507-6B80-460A-BFF0-D20D0092DA45}.Debug|x64.ActiveCfg = Debug|x64
+		{6976E507-6B80-460A-BFF0-D20D0092DA45}.Debug|x64.Build.0 = Debug|x64
+		{6976E507-6B80-460A-BFF0-D20D0092DA45}.Debug|x86.ActiveCfg = Debug|Win32
+		{6976E507-6B80-460A-BFF0-D20D0092DA45}.Debug|x86.Build.0 = Debug|Win32
+		{6976E507-6B80-460A-BFF0-D20D0092DA45}.Release|x64.ActiveCfg = Release|x64
+		{6976E507-6B80-460A-BFF0-D20D0092DA45}.Release|x64.Build.0 = Release|x64
+		{6976E507-6B80-460A-BFF0-D20D0092DA45}.Release|x86.ActiveCfg = Release|Win32
+		{6976E507-6B80-460A-BFF0-D20D0092DA45}.Release|x86.Build.0 = Release|Win32
+		{F456F3EC-08CB-4620-B8A1-C3DE0F9A6859}.Debug|x64.ActiveCfg = Debug|x64
+		{F456F3EC-08CB-4620-B8A1-C3DE0F9A6859}.Debug|x64.Build.0 = Debug|x64
+		{F456F3EC-08CB-4620-B8A1-C3DE0F9A6859}.Debug|x86.ActiveCfg = Debug|Win32
+		{F456F3EC-08CB-4620-B8A1-C3DE0F9A6859}.Debug|x86.Build.0 = Debug|Win32
+		{F456F3EC-08CB-4620-B8A1-C3DE0F9A6859}.Release|x64.ActiveCfg = Release|x64
+		{F456F3EC-08CB-4620-B8A1-C3DE0F9A6859}.Release|x64.Build.0 = Release|x64
+		{F456F3EC-08CB-4620-B8A1-C3DE0F9A6859}.Release|x86.ActiveCfg = Release|Win32
+		{F456F3EC-08CB-4620-B8A1-C3DE0F9A6859}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
