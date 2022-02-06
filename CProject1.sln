@@ -67,6 +67,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TicTacToeServer", "TicTacTo
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TicTacToeClient", "TicTacToeClient\TicTacToeClient.vcxproj", "{F456F3EC-08CB-4620-B8A1-C3DE0F9A6859}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinDeskUI1", "WinDeskUI1\WinDeskUI1.vcxproj", "{330AFF5F-71E5-48BD-8C50-31F12EF2B667}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -331,6 +333,14 @@ Global
 		{F456F3EC-08CB-4620-B8A1-C3DE0F9A6859}.Release|x64.Build.0 = Release|x64
 		{F456F3EC-08CB-4620-B8A1-C3DE0F9A6859}.Release|x86.ActiveCfg = Release|Win32
 		{F456F3EC-08CB-4620-B8A1-C3DE0F9A6859}.Release|x86.Build.0 = Release|Win32
+		{330AFF5F-71E5-48BD-8C50-31F12EF2B667}.Debug|x64.ActiveCfg = Debug|x64
+		{330AFF5F-71E5-48BD-8C50-31F12EF2B667}.Debug|x64.Build.0 = Debug|x64
+		{330AFF5F-71E5-48BD-8C50-31F12EF2B667}.Debug|x86.ActiveCfg = Debug|Win32
+		{330AFF5F-71E5-48BD-8C50-31F12EF2B667}.Debug|x86.Build.0 = Debug|Win32
+		{330AFF5F-71E5-48BD-8C50-31F12EF2B667}.Release|x64.ActiveCfg = Release|x64
+		{330AFF5F-71E5-48BD-8C50-31F12EF2B667}.Release|x64.Build.0 = Release|x64
+		{330AFF5F-71E5-48BD-8C50-31F12EF2B667}.Release|x86.ActiveCfg = Release|Win32
+		{330AFF5F-71E5-48BD-8C50-31F12EF2B667}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
