@@ -57,5 +57,20 @@
     <ClCompile Include="_06_CProject1.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="_07_CProject1.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="_07_CProject2.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="_07_CProject3.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="_07_CProject4.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="_07_CProject5.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

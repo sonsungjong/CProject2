@@ -148,6 +148,11 @@
     <ClCompile Include="_05_CProject2.c" />
     <ClCompile Include="_05_CProject3.c" />
     <ClCompile Include="_06_CProject1.c" />
+    <ClCompile Include="_07_CProject1.c" />
+    <ClCompile Include="_07_CProject2.c" />
+    <ClCompile Include="_07_CProject3.c" />
+    <ClCompile Include="_07_CProject4.c" />
+    <ClCompile Include="_07_CProject5.c" />
     <ClCompile Include="_08_CProject1.c" />
     <ClCompile Include="_08_CProject2.c" />
     <ClCompile Include="_90_win01.c" />
