@@ -1,22 +1,29 @@
 #include <stdio.h>
 #include <malloc.h>
 
+// 나이 1바이트
+// 시급 2바이트
+// 월급 4바이트
+typedef unsigned char UINT8;
+typedef unsigned short UINT16;
+typedef unsigned int UINT32;
+
 typedef struct MyData
 {
+	// 작은 자료형부터 선언해야 데이터 낭비가 적어짐!
 	unsigned char age;
 	unsigned short wage;
 	unsigned int salary;
 } MD;
 
+// 자료형 혹은 변수의 갯수가 변화할 수 있는 경우 구조체로 대처
+
 int main81() {
-	unsigned char* p;
-
-	p = (unsigned char*)malloc(7);		// 7byte 메모리를 할당
-
+	UINT8* p;
+	p = (UINT8*)malloc(7);		// 7byte 메모리를 할당
 	*p = 23;		// 나이 1byte
-	*(unsigned short*)(p + 1) = 10000;		// 시급 2byte
-	*(unsigned int*)(p + 3) = 3000000;		// 월급 4byte
-
+	*(UINT16*)(p + 1) = 10000;		// 시급 2byte
+	*(UINT32*)(p + 3) = 3000000;		// 월급 4byte
 	free(p);
 
 	MD data;

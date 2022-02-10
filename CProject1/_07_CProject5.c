@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <malloc.h>
 
-int main() {
+int main75() {
 	short **pp;						// 4byte stack(1MB)
 	int group_count = 5, sub_count = 3;
 
