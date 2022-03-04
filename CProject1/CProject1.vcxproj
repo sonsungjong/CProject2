@@ -157,6 +157,8 @@
     <ClCompile Include="_08_CProject1.c" />
     <ClCompile Include="_08_CProject2.c" />
     <ClCompile Include="_08_LinkedList1.c" />
+    <ClCompile Include="_09_FuncPointer1.c" />
+    <ClCompile Include="_09_FuncPointer2.c" />
     <ClCompile Include="_90_win01.c" />
     <ClCompile Include="_90_win02.c" />
     <ClCompile Include="_91_win01.c" />

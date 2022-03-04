@@ -78,5 +78,11 @@
     <ClCompile Include="_08_LinkedList1.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="_09_FuncPointer1.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="_09_FuncPointer2.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

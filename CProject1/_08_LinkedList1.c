@@ -7,7 +7,7 @@ typedef struct Node
 	struct Node* p_next;
 } N;
 
-int main() {
+int main83() {
 	
 	N *p_head = NULL, *p_tail = NULL;
 	int num = 0;
