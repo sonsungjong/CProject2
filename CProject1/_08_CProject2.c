@@ -7,7 +7,7 @@ typedef struct MyData
 	unsigned int salary;						// ПљБо
 } MD;
 
-int main() {
+int main2() {
 	MD data = {23, 10000, 3000000};
 
 	data.age = 23;
