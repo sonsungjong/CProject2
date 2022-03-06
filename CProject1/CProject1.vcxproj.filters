@@ -84,5 +84,8 @@
     <ClCompile Include="_09_FuncPointer2.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="_09_FuncPointer3.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

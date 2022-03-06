@@ -6,7 +6,7 @@ void PrintValue1(int a_value, char (*ap_data)[3]) {
 	printf("Value = %d\n", a_value);
 }
 
-int main() {
+int main92() {
 	void (*p_func)(int, char (*)[3]) = &PrintValue1;						// &생략가능
 	PFN_PV p_func1 = PrintValue1;
 	
