@@ -17,7 +17,7 @@ int Div(int a, int b) {
 	return b ? a / b : 0;
 }
 
-int main() {
+int main93() {
 	int (*pf_op_table[4])(int, int) = {Add, Sub, Mul, Div};
 
 	char select = 'y';
