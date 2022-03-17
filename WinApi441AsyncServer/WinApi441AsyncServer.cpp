@@ -198,7 +198,7 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
                 {
                     SOCKET client = (SOCKET)wParam;
                     int nR = recv(client, (char*)&packet, sizeof(PACKET), 0);
-
+                    
                     switch (packet.ptype)
                     {
                         case LOGIN:
