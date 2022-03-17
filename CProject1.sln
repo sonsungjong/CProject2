@@ -81,6 +81,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Win32SockClient", "Win32Soc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinDeskUI2", "WinDeskUI2\WinDeskUI2.vcxproj", "{529C640C-48D9-4BEA-9597-0830E56942DF}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinStep35ListView1", "WinStep35ListView1\WinStep35ListView1.vcxproj", "{E2193FFD-CB8A-46CF-B165-94E012361872}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -401,6 +403,14 @@ Global
 		{529C640C-48D9-4BEA-9597-0830E56942DF}.Release|x64.Build.0 = Release|x64
 		{529C640C-48D9-4BEA-9597-0830E56942DF}.Release|x86.ActiveCfg = Release|Win32
 		{529C640C-48D9-4BEA-9597-0830E56942DF}.Release|x86.Build.0 = Release|Win32
+		{E2193FFD-CB8A-46CF-B165-94E012361872}.Debug|x64.ActiveCfg = Debug|x64
+		{E2193FFD-CB8A-46CF-B165-94E012361872}.Debug|x64.Build.0 = Debug|x64
+		{E2193FFD-CB8A-46CF-B165-94E012361872}.Debug|x86.ActiveCfg = Debug|Win32
+		{E2193FFD-CB8A-46CF-B165-94E012361872}.Debug|x86.Build.0 = Debug|Win32
+		{E2193FFD-CB8A-46CF-B165-94E012361872}.Release|x64.ActiveCfg = Release|x64
+		{E2193FFD-CB8A-46CF-B165-94E012361872}.Release|x64.Build.0 = Release|x64
+		{E2193FFD-CB8A-46CF-B165-94E012361872}.Release|x86.ActiveCfg = Release|Win32
+		{E2193FFD-CB8A-46CF-B165-94E012361872}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
