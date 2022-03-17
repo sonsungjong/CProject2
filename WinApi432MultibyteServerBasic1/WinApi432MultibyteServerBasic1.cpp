@@ -2,8 +2,8 @@
 //
 
 #include "pch.h"
-#include <iostream>
 #define _WINSOCK_DEPRECATED_NO_WARNINGS             // inet_addr
+#include <iostream>
 #include <WinSock2.h>
 #include <WS2tcpip.h>                       // inet_pton
 #pragma comment(lib, "Ws2_32.lib")
