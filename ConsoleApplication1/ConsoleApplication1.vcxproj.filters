@@ -21,7 +21,10 @@
     <ClCompile Include="ConsoleApplication2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ConsoleApplication3.cpp">
+    <ClCompile Include="CaptureScreen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="URLFileDownload.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

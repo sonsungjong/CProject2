@@ -141,7 +141,8 @@
   <ItemGroup>
     <ClCompile Include="ConsoleApplication1.cpp" />
     <ClCompile Include="ConsoleApplication2.cpp" />
-    <ClCompile Include="ConsoleApplication3.cpp" />
+    <ClCompile Include="CaptureScreen.cpp" />
+    <ClCompile Include="URLFileDownload.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
