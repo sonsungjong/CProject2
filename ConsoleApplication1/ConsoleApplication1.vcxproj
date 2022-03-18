@@ -139,10 +139,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ConsoleApplication1.cpp" />
+    <ClCompile Include="FileMappingA.cpp" />
     <ClCompile Include="ConsoleApplication2.cpp" />
     <ClCompile Include="CaptureScreen.cpp" />
+    <ClCompile Include="FileMappingB.cpp" />
+    <ClCompile Include="StopScreen.cpp" />
     <ClCompile Include="URLFileDownload.cpp" />
+    <ClCompile Include="WebcamCpp.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -36,7 +36,7 @@ int GetEncoderClsid(const TCHAR* format, CLSID* pClsid)
 	return -1;
 }
 // 화면 캡처하기
-int mainC() {
+int mainCapture() {
 	HDC hdcScreen = GetDC(NULL);
 	HDC hdcMemDC = CreateCompatibleDC(hdcScreen);
 	HBITMAP hbmScreen = NULL;
