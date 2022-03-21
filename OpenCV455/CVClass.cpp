@@ -3,6 +3,7 @@
 
 using namespace cv;
 
+
 CVClass::CVClass()
 {
     SetTitle("Image");
@@ -26,26 +27,43 @@ void CVClass::ReadImg(std::string a_path)
 }
 
 // 비디오 종료시 예외처리 작업 필요
-void CVClass::ReadVideo(std::string a_path)
+int CVClass::ReadVideo(std::string a_path)
 {
     VideoCapture cap(a_path);
 
+    if (!cap.isOpened()) {
+        return -1;
+    }
+
     while (1) {
         cap.read(m_mat);
+        if (m_mat.empty()) {
+            return 0;
+        }
         imshow(title, m_mat);
-        waitKey(20);
+        if (waitKey(25) == 27) {
+            break;
+        }
     }
+    return 0;
 }
 
-void CVClass::WebCam(int a_cam_id)
+int CVClass::WebCam(int a_cam_id)
 {
     VideoCapture cap(a_cam_id);
 
+    if (!cap.isOpened()) {
+        return -1;
+    }
+
     while (1) {
         cap.read(m_mat);
         imshow(title, m_mat);
-        waitKey(1);
+        if (waitKey(1) == 27) {
+            break;
+        }
     }
+    return 0;
 }
 
 
@@ -139,5 +157,27 @@ void CVClass::CropImg(std::string a_path, int a_x, int a_y, int a_width, int a_h
     cv::Rect crop_range(a_x, a_y, a_width, a_height);
     img_crop = m_mat(crop_range);
     imshow(title, img_crop);
+    waitKey(0);
+}
+
+void CVClass::WhiteBackground()
+{
+    Mat blank(512, 512, CV_8UC3, Scalar(255, 255, 255));
+
+    imshow(title, blank);
+    waitKey(0);
+}
+
+void CVClass::DrawShapes()
+{
+    Mat background(512, 512, CV_8UC3, Scalar(255, 255, 255));
+
+    circle(background, Point(256, 256), 155, Scalar(0, 69, 255), FILLED);
+    rectangle(background, Point(130, 226), Point(382, 286), Scalar(255, 255, 255), 3);
+    line(background, Point(130, 296), Point(382, 296), Scalar(255, 255, 255), 2);
+
+    putText(background, "sonsungjong", Point(137, 262), FONT_HERSHEY_PLAIN, 2.25, Scalar(255, 0, 0), 2);
+
+    imshow(title, background);
     waitKey(0);
 }

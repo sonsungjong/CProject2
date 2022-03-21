@@ -22,8 +22,8 @@ int main()
 
     // cvc.CropImg("res/test.png", 100, 100, 250, 400);
 
-    // Drawing Shapes and Text
-
+    //cvc.WhiteBackground();
+    //cvc.DrawShapes();
 
     return 0;
 }

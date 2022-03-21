@@ -14,12 +14,19 @@ protected:
 public:
     CVClass();
     ~CVClass();
+    enum class VertexEnumClass
+    {
+        circle = 0,
+        triangle = 3,
+        rectangle = 4,
+    };
+
     void SetTitle(std::string a_title);
 
     // 기본 함수
     void ReadImg(std::string a_path);
-    void ReadVideo(std::string a_path);
-    void WebCam(int a_cam_id);
+    int ReadVideo(std::string a_path);
+    int WebCam(int a_cam_id);
 
     // 이미지 함수
     void GrayImg(std::string a_path);
@@ -34,6 +41,9 @@ public:
     void QuarterImg(std::string a_path);
     // 자르기
     void CropImg(std::string a_path, int a_x, int a_y, int a_width, int a_height);
+    void WhiteBackground();
+    void DrawShapes();
+
 };
 
 #endif
