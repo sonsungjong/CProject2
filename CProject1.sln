@@ -83,6 +83,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinDeskUI2", "WinDeskUI2\Wi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinStep35ListView1", "WinStep35ListView1\WinStep35ListView1.vcxproj", "{E2193FFD-CB8A-46CF-B165-94E012361872}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenCV455", "OpenCV455\OpenCV455.vcxproj", "{BFAB8F3B-5BBB-4D83-8E56-781795296D96}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -411,6 +413,14 @@ Global
 		{E2193FFD-CB8A-46CF-B165-94E012361872}.Release|x64.Build.0 = Release|x64
 		{E2193FFD-CB8A-46CF-B165-94E012361872}.Release|x86.ActiveCfg = Release|Win32
 		{E2193FFD-CB8A-46CF-B165-94E012361872}.Release|x86.Build.0 = Release|Win32
+		{BFAB8F3B-5BBB-4D83-8E56-781795296D96}.Debug|x64.ActiveCfg = Debug|x64
+		{BFAB8F3B-5BBB-4D83-8E56-781795296D96}.Debug|x64.Build.0 = Debug|x64
+		{BFAB8F3B-5BBB-4D83-8E56-781795296D96}.Debug|x86.ActiveCfg = Debug|Win32
+		{BFAB8F3B-5BBB-4D83-8E56-781795296D96}.Debug|x86.Build.0 = Debug|Win32
+		{BFAB8F3B-5BBB-4D83-8E56-781795296D96}.Release|x64.ActiveCfg = Release|x64
+		{BFAB8F3B-5BBB-4D83-8E56-781795296D96}.Release|x64.Build.0 = Release|x64
+		{BFAB8F3B-5BBB-4D83-8E56-781795296D96}.Release|x86.ActiveCfg = Release|Win32
+		{BFAB8F3B-5BBB-4D83-8E56-781795296D96}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
