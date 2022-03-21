@@ -5,7 +5,7 @@ int main()
 {
     CVClass cvc;
 
-    cvc.ReadImg("res/test.png");
+    // cvc.ReadImg("res/test.png");
     // cvc.ReadVideo("res/test_video.mp4");
     // cvc.WebCam(0);
 
@@ -23,6 +23,7 @@ int main()
     // cvc.CropImg("res/test.png", 100, 100, 250, 400);
 
     // Drawing Shapes and Text
+
 
     return 0;
 }

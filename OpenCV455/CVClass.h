@@ -37,3 +37,6 @@ public:
 };
 
 #endif
+
+// 프로젝트 dll 환경변수 설정
+// PATH=D:\opencv\build\x64\vc15\bin;%PATH%;$(LocalDebuggerEnvironment)
