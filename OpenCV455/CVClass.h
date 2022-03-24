@@ -14,12 +14,6 @@ protected:
 public:
     CVClass();
     ~CVClass();
-    enum class VertexEnumClass
-    {
-        circle = 0,
-        triangle = 3,
-        rectangle = 4,
-    };
 
     void SetTitle(std::string a_title);
 
@@ -39,11 +33,13 @@ public:
     void ReadImg(std::string a_path, int a_width, int a_height);
     void HalfImg(std::string a_path);
     void QuarterImg(std::string a_path);
-    // 자르기
-    void CropImg(std::string a_path, int a_x, int a_y, int a_width, int a_height);
+    // 그리기
     void WhiteBackground();
     void DrawShapes();
 
+    // 자르기
+    void CropImg(std::string a_path, int a_x, int a_y, int a_width, int a_height);
+    void WarpImg(std::string a_path, float* a_four_point, float a_width, float a_height);
 };
 
 #endif

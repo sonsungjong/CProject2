@@ -3,7 +3,6 @@
 
 using namespace cv;
 
-
 CVClass::CVClass()
 {
     SetTitle("Image");
@@ -180,4 +179,16 @@ void CVClass::DrawShapes()
 
     imshow(title, background);
     waitKey(0);
+}
+
+void CVClass::WarpImg(std::string a_path, float* a_four_point, float a_width, float a_height)
+{
+    cv::Mat matrix, imgWarp;
+    m_mat = cv::imread(a_path);
+    cv::Point2f destination[4] = { {0.0f, 0.0f}, {a_width, 0.0f}, {0.0f, a_height}, {a_width, a_height} };
+    matrix = cv::getPerspectiveTransform((cv::Point2f*)(a_four_point), destination);
+    cv::warpPerspective(m_mat, imgWarp, matrix, cv::Point(a_width, a_height));
+
+    imshow("Image Warp", imgWarp);
+    cv::waitKey(0);
 }
