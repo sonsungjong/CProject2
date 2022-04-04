@@ -5,7 +5,7 @@ using namespace cv;
 
 CVClass::CVClass()
 {
-    SetTitle("Image");
+    SetTitle("by SungjongSon");
 }
 
 CVClass::~CVClass()
@@ -25,7 +25,6 @@ void CVClass::ReadImg(std::string a_path)
     waitKey(0);
 }
 
-// 비디오 종료시 예외처리 작업 필요
 int CVClass::ReadVideo(std::string a_path)
 {
     VideoCapture cap(a_path);
@@ -37,7 +36,9 @@ int CVClass::ReadVideo(std::string a_path)
     while (1) {
         cap.read(m_mat);
         if (m_mat.empty()) {
-            return 0;
+            //return 1;                     // 한번만하고 종료하고 싶을 때
+            cap.open(a_path);
+            continue;
         }
         imshow(title, m_mat);
         if (waitKey(25) == 27) {
@@ -47,7 +48,7 @@ int CVClass::ReadVideo(std::string a_path)
     return 0;
 }
 
-int CVClass::WebCam(int a_cam_id)
+int CVClass::WebCam(int a_cam_id, int a_width, int a_height)
 {
     VideoCapture cap(a_cam_id);
 
@@ -57,6 +58,11 @@ int CVClass::WebCam(int a_cam_id)
 
     while (1) {
         cap.read(m_mat);
+        //printf("%d, %d\n", cvRound(cap.get(CAP_PROP_FRAME_WIDTH)), cvRound(cap.get(CAP_PROP_FRAME_HEIGHT)));
+        
+        flip(m_mat, m_mat, 1);                                                         // 1: 좌우반전
+        resize(m_mat, m_mat, cv::Size(a_width, a_height));              // 크기변경
+
         imshow(title, m_mat);
         if (waitKey(1) == 27) {
             break;

@@ -20,7 +20,7 @@ public:
     // 기본 함수
     void ReadImg(std::string a_path);
     int ReadVideo(std::string a_path);
-    int WebCam(int a_cam_id);
+    int WebCam(int a_cam_id, int a_width = 640, int a_height = 480);
 
     // 이미지 함수
     void GrayImg(std::string a_path);

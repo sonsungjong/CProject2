@@ -1,16 +1,17 @@
 #include "pch.h"
 #include "CVClass.h"
 
-//float w = 250, h = 350;
-//cv::Mat matrix, imgWarp;
-
 int main()
 {
+    HWND hConsole = GetConsoleWindow();
+    ShowWindow(hConsole, SW_HIDE);
+
     CVClass cvc;
 
     // cvc.ReadImg("res/test.png");
     // cvc.ReadVideo("res/test_video.mp4");
-    // cvc.WebCam(0);
+    // cvc.ReadVideo("D:/foreman.mp4");
+    cvc.WebCam(0, 1280, 960);
 
     // 이미지처리 함수
     // cvc.GrayImg("res/test.png");
@@ -28,6 +29,7 @@ int main()
     //cvc.WhiteBackground();
     //cvc.DrawShapes();
 
+    // 그림판으로 해당 픽셀의 위치를 찾아서 입력
     //float king[4][2] = { {529.0f, 142.0f}, {771.0f, 190.0f}, {405.0f, 395.0f}, {674.0f, 457.0f} };
     //cvc.WarpImg("res/cards.jpg", (float*)king, 250, 350);
 
@@ -35,6 +37,9 @@ int main()
     //cvc.WarpImg("res/cards.jpg", (float*)queen, 350, 350);
 
 
+
+    //ShowWindow(hConsole, SW_NORMAL);
+    PostMessage(hConsole, WM_CLOSE, 0, 0);
 
     return 0;
 }
