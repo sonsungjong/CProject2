@@ -85,6 +85,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinStep35ListView1", "WinSt
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenCV455", "OpenCV455\OpenCV455.vcxproj", "{BFAB8F3B-5BBB-4D83-8E56-781795296D96}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MSSqlADO", "MSSqlADO\MSSqlADO.vcxproj", "{1C7F5E8F-053C-4790-A7E5-8EFA416703A6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -421,6 +423,14 @@ Global
 		{BFAB8F3B-5BBB-4D83-8E56-781795296D96}.Release|x64.Build.0 = Release|x64
 		{BFAB8F3B-5BBB-4D83-8E56-781795296D96}.Release|x86.ActiveCfg = Release|Win32
 		{BFAB8F3B-5BBB-4D83-8E56-781795296D96}.Release|x86.Build.0 = Release|Win32
+		{1C7F5E8F-053C-4790-A7E5-8EFA416703A6}.Debug|x64.ActiveCfg = Debug|x64
+		{1C7F5E8F-053C-4790-A7E5-8EFA416703A6}.Debug|x64.Build.0 = Debug|x64
+		{1C7F5E8F-053C-4790-A7E5-8EFA416703A6}.Debug|x86.ActiveCfg = Debug|Win32
+		{1C7F5E8F-053C-4790-A7E5-8EFA416703A6}.Debug|x86.Build.0 = Debug|Win32
+		{1C7F5E8F-053C-4790-A7E5-8EFA416703A6}.Release|x64.ActiveCfg = Release|x64
+		{1C7F5E8F-053C-4790-A7E5-8EFA416703A6}.Release|x64.Build.0 = Release|x64
+		{1C7F5E8F-053C-4790-A7E5-8EFA416703A6}.Release|x86.ActiveCfg = Release|Win32
+		{1C7F5E8F-053C-4790-A7E5-8EFA416703A6}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

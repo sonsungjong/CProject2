@@ -52,7 +52,7 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
             WSAStartup(0x0202, &wsaData);
             ZeroMemory(&addr, sizeof(addr));
             addr.sin_family = AF_INET;
-            addr.sin_port = 10000;
+            addr.sin_port = 10005;
 
             // 서버가 다른 컴퓨터에 있으면 IP주소를 변경해야 함
             inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr.s_addr);

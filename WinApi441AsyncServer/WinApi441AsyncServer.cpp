@@ -166,7 +166,7 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
             SOCKADDR_IN addr;
             ZeroMemory(&addr, sizeof(addr));
             addr.sin_family = AF_INET;
-            addr.sin_port = 10000;
+            addr.sin_port = 10005;
             inet_pton(AF_INET, "loopback", &addr.sin_addr.s_addr);
             bind(server, (LPSOCKADDR)&addr, sizeof(addr));
             if (listen(server, SOMAXCONN) == SOCKET_ERROR) 
