@@ -44,6 +44,9 @@ int CVClass::ReadVideo(std::string a_path)
         if (waitKey(25) == 27) {
             break;
         }
+        else if (getWindowProperty(title, WND_PROP_VISIBLE) < 1) {
+            break;
+        }
     }
     return 0;
 }
@@ -65,6 +68,9 @@ int CVClass::WebCam(int a_cam_id, int a_width, int a_height)
 
         imshow(title, m_mat);
         if (waitKey(1) == 27) {
+            break;
+        }
+        else if (getWindowProperty(title, WND_PROP_VISIBLE) < 1) {
             break;
         }
     }
