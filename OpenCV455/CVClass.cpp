@@ -45,6 +45,7 @@ int CVClass::ReadVideo(std::string a_path)
             break;
         }
         else if (getWindowProperty(title, WND_PROP_VISIBLE) < 1) {
+            // X버튼 종료를 위해
             break;
         }
     }

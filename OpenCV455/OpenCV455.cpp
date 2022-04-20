@@ -3,6 +3,7 @@
 
 int main()
 {
+    // cmd창 제거를 위해
     HWND hConsole = GetConsoleWindow();
     ShowWindow(hConsole, SW_HIDE);
 
