@@ -5,7 +5,7 @@ int main()
 {
     // cmd창 제거를 위해
     HWND hConsole = GetConsoleWindow();
-    ShowWindow(hConsole, SW_HIDE);
+    ShowWindow(hConsole, SW_HIDE);                      // 우선은 하이드
 
     CVClass cvc;
 
@@ -39,8 +39,8 @@ int main()
 
 
 
-    //ShowWindow(hConsole, SW_NORMAL);
-    PostMessage(hConsole, WM_CLOSE, 0, 0);
+    //ShowWindow(hConsole, SW_NORMAL);              // 콘솔창 하이드 해제
+    PostMessage(hConsole, WM_CLOSE, 0, 0);              // 콘솔창 닫기
 
     return 0;
 }
