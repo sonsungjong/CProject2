@@ -143,6 +143,12 @@
     <ClCompile Include="_02_CBook03.c" />
     <ClCompile Include="_02_CBook01.c" />
     <ClCompile Include="_05_CBook01.c" />
+    <ClCompile Include="_07_CBook01.c" />
+    <ClCompile Include="_07_CBook02.c" />
+    <ClCompile Include="_07_CBook03.c" />
+    <ClCompile Include="_07_CBook04.c" />
+    <ClCompile Include="_07_CBook05.c" />
+    <ClCompile Include="_07_CBook06.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

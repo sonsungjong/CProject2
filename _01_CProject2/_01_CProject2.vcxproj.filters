@@ -27,5 +27,23 @@
     <ClCompile Include="_05_CBook01.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="_07_CBook01.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="_07_CBook02.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="_07_CBook03.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="_07_CBook04.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="_07_CBook05.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="_07_CBook06.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
