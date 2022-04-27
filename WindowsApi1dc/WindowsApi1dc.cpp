@@ -11,7 +11,7 @@ HINSTANCE hInst;                                // current instance
 WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
 
-LPCTSTR lpszClass = TEXT("TextOut");
+//LPCTSTR lpszClass = TEXT("TextOut");
 
 // Forward declarations of functions included in this code module:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -123,6 +123,11 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //  WM_DESTROY  - post a quit message and return
 //
 //
+void Line(HDC hdc, int x1, int y1, int x2, int y2) {
+    MoveToEx(hdc, x1, y1, NULL);
+    LineTo(hdc, x2, y2);
+}
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     HDC hdc;
@@ -150,22 +155,29 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
             // TODO: Add any drawing code that uses hdc here...
+            SetPixel(hdc, 10, 10, RGB(255, 0, 0));
+            Line(hdc, 50, 50, 300, 90);
+            Rectangle(hdc, 50, 100, 200, 180);
+            Ellipse(hdc, 220, 100, 400, 200);
             EndPaint(hWnd, &ps);
+        }
+        break;
+    case WM_LBUTTONDOWN:
+        hdc = GetDC(hWnd);
+        Line(hdc, 100, 100, 200, 200);
+        ReleaseDC(hWnd, hdc);
+        break;
+    case WM_MBUTTONDOWN:
+        if (MessageBox(hWnd, _T("마우스 가운데 버튼을 눌렀습니다."), _T("메시지 박스"), MB_OKCANCEL | MB_ICONERROR) == IDOK) {
+            SetWindowText(hWnd, _T("가운데"));
+        }
+        else {
+            SetWindowText(hWnd, _T("아님"));
         }
         break;
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
-    case WM_LBUTTONDOWN:
-        MessageBeep(0);             // 띠링소리
-        break;
-    case WM_MBUTTONDOWN:
-        hdc = GetDC(hWnd);
-        TextOut(hdc, 100, 100, TEXT("Beautiful Korea"), 15);
-        ReleaseDC(hWnd, hdc);
-        break;
-    case WM_RBUTTONDOWN:
-        InvalidateRect(hWnd, NULL, TRUE);
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
     }
