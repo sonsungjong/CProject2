@@ -10,7 +10,7 @@ int Sum(struct MyData* ap_data)
 	return ap_data->a + ap_data->b;
 }
 
-int main() {
+int main0() {
 	struct MyData data = { 5,3 };
 	int result;
 
