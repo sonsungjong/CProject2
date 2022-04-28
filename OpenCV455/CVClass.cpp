@@ -72,7 +72,7 @@ int CVClass::WebCam(int a_cam_id, int a_width, int a_height)
             break;
         }
         else if (getWindowProperty(title, WND_PROP_VISIBLE) < 1) {
-            break;
+            break;                          // 닫기버튼을 눌러서 종료하기위해 비디오가 중지될경우 break 작동
         }
     }
     return 0;

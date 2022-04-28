@@ -1,3 +1,13 @@
+/*
+dll 설정을 위해
+Project -> Properties -> Configuration Properties -> Debugging -> Environment 에다가
+
+PATH=C:\opencv\build\x64\vc15\bin
+;%PATH%;
+
+를 추가해줘야함
+*/
+
 #ifndef _CV_CLASS_H_
 #define _CV_CLASS_H_
 
@@ -46,3 +56,5 @@ public:
 
 // 프로젝트 dll 환경변수 설정
 // PATH=D:\opencv\build\x64\vc15\bin;%PATH%;$(LocalDebuggerEnvironment)
+
+// opencv455 버전을 사용하고 있고 C드라이브에 설치하여 사용
