@@ -140,6 +140,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GumbeaC.c" />
     <ClCompile Include="_01_CProject1.c" />
     <ClCompile Include="_03_CProject2.c" />
     <ClCompile Include="_04_CProject1.c" />

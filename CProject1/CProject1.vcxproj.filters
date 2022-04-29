@@ -93,5 +93,8 @@
     <ClCompile Include="_09_FuncPointer5.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="GumbeaC.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
