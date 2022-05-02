@@ -1,15 +1,37 @@
+// WindowsApi2keydown.cpp : Defines the entry point for the application.
+//
+
 #include "framework.h"
-#include "WindowsApi2input.h"
+#include "WindowsApi2keydown.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     HDC hdc;
     PAINTSTRUCT ps;
-    static TCHAR str[256];
-    int len;
+    static int x = 100;
+    static int y = 100;
+    static TCHAR* text = (TCHAR*)TEXT("A");
 
     switch (msg)
     {
+    case WM_KEYDOWN:
+        if (wParam == VK_LEFT) {
+            x -= 8;
+        }
+        else if (wParam == VK_RIGHT) {
+            x += 8;
+        }
+        else if (wParam == VK_UP) {
+            y -= 8;
+        }
+        else if (wParam == VK_DOWN) {
+            y += 8;
+        }
+        else if (wParam == VK_SPACE) {
+            text == (TCHAR*)_T("A") ? text = (TCHAR*)_T("#") : text = (TCHAR*)_T("A");
+        }
+        InvalidateRect(hWnd, NULL, TRUE);                   // FALSE로 하면 이전 화면이 지워지지 않음
+        return 0;
     case WM_COMMAND:
     {
         int wmId = LOWORD(wParam);
@@ -28,21 +50,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     {
         hdc = BeginPaint(hWnd, &ps);
         // TODO: Add any drawing code that uses hdc here...
-        TextOut(hdc, 100, 100, str, _tcslen(str));
+        TextOut(hdc, x, y, text, 1);
         EndPaint(hWnd, &ps);
     }
     return 0;
-    case WM_CHAR:
-        if ((TCHAR)wParam == ' ') {
-            str[0] = 0;
-        }
-        else {
-            len = _tcslen(str);
-            str[len] = (TCHAR)wParam;
-            str[len + 1] = 0;
-        }
-        InvalidateRect(hWnd, NULL, TRUE);               // TRUE로 하면 이전 배경을 모두 지움
-        return 0;
     case WM_DESTROY:
         PostQuitMessage(0);
         return 0;
@@ -51,14 +62,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 }
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
-                     _In_opt_ HINSTANCE hPrevInstance,
-                     _In_ LPWSTR    lpCmdLine,
-                     _In_ int       nCmdShow)
+    _In_opt_ HINSTANCE hPrevInstance,
+    _In_ LPWSTR    lpCmdLine,
+    _In_ int       nCmdShow)
 {
     HWND hWnd;
     MSG msg;
     WNDCLASS wc;
-    LPCTSTR className = _T("__ClassName_");
+    LPCTSTR className = _T("DOWN");
 
     wc.cbClsExtra = 0;
     wc.cbWndExtra = 0;
@@ -72,7 +83,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     wc.style = CS_HREDRAW | CS_VREDRAW;
     RegisterClass(&wc);
 
-    hWnd = CreateWindow(className, _T("MyTitle"), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, (HMENU)NULL, hInstance, NULL);
+    hWnd = CreateWindow(className, _T("키보드/마우스 입력"), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, (HMENU)NULL, hInstance, NULL);
     ShowWindow(hWnd, nCmdShow);
     UpdateWindow(hWnd);
 
@@ -83,5 +94,3 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     return (int)msg.wParam;
 }
-
-
