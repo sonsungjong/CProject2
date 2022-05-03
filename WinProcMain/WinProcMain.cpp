@@ -2,6 +2,8 @@
 #include "framework.h"
 #include "WinProcMain.h"
 
+HINSTANCE g_hInst;
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch (msg)
@@ -43,9 +45,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     _In_ LPWSTR    lpCmdLine,
     _In_ int       nCmdShow)
 {
+    UNREFERENCED_PARAMETER(hPrevInstance);
+    UNREFERENCED_PARAMETER(lpCmdLine);
+    g_hInst = hInstance;
     HWND hWnd;
     MSG msg;
-    WNDCLASS wc;
+    WNDCLASSEX wc;
     LPCTSTR className = _T("__ClassName_");
 
     wc.cbClsExtra = 0;
@@ -58,7 +63,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     wc.lpszClassName = className;
     wc.lpszMenuName = NULL;
     wc.style = CS_HREDRAW | CS_VREDRAW;
-    RegisterClass(&wc);
+    RegisterClassEx(&wc);
 
     hWnd = CreateWindow(className, _T("MyTitle"), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, (HMENU)NULL, hInstance, NULL);
     ShowWindow(hWnd, nCmdShow);

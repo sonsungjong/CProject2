@@ -10,6 +10,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     PAINTSTRUCT ps;
     static int x = 100;
     static int y = 100;
+    static int mouse_x;
+    static int mouse_y;
+    static int bNowDraw = FALSE;
     static TCHAR* text = (TCHAR*)TEXT("A");
 
     switch (msg)
@@ -30,7 +33,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         else if (wParam == VK_SPACE) {
             text == (TCHAR*)_T("A") ? text = (TCHAR*)_T("#") : text = (TCHAR*)_T("A");
         }
-        InvalidateRect(hWnd, NULL, TRUE);                   // FALSE로 하면 이전 화면이 지워지지 않음
+        InvalidateRect(hWnd, NULL, FALSE);                   // FALSE로 하면 이전 화면이 지워지지 않음
         return 0;
     case WM_COMMAND:
     {
@@ -54,6 +57,27 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         EndPaint(hWnd, &ps);
     }
     return 0;
+    case WM_LBUTTONDOWN:
+        mouse_x = LOWORD(lParam);
+        mouse_y = HIWORD(lParam);
+        bNowDraw = TRUE;
+        return 0;
+    case WM_MOUSEMOVE:
+        if (bNowDraw == TRUE) {
+            hdc = GetDC(hWnd);
+            MoveToEx(hdc, mouse_x, mouse_y, NULL);
+            mouse_x = LOWORD(lParam);
+            mouse_y = HIWORD(lParam);
+            LineTo(hdc, mouse_x, mouse_y);
+            ReleaseDC(hWnd, hdc);
+        }
+        return 0;
+    case WM_LBUTTONUP:
+        bNowDraw = FALSE;
+        return 0;
+    case WM_LBUTTONDBLCLK:
+        InvalidateRect(hWnd, NULL, TRUE);
+        return 0;
     case WM_DESTROY:
         PostQuitMessage(0);
         return 0;
@@ -80,7 +104,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     wc.lpfnWndProc = WndProc;
     wc.lpszClassName = className;
     wc.lpszMenuName = NULL;
-    wc.style = CS_HREDRAW | CS_VREDRAW;
+    wc.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
     RegisterClass(&wc);
 
     hWnd = CreateWindow(className, _T("키보드/마우스 입력"), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, (HMENU)NULL, hInstance, NULL);
