@@ -1,13 +1,24 @@
-#include "pch.h"
+// WindowsApi2background.cpp : Defines the entry point for the application.
+//
+
 #include "framework.h"
-#include "WinProcMain.h"
+#include "WindowsApi2background.h"
 
 HINSTANCE g_hInst;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+    HDC hdc;
+    int i;
     switch (msg)
     {
+    case WM_TIMER:
+        hdc = GetDC(hWnd);
+        for (i = 0; i < 1000; i++) {
+            SetPixel(hdc, rand() % 500, rand() % 400, RGB(rand() % 256, rand() % 256, rand() % 256));
+        }
+        ReleaseDC(hWnd, hdc);
+        return 0;
     case WM_COMMAND:
     {
         int wmId = LOWORD(wParam);
@@ -31,13 +42,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         EndPaint(hWnd, &ps);
     }
     return 0;
+    case WM_LBUTTONDOWN:
+        hdc = GetDC(hWnd);
+        Ellipse(hdc, LOWORD(lParam) - 10, HIWORD(lParam) - 10, LOWORD(lParam) + 10, HIWORD(lParam) + 10);
+        ReleaseDC(hWnd, hdc);
+        return 0;
     case WM_DESTROY:
+        //KillTimer(hWnd, 1);
         PostQuitMessage(0);
         return 0;
-    default:
-        return DefWindowProc(hWnd, msg, wParam, lParam);
     }
-    return 0;
+    return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
@@ -65,9 +80,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     wc.style = CS_HREDRAW | CS_VREDRAW;
     RegisterClass(&wc);
 
-    hWnd = CreateWindow(className, _T("WinMain Format"), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, (HMENU)NULL, hInstance, NULL);
+    hWnd = CreateWindow(className, className, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, (HMENU)NULL, hInstance, NULL);
     ShowWindow(hWnd, nCmdShow);
     UpdateWindow(hWnd);
+
+    SetTimer(hWnd, 1, 50, NULL);
 
     while (GetMessage(&msg, NULL, 0, 0)) {
         TranslateMessage(&msg);
@@ -76,5 +93,3 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     return (int)msg.wParam;
 }
-
-

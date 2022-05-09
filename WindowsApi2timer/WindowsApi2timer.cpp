@@ -10,13 +10,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     PAINTSTRUCT ps;
     SYSTEMTIME st;
     static TCHAR sTime[128];
+    static RECT rect = { 100,100,400,120 };
 
     switch (message)
     {
     case WM_TIMER:
-        GetLocalTime(&st);
-        _stprintf_s(sTime, 128, _T("지금 시간은 %02d:%02d:%02d입니다"), st.wHour, st.wMinute, st.wSecond);
-        InvalidateRect(hWnd, NULL, TRUE);
+        switch (wParam) {
+        case 1:
+            GetLocalTime(&st);
+            _stprintf_s(sTime, 128, _T("지금 시간은 %02d:%02d:%02d입니다"), st.wHour, st.wMinute, st.wSecond);
+            //InvalidateRect(hWnd, NULL, TRUE);
+            InvalidateRect(hWnd, &rect, TRUE);
+            break;
+        case 2:
+            MessageBeep(0);
+            break;
+        }
         return 0;
     case WM_COMMAND:
     {
@@ -44,6 +53,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     case WM_DESTROY:
         KillTimer(hWnd, 1);
+        KillTimer(hWnd, 2);
         PostQuitMessage(0);
         break;
     }
@@ -93,6 +103,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     MSG msg;
     SetTimer(hWnd, 1, 1000, NULL);
+    SetTimer(hWnd, 2, 5000, NULL);
+    SendMessage(hWnd, WM_TIMER, 1, 0);
 
     // Main message loop:
     while (GetMessage(&msg, nullptr, 0, 0))
