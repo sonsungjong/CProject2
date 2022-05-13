@@ -6,19 +6,27 @@
 
 HINSTANCE g_hInst;
 
-LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+// 백그라운드 작업을 수행할 콜백함수 (타이머)
+void CALLBACK TimerProc1(HWND hWnd, UINT msg, UINT idEvent, DWORD dwTime)
 {
     HDC hdc;
     int i;
+    hdc = GetDC(hWnd);
+    for (i = 0; i < 1000; i++) {
+        SetPixel(hdc, rand() % 500, rand() % 400, RGB(rand() % 256, rand() % 256, rand() % 256));
+    }
+    ReleaseDC(hWnd, hdc);
+}
+
+LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    HDC hdc;
+    PAINTSTRUCT ps;
+    static TCHAR str[128], sansu[64];
+    static int num1, num2;
+    
     switch (msg)
     {
-    case WM_TIMER:
-        hdc = GetDC(hWnd);
-        for (i = 0; i < 1000; i++) {
-            SetPixel(hdc, rand() % 500, rand() % 400, RGB(rand() % 256, rand() % 256, rand() % 256));
-        }
-        ReleaseDC(hWnd, hdc);
-        return 0;
     case WM_COMMAND:
     {
         int wmId = LOWORD(wParam);
@@ -35,20 +43,58 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     return 0;
     case WM_PAINT:
     {
-        PAINTSTRUCT ps;
-        HDC hdc = BeginPaint(hWnd, &ps);
+        hdc = BeginPaint(hWnd, &ps);
         // TODO: Add any drawing code that uses hdc here...
-
+        TextOut(hdc, 10, 10, str, _tcslen(str));
         EndPaint(hWnd, &ps);
     }
     return 0;
+    case WM_MBUTTONDOWN:
+        SetTimer(hWnd, 3, 3000, NULL);
+        return 0;
+    case WM_RBUTTONDOWN:
+        _tcscpy_s(str, 11, _T("왼쪽 버튼을 눌렀음"));
+        InvalidateRect(hWnd, NULL, TRUE);
+        SetTimer(hWnd, 13, 3000, NULL);
+        return 0;
+    case WM_TIMER:
+        if (wParam == 13) {
+            KillTimer(hWnd, 13);
+            _tcscpy_s(str, 1, _T(""));
+            InvalidateRect(hWnd, NULL, TRUE);
+        }
+        else if (wParam == 3) {
+            SetTimer(hWnd, 6, 3000, NULL);
+            hdc = GetDC(hWnd);
+            num1 = rand() % 30;
+            num2 = rand() % 30;
+            int num3 = num1 + num2;
+            _stprintf_s(sansu, 64 , _T("%d + %d = %d"), num1, num2, num3);
+            TextOut(hdc, 50, 50, sansu, _tcslen(sansu));
+            ReleaseDC(hWnd, hdc);
+        }
+        else if (wParam == 6) {
+            KillTimer(hWnd, 6);
+            hdc = GetDC(hWnd);
+            TCHAR sum[128];
+            int num3 = 0, num4 = 0, num5 = 0;
+            num3 = rand() % 10;
+            num4 = rand() % 10;
+            num5 = num3 + num4;
+            _stprintf_s(sum, 128, _T("추가 : %d + %d = %d"), num3, num4, num5);
+            TextOut(hdc, 50, 100, sum, _tcslen(sansu));
+            ReleaseDC(hWnd, hdc);
+        }
+        return 0;
     case WM_LBUTTONDOWN:
+        // 클릭시 원 생성
         hdc = GetDC(hWnd);
         Ellipse(hdc, LOWORD(lParam) - 10, HIWORD(lParam) - 10, LOWORD(lParam) + 10, HIWORD(lParam) + 10);
         ReleaseDC(hWnd, hdc);
         return 0;
     case WM_DESTROY:
-        //KillTimer(hWnd, 1);
+        KillTimer(hWnd, 1);             // 콜백함수 1번
+        KillTimer(hWnd, 3);             // 타이머 3번
         PostQuitMessage(0);
         return 0;
     }
@@ -84,7 +130,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     ShowWindow(hWnd, nCmdShow);
     UpdateWindow(hWnd);
 
-    SetTimer(hWnd, 1, 50, NULL);
+    SetTimer(hWnd, 1, 100, (TIMERPROC)TimerProc1);
 
     while (GetMessage(&msg, NULL, 0, 0)) {
         TranslateMessage(&msg);
