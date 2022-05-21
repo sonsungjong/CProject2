@@ -48,5 +48,14 @@
     <ClCompile Include="_08_CBook01.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="_18_CBook01.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="_18_CBook02.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="_13_CBook01.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
