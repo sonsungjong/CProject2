@@ -8,5 +8,16 @@
 #define PCH_H
 
 // add headers that you want to pre-compile here
+#define _CRT_SECURE_NO_WARNINGS
+
+#include <Windows.h>
+#include <cstdio>
+#include <iostream>
+#include <tchar.h>
+#include <string>
+#include <typeinfo>
+//#include <WinSock2.h>
+//#include <WS2tcpip.h>
+//#pragma comment(lib, "Ws2_32.lib")
 
 #endif //PCH_H
