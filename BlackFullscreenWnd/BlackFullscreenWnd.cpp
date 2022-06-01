@@ -1,8 +1,5 @@
-#include "pch.h"
 #include "framework.h"
-#include "WinProcMain.h"
-
-HINSTANCE g_hInst;
+#include "BlackFullscreenWnd.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -12,27 +9,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     if (msg == WM_PAINT) {
         hdc = BeginPaint(hWnd, &ps);
         // TODO:
-
+        
         EndPaint(hWnd, &ps);
-        return 0;
-    }
-    else if (msg == WM_COMMAND) {
-        int wmId = LOWORD(wParam);
-        switch (wmId)
-        {
-        case IDM_EXIT:
-            DestroyWindow(hWnd);
-            break;
-        default:
-            return DefWindowProc(hWnd, msg, wParam, lParam);
-        }
         return 0;
     }
     else if (msg == WM_DESTROY) {
         PostQuitMessage(0);
         return 0;
     }
-    
+    else if (msg == WM_CLOSE) {
+        DestroyWindow(hWnd);
+        return 0;
+    }
+
     return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
@@ -42,10 +31,9 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
     _In_ int       nCmdShow)
 {
     WNDCLASS wc;
-    
-    g_hInst = hInstance;
-    LPCTSTR className = _T("winmain_format");
-    HBRUSH hBrush = CreateSolidBrush(RGB(255, 255, 255));
+
+    LPCTSTR className = _T("blackfullscreenwnd");
+    HBRUSH hBrush = CreateSolidBrush(RGB(0, 0, 0));
 
     wc.cbClsExtra = 0;
     wc.cbWndExtra = 0;
@@ -59,7 +47,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
     wc.style = CS_HREDRAW | CS_VREDRAW;
     RegisterClass(&wc);
 
-    HWND hWnd = CreateWindow(className, _T("My Title"), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, (HMENU)NULL, hInstance, NULL);
+    HWND hWnd = CreateWindowEx(WS_EX_APPWINDOW, className, _T("My Title"), WS_POPUP, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CXSCREEN), nullptr, (HMENU)nullptr, hInstance, nullptr);
     ShowWindow(hWnd, nCmdShow);
     UpdateWindow(hWnd);
 
@@ -72,5 +60,3 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
     DeleteObject(hBrush);
     return (int)msg.wParam;
 }
-
-
