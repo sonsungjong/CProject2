@@ -109,6 +109,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinDeskUI3", "WinDeskUI3\Wi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BlackFullscreenWnd", "BlackFullscreenWnd\BlackFullscreenWnd.vcxproj", "{B8BBDEF0-FB1C-4EB9-9D6E-2990D1C8EC82}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WindowsApi2Assign", "WindowsApi2Assign\WindowsApi2Assign.vcxproj", "{86657AC6-8EFE-49A0-AFA1-6E7341CE611B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -541,6 +543,14 @@ Global
 		{B8BBDEF0-FB1C-4EB9-9D6E-2990D1C8EC82}.Release|x64.Build.0 = Release|x64
 		{B8BBDEF0-FB1C-4EB9-9D6E-2990D1C8EC82}.Release|x86.ActiveCfg = Release|Win32
 		{B8BBDEF0-FB1C-4EB9-9D6E-2990D1C8EC82}.Release|x86.Build.0 = Release|Win32
+		{86657AC6-8EFE-49A0-AFA1-6E7341CE611B}.Debug|x64.ActiveCfg = Debug|x64
+		{86657AC6-8EFE-49A0-AFA1-6E7341CE611B}.Debug|x64.Build.0 = Debug|x64
+		{86657AC6-8EFE-49A0-AFA1-6E7341CE611B}.Debug|x86.ActiveCfg = Debug|Win32
+		{86657AC6-8EFE-49A0-AFA1-6E7341CE611B}.Debug|x86.Build.0 = Debug|Win32
+		{86657AC6-8EFE-49A0-AFA1-6E7341CE611B}.Release|x64.ActiveCfg = Release|x64
+		{86657AC6-8EFE-49A0-AFA1-6E7341CE611B}.Release|x64.Build.0 = Release|x64
+		{86657AC6-8EFE-49A0-AFA1-6E7341CE611B}.Release|x86.ActiveCfg = Release|Win32
+		{86657AC6-8EFE-49A0-AFA1-6E7341CE611B}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
