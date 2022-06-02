@@ -1,8 +1,13 @@
+// Gdiplus1.cpp : Defines the entry point for the application.
+//
+
 #include "pch.h"
 #include "framework.h"
-#include "WinProcMain.h"
-
-HINSTANCE g_hInst;
+#include "Gdiplus1.h"
+#include <gdiplus.h>                            // GDI+ 헤더파일
+#pragma comment(lib, "gdiplus")         // GDI+ 라이브러리 파일
+using namespace Gdiplus;                    // GDI+ 네임스페이스
+// #define WIN32_LEAN_AND_MEAN를 제거하기
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -11,7 +16,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     if (msg == WM_PAINT) {
         hdc = BeginPaint(hWnd, &ps);
-        // TODO:
+        // GDI+
+        Graphics* pGraphic = new Graphics(hdc);
+
+        // A, R, G, B
+        Pen* pPen = new Pen(Color(255, 255, 0, 0), 3);              // 붉은색, 굵기 3
+
+        pGraphic->SetSmoothingMode(SmoothingModeAntiAlias);
+        pGraphic->DrawLine(pPen, 50, 50, 200, 107);
+
+        delete pGraphic;
+        delete pPen;
 
         EndPaint(hWnd, &ps);
         return 0;
@@ -32,7 +47,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         PostQuitMessage(0);
         return 0;
     }
-    
+
     return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
@@ -41,9 +56,15 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
     _In_ LPWSTR    lpCmdLine,
     _In_ int       nCmdShow)
 {
+    // Gdi+ 초기화작업
+    ULONG_PTR gpToken;
+    GdiplusStartupInput gpsi;
+    if (GdiplusStartup(&gpToken, &gpsi, NULL) != Ok) {
+        return 0;
+    }
+
     WNDCLASS wc;
-    
-    g_hInst = hInstance;
+
     LPCTSTR className = _T("winmain_format");
     HBRUSH hBrush = CreateSolidBrush(RGB(255, 255, 255));
 
@@ -59,8 +80,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
     wc.style = CS_HREDRAW | CS_VREDRAW;
     RegisterClass(&wc);
 
-    HWND hWnd = CreateWindow(className, _T("My Title"), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, (HMENU)NULL, hInstance, NULL);
-    // TODO : Initialize
+    HWND hWnd = CreateWindow(className, _T("My Title"), WS_OVERLAPPEDWINDOW, 50, 50, 500, 230, NULL, (HMENU)NULL, hInstance, NULL);
 
     ShowWindow(hWnd, nCmdShow);
     UpdateWindow(hWnd);
@@ -72,7 +92,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
     }
 
     DeleteObject(hBrush);
+    // Gdi+ 정리작업
+    GdiplusShutdown(gpToken);
     return (int)msg.wParam;
 }
-
-
