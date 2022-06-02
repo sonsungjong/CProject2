@@ -1,14 +1,35 @@
-// Gdiplus1.cpp : Defines the entry point for the application.
+// Gdiplus3.cpp : Defines the entry point for the application.
 //
 
 #include "pch.h"
 #include "framework.h"
-#include "Gdiplus1.h"
+#include "Gdiplus3.h"
 
-#include <gdiplus.h>                            // GDI+ 헤더파일
-#pragma comment(lib, "gdiplus")         // GDI+ 라이브러리 파일
-using namespace Gdiplus;                    // GDI+ 네임스페이스
+#include <gdiplus.h>
+#pragma comment(lib, "gdiplus")
+using namespace Gdiplus;
 // #define WIN32_LEAN_AND_MEAN를 제거하기
+
+void DrawFullImage(HWND hWnd, HDC hdc, Image imagePath)
+{
+    RECT rect;
+    //HDC mydc = GetDC(hWnd);
+    Graphics graphics(hdc);
+    GetClientRect(hWnd, &rect);
+
+    //graphics.DrawImage(&imagePath, 0, 0, imagePath.GetWidth(), imagePath.GetHeight());
+    graphics.DrawImage(&imagePath, 0, 0, rect.right, rect.bottom);
+}
+
+void DrawImage(HWND hWnd, Image imagePath, int x, int y, int width, int height)
+{
+    RECT rect;
+    HDC mydc = GetDC(hWnd);
+    Graphics graphics(mydc);
+    GetClientRect(hWnd, &rect);
+
+    graphics.DrawImage(&imagePath, x, y, width, height);
+}
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -18,16 +39,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     if (msg == WM_PAINT) {
         hdc = BeginPaint(hWnd, &ps);
         // GDI+
-        Graphics* pGraphic = new Graphics(hdc);
-
-        // A, R, G, B
-        Pen* pPen = new Pen(Color(255, 255, 0, 0), 3);              // 붉은색, 굵기 3
-
-        pGraphic->SetSmoothingMode(SmoothingModeAntiAlias);
-        pGraphic->DrawLine(pPen, 50, 50, 200, 107);
-
-        delete pGraphic;
-        delete pPen;
+        DrawFullImage(hWnd, hdc, _T("../img/lenna.png"));
+        DrawImage(hWnd, _T("../img/photo.jpg"), 10, 10, 500, 500);
 
         EndPaint(hWnd, &ps);
         return 0;
@@ -81,7 +94,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
     wc.style = CS_HREDRAW | CS_VREDRAW;
     RegisterClass(&wc);
 
-    HWND hWnd = CreateWindow(className, _T("My Title"), WS_OVERLAPPEDWINDOW, 50, 50, 500, 230, NULL, (HMENU)NULL, hInstance, NULL);
+    HWND hWnd = CreateWindow(className, _T("My Title"), WS_OVERLAPPEDWINDOW, 50, 50, 800, 600, NULL, (HMENU)NULL, hInstance, NULL);
 
     ShowWindow(hWnd, nCmdShow);
     UpdateWindow(hWnd);

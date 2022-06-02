@@ -4,6 +4,7 @@
 #include "pch.h"
 #include "framework.h"
 #include "Gdiplus2.h"
+
 #include <gdiplus.h>
 #pragma comment(lib, "gdiplus")
 using namespace Gdiplus;
