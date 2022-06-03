@@ -1,6 +1,14 @@
+// TTS1.cpp : Defines the entry point for the application.
+//
+
 #include "pch.h"
 #include "framework.h"
-#include "WinProcMain.h"
+#include "TTS1.h"
+
+#pragma warning(disable:4996)
+#include <sapi.h>
+#include <sphelper.h>
+
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -13,6 +21,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         EndPaint(hWnd, &ps);
         return 0;
+    }
+    else if (msg == WM_LBUTTONDOWN) {
+        CoInitialize(NULL);
+        CComPtr<ISpVoice> ptr_tts;
+        HRESULT hr = ptr_tts.CoCreateInstance(CLSID_SpVoice);
+        if (SUCCEEDED(hr)) {
+            ptr_tts->Speak(_T("안녕하세요? 저는 TTS 입니다."), SPF_DEFAULT, 0);
+            ptr_tts.Release();
+        }
+        CoUninitialize();
     }
     else if (msg == WM_COMMAND) {
         int wmId = LOWORD(wParam);
@@ -30,7 +48,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         PostQuitMessage(0);
         return 0;
     }
-    
+
     return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
@@ -40,7 +58,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
     _In_ int       nCmdShow)
 {
     WNDCLASS wc;
-    
+
     LPCTSTR className = _T("winmain_format");
     HBRUSH hBrush = CreateSolidBrush(RGB(255, 255, 255));
 
@@ -56,8 +74,9 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
     wc.style = CS_HREDRAW | CS_VREDRAW;
     RegisterClass(&wc);
 
-    HWND hWnd = CreateWindow(className, _T("My Title"), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, (HMENU)NULL, hInstance, NULL);
+    HWND hWnd = CreateWindow(className, _T("TTS 테스트"), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, (HMENU)NULL, hInstance, NULL);
     // TODO : Initialize
+    
 
     ShowWindow(hWnd, nCmdShow);
     UpdateWindow(hWnd);
@@ -69,7 +88,6 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
     }
 
     DeleteObject(hBrush);
+    
     return (int)msg.wParam;
 }
-
-
