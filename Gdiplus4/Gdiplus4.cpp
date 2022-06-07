@@ -29,11 +29,11 @@ void GdiplusDrawString(Graphics* graphics)
     SolidBrush brush(Color(255, 255, 0, 255));              // 분홍색
     FontFamily fontFamily(_T("Times New Roman"));                       // 폰트
     Font font(&fontFamily, 24, FontStyleRegular, UnitPixel);                // 크기
-    PointF pointF(10.0f, 10.0f);                                                        // 위치
-    PointF pointF2(100.0f, 100.0f);                                                        // 위치
+    PointF pointF((gp_rect->right) / 3, gp_rect->bottom / 3 + gp_rect->bottom / 3 / 1.8);                                                        // 위치
+    PointF pointF2((gp_rect->right) / 3, gp_rect->bottom / 3 + gp_rect->bottom / 3 / 1.5);                                                        // 위치
 
-    graphics->DrawString(_T("Hello Gdiplus"), -1, &font, pointF, &brush);                // 글자
-    graphics->DrawString(_T("sadasd"), -1, &font, pointF2, &brush);                // 글자
+    graphics->DrawString(_T("아이디"), -1, &font, pointF, &brush);                // 글자
+    graphics->DrawString(_T("비밀번호"), -1, &font, pointF2, &brush);                // 글자
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -109,9 +109,9 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
     HWND hWnd = CreateWindowEx(WS_EX_APPWINDOW, className, _T("My Title"), WS_POPUP, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), nullptr, (HMENU)nullptr, hInstance, nullptr);
     GetClientRect(hWnd, &rect);
 
-    hEdit1 = CreateWindow(_T("EDIT"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, rect.right/3 + rect.right/3/10, rect.bottom/3+rect.bottom/3/1.8, rect.right/4, rect.bottom/40, hWnd, (HMENU)IDC_EDIT1, g_hInst, nullptr);
-    hEdit2 = CreateWindow(_T("EDIT"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, rect.right/3 + rect.right/3/10, rect.bottom/3 + rect.bottom/3/1.5, rect.right/4, rect.bottom/40, hWnd, (HMENU)IDC_EDIT2, g_hInst, nullptr);
-    CreateWindow(_T("BUTTON"), _T("버튼"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rect.right/3+rect.right/3/1.38, rect.bottom / 3 + rect.bottom / 3 / 1.3, 100, 50, hWnd, (HMENU)IDC_BUTTON1, g_hInst, nullptr);
+    hEdit1 = CreateWindow(_T("EDIT"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, rect.right/3 + rect.right/3/5, rect.bottom/3+rect.bottom/3/1.8, rect.right/5, rect.bottom/40, hWnd, (HMENU)IDC_EDIT1, g_hInst, nullptr);
+    hEdit2 = CreateWindow(_T("EDIT"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, rect.right/3 + rect.right/3/5, rect.bottom/3 + rect.bottom/3/1.5, rect.right/5, rect.bottom/40, hWnd, (HMENU)IDC_EDIT2, g_hInst, nullptr);
+    CreateWindow(_T("BUTTON"), _T("버튼"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rect.right/3+rect.right/3/1.38, rect.bottom / 3 + rect.bottom / 3 / 1.3, 100, 30, hWnd, (HMENU)IDC_BUTTON1, g_hInst, nullptr);
 
     gp_rect = &rect;
     TCHAR p_str[256];
