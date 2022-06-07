@@ -69,11 +69,11 @@ void GdiplusDrawString(HDC hdc)
 {
     Graphics graphics(hdc);
     SolidBrush brush(Color(255, 255, 0, 255));              // 분홍색
-    FontFamily fontFamily(_T("Times New Roman"));
-    Font font(&fontFamily, 24, FontStyleRegular, UnitPixel);
-    PointF pointF(10.0f, 10.0f);
+    FontFamily fontFamily(_T("Times New Roman"));                       // 폰트
+    Font font(&fontFamily, 24, FontStyleRegular, UnitPixel);                // 크기
+    PointF pointF(10.0f, 10.0f);                                                        // 위치
 
-    graphics.DrawString(_T("Hello Gdiplus"), -1, &font, pointF, &brush);
+    graphics.DrawString(_T("Hello Gdiplus"), -1, &font, pointF, &brush);                // 글자
 }
 
 void GdiplusDrawImage(HDC hdc)
