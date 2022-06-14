@@ -129,6 +129,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Gdiplus4", "Gdiplus4\Gdiplu
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SystemOnOff", "SystemOnOff\SystemOnOff.vcxproj", "{C98A954E-5CE1-4489-B113-819F03B8C08A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TypeCasting1", "TypeCasting1\TypeCasting1.vcxproj", "{3B4C0614-7FF7-46A1-9243-9EF46DE82C9C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -641,6 +643,14 @@ Global
 		{C98A954E-5CE1-4489-B113-819F03B8C08A}.Release|x64.Build.0 = Release|x64
 		{C98A954E-5CE1-4489-B113-819F03B8C08A}.Release|x86.ActiveCfg = Release|Win32
 		{C98A954E-5CE1-4489-B113-819F03B8C08A}.Release|x86.Build.0 = Release|Win32
+		{3B4C0614-7FF7-46A1-9243-9EF46DE82C9C}.Debug|x64.ActiveCfg = Debug|x64
+		{3B4C0614-7FF7-46A1-9243-9EF46DE82C9C}.Debug|x64.Build.0 = Debug|x64
+		{3B4C0614-7FF7-46A1-9243-9EF46DE82C9C}.Debug|x86.ActiveCfg = Debug|Win32
+		{3B4C0614-7FF7-46A1-9243-9EF46DE82C9C}.Debug|x86.Build.0 = Debug|Win32
+		{3B4C0614-7FF7-46A1-9243-9EF46DE82C9C}.Release|x64.ActiveCfg = Release|x64
+		{3B4C0614-7FF7-46A1-9243-9EF46DE82C9C}.Release|x64.Build.0 = Release|x64
+		{3B4C0614-7FF7-46A1-9243-9EF46DE82C9C}.Release|x86.ActiveCfg = Release|Win32
+		{3B4C0614-7FF7-46A1-9243-9EF46DE82C9C}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
