@@ -43,6 +43,11 @@ TCHAR* TstrToTchar(TSTRING a_str)
 }
 
 // TCHAR* -> TSTRING
+TSTRING TcharToTstring(TCHAR* a_lptstr)
+{
+    TSTRING local_tstr(a_lptstr);
+    return local_tstr;
+}
 
 // TCHAR[] -> TSTRING
 
