@@ -200,15 +200,16 @@ public:
 		UpdateWindow(hWnd);		// WM_PAINT 메시지가 대기상태라면 즉시 수행하게함
 	}
 
-	int Run() {
-		MSG msg;
-		while (GetMessage(&msg, NULL, 0, 0))		// WM_QUIT 메시지가 발생할 때까지 반복
-		{
-			TranslateMessage(&msg);		// 키보드 메시지 발생시에 추가 메시지를 발생할지 여부 체크
-			DispatchMessage(&msg);		// 발생된 메시지 처리
-		}
-		return msg.wParam;
-	}
+	// 임시주석
+	//int Run() {
+	//	MSG msg;
+	//	while (GetMessage(&msg, NULL, 0, 0))		// WM_QUIT 메시지가 발생할 때까지 반복
+	//	{
+	//		TranslateMessage(&msg);		// 키보드 메시지 발생시에 추가 메시지를 발생할지 여부 체크
+	//		DispatchMessage(&msg);		// 발생된 메시지 처리
+	//	}
+	//	return msg.wParam;
+	//}
 };
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)

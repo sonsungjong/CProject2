@@ -11,7 +11,7 @@
 //#include <Ole2.h>
 #pragma comment(lib, "Strmiids")				// DirectShow
 
-int main() {
+int main1() {
 	int DeviceNumber;
 
 	HRESULT hr;
