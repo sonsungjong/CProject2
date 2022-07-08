@@ -10,7 +10,7 @@ extern "C" {
 
 }
 
-int main()
+int main2()
 {
 	const char* filePath = "D:\\video\\zigzag.mp4";
 

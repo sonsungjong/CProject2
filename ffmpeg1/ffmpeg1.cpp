@@ -9,7 +9,7 @@ extern "C"{
 #include <libavutil/avutil.h>
 }
 
-int main_test()
+int main1()
 {
     av_log(NULL, AV_LOG_INFO, "FFFFFFFF\n");
 
