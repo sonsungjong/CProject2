@@ -13,6 +13,8 @@ int main()
 	//av_register_all();
 	AVFormatContext* formatContext = NULL;
 	const char* fileName = "D:\\video\\zigzag.mp4";
+
+	//https://cpp.hotexamples.com/examples/-/-/av_find_input_format/cpp-av_find_input_format-function-examples.html
 	//const char* format = "gdigrab";			// µ¥½ºÅ©Å¾ Ä¸Ã³
 	const char* format = "dshow";			// À¥Ä·
 	auto inputFormat = av_find_input_format(format);
@@ -21,6 +23,7 @@ int main()
 		std::cerr << "Unknown input format: " << format << std::endl;
 		return 1;
 	}
+
 	AVDictionary* format_opts = NULL;
 	av_dict_set(&format_opts, "framerate", "1000", 0);
 	const char* resolution = "320x240";
