@@ -27,7 +27,7 @@ LRESULT CALLBACK DlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     }
     return (LRESULT)TRUE;
     case WM_INITDIALOG:
-        SetWindowPos(hWnd, HWND_TOP, 100, 100, 475, 500, NULL);
+        //SetWindowPos(hWnd, HWND_TOP, 100, 100, 475, 500, NULL);
         return (LRESULT)TRUE;
     case WM_DESTROY:
         PostQuitMessage(0);
