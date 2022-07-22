@@ -1,7 +1,8 @@
 #include <stdio.h>
 
-void main0801() {
+void main() {
 	int data = 5;
+	scanf("%d", &data);
 	if (data > 3) {
 		printf("data는 3보다 큰 수 입니다. \n");
 	}
