@@ -142,7 +142,9 @@
     <ClCompile Include="_01_CBook01.c" />
     <ClCompile Include="_02_CBook03.c" />
     <ClCompile Include="_02_CBook01.c" />
+    <ClCompile Include="_04_CBook01.c" />
     <ClCompile Include="_05_CBook01.c" />
+    <ClCompile Include="_06_CBook01.c" />
     <ClCompile Include="_07_CBook01.c" />
     <ClCompile Include="_07_CBook02.c" />
     <ClCompile Include="_07_CBook03.c" />
