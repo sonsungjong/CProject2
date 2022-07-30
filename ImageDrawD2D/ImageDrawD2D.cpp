@@ -83,7 +83,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
-    _In_ LPWSTR    lpCmdLine,
+    _In_ LPTSTR    lpCmdLine,
     _In_ int       nCmdShow)
 {
     CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
