@@ -63,5 +63,44 @@
     <ClCompile Include="_06_CBook01.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="_09_CBook01.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="_09_CBook02.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="_09_CBook03.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="_09_CBook04.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="_09_CBook05.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="_09_CBook06.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="_09_CBook07.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="_09_CBook10.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="_09_CBook08.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="_09_CBook09.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="_09_CBook11.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="_09_CBook12.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="_10_CBook01.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

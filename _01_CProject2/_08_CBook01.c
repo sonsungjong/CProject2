@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-void main() {
+void main0801() {
 	int data = 5;
 	scanf("%d", &data);
 	if (data > 3) {
