@@ -155,6 +155,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Gdiplus5", "Gdiplus5\Gdiplu
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImageDrawD2Ddlg", "ImageDrawD2Ddlg\ImageDrawD2Ddlg.vcxproj", "{AE3C5641-B7B2-44B3-A4B2-573D889C06B4}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Gdiplus6IMG", "Gdiplus6IMG\Gdiplus6IMG.vcxproj", "{6015ACF3-D561-4C90-B39B-44815F76494A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -771,6 +773,14 @@ Global
 		{AE3C5641-B7B2-44B3-A4B2-573D889C06B4}.Release|x64.Build.0 = Release|x64
 		{AE3C5641-B7B2-44B3-A4B2-573D889C06B4}.Release|x86.ActiveCfg = Release|Win32
 		{AE3C5641-B7B2-44B3-A4B2-573D889C06B4}.Release|x86.Build.0 = Release|Win32
+		{6015ACF3-D561-4C90-B39B-44815F76494A}.Debug|x64.ActiveCfg = Debug|x64
+		{6015ACF3-D561-4C90-B39B-44815F76494A}.Debug|x64.Build.0 = Debug|x64
+		{6015ACF3-D561-4C90-B39B-44815F76494A}.Debug|x86.ActiveCfg = Debug|Win32
+		{6015ACF3-D561-4C90-B39B-44815F76494A}.Debug|x86.Build.0 = Debug|Win32
+		{6015ACF3-D561-4C90-B39B-44815F76494A}.Release|x64.ActiveCfg = Release|x64
+		{6015ACF3-D561-4C90-B39B-44815F76494A}.Release|x64.Build.0 = Release|x64
+		{6015ACF3-D561-4C90-B39B-44815F76494A}.Release|x86.ActiveCfg = Release|Win32
+		{6015ACF3-D561-4C90-B39B-44815F76494A}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

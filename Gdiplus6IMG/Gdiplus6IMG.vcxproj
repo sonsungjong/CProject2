@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{ae3c5641-b7b2-44b3-a4b2-573d889c06b4}</ProjectGuid>
-    <RootNamespace>ImageDrawD2Ddlg</RootNamespace>
+    <ProjectGuid>{6015acf3-d561-4c90-b39b-44815f76494a}</ProjectGuid>
+    <RootNamespace>Gdiplus6IMG</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -140,19 +140,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="framework.h" />
-    <ClInclude Include="ImageDrawD2Ddlg.h" />
+    <ClInclude Include="Gdiplus6IMG.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ImageDrawD2Ddlg.cpp" />
+    <ClCompile Include="Gdiplus6IMG.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="ImageDrawD2Ddlg.rc" />
+    <ResourceCompile Include="Gdiplus6IMG.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\img\gom.png" />
-    <Image Include="ImageDrawD2Ddlg.ico" />
+    <Image Include="Gdiplus6IMG.ico" />
     <Image Include="small.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -24,17 +24,17 @@
     <ClInclude Include="Resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ImageDrawD2Ddlg.h">
+    <ClInclude Include="Gdiplus6IMG.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ImageDrawD2Ddlg.cpp">
+    <ClCompile Include="Gdiplus6IMG.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="ImageDrawD2Ddlg.rc">
+    <ResourceCompile Include="Gdiplus6IMG.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
@@ -42,7 +42,7 @@
     <Image Include="small.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="ImageDrawD2Ddlg.ico">
+    <Image Include="Gdiplus6IMG.ico">
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="..\img\gom.png">
