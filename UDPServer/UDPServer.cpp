@@ -84,7 +84,7 @@ int main()
 		else {
 			// 로그파일 찍기
 			FILE* p_file;
-			p_file = fopen("C:\\sung.txt", "at");
+			p_file = fopen("C:\\txt\\sung.txt", "at");
 			if (NULL != p_file) {
 				fprintf(p_file, buf);
 				fprintf(p_file, "\n");
