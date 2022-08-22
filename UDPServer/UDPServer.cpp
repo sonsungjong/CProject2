@@ -77,7 +77,7 @@ int main()
 		ZeroMemory(clientIP, 256);
 		inet_ntop(AF_INET, &recv_socket.sin_addr, clientIP, 256);
 		printf("Message rect from %s : %s \n", clientIP, buf);
-		if (0 == strcmp(buf, serverIP))
+		if (0 == strcmp(buf, serverIP)) 
 		{
 			break;				// 받은 메시지가 서버의 IP와 동일하면 종료
 		}
