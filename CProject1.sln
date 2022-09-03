@@ -163,6 +163,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UDPClient", "UDPClient\UDPC
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Encoding1", "Encoding1\Encoding1.vcxproj", "{2B5C0584-2618-4DAA-8871-EB04F084195F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "D2DImgRotate", "D2DImgRotate\D2DImgRotate.vcxproj", "{30B54A75-0BE7-4F2B-8F6C-78353DD688DD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -811,6 +813,14 @@ Global
 		{2B5C0584-2618-4DAA-8871-EB04F084195F}.Release|x64.Build.0 = Release|x64
 		{2B5C0584-2618-4DAA-8871-EB04F084195F}.Release|x86.ActiveCfg = Release|Win32
 		{2B5C0584-2618-4DAA-8871-EB04F084195F}.Release|x86.Build.0 = Release|Win32
+		{30B54A75-0BE7-4F2B-8F6C-78353DD688DD}.Debug|x64.ActiveCfg = Debug|x64
+		{30B54A75-0BE7-4F2B-8F6C-78353DD688DD}.Debug|x64.Build.0 = Debug|x64
+		{30B54A75-0BE7-4F2B-8F6C-78353DD688DD}.Debug|x86.ActiveCfg = Debug|Win32
+		{30B54A75-0BE7-4F2B-8F6C-78353DD688DD}.Debug|x86.Build.0 = Debug|Win32
+		{30B54A75-0BE7-4F2B-8F6C-78353DD688DD}.Release|x64.ActiveCfg = Release|x64
+		{30B54A75-0BE7-4F2B-8F6C-78353DD688DD}.Release|x64.Build.0 = Release|x64
+		{30B54A75-0BE7-4F2B-8F6C-78353DD688DD}.Release|x86.ActiveCfg = Release|Win32
+		{30B54A75-0BE7-4F2B-8F6C-78353DD688DD}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
