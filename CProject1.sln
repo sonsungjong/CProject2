@@ -167,6 +167,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "D2DImgRotate", "D2DImgRotat
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Conversion1", "Conversion1\Conversion1.vcxproj", "{611E989B-A0E5-4B90-A894-65B8A6F7D838}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SocketTCP1", "SocketTCP1\SocketTCP1.vcxproj", "{F3F0F1AD-264C-4E01-AB14-8961B0F5AED9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -831,6 +833,14 @@ Global
 		{611E989B-A0E5-4B90-A894-65B8A6F7D838}.Release|x64.Build.0 = Release|x64
 		{611E989B-A0E5-4B90-A894-65B8A6F7D838}.Release|x86.ActiveCfg = Release|Win32
 		{611E989B-A0E5-4B90-A894-65B8A6F7D838}.Release|x86.Build.0 = Release|Win32
+		{F3F0F1AD-264C-4E01-AB14-8961B0F5AED9}.Debug|x64.ActiveCfg = Debug|x64
+		{F3F0F1AD-264C-4E01-AB14-8961B0F5AED9}.Debug|x64.Build.0 = Debug|x64
+		{F3F0F1AD-264C-4E01-AB14-8961B0F5AED9}.Debug|x86.ActiveCfg = Debug|Win32
+		{F3F0F1AD-264C-4E01-AB14-8961B0F5AED9}.Debug|x86.Build.0 = Debug|Win32
+		{F3F0F1AD-264C-4E01-AB14-8961B0F5AED9}.Release|x64.ActiveCfg = Release|x64
+		{F3F0F1AD-264C-4E01-AB14-8961B0F5AED9}.Release|x64.Build.0 = Release|x64
+		{F3F0F1AD-264C-4E01-AB14-8961B0F5AED9}.Release|x86.ActiveCfg = Release|Win32
+		{F3F0F1AD-264C-4E01-AB14-8961B0F5AED9}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
