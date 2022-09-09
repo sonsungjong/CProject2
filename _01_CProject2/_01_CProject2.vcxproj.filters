@@ -102,5 +102,20 @@
     <ClCompile Include="_10_CBook01.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="_08_CBook02.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="_09_CBook13.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="_11_CBook01.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="_11_CBook02.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="_11_CBook03.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

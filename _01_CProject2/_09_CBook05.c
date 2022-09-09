@@ -1,10 +1,11 @@
 #include <stdio.h>
 
 int main0905() {
-	int i;
+	int i = 0;
 	
-	for (i = 1; i <= 9; i++) {
-		printf("2*%d = %d\n", i, 2 * i);
+	while (i < 10) {
+		printf("%d번 안녕하세요\n", i + 1);
+		i++;
 	}
 	
 
