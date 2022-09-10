@@ -171,6 +171,14 @@
     <ClCompile Include="_11_CBook02.c" />
     <ClCompile Include="_11_CBook03.c" />
     <ClCompile Include="_13_CBook01.c" />
+    <ClCompile Include="_14_CBook01.c" />
+    <ClCompile Include="_14_CBook02.c" />
+    <ClCompile Include="_14_CBook03.c" />
+    <ClCompile Include="_14_CBook04.c" />
+    <ClCompile Include="_14_CBook05.c" />
+    <ClCompile Include="_14_CBook06.c" />
+    <ClCompile Include="_14_CBook07.c" />
+    <ClCompile Include="_14_CBook08.c" />
     <ClCompile Include="_18_CBook01.c" />
     <ClCompile Include="_18_CBook02.c" />
   </ItemGroup>
