@@ -10,21 +10,35 @@
 #define IP					_T("222.100.255.148")
 #define PORT				19000
 
-SOCKET gh_socket = INVALID_SOCKET;
+struct ProgramData
+{
+	SOCKET h_socket;				// 서버와 통신을 하기 위한 소켓
+	HWND h_main_wnd;							// 메인윈도우
+	HWND h_event_list;									// 상태 출력 리스트박스
+	HWND h_ip_edit;										// 접속할 서버의 IP 입력
+	HWND h_connect_btn, h_disconnect_btn;			// 접속과 접속해제 버튼
+	HFONT h_app_font;								// 글꼴
+};
 
-INT ReceiveData(CHAR* ap_data, INT a_size)
+void AddEventString(ProgramData* ap_app_data, const TCHAR* ap_str)
+{
+	INT index = ::SendMessage(ap_app_data->h_event_list, LB_INSERTSTRING, -1, (LPARAM)ap_str);
+	::SendMessage(ap_app_data->h_event_list, LB_SETCURSEL, index, 0);
+}
+
+INT ReceiveData(SOCKET ah_socket, CHAR* ap_data, INT a_size)
 {
 	INT total_size = 0;
 	INT read_size = 0;
 	INT retry_count = 0;
 	while (total_size < a_size)
 	{
-		read_size = recv(gh_socket, ap_data + total_size, a_size - total_size, 0);
+		read_size = recv(ah_socket, ap_data + total_size, a_size - total_size, 0);
 		if (read_size == SOCKET_ERROR || read_size == 0)
 		{
-			Sleep(10);
+			Sleep(1);
 			retry_count++;
-			if (retry_count > 300) {
+			if (retry_count > 2000) {
 				break;
 			}
 		}
@@ -38,72 +52,101 @@ INT ReceiveData(CHAR* ap_data, INT a_size)
 
 void ConnectToServer(const TCHAR* ap_ip_address, INT a_port, HWND ah_wnd)
 {
-	WSADATA temp;
-	WSAStartup(0x0202, &temp);
+	ProgramData* p_app_data = (ProgramData*)GetWindowLongPtr(ah_wnd, GWLP_USERDATA);
 
-	gh_socket = socket(AF_INET, SOCK_STREAM, 0);
+	// AF_INET 주소 체계를 사용하는 TCP 방식(SOCK_STREAM)의 소켓 생성
+	p_app_data->h_socket = socket(AF_INET, SOCK_STREAM, 0);
 
 	sockaddr_in addr_data = { AF_INET, htons(a_port), };
 	InetPton(AF_INET, ap_ip_address, &addr_data.sin_addr.s_addr);
-	WSAAsyncSelect(gh_socket, ah_wnd, 26001, FD_CONNECT);
-	connect(gh_socket, (sockaddr*)&addr_data, sizeof(addr_data));
+	WSAAsyncSelect(p_app_data->h_socket, p_app_data->h_main_wnd, 26001, FD_CONNECT);
+	connect(p_app_data->h_socket, (sockaddr*)&addr_data, sizeof(addr_data));
+}
+
+void OnDestroy(HWND ah_wnd)
+{
+	ProgramData* p_app_data = (ProgramData*)GetWindowLongPtr(ah_wnd, GWLP_USERDATA);
+	if (p_app_data->h_socket != INVALID_SOCKET) {
+		closesocket(p_app_data->h_socket);
+	}
+
+	DestroyWindow(p_app_data->h_event_list);
+	DestroyWindow(p_app_data->h_ip_edit);
+	DestroyWindow(p_app_data->h_connect_btn);
+	DestroyWindow(p_app_data->h_disconnect_btn);
+
+	PostQuitMessage(0);
+}
+
+void OnProcessConnectionResult(HWND ah_wnd, INT a_error_code)
+{
+	ProgramData* p_app_data = (ProgramData*)GetWindowLongPtr(ah_wnd, GWLP_USERDATA);
+
+	if (a_error_code) {
+		// 접속 실패 시
+		closesocket(p_app_data->h_socket);
+		p_app_data->h_socket = INVALID_SOCKET;
+		AddEventString(p_app_data, _T("서버에 접속할 수 없습니다."));
+	}
+	else {
+		// 접속 성공
+		INT temp_size = 10000000;				// 10Mbytes로 송수신 버퍼크기 설정
+		// 전송 버퍼 크기 설정
+		setsockopt(p_app_data->h_socket, SOL_SOCKET, SO_SNDBUF, (CHAR*)&temp_size, sizeof(temp_size));
+		// 수신 버퍼 크기 설정
+		setsockopt(p_app_data->h_socket, SOL_SOCKET, SO_RCVBUF, (CHAR*)&temp_size, sizeof(temp_size));
+
+		WSAAsyncSelect(p_app_data->h_socket, ah_wnd, 26002, FD_READ | FD_CLOSE);
+		AddEventString(p_app_data, _T("서버에 접속하였습니다."));
+	}
+}
+
+void OnSocketMessage(HWND ah_wnd, INT a_notify_type)
+{
+
+}
+
+void OnCommand(HWND hWnd, WPARAM wParam, LPARAM lParam)
+{
+
+}
+
+void CreateControl(ProgramData *ap_app_data)
+{
+
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	if (msg == WM_DESTROY)
-	{
-		closesocket(gh_socket);
-
-		PostQuitMessage(0);
+	if (msg == WM_DESTROY) {
+		OnDestroy(hWnd);
 	}
-	else if (msg == WM_CREATE) {
-		ConnectToServer(IP, PORT, hWnd);								// 리슨서비스 시작
+	else if (msg == WM_COMMAND) {
+		OnCommand(hWnd, wParam, lParam);
 	}
-	else if (msg == 26001) {				// 클라이언트 접속
-		if (WSAGETSELECTERROR(lParam)) {
-			closesocket(gh_socket);
-			gh_socket = INVALID_SOCKET;
-		}
-		else {			// 접속 성공
-			INT temp_size = 200000;
-			INT read_size = 4;
-			setsockopt(gh_socket, SOL_SOCKET, SO_SNDBUF, (CHAR*)&temp_size, 4);
-			setsockopt(gh_socket, SOL_SOCKET, SO_RCVBUF, (CHAR*)&temp_size, 4);
-			WSAAsyncSelect(gh_socket, hWnd, 26002, FD_READ | FD_CLOSE);
-		}
+	else if (msg == 26001) {
+		OnProcessConnectionResult(hWnd, WSAGETSELECTERROR(lParam));
 	}
 	else if (msg == 26002) {
-		if (WSAGETSELECTEVENT(lParam) == FD_READ) {
-			// 데이터 수신
-			INT data_size = 0;
-			WSAAsyncSelect(gh_socket, hWnd, 26002, FD_CLOSE);
-			ReceiveData((CHAR*)&data_size, 4);
-			CHAR* p_data = new CHAR[data_size];
-			INT read_size = ReceiveData(p_data, data_size);
-
-			HDC h_dc = GetDC(hWnd);
-			TCHAR msg_str[128];
-			INT len = _stprintf_s(msg_str, 128, _T("데이터 수신 : %d / %d"), read_size, data_size);
-			SetBkMode(h_dc, TRANSPARENT);
-			TextOut(h_dc, 10, 10, msg_str, len);
-			ReleaseDC(hWnd, h_dc);
-			delete[] p_data;
-
-			WSAAsyncSelect(gh_socket, hWnd, 26002, FD_READ | FD_CLOSE);
-		}
-		else {
-			// 서버가 접속을 끊음
-			closesocket(gh_socket);
-			gh_socket = INVALID_SOCKET;
-		}
+		OnSocketMessage(hWnd, WSAGETSELECTEVENT(lParam));
 	}
+
 	// 개발자가 처리하지 않은 메시지들을 처리
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
 INT APIENTRY _tWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPTSTR lpCmdLine, _In_ INT nCmdShow)
 {
+	// 프로그램 실행정보를 기억할 구조체
+	ProgramData app_data = { INVALID_SOCKET, };
+
+	// 글꼴 생성
+	app_data.h_app_font = CreateFont(12, 0, 0, 0, FW_NORMAL, 0, 0, 0, DEFAULT_CHARSET,
+		OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, _T("굴림"));
+
+	WSADATA temp;
+	(void)WSAStartup(0x02020, &temp);
+
 	WNDCLASS wc;
 
 	wc.cbClsExtra = 0;
@@ -118,15 +161,22 @@ INT APIENTRY _tWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstanc
 	wc.style = CS_HREDRAW | CS_VREDRAW;
 	RegisterClass(&wc);
 
-	HWND hWnd = CreateWindow(_T("SockClient123"), _T("Win32 Client Socket"), WS_OVERLAPPEDWINDOW, 100, 90, 400, 350, NULL, NULL, hInstance, NULL);
-	ShowWindow(hWnd, nCmdShow);
-	UpdateWindow(hWnd);
+	app_data.h_main_wnd = CreateWindow(_T("SockClient123"), _T("Win32 Client Socket"), WS_OVERLAPPEDWINDOW, 100, 90, 560, 350, NULL, NULL, hInstance, NULL);
+
+	SetWindowLongPtr(app_data.h_main_wnd, GWLP_USERDATA, (LONG_PTR)&app_data);
+	CreateControl(&app_data);
+
+	ShowWindow(app_data.h_main_wnd, nCmdShow);
+	UpdateWindow(app_data.h_main_wnd);
 
 	MSG msg;
 	while (GetMessage(&msg, NULL, 0, 0)) {
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
+
+	WSACleanup();
+	DeleteObject(app_data.h_app_font);				// 글꼴 정리
 	return static_cast<INT>(msg.wParam);
 }
 

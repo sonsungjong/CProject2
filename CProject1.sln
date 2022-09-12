@@ -171,6 +171,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SocketTCP1", "SocketTCP1\So
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SocketTCPClient", "SocketTCPClient\SocketTCPClient.vcxproj", "{AF8DB4BA-575C-4A40-B68B-2A6BD56DBC95}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SocKetTCPServer", "SocKetTCPServer\SocKetTCPServer.vcxproj", "{32958D71-7C8F-451C-A684-5B3870939D35}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -851,6 +853,14 @@ Global
 		{AF8DB4BA-575C-4A40-B68B-2A6BD56DBC95}.Release|x64.Build.0 = Release|x64
 		{AF8DB4BA-575C-4A40-B68B-2A6BD56DBC95}.Release|x86.ActiveCfg = Release|Win32
 		{AF8DB4BA-575C-4A40-B68B-2A6BD56DBC95}.Release|x86.Build.0 = Release|Win32
+		{32958D71-7C8F-451C-A684-5B3870939D35}.Debug|x64.ActiveCfg = Debug|x64
+		{32958D71-7C8F-451C-A684-5B3870939D35}.Debug|x64.Build.0 = Debug|x64
+		{32958D71-7C8F-451C-A684-5B3870939D35}.Debug|x86.ActiveCfg = Debug|Win32
+		{32958D71-7C8F-451C-A684-5B3870939D35}.Debug|x86.Build.0 = Debug|Win32
+		{32958D71-7C8F-451C-A684-5B3870939D35}.Release|x64.ActiveCfg = Release|x64
+		{32958D71-7C8F-451C-A684-5B3870939D35}.Release|x64.Build.0 = Release|x64
+		{32958D71-7C8F-451C-A684-5B3870939D35}.Release|x86.ActiveCfg = Release|Win32
+		{32958D71-7C8F-451C-A684-5B3870939D35}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

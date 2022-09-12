@@ -10,7 +10,9 @@
 #define IP					_T("222.100.255.148")
 #define PORT				19000
 
+// 클라이언트 접속처리를 위한 소켓
 SOCKET gh_listen_socket = INVALID_SOCKET;
+// 클라이언트 메시지를 수신하기 위한 소켓
 SOCKET gh_client_socket = INVALID_SOCKET;
 
 void StartListenService(const TCHAR* ap_ip_address, INT a_port, HWND ah_wnd)
@@ -39,13 +41,26 @@ void ProcessAccept(HWND ah_wnd)
 	if (gh_client_socket == INVALID_SOCKET)
 	{
 		gh_client_socket = h_socket;
+
+		INT temp_size = 200000;
+		INT read_size = 4;
+		setsockopt(gh_client_socket, SOL_SOCKET, SO_SNDBUF, (char*)&temp_size, 4);
+		setsockopt(gh_client_socket, SOL_SOCKET, SO_RCVBUF, (char*)&temp_size, 4);
+
+		// 접속하면 25002를 발생시켜라
 		WSAAsyncSelect(gh_client_socket, ah_wnd, 25002, FD_READ | FD_CLOSE);
+		
+		// 소켓 메시지 보내기
+		char data[10004] = { 0, };
+		*(int*)data = 10000;
+		send(gh_client_socket, data, 10004, 0);
 	}
 	else {
 		closesocket(h_socket);
 	}
 }
 
+// recv함수 개조 -> 수신 실패했을 경우 재시도하게끔 변경
 INT ReceiveData(SOCKET ah_socket, CHAR* ap_data, INT a_size)
 {
 	INT total_size = 0;
@@ -78,6 +93,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		if (gh_client_socket != INVALID_SOCKET) {
 			closesocket(gh_client_socket);
 		}
+		WSACleanup();
 		PostQuitMessage(0);
 	}
 	else if (msg == WM_CREATE){
@@ -89,8 +105,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	else if (msg == 25002) {						// 데이터 수신 또는 클라이언트 접속 해제
 		if (WSAGETSELECTEVENT(lParam) == FD_READ) {
 			// 데이터 수신
+			int data;
+			// recv(gh_client_socket, (char*)&data, 4, 0);					// 4바이트 크기를, data로 받음
+			ReceiveData(gh_client_socket, (char*)&data, 4);
 		}
-		else {				// 클라이언트 접속 해제
+		else {				// 클라이언트가 접속 해제
 			closesocket(gh_client_socket);
 			gh_client_socket = INVALID_SOCKET;
 		}
