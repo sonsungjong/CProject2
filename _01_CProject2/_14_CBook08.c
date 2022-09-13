@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-int main()
+int main1408()
 {
 	/* Á¤¼ö 3°³ */
 	//int input_int1;

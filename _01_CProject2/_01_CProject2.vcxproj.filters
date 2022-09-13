@@ -141,5 +141,17 @@
     <ClCompile Include="_14_CBook08.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="_12_CBook01.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="_12_CBook02.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="_12_CBook03.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="_12_CBook04.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
