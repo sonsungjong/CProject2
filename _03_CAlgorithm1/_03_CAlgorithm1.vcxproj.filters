@@ -18,8 +18,5 @@
     <ClCompile Include="test1.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="_01_CSTL3.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>
