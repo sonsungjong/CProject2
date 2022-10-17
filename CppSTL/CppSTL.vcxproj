@@ -20,6 +20,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="STL1_015.cpp" />
+    <ClCompile Include="STL1_016.cpp" />
+    <ClCompile Include="STL1_020.cpp" />
+    <ClCompile Include="STL1_021.cpp" />
+    <ClCompile Include="STL1_024.cpp" />
+    <ClCompile Include="STL1_025.cpp" />
+    <ClCompile Include="STL1_027.cpp" />
+    <ClCompile Include="STL1_028.cpp" />
+    <ClCompile Include="STL1_032.cpp" />
+    <ClCompile Include="STL1_033.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
