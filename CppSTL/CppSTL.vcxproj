@@ -29,6 +29,19 @@
     <ClCompile Include="STL1_028.cpp" />
     <ClCompile Include="STL1_032.cpp" />
     <ClCompile Include="STL1_033.cpp" />
+    <ClCompile Include="STL1_035.cpp" />
+    <ClCompile Include="STL1_037.cpp" />
+    <ClCompile Include="STL1_038.cpp" />
+    <ClCompile Include="STL1_039.cpp" />
+    <ClCompile Include="STL1_042.cpp" />
+    <ClCompile Include="STL1_048.cpp" />
+    <ClCompile Include="STL1_049.cpp" />
+    <ClCompile Include="STL1_051.cpp" />
+    <ClCompile Include="STL1_053.cpp" />
+    <ClCompile Include="STL1_055.cpp" />
+    <ClCompile Include="STL2_059.cpp" />
+    <ClCompile Include="STL2_061.cpp" />
+    <ClCompile Include="STL2_063.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
