@@ -39,6 +39,7 @@
     <ClCompile Include="STL1_051.cpp" />
     <ClCompile Include="STL1_053.cpp" />
     <ClCompile Include="STL1_055.cpp" />
+    <ClCompile Include="STL3_080.cpp" />
     <ClCompile Include="STL2_059.cpp" />
     <ClCompile Include="STL2_061.cpp" />
     <ClCompile Include="STL2_063.cpp" />
@@ -48,6 +49,11 @@
     <ClCompile Include="STL2_071.cpp" />
     <ClCompile Include="STL2_073.cpp" />
     <ClCompile Include="STL3_077.cpp" />
+    <ClCompile Include="STL3_078.cpp" />
+    <ClCompile Include="STL3_082.cpp" />
+    <ClCompile Include="STL3_083.cpp" />
+    <ClCompile Include="STL3_086.cpp" />
+    <ClCompile Include="STL3_088.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

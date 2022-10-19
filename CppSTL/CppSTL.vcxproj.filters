@@ -102,5 +102,23 @@
     <ClCompile Include="STL3_077.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="STL3_078.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="STL3_080.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="STL3_082.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="STL3_083.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="STL3_086.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="STL3_088.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
