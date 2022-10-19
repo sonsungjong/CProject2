@@ -54,6 +54,8 @@
     <ClCompile Include="STL3_083.cpp" />
     <ClCompile Include="STL3_086.cpp" />
     <ClCompile Include="STL3_088.cpp" />
+    <ClCompile Include="STL4_091.cpp" />
+    <ClCompile Include="STL4_095.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

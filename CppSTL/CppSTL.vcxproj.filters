@@ -120,5 +120,11 @@
     <ClCompile Include="STL3_088.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="STL4_091.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="STL4_095.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
