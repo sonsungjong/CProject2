@@ -168,5 +168,14 @@
     <ClCompile Include="Mentor174.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Mentor179.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Mentor186.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Mentor188.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
