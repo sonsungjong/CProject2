@@ -153,5 +153,20 @@
     <ClCompile Include="_12_CBook04.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Mentor148.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Mentor154.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Mentor158.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Mentor163.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Mentor174.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
