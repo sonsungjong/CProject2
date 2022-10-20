@@ -37,6 +37,10 @@ int main()
     imagePath = L"C:\\Repos\\Windows-Machine-Learning\\SharedContent\\media\\kitten_224.png";
     LoadModel();
     imageFrame = LoadImageFile(imagePath);
+    BindModel();
+    string labelsFilePath = "C:\\Repos\\Windows-Machine-Learning\\Samples\\SqueezeNetObjectDetection\\Desktop\\cpp\\Labels.txt";
+    EvaluateModel();
+
 }
 
 void LoadModel()
@@ -78,5 +82,91 @@ VideoFrame LoadImageFile(hstring filePath)
     printf("image file loaded in %d ticks\n", ticks);
     // all done
     return inputImage;
+}
+
+void BindModel()
+{
+    printf("Binding the model...\n");
+    DWORD ticks = GetTickCount();
+
+    // now create a session and binding
+    session = LearningModelSession{ model, LearningModelDevice(deviceKind) };
+    binding = LearningModelBinding{ session };
+    // bind the intput image
+    binding.Bind(L"data_0", ImageFeatureValue::CreateFromVideoFrame(imageFrame));
+    // bind the output
+    vector<int64_t> shape({ 1, 1000, 1, 1 });
+    binding.Bind(L"softmaxout_1", TensorFloat::Create(shape));
+
+    ticks = GetTickCount() - ticks;
+    printf("Model bound in %d ticks\n", ticks);
+}
+
+void EvaluateModel()
+{
+    // now run the model
+    printf("Running the model...\n");
+    DWORD ticks = GetTickCount();
+
+    auto results = session.Evaluate(binding, L"RunId");
+
+    ticks = GetTickCount() - ticks;
+    printf("model run took %d ticks\n", ticks);
+
+    // get the output
+    auto resultTensor = results.Outputs().Lookup(L"softmaxout_1").as<TensorFloat>();
+    auto resultVector = resultTensor.GetAsVectorView();
+    PrintResults(resultVector);
+}
+
+void PrintResults(IVectorView<float> results)
+{
+    // load the labels
+    LoadLabels();
+    // Find the top 3 probabilities
+    vector<float> topProbabilities(3);
+    vector<int> topProbabilityLabelIndexes(3);
+    // SqueezeNet returns a list of 1000 options, with probabilities for each, loop through all
+    for (uint32_t i = 0; i < results.Size(); i++)
+    {
+        // is it one of the top 3?
+        for (int j = 0; j < 3; j++)
+        {
+            if (results.GetAt(i) > topProbabilities[j])
+            {
+                topProbabilityLabelIndexes[j] = i;
+                topProbabilities[j] = results.GetAt(i);
+                break;
+            }
+        }
+    }
+    // Display the result
+    for (int i = 0; i < 3; i++)
+    {
+        printf("%s with confidence of %f\n", labels[topProbabilityLabelIndexes[i]].c_str(), topProbabilities[i]);
+    }
+}
+
+void LoadLabels()
+{
+    // Parse labels from labels file.  We know the file's entries are already sorted in order.
+    ifstream labelFile{ labelsFilePath, ifstream::in };
+    if (labelFile.fail())
+    {
+        printf("failed to load the %s file.  Make sure it exists in the same folder as the app\r\n", labelsFilePath.c_str());
+        exit(EXIT_FAILURE);
+    }
+
+    std::string s;
+    while (std::getline(labelFile, s, ','))
+    {
+        int labelValue = atoi(s.c_str());
+        if (labelValue >= labels.size())
+        {
+            labels.resize(labelValue + 1);
+        }
+        std::getline(labelFile, s);
+        labels[labelValue] = s;
+    }
 }
 
