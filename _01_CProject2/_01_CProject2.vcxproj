@@ -147,6 +147,10 @@
     <ClCompile Include="Mentor179.c" />
     <ClCompile Include="Mentor186.c" />
     <ClCompile Include="Mentor188.c" />
+    <ClCompile Include="Mentor191.c" />
+    <ClCompile Include="Mentor201.c" />
+    <ClCompile Include="Mentor205.c" />
+    <ClCompile Include="Mentor209.c" />
     <ClCompile Include="_01_CBook01.c" />
     <ClCompile Include="_02_CBook03.c" />
     <ClCompile Include="_02_CBook01.c" />
