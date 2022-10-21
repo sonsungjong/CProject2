@@ -189,5 +189,23 @@
     <ClCompile Include="Mentor209.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Mentor212.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Mentor223.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Mentor237.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Mentor241.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Mentor250.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Mentor261.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
