@@ -20,5 +20,18 @@ int main()
     }
     else {
         std::cout << "Not Connected";
+
+        return -1;
     }
+
+    // mysql_query
+    // mysql_store_result
+    // mysql_fetch_row
+    // InsertDBQuery
+    // mysql_free_result
+    // 
+
+    mysql_close(mysqlConn);
+    mysqlConn = NULL;
+    return 0;
 }
