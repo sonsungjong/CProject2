@@ -67,7 +67,7 @@ public:
 	}
 };
 
-int main()
+int main109()
 {
 	Array2<> iarr;			// 디폴트값 int와 100 사용
 	iarr.Add(10);

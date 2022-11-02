@@ -60,6 +60,7 @@
     <ClCompile Include="STL4_100.cpp" />
     <ClCompile Include="STL4_102.cpp" />
     <ClCompile Include="STL4_109.cpp" />
+    <ClCompile Include="STL4_114.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
