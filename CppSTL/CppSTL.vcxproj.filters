@@ -141,5 +141,14 @@
     <ClCompile Include="STL4_114.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="STL4_120.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="STL4_124.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="STL5_135.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

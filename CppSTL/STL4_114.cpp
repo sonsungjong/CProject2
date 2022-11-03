@@ -11,24 +11,32 @@ void For_each114(IterT begin, IterT end, Func pf)
 	}
 }
 
-void PrintInt(int n)
+template<typename T>
+void PrintT(T n)
 {
 	cout << n << " ";
 }
 
-void PrintString(string data)
+template<typename T>
+struct PrintFunctor
 {
-	cout << data << " ";
-}
+	string sep;
 
-int main()
+	explicit PrintFunctor(const string& s = " ") : sep(s) {}
+	void operator()(T data) const
+	{
+		cout << data << sep;
+	}
+};
+
+int main114()
 {
 	int arr[5] = { 10, 20, 30, 40, 50 };
-	For_each114(arr, arr + 5, PrintInt);
+	For_each114(arr, arr + 5, PrintFunctor<int>());
 	cout << endl;
 
 	string sarr[3] = {"abc", "abcde", "Hello!"};
-	For_each114(sarr, sarr + 3, PrintString);
+	For_each114(sarr, sarr + 3, PrintFunctor<string>("*\n"));
 	cout << endl;
 
 	return 0;
