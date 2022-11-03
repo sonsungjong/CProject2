@@ -150,5 +150,8 @@
     <ClCompile Include="STL5_135.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="STL5_138.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
