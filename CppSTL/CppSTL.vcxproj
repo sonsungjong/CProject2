@@ -69,6 +69,14 @@
     <ClCompile Include="STL5_141.cpp" />
     <ClCompile Include="STL5_143.cpp" />
     <ClCompile Include="STL5_144.cpp" />
+    <ClCompile Include="STL5_145.cpp" />
+    <ClCompile Include="STL5_147.cpp" />
+    <ClCompile Include="STL5_149.cpp" />
+    <ClCompile Include="STL5_152.cpp" />
+    <ClCompile Include="STL5_154.cpp" />
+    <ClCompile Include="STL5_156.cpp" />
+    <ClCompile Include="STL5_158.cpp" />
+    <ClCompile Include="STL5_160.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
