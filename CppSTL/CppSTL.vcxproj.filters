@@ -153,5 +153,17 @@
     <ClCompile Include="STL5_138.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="STL5_140.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="STL5_141.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="STL5_143.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="STL5_144.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
