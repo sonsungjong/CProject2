@@ -78,6 +78,8 @@
     <ClCompile Include="_158_.cpp" />
     <ClCompile Include="_160_.cpp" />
     <ClCompile Include="_165_vector.cpp" />
+    <ClCompile Include="_167_vector.cpp" />
+    <ClCompile Include="_171_vector.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
