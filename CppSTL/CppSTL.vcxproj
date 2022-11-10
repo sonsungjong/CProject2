@@ -80,6 +80,24 @@
     <ClCompile Include="_165_vector.cpp" />
     <ClCompile Include="_167_vector.cpp" />
     <ClCompile Include="_171_vector.cpp" />
+    <ClCompile Include="_175_vector.cpp" />
+    <ClCompile Include="_177_vector.cpp" />
+    <ClCompile Include="_180_vector.cpp" />
+    <ClCompile Include="_182_vector.cpp" />
+    <ClCompile Include="_184_vector.cpp" />
+    <ClCompile Include="_185_vector.cpp" />
+    <ClCompile Include="_188_vector.cpp" />
+    <ClCompile Include="_190_iterator.cpp" />
+    <ClCompile Include="_191_vector.cpp" />
+    <ClCompile Include="_192_const_iterator.cpp" />
+    <ClCompile Include="_194_const_iterator.cpp" />
+    <ClCompile Include="_196_reverse_iterator.cpp" />
+    <ClCompile Include="_197_vector.cpp" />
+    <ClCompile Include="_199_vector.cpp" />
+    <ClCompile Include="_200_vector.cpp" />
+    <ClCompile Include="_202_vector.cpp" />
+    <ClCompile Include="_203_operator.cpp" />
+    <ClCompile Include="_206_deque.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
