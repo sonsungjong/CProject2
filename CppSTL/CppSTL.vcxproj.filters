@@ -15,178 +15,181 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="STL1_015.cpp">
+    <ClCompile Include="_015_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL1_016.cpp">
+    <ClCompile Include="_016_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL1_020.cpp">
+    <ClCompile Include="_020_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL1_021.cpp">
+    <ClCompile Include="_021_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL1_024.cpp">
+    <ClCompile Include="_024_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL1_025.cpp">
+    <ClCompile Include="_025_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL1_027.cpp">
+    <ClCompile Include="_027_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL1_028.cpp">
+    <ClCompile Include="_028_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL1_032.cpp">
+    <ClCompile Include="_032_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL1_033.cpp">
+    <ClCompile Include="_033_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL1_035.cpp">
+    <ClCompile Include="_035_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL1_037.cpp">
+    <ClCompile Include="_037_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL1_038.cpp">
+    <ClCompile Include="_038_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL1_039.cpp">
+    <ClCompile Include="_039_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL1_042.cpp">
+    <ClCompile Include="_042_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL1_048.cpp">
+    <ClCompile Include="_048_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL1_049.cpp">
+    <ClCompile Include="_049_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL1_051.cpp">
+    <ClCompile Include="_051_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL1_053.cpp">
+    <ClCompile Include="_053_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL1_055.cpp">
+    <ClCompile Include="_055_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL2_059.cpp">
+    <ClCompile Include="_059_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL2_061.cpp">
+    <ClCompile Include="_061_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL2_063.cpp">
+    <ClCompile Include="_063_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL2_065.cpp">
+    <ClCompile Include="_065_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL2_067.cpp">
+    <ClCompile Include="_067_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL2_069.cpp">
+    <ClCompile Include="_069_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL2_071.cpp">
+    <ClCompile Include="_071_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL2_073.cpp">
+    <ClCompile Include="_073_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL3_077.cpp">
+    <ClCompile Include="_077_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL3_078.cpp">
+    <ClCompile Include="_078_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL3_080.cpp">
+    <ClCompile Include="_080_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL3_082.cpp">
+    <ClCompile Include="_082_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL3_083.cpp">
+    <ClCompile Include="_083_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL3_086.cpp">
+    <ClCompile Include="_086_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL3_088.cpp">
+    <ClCompile Include="_088_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL4_091.cpp">
+    <ClCompile Include="_091_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL4_095.cpp">
+    <ClCompile Include="_095_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL4_098.cpp">
+    <ClCompile Include="_098_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL4_100.cpp">
+    <ClCompile Include="_100_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL4_102.cpp">
+    <ClCompile Include="_102_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL4_109.cpp">
+    <ClCompile Include="_109_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL4_114.cpp">
+    <ClCompile Include="_114_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL4_120.cpp">
+    <ClCompile Include="_120_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL4_124.cpp">
+    <ClCompile Include="_124_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL5_135.cpp">
+    <ClCompile Include="_135_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL5_138.cpp">
+    <ClCompile Include="_138_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL5_140.cpp">
+    <ClCompile Include="_140_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL5_141.cpp">
+    <ClCompile Include="_141_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL5_143.cpp">
+    <ClCompile Include="_143_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL5_144.cpp">
+    <ClCompile Include="_144_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL5_145.cpp">
+    <ClCompile Include="_145_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL5_147.cpp">
+    <ClCompile Include="_147_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL5_149.cpp">
+    <ClCompile Include="_149_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL5_152.cpp">
+    <ClCompile Include="_152_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL5_154.cpp">
+    <ClCompile Include="_154_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL5_156.cpp">
+    <ClCompile Include="_156_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL5_158.cpp">
+    <ClCompile Include="_158_.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STL5_160.cpp">
+    <ClCompile Include="_160_.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="_165_vector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
