@@ -39,6 +39,9 @@
     <ClInclude Include="Level1.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SpriteSheet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Direct2DTuto.cpp">
@@ -56,6 +59,9 @@
     <ClCompile Include="Level1.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SpriteSheet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Direct2DTuto.rc">
@@ -67,6 +73,9 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="Direct2DTuto.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="test.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

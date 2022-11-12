@@ -68,6 +68,8 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
         return -1;
     }
 
+    GameLevel::Init(graphics);
+
     ShowWindow(hWnd, nCmdShow);
     //UpdateWindow(hWnd);
 
@@ -88,7 +90,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
             // Render
             graphics->BeginDraw();
-            GameController::Render(graphics);
+            GameController::Render();
 
             graphics->EndDraw();
         }
