@@ -145,13 +145,19 @@
   <ItemGroup>
     <ClInclude Include="Direct2DTuto.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="GameController.h" />
+    <ClInclude Include="GameLevel.h" />
     <ClInclude Include="Graphics.h" />
+    <ClInclude Include="Level1.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Direct2DTuto.cpp" />
+    <ClCompile Include="GameController.cpp" />
+    <ClCompile Include="GameLevel.cpp" />
     <ClCompile Include="Graphics.cpp" />
+    <ClCompile Include="Level1.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Direct2DTuto.rc" />

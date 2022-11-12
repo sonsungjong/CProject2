@@ -2,34 +2,17 @@
 #include "Direct2DTuto.h"
 #include "Graphics.h"
 
-// Tuto 6 : Real Time Game Loop
+#include "Level1.h"
+#include "GameController.h"
 
 Graphics* graphics;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    PAINTSTRUCT ps;
-    HDC hdc;
 
-    if (msg == WM_PAINT) {
-        //hdc = BeginPaint(hWnd, &ps);
-        // TODO:
-        graphics->BeginDraw();
-
-        graphics->ClearScreen(0.0f, 0.0f, 0.5f);
-
-        for (UINT i = 0; i < 1000; ++i)
-        {
-            graphics->DrawCircle(rand()%800, rand() % 600, rand() % 100, 
-                (rand() % 100)/ 100.0f, 
-                (rand() % 100) / 100.0f,
-                (rand() % 100) / 100.0f,
-                1.0f);
-        }
-
-
-        graphics->EndDraw();
-        //EndPaint(hWnd, &ps);
+    if (msg == WM_DESTROY)
+    {
+        PostQuitMessage(0);
         return 0;
     }
     else if (msg == WM_COMMAND) {
@@ -42,10 +25,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         default:
             return DefWindowProc(hWnd, msg, wParam, lParam);
         }
-        return 0;
-    }
-    else if (msg == WM_DESTROY) {
-        PostQuitMessage(0);
         return 0;
     }
 
@@ -92,11 +71,32 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
     ShowWindow(hWnd, nCmdShow);
     //UpdateWindow(hWnd);
 
+    GameController::LoadInitialLevel(new Level1());
+
     MSG msg;
-    while (GetMessage(&msg, NULL, 0, 0)) {
-        //TranslateMessage(&msg);
-        DispatchMessage(&msg);
+    msg.message = WM_NULL;
+    while (msg.message != WM_QUIT)
+    {
+        if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+        {
+            DispatchMessage(&msg);
+        }
+        else
+        {
+            // Update
+            GameController::Update();
+
+            // Render
+            graphics->BeginDraw();
+            GameController::Render(graphics);
+
+            graphics->EndDraw();
+        }
     }
+    //while (GetMessage(&msg, NULL, 0, 0)) {
+    //    //TranslateMessage(&msg);
+    //    DispatchMessage(&msg);
+    //}
 
     delete graphics;
 
