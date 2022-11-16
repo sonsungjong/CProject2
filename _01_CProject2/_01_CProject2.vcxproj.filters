@@ -219,5 +219,8 @@
     <ClCompile Include="Mentor280.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="_484_LinkedList.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

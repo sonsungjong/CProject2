@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-int main()
+int main_280()
 {
 	char* s1 = "Take a look!";
 	char* s2 = (char*)malloc(sizeof(char) * strlen(s1) + 1);
