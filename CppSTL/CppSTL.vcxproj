@@ -98,6 +98,9 @@
     <ClCompile Include="_202_vector.cpp" />
     <ClCompile Include="_203_operator.cpp" />
     <ClCompile Include="_206_deque.cpp" />
+    <ClCompile Include="_213_deque.cpp" />
+    <ClCompile Include="_220_list.cpp" />
+    <ClCompile Include="_221_list.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

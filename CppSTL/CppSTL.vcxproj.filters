@@ -252,5 +252,14 @@
     <ClCompile Include="_206_deque.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="_213_deque.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="_220_list.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="_221_list.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
