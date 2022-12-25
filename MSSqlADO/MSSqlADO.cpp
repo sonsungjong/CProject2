@@ -1,5 +1,5 @@
 // MSSqlADO.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
+// SQL Server 구성에서 TCP/IP 를 Enable로 바꿔줘야함
 
 #import "C:\Program Files\Common Files\System\ado\msado15.dll" no_namespace rename("EOF", "EndOfFile")
 #include <iostream>
@@ -24,8 +24,8 @@ void main()
 
 	TESTHR(m_pConnection.CreateInstance(__uuidof(Connection)));
 	//_bstr_t strCnn("Provider=SQLOLEDB.1;Data Source=127.0.0.1:1433; Initial Catalog=LIGS-2201000208, 1433;User ID=son;Password=0000");
-	_bstr_t strCnn("Provider=SQLOLEDB.1;SERVER=127.0.0.1,1433;UID=son;PWD=0000;DATABASE=newdb");
-	TESTHR(m_pConnection->Open(strCnn, "son", "0000", NULL));
+	_bstr_t strCnn("Provider=SQLOLEDB.1;SERVER=127.0.0.1,1433;UID=root;PWD=root;DATABASE=newdb");
+	TESTHR(m_pConnection->Open(strCnn, "root", "root", NULL));
 
 	if (m_pConnection == NULL) {
 		printf("No Connection");
