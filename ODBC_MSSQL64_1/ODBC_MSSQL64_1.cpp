@@ -11,6 +11,9 @@
 #include <sqlext.h>
 
 // SQL Server 구성에서 TCP/IP 를 Enable로 바꿔줘야함
+// 보안 -> 새 로그인 -> SQL Server 인증 -> 기본 데이터베이스 설정 -> public/sysadmin -> 매핑 사용자 설정
+
+// ODBC 설정
 // 제어판 -> 관리 도구 -> ODBC Data Sources (64 or 32) -> 사용자 DSN '추가'
 // DataSourceName : 등록ODBC명, TCP/IP : IP주소, User : 아이디, Password : 비밀번호, Database : 스키마명
 
