@@ -6,14 +6,15 @@
 #include "sql.h"
 #include "sqlext.h"
 
-// 제어판 -> 관리 도구 -> ODBC Data Sources (64 or 32) -> 사용자 DSN '추가'
-// DataSourceName : 테이블명, TCP/IP : IP주소, User : 아이디, Password : 비밀번호, Database : 스키마명
+// ODBC 드라이버 설치
+// 제어판 -> 관리 도구 -> ODBC Data Sources (64 or 32) -> 사용자 DSN '추가' -> MariaDB ODBC 3.1 Driver
+// DataSource Name : ODBC등록명, TCP/IP : IP주소, User : 아이디, Password : 비밀번호, Database : 스키마명
 
 SQLHENV hEnv;
 SQLHDBC hDbc;
 SQLHSTMT hStmt;
 
-SQLTCHAR* ODBC_Name = (SQLTCHAR*)_T("employee");                    // ODBC등록 명
+SQLTCHAR* ODBC_Name = (SQLTCHAR*)_T("employee_maria");                    // ODBC등록명
 SQLTCHAR* ODBC_ID = (SQLTCHAR*)_T("root");
 SQLTCHAR* ODBC_PW = (SQLTCHAR*)_T("root");
 
