@@ -101,6 +101,16 @@
     <ClCompile Include="_213_deque.cpp" />
     <ClCompile Include="_220_list.cpp" />
     <ClCompile Include="_221_list.cpp" />
+    <ClCompile Include="_223_list_insert.cpp" />
+    <ClCompile Include="_226_list_remove.cpp" />
+    <ClCompile Include="_228_list_splice.cpp" />
+    <ClCompile Include="_230_list_splice.cpp" />
+    <ClCompile Include="_233_list_reverse.cpp" />
+    <ClCompile Include="_235_list_unique.cpp" />
+    <ClCompile Include="_237_list_sort.cpp" />
+    <ClCompile Include="_239_list_merge.cpp" />
+    <ClCompile Include="_242_list_merge.cpp" />
+    <ClCompile Include="_245_sequence_quiz.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

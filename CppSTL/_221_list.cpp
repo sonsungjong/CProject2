@@ -3,7 +3,7 @@
 
 using namespace std;
 
-int main()
+int main221()
 {
 	list<int> lst;
 	lst.push_back(10);
