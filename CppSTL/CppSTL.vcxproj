@@ -111,6 +111,9 @@
     <ClCompile Include="_239_list_merge.cpp" />
     <ClCompile Include="_242_list_merge.cpp" />
     <ClCompile Include="_245_sequence_quiz.cpp" />
+    <ClCompile Include="_251_set.cpp" />
+    <ClCompile Include="_257_set.cpp" />
+    <ClCompile Include="_260_set_comp.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
