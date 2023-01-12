@@ -199,6 +199,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ODBC_MARIA2", "ODBC_MARIA2\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SingletonClass", "SingletonClass\SingletonClass.vcxproj", "{F688B499-7FEA-4076-BD45-EC3971568882}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UTF8_BOM", "UTF8_BOM\UTF8_BOM.vcxproj", "{D7ECAEAB-CD37-40D0-B72D-3E28582BF9BE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -991,6 +993,14 @@ Global
 		{F688B499-7FEA-4076-BD45-EC3971568882}.Release|x64.Build.0 = Release|x64
 		{F688B499-7FEA-4076-BD45-EC3971568882}.Release|x86.ActiveCfg = Release|Win32
 		{F688B499-7FEA-4076-BD45-EC3971568882}.Release|x86.Build.0 = Release|Win32
+		{D7ECAEAB-CD37-40D0-B72D-3E28582BF9BE}.Debug|x64.ActiveCfg = Debug|x64
+		{D7ECAEAB-CD37-40D0-B72D-3E28582BF9BE}.Debug|x64.Build.0 = Debug|x64
+		{D7ECAEAB-CD37-40D0-B72D-3E28582BF9BE}.Debug|x86.ActiveCfg = Debug|Win32
+		{D7ECAEAB-CD37-40D0-B72D-3E28582BF9BE}.Debug|x86.Build.0 = Debug|Win32
+		{D7ECAEAB-CD37-40D0-B72D-3E28582BF9BE}.Release|x64.ActiveCfg = Release|x64
+		{D7ECAEAB-CD37-40D0-B72D-3E28582BF9BE}.Release|x64.Build.0 = Release|x64
+		{D7ECAEAB-CD37-40D0-B72D-3E28582BF9BE}.Release|x86.ActiveCfg = Release|Win32
+		{D7ECAEAB-CD37-40D0-B72D-3E28582BF9BE}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
