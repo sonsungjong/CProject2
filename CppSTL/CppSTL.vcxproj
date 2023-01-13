@@ -114,6 +114,13 @@
     <ClCompile Include="_251_set.cpp" />
     <ClCompile Include="_257_set.cpp" />
     <ClCompile Include="_260_set_comp.cpp" />
+    <ClCompile Include="_262_set_find.cpp" />
+    <ClCompile Include="_264_set_comp.cpp" />
+    <ClCompile Include="_265_set_bound.cpp" />
+    <ClCompile Include="_270_multiset.cpp" />
+    <ClCompile Include="_272_multiset_find.cpp" />
+    <ClCompile Include="_274_multiset_equal_range.cpp" />
+    <ClCompile Include="_276_map.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
