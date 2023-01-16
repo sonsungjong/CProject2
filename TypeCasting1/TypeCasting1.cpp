@@ -2,6 +2,7 @@
 #include "framework.h"
 #include "TypeCasting1.h"
 
+#include <locale>
 #include <string>
 #include <sstream>
 #include <vector>
@@ -9,6 +10,7 @@
 CWinApp theApp;
 typedef std::basic_string<TCHAR> TSTRING;
 typedef std::basic_stringstream<TCHAR> Tstringstream;
+#define SIZE256           256
 
 // int -> string
 std::string IntToString(int num)
@@ -73,6 +75,15 @@ std::string CStringToStr(CString a_cstring)
     return local_str;
 }
 
+// CString -> TCHAR[]
+void CStringToTchar(CString a_cstring, TCHAR* a_tchar, const int a_size)
+{
+    memset(a_tchar, 0x00, sizeof(TCHAR) * a_size);
+
+    _tcscpy_s(a_tchar, a_size, a_cstring.GetBuffer(0));
+    a_cstring.ReleaseBuffer();
+}
+
 // wstring -> string
 std::string WstrToStr(std::wstring a_wstr)
 {
@@ -101,5 +112,12 @@ TSTRING TstreamToTstr(Tstringstream a_ss)
 
 int main()
 {
-    
+    _tsetlocale(0, _T("korean"));               // wchar_t ÇÑ±Û±úÁü¹æÁö
+    // Å×½ºÆ®
+    CString cs = _T("¾È³ç¹Ý°©aa123!@#");
+    TCHAR str[128];
+    int s_size = sizeof(str) / sizeof(str[0]);
+    CStringToTchar(cs, str, s_size);
+
+    _tprintf(_T("%s"), str);
 }
