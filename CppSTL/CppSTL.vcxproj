@@ -121,6 +121,13 @@
     <ClCompile Include="_272_multiset_find.cpp" />
     <ClCompile Include="_274_multiset_equal_range.cpp" />
     <ClCompile Include="_276_map.cpp" />
+    <ClCompile Include="_280_map_insert.cpp" />
+    <ClCompile Include="_282_map.cpp" />
+    <ClCompile Include="_283_map_less.cpp" />
+    <ClCompile Include="_284_map_find.cpp" />
+    <ClCompile Include="_288_multimap.cpp" />
+    <ClCompile Include="_289_multimap_equal_range.cpp" />
+    <ClCompile Include="_292_set_map.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
