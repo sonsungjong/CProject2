@@ -97,7 +97,7 @@ LRESULT CALLBACK DlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     {
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hWnd, &ps);
-        Graphics gp(hdc);
+        Gdiplus::Graphics gp(hdc);
         Image img = _T("../img/sea.jpg");
         gp.DrawImage(&img, 0, 0, 400, 330);
         EndPaint(hWnd, &ps);
