@@ -128,6 +128,15 @@
     <ClCompile Include="_288_multimap.cpp" />
     <ClCompile Include="_289_multimap_equal_range.cpp" />
     <ClCompile Include="_292_set_map.cpp" />
+    <ClCompile Include="_295_nonmodifying_algorithms.cpp" />
+    <ClCompile Include="_296_adjacent_find.cpp" />
+    <ClCompile Include="_298_adjacent_find.cpp" />
+    <ClCompile Include="_300_adjacent_find.cpp" />
+    <ClCompile Include="_301_count.cpp" />
+    <ClCompile Include="_302_count_if.cpp" />
+    <ClCompile Include="_304_equal.cpp" />
+    <ClCompile Include="_306_equal.cpp" />
+    <ClCompile Include="_307_find.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
