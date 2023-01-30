@@ -2,7 +2,7 @@
 
 using namespace std;
 
-int main() {
+int main062() {
 	// 복사연산자를 사용하면 메모리Copy(주소) 가 이루어짐
 	// 객체를 복사할때 선언 후 대입연산자를 사용할 것
 
