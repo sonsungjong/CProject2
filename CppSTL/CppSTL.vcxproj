@@ -137,6 +137,11 @@
     <ClCompile Include="_304_equal.cpp" />
     <ClCompile Include="_306_equal.cpp" />
     <ClCompile Include="_307_find.cpp" />
+    <ClCompile Include="_309_find_end.cpp" />
+    <ClCompile Include="_311_find_end.cpp" />
+    <ClCompile Include="_313_find_first_of.cpp" />
+    <ClCompile Include="_315_find_first_of.cpp" />
+    <ClCompile Include="_317_for_each.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

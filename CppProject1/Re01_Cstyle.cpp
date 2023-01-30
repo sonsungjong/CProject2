@@ -30,7 +30,7 @@ void MultiplyValue(struct ValueList* values)
 	printf("%d * %d * %d = %d\n", values->a, values->b, values->c, values->a * values->b * values->c);
 }
 
-int main()
+int mainRe1()
 {
 	// 구조체 선언
 	struct ValueList values;
