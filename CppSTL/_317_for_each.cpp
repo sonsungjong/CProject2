@@ -8,7 +8,7 @@ void Print317(int n)
 	printf("%d ", n);
 }
 
-int main()
+int main317()
 {
 	vector<int> v;
 	v.push_back(10);
