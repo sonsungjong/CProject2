@@ -1,34 +1,42 @@
 #include "pch.h"
 
-int main()
+void main()
 {
-    int data[5] = { 10, 6, 7, 9, 3 };
+	char str1[50];
+	char str2[50];
+	printf("문자열1 입력>>");
+	scanf("%[^\n]s", str1);
+	rewind(stdin);
+	printf("문자열2 입력>>");
+	scanf("%[^\n]s", str2);
 
-    int temp;
-    // 내림차순으로 정렬
-    for (int i = 0; i < sizeof(data)/sizeof(int); i++) {
-        for (int j = i + 1; j < sizeof(data)/sizeof(int); j++) {
-            if (data[i] < data[j]) {
-                temp = data[i];
-                data[i] = data[j];
-                data[j] = temp;
-            }
-        }
-    }
-    for (int i = 0; i < sizeof(data)/sizeof(int); i++) {
-        printf("%d ", data[i]);
-    }
+	// 문자열이 같은지 비교
+	if (strcmp(str1, str2) == 0) {
+		printf("같습니다.");
+	}
+	else {
+		printf("다릅니다.");
+	}
+	
+	// 더 긴 문자열 검사
+	if (strlen(str1) > strlen(str2)) {
+		printf("%s\n", str1);
+		printf("%s\n", str2);
+	}
+	else {
+		printf("%s\n", str2);
+		printf("%s\n", str1);
+	}
 
-
-    // 2와 3의 공배수 갯수
-    int cnt = 0;
-    for (int i = 0; i < sizeof(data) / sizeof(int); i++) {
-        if ((data[i] % 2 == 0) && (data[i] % 3) == 0) {
-            cnt++;
-        }
-    }
-    printf("\n%d개\n", cnt);
-
-
-    return 0;
+	// 문자열 중 숫자만 추출하여 더하기
+	printf("문자열3 입력>>");
+	char str3[50] = { 0, };
+	scanf("%s", str3);
+	int sum = 0;
+	for (int i = 0; i < 50; i++) {
+		if (str3[i] > 47 && str3[i] < 58) {
+			sum += str3[i] - 48;
+		}
+	}
+	printf("%d\n", sum);
 }
