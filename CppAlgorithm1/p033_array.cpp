@@ -96,7 +96,7 @@ std::ostream& operator<<(std::ostream& os, const student& s)
 	return (os << "[" << s.name << ", " << s.standard << "]");
 }
 
-int main()
+int main033()
 {
 	int nStudents;
 	printf("1반 학생 수를 입력하세요: ");

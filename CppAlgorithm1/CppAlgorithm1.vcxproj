@@ -127,8 +127,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="p028.cpp" />
-    <ClCompile Include="p033.cpp" />
+    <ClCompile Include="p028_array.cpp" />
+    <ClCompile Include="p033_array.cpp" />
+    <ClCompile Include="p037_array.cpp" />
+    <ClCompile Include="p040_vector.cpp" />
+    <ClCompile Include="p045_forward_list.cpp" />
+    <ClCompile Include="p047_forward_list.cpp" />
+    <ClCompile Include="p051_forward_list.cpp" />
+    <ClCompile Include="p053_singly_ll.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
