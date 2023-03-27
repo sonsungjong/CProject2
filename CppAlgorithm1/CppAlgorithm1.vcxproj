@@ -135,6 +135,8 @@
     <ClCompile Include="p047_forward_list.cpp" />
     <ClCompile Include="p051_forward_list.cpp" />
     <ClCompile Include="p053_singly_ll.cpp" />
+    <ClCompile Include="p060_list.cpp" />
+    <ClCompile Include="p066_deque.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

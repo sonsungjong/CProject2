@@ -148,6 +148,11 @@
     <ClCompile Include="_323_max_min.cpp" />
     <ClCompile Include="_325_max_element.cpp" />
     <ClCompile Include="_326_max_element.cpp" />
+    <ClCompile Include="_327_mismatch.cpp" />
+    <ClCompile Include="_329_mismatch.cpp" />
+    <ClCompile Include="_330_search.cpp" />
+    <ClCompile Include="_332_search_n.cpp" />
+    <ClCompile Include="_334_search_n.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

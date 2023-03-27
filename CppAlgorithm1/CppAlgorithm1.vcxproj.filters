@@ -39,5 +39,11 @@
     <ClCompile Include="p053_singly_ll.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="p060_list.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p066_deque.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
