@@ -1,7 +1,6 @@
-// csv파일을 읽어서 내용을 출력하는 예제
+// csv파일(UTF-8)을 읽어서 내용을 출력하는 예제
 
-// 튜플 200개까지
-#define MAX_COUNT               200
+#define MAX_COUNT               200                     // 튜플 200개까지
 #include <cstdio>               // printf, fopen_s, fgets, fclose
 #include <cstdlib>              // atoi
 #include <tchar.h>
