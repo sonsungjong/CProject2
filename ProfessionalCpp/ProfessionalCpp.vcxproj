@@ -134,6 +134,9 @@
     <ClCompile Include="p0059_iostream.cpp" />
     <ClCompile Include="p0065_namespace.cpp" />
     <ClCompile Include="p0068_literal.cpp" />
+    <ClCompile Include="p0071_int_max.cpp" />
+    <ClCompile Include="p0072_zero_initialization.cpp" />
+    <ClCompile Include="p0076_enumerated.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HeaderUnits.h">

@@ -27,5 +27,14 @@
     <ClCompile Include="p0068_literal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="p0071_int_max.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p0072_zero_initialization.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p0076_enumerated.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
