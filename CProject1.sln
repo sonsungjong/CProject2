@@ -219,6 +219,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "csv_read2", "csv_read2\csv_
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "csv_read3", "csv_read3\csv_read3.vcxproj", "{E96949F3-01FD-4D04-810C-028E99D9C576}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProfessionalCpp", "ProfessionalCpp\ProfessionalCpp.vcxproj", "{5CE3B6FF-A773-4120-A946-14E4CEC7E28C}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "csv_to_mariadb1", "csv_to_mariadb1\csv_to_mariadb1.vcxproj", "{A433E33A-3BA8-4D10-BFDA-B7B8DBE4BED8}"
 EndProject
 Global
@@ -1093,14 +1095,6 @@ Global
 		{E96949F3-01FD-4D04-810C-028E99D9C576}.Release|x64.Build.0 = Release|x64
 		{E96949F3-01FD-4D04-810C-028E99D9C576}.Release|x86.ActiveCfg = Release|Win32
 		{E96949F3-01FD-4D04-810C-028E99D9C576}.Release|x86.Build.0 = Release|Win32
-		{A433E33A-3BA8-4D10-BFDA-B7B8DBE4BED8}.Debug|x64.ActiveCfg = Debug|x64
-		{A433E33A-3BA8-4D10-BFDA-B7B8DBE4BED8}.Debug|x64.Build.0 = Debug|x64
-		{A433E33A-3BA8-4D10-BFDA-B7B8DBE4BED8}.Debug|x86.ActiveCfg = Debug|Win32
-		{A433E33A-3BA8-4D10-BFDA-B7B8DBE4BED8}.Debug|x86.Build.0 = Debug|Win32
-		{A433E33A-3BA8-4D10-BFDA-B7B8DBE4BED8}.Release|x64.ActiveCfg = Release|x64
-		{A433E33A-3BA8-4D10-BFDA-B7B8DBE4BED8}.Release|x64.Build.0 = Release|x64
-		{A433E33A-3BA8-4D10-BFDA-B7B8DBE4BED8}.Release|x86.ActiveCfg = Release|Win32
-		{A433E33A-3BA8-4D10-BFDA-B7B8DBE4BED8}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
