@@ -223,6 +223,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProfessionalCpp", "Professi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "csv_to_mariadb1", "csv_to_mariadb1\csv_to_mariadb1.vcxproj", "{A433E33A-3BA8-4D10-BFDA-B7B8DBE4BED8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cJSON_install", "cJSON_install\cJSON_install.vcxproj", "{DD5A33C5-C5CB-41B5-BC83-7530D283606C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -1111,6 +1113,14 @@ Global
 		{A433E33A-3BA8-4D10-BFDA-B7B8DBE4BED8}.Release|x64.Build.0 = Release|x64
 		{A433E33A-3BA8-4D10-BFDA-B7B8DBE4BED8}.Release|x86.ActiveCfg = Release|Win32
 		{A433E33A-3BA8-4D10-BFDA-B7B8DBE4BED8}.Release|x86.Build.0 = Release|Win32
+		{DD5A33C5-C5CB-41B5-BC83-7530D283606C}.Debug|x64.ActiveCfg = Debug|x64
+		{DD5A33C5-C5CB-41B5-BC83-7530D283606C}.Debug|x64.Build.0 = Debug|x64
+		{DD5A33C5-C5CB-41B5-BC83-7530D283606C}.Debug|x86.ActiveCfg = Debug|Win32
+		{DD5A33C5-C5CB-41B5-BC83-7530D283606C}.Debug|x86.Build.0 = Debug|Win32
+		{DD5A33C5-C5CB-41B5-BC83-7530D283606C}.Release|x64.ActiveCfg = Release|x64
+		{DD5A33C5-C5CB-41B5-BC83-7530D283606C}.Release|x64.Build.0 = Release|x64
+		{DD5A33C5-C5CB-41B5-BC83-7530D283606C}.Release|x86.ActiveCfg = Release|Win32
+		{DD5A33C5-C5CB-41B5-BC83-7530D283606C}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
