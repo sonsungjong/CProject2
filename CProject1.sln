@@ -225,6 +225,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "csv_to_mariadb1", "csv_to_m
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cJSON_install", "cJSON_install\cJSON_install.vcxproj", "{DD5A33C5-C5CB-41B5-BC83-7530D283606C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PahoMqttCppServer", "PahoMqttCppServer\PahoMqttCppServer.vcxproj", "{01563D61-A6EA-4E46-9B82-04F7A0E4A863}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PahoMqttCppSend", "PahoMqttCppSend\PahoMqttCppSend.vcxproj", "{F925EF79-95AD-485F-9219-EB5933C3769B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -1121,6 +1125,22 @@ Global
 		{DD5A33C5-C5CB-41B5-BC83-7530D283606C}.Release|x64.Build.0 = Release|x64
 		{DD5A33C5-C5CB-41B5-BC83-7530D283606C}.Release|x86.ActiveCfg = Release|Win32
 		{DD5A33C5-C5CB-41B5-BC83-7530D283606C}.Release|x86.Build.0 = Release|Win32
+		{01563D61-A6EA-4E46-9B82-04F7A0E4A863}.Debug|x64.ActiveCfg = Debug|x64
+		{01563D61-A6EA-4E46-9B82-04F7A0E4A863}.Debug|x64.Build.0 = Debug|x64
+		{01563D61-A6EA-4E46-9B82-04F7A0E4A863}.Debug|x86.ActiveCfg = Debug|Win32
+		{01563D61-A6EA-4E46-9B82-04F7A0E4A863}.Debug|x86.Build.0 = Debug|Win32
+		{01563D61-A6EA-4E46-9B82-04F7A0E4A863}.Release|x64.ActiveCfg = Release|x64
+		{01563D61-A6EA-4E46-9B82-04F7A0E4A863}.Release|x64.Build.0 = Release|x64
+		{01563D61-A6EA-4E46-9B82-04F7A0E4A863}.Release|x86.ActiveCfg = Release|Win32
+		{01563D61-A6EA-4E46-9B82-04F7A0E4A863}.Release|x86.Build.0 = Release|Win32
+		{F925EF79-95AD-485F-9219-EB5933C3769B}.Debug|x64.ActiveCfg = Debug|x64
+		{F925EF79-95AD-485F-9219-EB5933C3769B}.Debug|x64.Build.0 = Debug|x64
+		{F925EF79-95AD-485F-9219-EB5933C3769B}.Debug|x86.ActiveCfg = Debug|Win32
+		{F925EF79-95AD-485F-9219-EB5933C3769B}.Debug|x86.Build.0 = Debug|Win32
+		{F925EF79-95AD-485F-9219-EB5933C3769B}.Release|x64.ActiveCfg = Release|x64
+		{F925EF79-95AD-485F-9219-EB5933C3769B}.Release|x64.Build.0 = Release|x64
+		{F925EF79-95AD-485F-9219-EB5933C3769B}.Release|x86.ActiveCfg = Release|Win32
+		{F925EF79-95AD-485F-9219-EB5933C3769B}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
