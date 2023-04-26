@@ -15,7 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CProject3.c">
+    <ClCompile Include="p044_define.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p046_VAdefine.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

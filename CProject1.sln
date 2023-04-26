@@ -209,8 +209,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MQTT1883", "MQTT1883\MQTT18
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TCPServer", "TCPServer\TCPServer.vcxproj", "{2EDE042E-1B7C-44C0-AFD8-C265EA9190C3}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CProject3", "CProject3\CProject3.vcxproj", "{7325B60D-BC82-45F4-8DBB-37E3AAB07027}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "csv_read", "csv_read\csv_read.vcxproj", "{C085753D-F740-4DF4-8F3F-C30A06C990EE}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CreationalPatterns", "CreationalPatterns\CreationalPatterns.vcxproj", "{13C9C2D2-5AE0-47C5-A1B9-0ECC9E6440B5}"
@@ -228,6 +226,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PahoMqttCppServer", "PahoMqttCppServer\PahoMqttCppServer.vcxproj", "{01563D61-A6EA-4E46-9B82-04F7A0E4A863}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PahoMqttCppSend", "PahoMqttCppSend\PahoMqttCppSend.vcxproj", "{F925EF79-95AD-485F-9219-EB5933C3769B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProfessionalC", "ProfessionalC\ProfessionalC.vcxproj", "{CBAA0D3B-5528-464C-95D9-8911E2713439}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -1061,14 +1061,6 @@ Global
 		{2EDE042E-1B7C-44C0-AFD8-C265EA9190C3}.Release|x64.Build.0 = Release|x64
 		{2EDE042E-1B7C-44C0-AFD8-C265EA9190C3}.Release|x86.ActiveCfg = Release|Win32
 		{2EDE042E-1B7C-44C0-AFD8-C265EA9190C3}.Release|x86.Build.0 = Release|Win32
-		{7325B60D-BC82-45F4-8DBB-37E3AAB07027}.Debug|x64.ActiveCfg = Debug|x64
-		{7325B60D-BC82-45F4-8DBB-37E3AAB07027}.Debug|x64.Build.0 = Debug|x64
-		{7325B60D-BC82-45F4-8DBB-37E3AAB07027}.Debug|x86.ActiveCfg = Debug|Win32
-		{7325B60D-BC82-45F4-8DBB-37E3AAB07027}.Debug|x86.Build.0 = Debug|Win32
-		{7325B60D-BC82-45F4-8DBB-37E3AAB07027}.Release|x64.ActiveCfg = Release|x64
-		{7325B60D-BC82-45F4-8DBB-37E3AAB07027}.Release|x64.Build.0 = Release|x64
-		{7325B60D-BC82-45F4-8DBB-37E3AAB07027}.Release|x86.ActiveCfg = Release|Win32
-		{7325B60D-BC82-45F4-8DBB-37E3AAB07027}.Release|x86.Build.0 = Release|Win32
 		{C085753D-F740-4DF4-8F3F-C30A06C990EE}.Debug|x64.ActiveCfg = Debug|x64
 		{C085753D-F740-4DF4-8F3F-C30A06C990EE}.Debug|x64.Build.0 = Debug|x64
 		{C085753D-F740-4DF4-8F3F-C30A06C990EE}.Debug|x86.ActiveCfg = Debug|Win32
@@ -1141,6 +1133,14 @@ Global
 		{F925EF79-95AD-485F-9219-EB5933C3769B}.Release|x64.Build.0 = Release|x64
 		{F925EF79-95AD-485F-9219-EB5933C3769B}.Release|x86.ActiveCfg = Release|Win32
 		{F925EF79-95AD-485F-9219-EB5933C3769B}.Release|x86.Build.0 = Release|Win32
+		{CBAA0D3B-5528-464C-95D9-8911E2713439}.Debug|x64.ActiveCfg = Debug|x64
+		{CBAA0D3B-5528-464C-95D9-8911E2713439}.Debug|x64.Build.0 = Debug|x64
+		{CBAA0D3B-5528-464C-95D9-8911E2713439}.Debug|x86.ActiveCfg = Debug|Win32
+		{CBAA0D3B-5528-464C-95D9-8911E2713439}.Debug|x86.Build.0 = Debug|Win32
+		{CBAA0D3B-5528-464C-95D9-8911E2713439}.Release|x64.ActiveCfg = Release|x64
+		{CBAA0D3B-5528-464C-95D9-8911E2713439}.Release|x64.Build.0 = Release|x64
+		{CBAA0D3B-5528-464C-95D9-8911E2713439}.Release|x86.ActiveCfg = Release|Win32
+		{CBAA0D3B-5528-464C-95D9-8911E2713439}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

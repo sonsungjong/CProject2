@@ -10,26 +10,26 @@
 
 #include <stdio.h>
 #include <string.h>
-
-int main()
+// 전문가를 위한 C
+int main_044()
 {
-    // 전문가를 위한 C
+    // 매크로
     int x = 2;
     int y = ABC;
-    int z = ADD(x,y);
+    int z = ADD(x, y);
 
-    printf("%d\n",z);
+    printf("%d\n", z);
 
     LOOP(counter, 1, 10)
         PRINT(counter)
     ENDLOOP
 
-    CMD(copy)
-    CMD(paste)
-    CMD(cut)
+    CMD(copy)           // char copy_cmd[256] = ""; strcpy(copy_cmd, "copy");
+    CMD(paste)          // char paste_cmd[256] = ""; strcpy(paste_cmd, "paste");
+    CMD(cut)                // char cut_cmd[256] = ""; strcpy(cut_cmd, "cut");
 
-    char cmd[256];
-    scanf("%s", cmd);
+    char cmd[256] = { 0, };
+    (void)scanf("%s", cmd);
 
     if (strcmp(cmd, copy_cmd) == 0) {
 
