@@ -8,7 +8,21 @@
 #define LOG_ERROR(format, ...) \
 	fprintf(stderr, format, __VA_ARGS__)
 
-int main_046(int argc, char** argv)
+#define LOOP_3(X, ...) \
+	printf("%s\n", #X);
+
+#define LOOP_2(X, ...) \
+	printf("%s\n", #X); \
+	LOOP_3(__VA_ARGS__)
+
+#define LOOP_1(X, ...) \
+	printf("%s\n", #X); \
+	LOOP_2(__VA_ARGS__)
+
+#define LOOP_(...) \
+	LOOP_1(__VA_ARGS__)
+
+int main(int argc, char** argv)
 {
 	if (argc < 3)
 	{
@@ -21,4 +35,9 @@ int main_046(int argc, char** argv)
 		LOG_ERROR("%s is a wrong param at index %d for version %d.", argv[1], 1, VERSION);
 		exit(1);
 	}
+
+	//LOOP_(copy paste cut)
+	//LOOP_(copy, paste, cut)
+	//LOOP_(copy, paste, cut, select)
 }
+
