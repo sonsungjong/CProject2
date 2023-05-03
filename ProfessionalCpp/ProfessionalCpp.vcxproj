@@ -137,6 +137,9 @@
     <ClCompile Include="p0071_int_max.cpp" />
     <ClCompile Include="p0072_zero_initialization.cpp" />
     <ClCompile Include="p0076_enumerated.cpp" />
+    <ClCompile Include="p0080_module.cppm" />
+    <ClCompile Include="p0080_struct.cpp" />
+    <ClCompile Include="p0087_threewaycomparison.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HeaderUnits.h">

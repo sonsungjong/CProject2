@@ -19,7 +19,7 @@ enum OldPiece {PieceTypeKing, PieceTypeQueen, PieceTypeRook, PieceTypePawn};
 //bool ok = false ;						// error C2365: 'ok': redefinition; previous definition was 'data variable'
 //enum Status { error, ok };				// 변수명과 예전 enum의 값 이름이 곂치면 에러가 발생한다
 
-int main()
+int main0076()
 {
 	// 강타입인 enum class
 	PieceType piece{ PieceType::King };

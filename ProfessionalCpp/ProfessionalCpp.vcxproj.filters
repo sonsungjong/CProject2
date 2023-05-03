@@ -36,5 +36,14 @@
     <ClCompile Include="p0076_enumerated.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="p0080_struct.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p0080_module.cppm">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p0087_threewaycomparison.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
