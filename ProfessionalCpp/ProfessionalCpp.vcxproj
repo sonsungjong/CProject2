@@ -140,6 +140,7 @@
     <ClCompile Include="p0080_module.cppm" />
     <ClCompile Include="p0080_struct.cpp" />
     <ClCompile Include="p0087_threewaycomparison.cpp" />
+    <ClCompile Include="p0091_attribute.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HeaderUnits.h">

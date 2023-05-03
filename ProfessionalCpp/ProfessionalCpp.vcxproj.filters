@@ -45,5 +45,8 @@
     <ClCompile Include="p0087_threewaycomparison.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="p0091_attribute.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
