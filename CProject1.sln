@@ -229,6 +229,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PahoMqttCppSend", "PahoMqtt
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProfessionalC", "ProfessionalC\ProfessionalC.vcxproj", "{CBAA0D3B-5528-464C-95D9-8911E2713439}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BoostLib", "BoostLib\BoostLib.vcxproj", "{3DED425B-7216-4B19-994F-EBC8233A4E9D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -1141,6 +1143,14 @@ Global
 		{CBAA0D3B-5528-464C-95D9-8911E2713439}.Release|x64.Build.0 = Release|x64
 		{CBAA0D3B-5528-464C-95D9-8911E2713439}.Release|x86.ActiveCfg = Release|Win32
 		{CBAA0D3B-5528-464C-95D9-8911E2713439}.Release|x86.Build.0 = Release|Win32
+		{3DED425B-7216-4B19-994F-EBC8233A4E9D}.Debug|x64.ActiveCfg = Debug|x64
+		{3DED425B-7216-4B19-994F-EBC8233A4E9D}.Debug|x64.Build.0 = Debug|x64
+		{3DED425B-7216-4B19-994F-EBC8233A4E9D}.Debug|x86.ActiveCfg = Debug|Win32
+		{3DED425B-7216-4B19-994F-EBC8233A4E9D}.Debug|x86.Build.0 = Debug|Win32
+		{3DED425B-7216-4B19-994F-EBC8233A4E9D}.Release|x64.ActiveCfg = Release|x64
+		{3DED425B-7216-4B19-994F-EBC8233A4E9D}.Release|x64.Build.0 = Release|x64
+		{3DED425B-7216-4B19-994F-EBC8233A4E9D}.Release|x86.ActiveCfg = Release|Win32
+		{3DED425B-7216-4B19-994F-EBC8233A4E9D}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
