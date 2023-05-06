@@ -2,9 +2,9 @@
 class Singleton1
 {
 public:
-	static Singleton1& GetInstance1() {
-		static Singleton1* single = new Singleton1;
-		return *single;
+	static Singleton1& getInstance() {
+		static Singleton1 instance;
+		return instance;
 	}
 
 	void Say();
@@ -13,7 +13,8 @@ public:
 
 private:
 	// 생성자는 외부에서 호출하지 못하게 private으로 지정한다.
-	Singleton1() { m_value = 0; }
+	Singleton1() {}
+	~Singleton1() {}
 	int m_value;
 
 	Singleton1(const Singleton1&) = delete;
