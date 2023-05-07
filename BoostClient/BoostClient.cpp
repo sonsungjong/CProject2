@@ -4,8 +4,6 @@
 #include <boost/asio.hpp>
 #include <tchar.h>
 
-using boost::asio::ip::tcp;
-
 // Boost 라이브러리 1.82.0 버전
 /*
 설치
@@ -22,6 +20,8 @@ boost_1_82_0 폴더 -> 관리자 권한으로 cmd 실행 -> .\bootstrap.bat 입력하여 실행
 라이브러리 입력(릴리즈32) : libboost_system-vc143-mt-x32-1_82.lib
 라이브러리 입력(디버그32) : libboost_system-vc143-mt-gd-x32-1_82.lib
 */
+
+using boost::asio::ip::tcp;
 
 class SocketClient
 {
@@ -51,6 +51,7 @@ public:
 
             // 수신 메시지를 변수에 저장
             m_recv_msg = std::string(buf, len);
+            printf("\n==서버로부터받은것 :%s==\n", m_recv_msg);
 
             // 변환
             int origin_len = strlen(m_recv_msg.c_str());
@@ -63,12 +64,13 @@ public:
 
     void send(const std::string& msg)
     {
+        std::cout << "서버로 보냄: " << msg << std::endl;
         boost::asio::write(m_socket, boost::asio::buffer(msg));
     }           // send()
 
     void TestRecvPrint(TCHAR* wmsg)
     {
-        _tprintf(_T("서버응답>>"), wmsg);
+        _tprintf(_T("서버응답>> %s \n"), wmsg);
     }           // TestRecvPrint()
 
 private:
@@ -94,7 +96,7 @@ int main()
 
     while (1) {
         printf("입력>>");
-        _tscanf(_T("%s"), msg);
+        _tscanf(_T("%s"), w_msg);
         int len = WideCharToMultiByte(CP_ACP, 0, w_msg, -1, NULL, 0, NULL, NULL);
         WideCharToMultiByte(CP_ACP, 0, w_msg, -1, msg, len, NULL, NULL);
 
