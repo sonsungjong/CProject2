@@ -10,6 +10,7 @@
 
 using namespace std;
 #define BUFSIZE 256
+#define PORT        5000
 
 // 1개의 클라이언트만 받을 수 있는 멀티바이트 서버 (ASCII 송수신)
 int main()
@@ -23,7 +24,7 @@ int main()
     server = socket(AF_INET, SOCK_STREAM , IPPROTO_TCP);
     ZeroMemory(&addr, sizeof(addr));
     addr.sin_family = AF_INET;
-    addr.sin_port = 10000;
+    addr.sin_port = PORT;
     inet_pton(AF_INET, "loopback", &addr.sin_addr.s_addr);
     // addr.sin_addr.s_addr = inet_addr("127.0.0.1");
     bind(server, (LPSOCKADDR)&addr, sizeof(addr));
