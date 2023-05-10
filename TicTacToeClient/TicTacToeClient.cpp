@@ -1,6 +1,3 @@
-// TicTacToeClient.cpp : Defines the entry point for the application.
-//
-
 #include "pch.h"
 #include "framework.h"
 #include "TicTacToeClient.h"
@@ -13,7 +10,7 @@ INT_PTR CALLBACK    DlgProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK DlgProcLogin(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
 #define IP "127.0.0.1"
-#define PORT 44554
+#define PORT 20222
 #define BLOCK_SIZE      80
 #define WM_CLIENT       WM_USER+1
 #define WM_CONNECT      WM_USER+2
@@ -98,7 +95,7 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
             // Picture 컨트롤 크기 조정
             hPicture = GetDlgItem(hDlg, IDC_PICTURE1);
-            SetWindowPos(hPicture, nullptr, 0, 0, BLOCK_SIZE * 3, BLOCK_SIZE * 3, SWP_NOMOVE);
+            SetWindowPos(hPicture, NULL, 0, 0, BLOCK_SIZE * 3, BLOCK_SIZE * 3, SWP_NOMOVE);
 
             // Picture 컨트롤 서브클래싱
 #ifdef _WIN64

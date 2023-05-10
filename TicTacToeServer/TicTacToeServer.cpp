@@ -11,7 +11,7 @@
 #pragma comment(lib, "Ws2_32.lib")
 
 #define IP "127.0.0.1"
-#define PORT 44554
+#define PORT 20222
 
 // Global Variables:
 HINSTANCE hInst;                                // current instance
