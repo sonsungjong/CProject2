@@ -1,34 +1,34 @@
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+
 #include <cstdio>
+#include <tchar.h>
 #include <string>
 #include <thread>
 #include <chrono>
 #include <future>
-
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
-
 #include <WinSock2.h>
+#include <WS2tcpip.h>
 
 // 라이브러리 링크
 #pragma comment(lib, "WS2_32.lib")
 
-// 서버에 메시지를 전송하고 수신 대기
-void sendMsg(SOCKET clientSocket)
+// 서버의 메시지를 수신 대기
+void RecvMsg(SOCKET clientSocket)
 {
     char buffer[1024];
-    const char* msg = "안녕하세요 반갑습니다 클라이언트입니다.";
 
     // 메시지 전송
     while (true)
     {
-        send(clientSocket, msg, strlen(msg), 0);
+        //send(clientSocket, msg, strlen(msg), 0);
 
         // 서버 응답 기다리기
+        memset(buffer, 0, 1024);
         int read = recv(clientSocket, buffer, sizeof(buffer), 0);
 
         if (read > 0)
         {
-            std::string strOut = buffer;
-            printf("서버응답>> %s \n", strOut.c_str());
+            printf("서버응답>> %s \n", buffer);
         }
         else if (read == 0)
         {
@@ -38,7 +38,21 @@ void sendMsg(SOCKET clientSocket)
         {
             printf("Read Error \n");
         }
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        //std::this_thread::sleep_for(std::chrono::seconds(2));
+    }
+}
+
+void SendMsg(SOCKET clientSocket)
+{
+    char client_msg[256] = { 0, };
+    while (true)
+    {
+        memset(client_msg, 0, 256);
+        printf("서버에 보낼 메시지>>");
+        rewind(stdin);
+        scanf_s("%[^\n]s", client_msg, 256);
+    
+        send(clientSocket, client_msg, strlen(client_msg), 0);
     }
 }
 
@@ -67,12 +81,13 @@ int main()
     }
 
     // 비동기로 메시지 전송작업 시작
-    std::future<void> future = std::async(std::launch::async, sendMsg, clientSocket);
+    std::future<void> future_recv = std::async(std::launch::async, RecvMsg, clientSocket);
+    std::future<void> future_send = std::async(std::launch::async, SendMsg, clientSocket);
 
     while (true)
     {
-        printf("Hello Client \n");
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        printf("\n =======Client UI======= \n");
+        std::this_thread::sleep_for(std::chrono::seconds(3));
     }
 
     // 소켓 닫기
