@@ -12,16 +12,51 @@
 // 라이브러리 링크
 #pragma comment(lib, "WS2_32.lib")
 
+/*
+멀티바이트에서 유니코드로 변환 (char)
+*/
+void A2Wpchar(const char* const p_char, wchar_t* const p_wchar)
+{
+    int origin_len = strlen(p_char);
+    int len = MultiByteToWideChar(CP_ACP, 0, p_char, origin_len, NULL, NULL);
+    MultiByteToWideChar(CP_ACP, 0, p_char, origin_len, p_wchar, len);
+}
+
+/*
+유니코드에서 멀티바이트로 변환 (char)
+*/
+void W2Apchar(const wchar_t* const p_wchar, char* const p_char)
+{
+    int len = WideCharToMultiByte(CP_ACP, 0, p_wchar, -1, NULL, 0, NULL, NULL);
+    WideCharToMultiByte(CP_ACP, 0, p_wchar, -1, p_char, len, NULL, NULL);
+}
+
+/*
+UTF-8에서 유니코드로 변환
+*/
+void Utf2Wpchar(const char* const p_char, wchar_t* const p_wchar)
+{
+    int origin_len = strlen(p_char);
+    int len = MultiByteToWideChar(CP_UTF8, 0, p_char, origin_len, NULL, NULL);
+    MultiByteToWideChar(CP_UTF8, 0, p_char, origin_len, p_wchar, len);
+}
+
+/*
+유니코드에서 UTF-8로 변환
+*/
+void W2Utfpchar(const wchar_t* const p_wchar, char* const p_char)
+{
+    int len = WideCharToMultiByte(CP_UTF8, 0, p_wchar, -1, NULL, 0, NULL, NULL);
+    WideCharToMultiByte(CP_UTF8, 0, p_wchar, -1, p_char, len, NULL, NULL);
+}
+
 // 서버의 메시지를 수신 대기
 void RecvMsg(SOCKET clientSocket)
 {
     char buffer[1024];
 
-    // 메시지 전송
     while (true)
     {
-        //send(clientSocket, msg, strlen(msg), 0);
-
         // 서버 응답 기다리기
         memset(buffer, 0, 1024);
         int read = recv(clientSocket, buffer, sizeof(buffer), 0);
@@ -33,28 +68,39 @@ void RecvMsg(SOCKET clientSocket)
         else if (read == 0)
         {
             printf("Server closed connection \n");
+            std::this_thread::sleep_for(std::chrono::seconds(2));
         }
         else
         {
             printf("Read Error \n");
+            std::this_thread::sleep_for(std::chrono::seconds(2));
         }
-        //std::this_thread::sleep_for(std::chrono::seconds(2));
     }
 }
 
 void SendMsg(SOCKET clientSocket)
 {
     char client_msg[256] = { 0, };
+    //TCHAR wmsg[256] = { 0, };
+
     while (true)
     {
         memset(client_msg, 0, 256);
+        //wmemset(wmsg, 0, 256);
         printf("서버에 보낼 메시지>>");
         rewind(stdin);
         scanf_s("%[^\n]s", client_msg, 256);
+
+        //A2Wpchar(client_msg, wmsg);
+        //memset(client_msg, 0, 256);
+        //W2Utfpchar(wmsg, client_msg);
     
         send(clientSocket, client_msg, strlen(client_msg), 0);
+        //printf("서버로 보낸 메시지: %s", client_msg);
     }
 }
+
+
 
 int main()
 {

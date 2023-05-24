@@ -26,6 +26,25 @@ void W2Apchar(const wchar_t* const p_wchar, char* const p_char)
 }
 
 /*
+UTF-8에서 유니코드로 변환
+*/
+void Utf2Wpchar(const char* const p_char, wchar_t* const p_wchar)
+{
+	int origin_len = strlen(p_char);
+	int len = MultiByteToWideChar(CP_UTF8, 0, p_char, origin_len, NULL, NULL);
+	MultiByteToWideChar(CP_UTF8, 0, p_char, origin_len, p_wchar, len);
+}
+
+/*
+유니코드에서 UTF-8로 변환
+*/
+void W2Utfpchar(const wchar_t* const p_wchar, char* const p_char)
+{
+	int len = WideCharToMultiByte(CP_UTF8, 0, p_wchar, -1, NULL, 0, NULL, NULL);
+	WideCharToMultiByte(CP_UTF8, 0, p_wchar, -1, p_char, len, NULL, NULL);
+}
+
+/*
 char* 를 std::string으로 변환
 */
 void pchar2string(const char* const p_char, std::string& str)
