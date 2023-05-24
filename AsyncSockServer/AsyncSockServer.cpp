@@ -18,6 +18,8 @@ struct User
 {
     SOCKET socket;                 // 클라이언트 소켓
     TCHAR ip[16];                   // 클라이언트 주소
+    std::thread recv_thread;           // 해당 클라이언트와 대화할 수 있는 스레드
+    std::atomic<bool> running;              // 스레드 실행종료 여부
 };
 
 class AsyncServer
@@ -28,27 +30,27 @@ public:
     {
         WSADATA wsaData;
         (void)WSAStartup(0x0202, &wsaData);                     // 라이브러리 실행
+        User* p = m_user;
 
-        for (int i = 0; i < MAX_USER; i++)
+        for (int i = 0; i < MAX_USER; i++, p++)
         {
-            m_user[i].socket = INVALID_SOCKET;
+            p->socket = INVALID_SOCKET;
+            memset(p->ip, 0, sizeof(p->ip));
+            p->running = false;
         }
         m_server_socket = INVALID_SOCKET;
+        m_accept_flag = true;
     }
 
     // 파괴자
     virtual ~AsyncServer()
     {
-        User* p = m_user;
-        for (int i = 0; i < MAX_USER; i++, p++)
-        {
-            if (p->socket != INVALID_SOCKET) {
-                closesocket(p->socket);
-                p->socket = INVALID_SOCKET;
-            }
-        }
+        SendBroadcast("====서버가 종료되었습니다====");
+        CloseAllUser();
 
         if (m_server_socket != INVALID_SOCKET) {
+            m_accept_flag = false;
+            m_accept_future.wait();
             closesocket(m_server_socket);
             m_server_socket = INVALID_SOCKET;
         }
@@ -56,7 +58,10 @@ public:
         WSACleanup();
     }
 
-    // 서버를 시작하는 함수 (비동기)
+    /*
+        서버 시작
+        비동기로 accept 를 실행
+    */
     void StartListen(int a_port)
     {
         // 소켓 생성
@@ -76,9 +81,14 @@ public:
         m_accept_future = std::async(std::launch::async, &AsyncServer::AcceptClient, this);
     }
 
+    /*
+        클라이언트 접속을 위한 함수
+        각 클라이언트마다 추가 스레드를 생성하여 recv
+        (유저가 많아지면 작업큐와 스레드풀 형태로 바꿔서 리소스를 절약하는게 좋음)
+    */
     void AcceptClient()
     {
-        while (true) {
+        while (m_accept_flag == true) {
             // 클라이언트 정보
             sockaddr_in client_address;
             int client_address_size = sizeof(client_address);
@@ -90,45 +100,53 @@ public:
             InetNtop(AF_INET, &client_address.sin_addr, ip_address, 16);
             _tprintf(_T("클라이언트 접속 %s\n"), ip_address);
 
-            for (int i = 0; i < MAX_USER; i++)
-            {
-                if (m_user[i].socket == INVALID_SOCKET)
-                {
-                    m_user[i].socket = client_socket;
-                    _tcscpy_s(m_user[i].ip, 16, ip_address);
+            User* p = m_user;
 
-                    // 비동기로 해당 클라이언트에 대해 recv 실행
-                    m_recv_future = std::async(std::launch::async, &AsyncServer::RecvMsg, this, client_socket);
+            for (int i = 0; i < MAX_USER; i++, p++)
+            {
+                if (p->socket == INVALID_SOCKET)
+                {
+                    p->socket = client_socket;
+                    _tcscpy_s(p->ip, 16, ip_address);
+                    p->running = true;
+
+                    // 추가 스레드를 통해 해당 클라이언트에 대해 recv 실행
+                    p->recv_thread = std::thread(&AsyncServer::RecvMsg, this, client_socket);
                     break;
                 }
             }
         }
     }
 
-    // 메시지 수신 (비동기)
+    /*
+        메시지 수신
+    */
     void RecvMsg(SOCKET clientSocket)
     {
-        while (true)
+        User* p = m_user;
+        User* target_user = NULL;
+
+        for (int i = 0; i < MAX_USER; i++, p++)
+        {
+            if (p->socket == clientSocket)
+            {
+                target_user = m_user + i;
+            }
+        }
+
+        while (target_user->running == true)
         {
             char buffer[1024];
-            memset(buffer, 0, sizeof(buffer));
             TCHAR wbuffer[1024] = { 0, };
+            memset(buffer, 0, sizeof(buffer));
+            memset(wbuffer, 0, sizeof(wbuffer));
 
             // 메시지 수신
-            int read = recv(clientSocket, buffer, sizeof(buffer), 0);
+            int read = recv(clientSocket, buffer, sizeof(buffer)-1, 0);
             if (read > 0)
             {
                 A2Wpchar(buffer, wbuffer);
-                User* p = m_user;
-                TCHAR ip[16];
-                for (int i = 0; i < MAX_USER; i++)
-                {
-                    if (p->socket == clientSocket)
-                    {
-                        memcpy(ip, p->ip, sizeof(p->ip));
-                    }
-                }
-                _tprintf(_T("\n %s : %s \n"), ip, wbuffer);
+                _tprintf(_T("\n %s : %s \n"), target_user->ip, wbuffer);
             }
             else if (read == 0)
             {
@@ -137,7 +155,7 @@ public:
             }
             else if(read == SOCKET_ERROR)
             {
-                printf("클라이언트 강제 종료 \n");
+                printf("클라이언트 프로그램 종료 \n");
                 break;
             }
             else
@@ -149,30 +167,50 @@ public:
         CloseSocketClient(clientSocket);
     }
 
+    /*
+        특정 클라이언트 접속 해제
+    */
     void CloseSocketClient(SOCKET a_client_socket)
     {
         User* p = m_user;
-        User* target_client = NULL;
 
         // 해당 유저를 찾아
         for (int i = 0; i < MAX_USER; i++, p++)
         {
             if(p->socket == a_client_socket)
             {
-                target_client = m_user + i;
+                p->running = false;
                 closesocket(a_client_socket);               // 종료시킨다
+                memset(p->ip, 0, sizeof(p->ip));
+                p->socket = INVALID_SOCKET;
+                p->recv_thread.detach();
             }
-        }
-        
-        // 정보도 삭제한다
-        if (target_client != NULL)
-        {
-            target_client->socket = INVALID_SOCKET;
-            memset(target_client->ip, 0, sizeof(target_client->ip));
         }
     }
 
-    // 메시지 모든 사용자에게 보내기
+    /*
+        모든 클라이언트 접속 해제
+    */
+    void CloseAllUser()
+    {
+        User* p = m_user;
+
+        for (int i = 0; i < MAX_USER; i++, p++)
+        {
+            if (p->socket != INVALID_SOCKET) {
+                p->running = false;
+                closesocket(p->socket);
+                memset(p->ip, 0, sizeof(p->ip));
+                p->socket = INVALID_SOCKET;
+                p->recv_thread.detach();
+            }
+        }
+    }
+    
+
+    /*
+        모든 클라이언트에게 메시지 보내기
+    */
     void SendBroadcast(const char* a_msg)
     {
         int msg_len = strlen(a_msg);
@@ -191,11 +229,14 @@ public:
         delete[] data;
     }
 
-    // 메시지 보내기
+    /*
+        특정 클라이언트에게 메시지 보내기
+    */
     void SendToClient(SOCKET a_socket, const char* a_msg)
     {
         int msg_len = strlen(a_msg);
-        char* data = new char[msg_len];
+        char* data = new char[msg_len + 1];
+        memset(data, 0, msg_len + 1);
         memcpy(data, a_msg, msg_len);
 
         send(a_socket, data, msg_len, 0);
@@ -229,8 +270,7 @@ private:
     sockaddr_in m_server_address;
 
     std::future<void> m_accept_future;
-    std::future<void> m_recv_future;
-    std::future<void> m_send_future;
+    std::atomic<bool> m_accept_flag;
 };
 
 int main()
@@ -248,7 +288,7 @@ int main()
         rewind(stdin);
         scanf_s("%[^\n]s", server_msg, 256);
 
-        // 객체의 메서드를 비동기 처리
+        // 객체의 Send 메서드를 비동기 처리
         std::future<void> future = std::async(std::launch::async, std::bind(&AsyncServer::SendBroadcast, &asyncServer, server_msg));
     }
 
