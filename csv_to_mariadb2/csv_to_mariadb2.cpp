@@ -1,4 +1,3 @@
-// CSV파일은 utf-8 기반이라는 가정하에 작성
 // 버퍼사이즈가 꽉 차면 읽기를 일시정지하고 DB에 입력
 // 테이블에 맞게 코드를 수정해야함
 // MariaDB 서버와 MariaDB Connector C 64bit를 사용
@@ -23,7 +22,6 @@ libmariadb.lib
 #include <tchar.h>
 #include <mysql.h>
 
-
 typedef std::basic_string<TCHAR> TSTRING;
 typedef std::basic_stringstream<TCHAR> TSTRINGSTREAM;
 
@@ -39,6 +37,16 @@ std::wstring utf8_to_wstring(const char* utf8str)
     std::wstring wstr = converter.from_bytes(utf8str);
     return wstr;
 }
+
+struct DBData
+{
+    TSTRING bit_time[50];
+    TSTRING bit_name[50];
+    TSTRING bit_str1[50];
+    TSTRING bit_str2[50];
+    float bit_float1;
+    int bit_int1;
+};
 
 void InsertMariaDB(MYSQL* connection, const std::vector<TSTRING>& records)
 {
@@ -138,7 +146,7 @@ int SelectTest()
 {
     int function_result = 0;
 
-    // MariaDB 연결
+    // MariaDB Init Connection
     MYSQL* connection = mysql_init(NULL);
     if (!mysql_real_connect(connection, "127.0.0.1", "root", "root", "anom", 3307, NULL, 0)) {
         std::cerr << "Error: failed to connect to the database: " << mysql_error(connection) << std::endl;
@@ -146,7 +154,7 @@ int SelectTest()
     }
 
     // 쿼리 작성
-    TSTRING query = _T("SELECT * FROM anom.user");
+    TSTRING query = _T("SELECT * FROM anom.bit_info");
 
     // 쿼리 전송
     if (mysql_query(connection, wstring_to_utf8(query).c_str()))
@@ -161,25 +169,62 @@ int SelectTest()
         std::cerr << "Error: failed to store result: " << mysql_error(connection) << std::endl;
         return function_result;
     }
-
-    // 한줄씩 출력
+    
+    DBData* bit_data = new DBData[50];
     MYSQL_ROW row;
+    // 한줄씩 나눔
+    DBData* p = bit_data;
+    int j = 0;
+    TSTRING field;
     while ((row = mysql_fetch_row(result))) {
+        // 각 컬럼으로 나눔
         for (int i = 0; i < mysql_num_fields(result); i++) {
-            if (row[i] != NULL) {
-                printf("%s", row[i]);
+            if (i == 0) {
+                field = utf8_to_wstring(row[i]);
+                p->bit_time->assign(field);
             }
-            else
-            {
-                printf("");
+            else if (i == 1) {
+                field = utf8_to_wstring(row[i]);
+                p->bit_name->assign(field);
             }
-            if (i < mysql_num_fields(result) - 1) {
-                printf(", ");
+            else if (i == 2) {
+                field = utf8_to_wstring(row[i]);
+                p->bit_str1->assign(field);
+            }
+            else if (i == 3) {
+                field = utf8_to_wstring(row[i]);
+                p->bit_str2->assign(field);
+            }
+            else if (i == 4) {
+                p->bit_float1 = atof(row[i]);
+            }
+            else if (i == 5) {
+                p->bit_int1 = atoi(row[i]);
             }
         }
+        j++;
+        // 모든 컬럼을 출력했으면 다음 Row
+        p++;
+    }
+
+    // 배열 전체 출력
+    p = bit_data;
+    for (int i = 0; i < 50; i++, p++)
+    {
+        if (i >= j) {
+            break;
+        }
+        _tprintf(_T("%s, "), p->bit_time->c_str());
+        _tprintf(_T("%s, "), p->bit_name->c_str());
+        _tprintf(_T("%s, "), p->bit_str1->c_str());
+        _tprintf(_T("%s, "), p->bit_str2->c_str());
+        _tprintf(_T("%f, "), p->bit_float1);
+        _tprintf(_T("%d "), p->bit_int1);
+
         printf("\n");
     }
 
+    delete[] bit_data;
     // 결과 리소스 해제
     mysql_free_result(result);
     // MariaDB Connection Close
@@ -192,8 +237,8 @@ int SelectTest()
 int main()
 {
     _tsetlocale(0, _T("korean"));                   // 한글 print용
-    //int result = SelectTest();                // 읽기 테스트
-    int result = CsvToMariaDB();
+    int result = SelectTest();
+    //int result = CsvToMariaDB();
 
     if (result == 1) {
         printf("프로그램 정상 종료\n");
