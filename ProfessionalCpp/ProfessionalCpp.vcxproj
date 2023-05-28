@@ -141,6 +141,10 @@
     <ClCompile Include="p0080_struct.cpp" />
     <ClCompile Include="p0087_threewaycomparison.cpp" />
     <ClCompile Include="p0091_attribute.cpp" />
+    <ClCompile Include="p0098_array.cpp" />
+    <ClCompile Include="p0099_vector.cpp" />
+    <ClCompile Include="p0100_pair.cpp" />
+    <ClCompile Include="p0101_optional.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HeaderUnits.h">
