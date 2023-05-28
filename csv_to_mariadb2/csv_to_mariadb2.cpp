@@ -48,6 +48,181 @@ struct DBData
     int bit_int1;
 };
 
+int csvFileTest(const TCHAR* ap_filepath)
+{
+    FILE* p_file = NULL;
+    const int BUFFER_SIZE = 1000;           // 1000 개가 꽉 차면 DB로 뱉음
+    std::vector<TSTRING> buffer;
+    TCHAR one_line[4096];                       // 한 줄의 최대 글자수
+    int function_result = 0;
+    int skip_row = 1;                   // 건너뛸 행의 갯수
+
+
+    if (0 == _tfopen_s(&p_file, ap_filepath, _T("rt")))
+    {
+        while (_fgetts(one_line, sizeof(one_line) / sizeof(one_line[0]), p_file))
+        {
+            one_line[_tcscspn(one_line, _T("\n"))] = 0;
+            buffer.push_back(one_line);
+            if (buffer.size() == BUFFER_SIZE) {
+                //InsertMariaDB(connection, buffer);
+                for (const TSTRING& record : buffer)
+                {
+                    // 건너뛸 행 (Skip Row)
+                    if (skip_row > 0) {
+                        skip_row--;
+                        continue;
+                    }
+                    // record를 파싱하고 DB에 insert
+                    TSTRINGSTREAM record_stream(record);
+                    TSTRING field;
+
+                    // 4개의 컬럼
+                    for (int i = 0; i < 4; i++) {
+                        // 컴마로 나눈다
+                        std::getline(record_stream, field, _T(','));
+                        TSTRING column = field;
+                        _tprintf(_T("%s"), column.c_str());
+                        if (i != 3) {
+                            _tprintf(_T(","));
+                        }
+                    }
+                    printf("\n");
+                }
+                buffer.clear();
+            }
+        }
+
+        // 잔여 레코드 Insert
+        if (!buffer.empty()) {
+            //InsertMariaDB(connection, buffer);
+            for (const TSTRING& record : buffer)
+            {
+                // 건너뛸 행 (Skip Row)
+                if (skip_row > 0) {
+                    skip_row--;
+                    continue;
+                }
+                _tprintf(_T("%s\n"), record.c_str());
+            }
+            buffer.clear();
+        }
+
+        fclose(p_file);
+        function_result = 1;
+    }
+    else {
+        // 파일 열기 실패
+        return function_result;
+    }
+
+    return function_result;
+}
+
+int csvFileTest2(const TCHAR* ap_filepath)
+{
+    FILE* p_file = NULL;
+    const int BUFFER_SIZE = 1000;           // 1000 개가 꽉 차면 DB로 뱉음
+    std::vector<TSTRING> buffer;
+    TCHAR one_line[4096];                       // 한 줄의 최대 글자수
+    int function_result = 0;
+    int skip_row = 1;                   // 건너뛸 행의 갯수
+
+
+    if (0 == _tfopen_s(&p_file, ap_filepath, _T("rt")))
+    {
+        while (_fgetts(one_line, sizeof(one_line) / sizeof(one_line[0]), p_file))
+        {
+            one_line[_tcscspn(one_line, _T("\n"))] = 0;
+            buffer.push_back(one_line);
+            if (buffer.size() == BUFFER_SIZE) {
+                //InsertMariaDB(connection, buffer);
+                for (const TSTRING& record : buffer)
+                {
+                    // 건너뛸 행 (Skip Row)
+                    if (skip_row > 0) {
+                        skip_row--;
+                        continue;
+                    }
+                    // record를 파싱하고 DB에 insert
+                    TSTRINGSTREAM record_stream(record);
+                    TSTRING field;
+
+                    // 5개의 컬럼
+                    for (int i = 0; i < 5; i++) {
+                        // 컴마로 나눈다
+                        std::getline(record_stream, field, _T(','));
+                        TSTRING column = field;
+                        if (0 != _tcscmp(column.c_str(), _T(""))) {
+                            _tprintf(_T("%s"), column.c_str());
+                        }
+                        else {
+                            // 비어있는 값
+                            if (i == 4) {
+                                printf("0");
+                            }
+                        }
+                        if (i != 4) {
+                            _tprintf(_T(","));
+                        }
+                    }
+                    printf("\n");
+                }
+                buffer.clear();
+            }
+            else {
+                //printf("열었으나 읽지 못했을 수 있음\n");
+            }
+        }
+
+        // 잔여 레코드 Insert
+        if (!buffer.empty()) {
+            //InsertMariaDB(connection, buffer);
+            for (const TSTRING& record : buffer)
+            {
+                // 건너뛸 행 (Skip Row)
+                if (skip_row > 0) {
+                    skip_row--;
+                    continue;
+                }
+                // record를 파싱하고 DB에 insert
+                TSTRINGSTREAM record_stream(record);
+                TSTRING field;
+
+                // 5개의 컬럼
+                for (int i = 0; i < 5; i++) {
+                    // 컴마로 나눈다
+                    std::getline(record_stream, field, _T(','));
+                    TSTRING column = field;
+                    if (0 != _tcscmp(column.c_str(), _T(""))) {
+                        _tprintf(_T("%s"), column.c_str());
+                    }
+                    else {
+                        // 비어있는 값
+                        if (i == 4) {
+                            printf("0");
+                        }
+                    }
+                    if (i != 4) {
+                        _tprintf(_T(","));
+                    }
+                }
+                printf("\n");
+            }
+            buffer.clear();
+        }
+
+        fclose(p_file);
+        function_result = 1;
+    }
+    else {
+        // 파일 열기 실패
+        return function_result;
+    }
+
+    return function_result;
+}
+
 void InsertMariaDB(MYSQL* connection, const std::vector<TSTRING>& records)
 {
     // autocommit 을 중지하여 성능을 향상
@@ -237,7 +412,9 @@ int SelectTest()
 int main()
 {
     _tsetlocale(0, _T("korean"));                   // 한글 print용
-    int result = SelectTest();
+    //int result = SelectTest();
+    //int result = csvFileTest(_T("C:\\csv\\2022년 구미 환경.csv"));
+    int result = csvFileTest2(_T("C:\\csv\\신궁 군수.csv"));
     //int result = CsvToMariaDB();
 
     if (result == 1) {
