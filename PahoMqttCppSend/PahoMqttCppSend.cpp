@@ -27,9 +27,11 @@ cmake --install .
 만약, 64비트로 빌드하고 32비트도 빌드하고자 하면 이전 빌드 파일과 CMake 캐시를 제거해야한다.
 cd C:/paho.mqtt.c/build
 rm -rf CMakeCache.txt CMakeFiles/
+cmake -G "Visual Studio 17 2022" -A Win32 ..
 
 cd C:/paho.mqtt.cpp/build
 rm -rf CMakeCache.txt CMakeFiles/
+cmake -G "Visual Studio 17 2022" -A Win32 -DPAHO_MQTT_C_LIBRARIES="C:/paho.mqtt.c/build/src/Release" -DPAHO_MQTT_C_INCLUDE_DIRS="C:/paho.mqtt.c/src" ..
 
 <포함 디렉토리>
 C:\paho.mqtt.c\src
