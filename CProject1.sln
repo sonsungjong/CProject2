@@ -245,6 +245,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "csv_to_mariadb3", "csv_to_m
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenXlsx1", "OpenXlsx1\OpenXlsx1.vcxproj", "{120A89CE-691D-4CBD-AB40-0CB50E0244FB}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xlnt_test1", "xlnt_test1\xlnt_test1.vcxproj", "{7424632B-701A-44BB-9E51-54CB0BB1E9DF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -1221,6 +1223,14 @@ Global
 		{120A89CE-691D-4CBD-AB40-0CB50E0244FB}.Release|x64.Build.0 = Release|x64
 		{120A89CE-691D-4CBD-AB40-0CB50E0244FB}.Release|x86.ActiveCfg = Release|Win32
 		{120A89CE-691D-4CBD-AB40-0CB50E0244FB}.Release|x86.Build.0 = Release|Win32
+		{7424632B-701A-44BB-9E51-54CB0BB1E9DF}.Debug|x64.ActiveCfg = Debug|x64
+		{7424632B-701A-44BB-9E51-54CB0BB1E9DF}.Debug|x64.Build.0 = Debug|x64
+		{7424632B-701A-44BB-9E51-54CB0BB1E9DF}.Debug|x86.ActiveCfg = Debug|Win32
+		{7424632B-701A-44BB-9E51-54CB0BB1E9DF}.Debug|x86.Build.0 = Debug|Win32
+		{7424632B-701A-44BB-9E51-54CB0BB1E9DF}.Release|x64.ActiveCfg = Release|x64
+		{7424632B-701A-44BB-9E51-54CB0BB1E9DF}.Release|x64.Build.0 = Release|x64
+		{7424632B-701A-44BB-9E51-54CB0BB1E9DF}.Release|x86.ActiveCfg = Release|Win32
+		{7424632B-701A-44BB-9E51-54CB0BB1E9DF}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
