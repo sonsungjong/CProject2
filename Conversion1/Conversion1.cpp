@@ -3,8 +3,37 @@
 #include <tchar.h>
 #include <locale>
 #include <atlconv.h>
+#include <codecvt>
 
 // UTF-8일 경우 CP_ACP를 CP_UTF8로 변경하기
+std::string wstring_to_utf8_second(const std::wstring& wstr)
+{
+	std::wstring_convert<std::codecvt_utf8<wchar_t>> convert;
+	return convert.to_bytes(wstr);
+}
+
+std::wstring utf8_to_wstring_second(const char* utf8str)
+{
+	std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+	std::wstring wstr = converter.from_bytes(utf8str);
+	return wstr;
+}
+
+std::wstring utf8_to_wstring(const std::string& utf8str)
+{
+	int wlen = MultiByteToWideChar(CP_UTF8, 0, utf8str.c_str(), -1, NULL, 0);
+	std::wstring wstr(wlen, 0);
+	MultiByteToWideChar(CP_UTF8, 0, utf8str.c_str(), -1, &wstr[0], wlen);
+	return wstr;
+}
+
+std::string wstring_to_utf8(const std::wstring& wstr)
+{
+	int len = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, NULL, 0, NULL, NULL);
+	std::string str(len, 0);
+	WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, &str[0], len, NULL, NULL);
+	return str;
+}
 
 /*
 멀티바이트에서 유니코드로 변환 (char)

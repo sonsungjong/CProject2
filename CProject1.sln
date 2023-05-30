@@ -243,6 +243,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xlsx_to_mariadb", "xlsx_to_
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "csv_to_mariadb3", "csv_to_mariadb3\csv_to_mariadb3.vcxproj", "{55468CB3-BC8A-413F-9F22-723CEC4C2FD0}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenXlsx1", "OpenXlsx1\OpenXlsx1.vcxproj", "{120A89CE-691D-4CBD-AB40-0CB50E0244FB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -1211,6 +1213,14 @@ Global
 		{55468CB3-BC8A-413F-9F22-723CEC4C2FD0}.Release|x64.Build.0 = Release|x64
 		{55468CB3-BC8A-413F-9F22-723CEC4C2FD0}.Release|x86.ActiveCfg = Release|Win32
 		{55468CB3-BC8A-413F-9F22-723CEC4C2FD0}.Release|x86.Build.0 = Release|Win32
+		{120A89CE-691D-4CBD-AB40-0CB50E0244FB}.Debug|x64.ActiveCfg = Debug|x64
+		{120A89CE-691D-4CBD-AB40-0CB50E0244FB}.Debug|x64.Build.0 = Debug|x64
+		{120A89CE-691D-4CBD-AB40-0CB50E0244FB}.Debug|x86.ActiveCfg = Debug|Win32
+		{120A89CE-691D-4CBD-AB40-0CB50E0244FB}.Debug|x86.Build.0 = Debug|Win32
+		{120A89CE-691D-4CBD-AB40-0CB50E0244FB}.Release|x64.ActiveCfg = Release|x64
+		{120A89CE-691D-4CBD-AB40-0CB50E0244FB}.Release|x64.Build.0 = Release|x64
+		{120A89CE-691D-4CBD-AB40-0CB50E0244FB}.Release|x86.ActiveCfg = Release|Win32
+		{120A89CE-691D-4CBD-AB40-0CB50E0244FB}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
