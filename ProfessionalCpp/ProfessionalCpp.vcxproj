@@ -145,6 +145,16 @@
     <ClCompile Include="p0099_vector.cpp" />
     <ClCompile Include="p0100_pair.cpp" />
     <ClCompile Include="p0101_optional.cpp" />
+    <ClCompile Include="p0102_binding.cpp" />
+    <ClCompile Include="p0103_loop.cpp" />
+    <ClCompile Include="p0107_string.cpp" />
+    <ClCompile Include="p0108_AirlineTicket.cpp" />
+    <ClCompile Include="p0108_AirlineTicket.cppm" />
+    <ClCompile Include="p0108_AirlineTicketUse.cpp" />
+    <ClCompile Include="p0112_scope.cpp" />
+    <ClCompile Include="p0113_initClass.cpp" />
+    <ClCompile Include="p0119_dynamic_memory.cpp" />
+    <ClCompile Include="p0122_pointer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HeaderUnits.h">
