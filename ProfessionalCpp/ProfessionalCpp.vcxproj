@@ -155,6 +155,11 @@
     <ClCompile Include="p0113_initClass.cpp" />
     <ClCompile Include="p0119_dynamic_memory.cpp" />
     <ClCompile Include="p0122_pointer.cpp" />
+    <ClCompile Include="p0123_dynamic_array.cpp" />
+    <ClCompile Include="p0124_const.cpp" />
+    <ClCompile Include="p0129_constexpr.cpp" />
+    <ClCompile Include="p0132_reference.cpp" />
+    <ClCompile Include="p0142_reference_param.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HeaderUnits.h">
