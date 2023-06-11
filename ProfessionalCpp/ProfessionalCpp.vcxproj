@@ -160,6 +160,8 @@
     <ClCompile Include="p0129_constexpr.cpp" />
     <ClCompile Include="p0132_reference.cpp" />
     <ClCompile Include="p0142_reference_param.cpp" />
+    <ClCompile Include="p0147_exception.cpp" />
+    <ClCompile Include="p0149_TypeAlias.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HeaderUnits.h">

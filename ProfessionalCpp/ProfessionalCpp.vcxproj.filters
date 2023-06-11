@@ -105,5 +105,11 @@
     <ClCompile Include="p0142_reference_param.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="p0147_exception.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p0149_TypeAlias.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
