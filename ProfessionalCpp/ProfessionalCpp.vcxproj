@@ -162,6 +162,8 @@
     <ClCompile Include="p0142_reference_param.cpp" />
     <ClCompile Include="p0147_exception.cpp" />
     <ClCompile Include="p0149_TypeAlias.cpp" />
+    <ClCompile Include="p0151_auto.cpp" />
+    <ClCompile Include="p0152_auto_reference.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HeaderUnits.h">

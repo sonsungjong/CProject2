@@ -111,5 +111,11 @@
     <ClCompile Include="p0149_TypeAlias.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="p0151_auto.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p0152_auto_reference.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
