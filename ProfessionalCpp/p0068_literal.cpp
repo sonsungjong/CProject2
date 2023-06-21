@@ -38,5 +38,7 @@ int main0068()
 	std::byte by{ 42 };
 
 	printf("%d \n", i);
+
+	return 0;
 }
 

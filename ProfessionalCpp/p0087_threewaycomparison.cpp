@@ -16,4 +16,6 @@ int main0087()
 	if (is_lt(result2)) { printf("less \n"); }
 	if (is_gt(result2)) { printf("greater \n"); }
 	if (is_eq(result2)) { printf("equal \n"); }
+
+	return 0;
 }

@@ -10,7 +10,7 @@ int main0072()
 	// 객체는 디폴트 생성자로 초기화
 
 	// 캐스트
-	myFloat = 3.14;
+	myFloat = 3.14f;
 	int i1{ (int)myFloat };					// C 형태의 캐스트
 	int i2{ int(myFloat) };
 	int i3{ static_cast<int>(myFloat) };					// C++ 권장
@@ -40,4 +40,6 @@ int main0072()
 	int num1{ 34 + 8 * 2 + 21 / 7 % 2 };
 
 	int num2{ 34 + (8 * 2) + ((21 / 7) % 2) };				// 작은 표현식이나 소괄호를 사용
+
+	return 0;
 }

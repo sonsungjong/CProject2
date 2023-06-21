@@ -27,4 +27,5 @@ int main0076()
 	// 예전 방식의 enum
 	OldPiece myPiece{ PieceTypeQueen };				// enum의 값이름이 변수와 곂치지 않게 조심해줘야한다
 
+	return 0;
 }

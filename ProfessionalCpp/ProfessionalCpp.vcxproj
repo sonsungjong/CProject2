@@ -103,7 +103,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
@@ -118,7 +118,7 @@
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
@@ -164,6 +164,13 @@
     <ClCompile Include="p0149_TypeAlias.cpp" />
     <ClCompile Include="p0151_auto.cpp" />
     <ClCompile Include="p0152_auto_reference.cpp" />
+    <ClCompile Include="p0156_Database.cpp" />
+    <ClCompile Include="p0156_Database.cppm" />
+    <ClCompile Include="p0156_DatabaseTest.cpp" />
+    <ClCompile Include="p0156_Employee.cpp" />
+    <ClCompile Include="p0156_Employee.cppm" />
+    <ClCompile Include="p0156_EmployeeTest.cpp" />
+    <ClCompile Include="p0156_main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HeaderUnits.h">

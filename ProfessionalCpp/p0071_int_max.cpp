@@ -17,4 +17,5 @@ int main0071()
 	printf("Min double value: %e\n", std::numeric_limits<double>::min());
 	printf("Lowest double value: %e\n", std::numeric_limits<double>::lowest());
 
+	return 0;
 }

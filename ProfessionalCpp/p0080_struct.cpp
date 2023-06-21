@@ -16,4 +16,6 @@ int main0080()
 	cout << format("Employee: {} {}", anEmployee.firstInitial, anEmployee.lastInitial) << endl;
 	cout << format("number: {}", anEmployee.employeeNumber) << endl;
 	cout << format("Salary: ${}", anEmployee.salary) << endl;
+
+	return 0;
 }

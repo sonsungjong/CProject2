@@ -29,7 +29,9 @@ int main0091()
 	printf("%d \n", *(arr+1));
 	printf("%d \n", *(arr+2));
 
-	printf("배열의 크기는? %d \n", std::size(arr));
+	printf("배열의 크기는? %zd \n", std::size(arr));
+
+	return 0;
 }
 
 

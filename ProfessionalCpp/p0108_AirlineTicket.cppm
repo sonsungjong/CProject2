@@ -1,6 +1,6 @@
 export module airline_ticket;
 
-#include <string>
+import <string>;
 
 export class AirlineTicket
 {

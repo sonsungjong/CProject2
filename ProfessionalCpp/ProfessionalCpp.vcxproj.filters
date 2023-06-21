@@ -117,5 +117,26 @@
     <ClCompile Include="p0152_auto_reference.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="p0156_Employee.cppm">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p0156_Employee.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p0156_EmployeeTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p0156_Database.cppm">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p0156_Database.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p0156_DatabaseTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p0156_main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
