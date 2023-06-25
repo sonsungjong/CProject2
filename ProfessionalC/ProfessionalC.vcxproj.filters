@@ -21,5 +21,14 @@
     <ClCompile Include="p046_VAdefine.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="p057_pointer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p060_pointer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p063_generic_pointer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

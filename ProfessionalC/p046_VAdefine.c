@@ -22,7 +22,7 @@
 #define LOOP_(...) \
 	LOOP_1(__VA_ARGS__)
 
-int main(int argc, char** argv)
+int main046(int argc, char** argv)
 {
 	if (argc < 3)
 	{
