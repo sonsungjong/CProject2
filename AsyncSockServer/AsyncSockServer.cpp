@@ -140,6 +140,8 @@ public:
             TCHAR wbuffer[1024] = { 0, };
             memset(buffer, 0, sizeof(buffer));
             memset(wbuffer, 0, sizeof(wbuffer));
+            char ip[16] = { 0, };
+            char respon[2000] = { 0, };
 
             // 메시지 수신
             int read = recv(clientSocket, buffer, sizeof(buffer)-1, 0);
@@ -147,6 +149,10 @@ public:
             {
                 A2Wpchar(buffer, wbuffer);
                 _tprintf(_T("\n %s : %s \n"), target_user->ip, wbuffer);
+
+                W2Apchar(target_user->ip, ip);
+                sprintf_s(respon, 2000, "%s : %s", ip, buffer);
+                SendBroadcast(respon);
             }
             else if (read == 0)
             {
