@@ -251,6 +251,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MFPlayer1", "MFPlayer1\MFPl
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MFRecord1", "MFRecord1\MFRecord1.vcxproj", "{9A7DBD50-1CEA-4EE0-9B3D-4EC44071C343}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tensorflow_C_API", "Tensorflow_C_API\Tensorflow_C_API.vcxproj", "{D3986E87-3892-4B48-A8E3-82882D6E7BF7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -1251,6 +1253,14 @@ Global
 		{9A7DBD50-1CEA-4EE0-9B3D-4EC44071C343}.Release|x64.Build.0 = Release|x64
 		{9A7DBD50-1CEA-4EE0-9B3D-4EC44071C343}.Release|x86.ActiveCfg = Release|Win32
 		{9A7DBD50-1CEA-4EE0-9B3D-4EC44071C343}.Release|x86.Build.0 = Release|Win32
+		{D3986E87-3892-4B48-A8E3-82882D6E7BF7}.Debug|x64.ActiveCfg = Debug|x64
+		{D3986E87-3892-4B48-A8E3-82882D6E7BF7}.Debug|x64.Build.0 = Debug|x64
+		{D3986E87-3892-4B48-A8E3-82882D6E7BF7}.Debug|x86.ActiveCfg = Debug|Win32
+		{D3986E87-3892-4B48-A8E3-82882D6E7BF7}.Debug|x86.Build.0 = Debug|Win32
+		{D3986E87-3892-4B48-A8E3-82882D6E7BF7}.Release|x64.ActiveCfg = Release|x64
+		{D3986E87-3892-4B48-A8E3-82882D6E7BF7}.Release|x64.Build.0 = Release|x64
+		{D3986E87-3892-4B48-A8E3-82882D6E7BF7}.Release|x86.ActiveCfg = Release|Win32
+		{D3986E87-3892-4B48-A8E3-82882D6E7BF7}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
