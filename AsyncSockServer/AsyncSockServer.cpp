@@ -1,3 +1,13 @@
+/*
+    TCP/IP 통신을 위해선
+    방화벽을 해제하거나
+    해당 프로그램과 포트에 대해 Windows 방화벽 예외를 추가해야한다.
+
+    제어판 -> 시스템 및 보안 -> Windows Defender 방화벽 -> 고급 설정 -> 고급 보안이 포함된 Windows Defender 방화벽
+    -> 인바운드 규칙 클릭 -> 새 규칙 클릭 -> 프로그램 또는 포트를 선택하고 다음
+    -> 아웃바운드 규칙 생성(나가는 연결) -> 새 규칙 클릭 -> 프로그램 또는 포트를 선택하고 다음
+*/
+
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 
 #include <cstdio>
