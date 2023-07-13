@@ -253,6 +253,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tensorflow_C_API", "Tensorf
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestConsole", "TestConsole\TestConsole.vcxproj", "{1B295BF1-4843-477C-8F01-5585B876E14E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MakeDll", "MakeDll\MakeDll.vcxproj", "{0C2F9BED-8264-45D0-8729-EF16DE631B4F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LoadDll", "LoadDll\LoadDll.vcxproj", "{250D3E21-A77A-4FEF-8BD1-0FE8318AC2B1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -1261,6 +1265,22 @@ Global
 		{1B295BF1-4843-477C-8F01-5585B876E14E}.Release|x64.Build.0 = Release|x64
 		{1B295BF1-4843-477C-8F01-5585B876E14E}.Release|x86.ActiveCfg = Release|Win32
 		{1B295BF1-4843-477C-8F01-5585B876E14E}.Release|x86.Build.0 = Release|Win32
+		{0C2F9BED-8264-45D0-8729-EF16DE631B4F}.Debug|x64.ActiveCfg = Debug|x64
+		{0C2F9BED-8264-45D0-8729-EF16DE631B4F}.Debug|x64.Build.0 = Debug|x64
+		{0C2F9BED-8264-45D0-8729-EF16DE631B4F}.Debug|x86.ActiveCfg = Debug|Win32
+		{0C2F9BED-8264-45D0-8729-EF16DE631B4F}.Debug|x86.Build.0 = Debug|Win32
+		{0C2F9BED-8264-45D0-8729-EF16DE631B4F}.Release|x64.ActiveCfg = Release|x64
+		{0C2F9BED-8264-45D0-8729-EF16DE631B4F}.Release|x64.Build.0 = Release|x64
+		{0C2F9BED-8264-45D0-8729-EF16DE631B4F}.Release|x86.ActiveCfg = Release|Win32
+		{0C2F9BED-8264-45D0-8729-EF16DE631B4F}.Release|x86.Build.0 = Release|Win32
+		{250D3E21-A77A-4FEF-8BD1-0FE8318AC2B1}.Debug|x64.ActiveCfg = Debug|x64
+		{250D3E21-A77A-4FEF-8BD1-0FE8318AC2B1}.Debug|x64.Build.0 = Debug|x64
+		{250D3E21-A77A-4FEF-8BD1-0FE8318AC2B1}.Debug|x86.ActiveCfg = Debug|Win32
+		{250D3E21-A77A-4FEF-8BD1-0FE8318AC2B1}.Debug|x86.Build.0 = Debug|Win32
+		{250D3E21-A77A-4FEF-8BD1-0FE8318AC2B1}.Release|x64.ActiveCfg = Release|x64
+		{250D3E21-A77A-4FEF-8BD1-0FE8318AC2B1}.Release|x64.Build.0 = Release|x64
+		{250D3E21-A77A-4FEF-8BD1-0FE8318AC2B1}.Release|x86.ActiveCfg = Release|Win32
+		{250D3E21-A77A-4FEF-8BD1-0FE8318AC2B1}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

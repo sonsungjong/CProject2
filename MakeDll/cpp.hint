@@ -1,0 +1,2 @@
+#define MAKEDLL_API __declspec(dllexport)
+#define MAKEDLL_API __declspec(dllimport)
