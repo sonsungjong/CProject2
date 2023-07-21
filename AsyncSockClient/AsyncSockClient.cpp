@@ -9,6 +9,8 @@
 */
 
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
+#define IP                         "172.16.1.226" 
+#define PORT                    8000
 
 #include <cstdio>
 #include <tchar.h>
@@ -52,6 +54,7 @@ void RecvMsg(SOCKET clientSocket)
 void SendMsg(SOCKET clientSocket)
 {
     char client_msg[256] = { 0, };
+    // {\r\n    \"UI\":\"req\"\r\n}
 
     while (true)
     {
@@ -81,8 +84,8 @@ int main()
     // 서버 주소 설정
     sockaddr_in serverAddress;
     serverAddress.sin_family = AF_INET;
-    serverAddress.sin_port = htons(8888);
-    serverAddress.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
+    serverAddress.sin_port = htons(PORT);
+    serverAddress.sin_addr.S_un.S_addr = inet_addr(IP);
 
     // 서버와 연결
     if (connect(clientSocket, (struct sockaddr*)(&serverAddress), sizeof(serverAddress)) < 0)

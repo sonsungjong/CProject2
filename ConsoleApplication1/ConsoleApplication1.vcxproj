@@ -143,6 +143,7 @@
     <ClCompile Include="ConsoleApplication2.cpp" />
     <ClCompile Include="CaptureScreen.cpp" />
     <ClCompile Include="FileMappingB.cpp" />
+    <ClCompile Include="JsonParsing.cpp" />
     <ClCompile Include="StopScreen.cpp" />
     <ClCompile Include="URLFileDownload.cpp" />
     <ClCompile Include="WebcamCpp.cpp" />

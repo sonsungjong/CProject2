@@ -11,7 +11,7 @@
 #include <conio.h>
 #pragma comment(lib, "Strmiids")				// DirectShow
 
-int main() {
+int main_webcam() {
 	int DeviceNumber;
 
 	HRESULT hr;
