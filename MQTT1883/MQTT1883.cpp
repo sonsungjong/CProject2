@@ -67,37 +67,84 @@ C++ 또는 Python의 클라이언트 코드를 실행하여 연결한다.
 #include <thread>
 #include "mqtt/async_client.h"
 
-const std::string SERVER_ADDRESS("tcp://localhost:1883");
-const std::string CLIENT_ID("mqtt_cpp_client");
-const std::string TOPIC("test/topic");
+const char* BROKER_IP_PORT = "tcp://localhost:1883";               // 브로커의 IP와 포트
+const char* CLIENT_ID = "my_id";                                     // 클라이언트 ID
+const char* TOPIC = "my_topic";                           // 토픽 코드
+const int QOS = 2;
+char* g_recv_msg = NULL;
+
+// Subscribe시 수신 이벤트로 설정하는 클래스 (오버라이딩)
+class MyEventCallback : public virtual mqtt::callback
+{
+public:
+    void message_arrived(mqtt::const_message_ptr msg) override {
+        const char* recv_msg = msg->get_payload_str().c_str();
+        printf("구독하여 받은 메시지 : %s\n", recv_msg);
+
+        int len = strlen(recv_msg);
+        if (len >= 1000000) {
+            len = 1000000;
+        }
+        memcpy(g_recv_msg, recv_msg, len);
+        g_recv_msg[len] = '\0';
+    }
+};
 
 int main() {
-    mqtt::async_client client(SERVER_ADDRESS, CLIENT_ID);
+    // 토픽명 my_topic
+    g_recv_msg = new char[1000000];
+    char flag[1024] = { 0, };
+    char publish_msg[1024] = { 0, };
 
-    mqtt::connect_options connOpts;
-    connOpts.set_keep_alive_interval(20);
-    connOpts.set_clean_session(true);
+    mqtt::async_client client(BROKER_IP_PORT, CLIENT_ID);           // [비동기 기반] 브로커의 IP와 PORT 및 클라이언트ID 로 생성
+    MyEventCallback cb;                 // Subscribe 이벤트 설정
+    client.set_callback(cb);             // Subscribe 이벤트 설정
+    
+    mqtt::connect_options conn;                    // 브로커에 연결을 위한 객체
+    conn.set_keep_alive_interval(20);             // 연결 확인용 Ping을 20초 주기로 설정
+    conn.set_clean_session(false);                   // true : 새로운 세선에 연결, false : 기존 세션에 연결해서 이어받음 (동일한 clientID 일 경우)
 
     try {
-        std::cout << "Connecting to the MQTT server..." << std::flush;
-        client.connect(connOpts)->wait();
-        std::cout << "Connected" << std::endl;
+        client.connect(conn)->wait();                   // 클라이언트 객체를 브로커에 연결시킨다
+        printf("브로커에 연결됨\n");
 
-        std::cout << "Publishing a message..." << std::flush;
-        mqtt::message_ptr pubmsg = mqtt::make_message(TOPIC, "Hello MQTT from C++!");
-        pubmsg->set_qos(1);
-        client.publish(pubmsg)->wait_for(std::chrono::seconds(5));
-        std::cout << "Published" << std::endl;
+        // 구독
+        client.subscribe(TOPIC, QOS)->wait();               // 해당 토픽(my_topic)을 구독한다
+        printf("해당 TOPIC을 구독했습니다: %s \n", TOPIC);
 
-        std::cout << "Disconnecting from the MQTT server..." << std::flush;
-        client.disconnect()->wait();
-        std::cout << "Disconnected" << std::endl;
+        while (true) {
+            memset(flag, 0, 1024);
+            printf("%s에 게시할 메시지(게시하려면 0 입력) >>\n", TOPIC);
+            rewind(stdin);
+            scanf_s("%[^\n]s", flag, 1024);
 
+            if (strcmp(flag, "-1") == 0) {
+                client.disconnect()->wait();    // 브로커와 연결을 해제
+                printf("브로커와의 연결을 해제했습니다.");
+                delete[] g_recv_msg;
+                return 0;
+            }
+
+            if (strcmp(flag, "0") != 0) {
+                // 0이 아니면 메시지 변경
+                memset(publish_msg, 0, 1024);
+                memcpy(publish_msg, flag, 1024);
+            }
+            else {
+                // 해당 토픽(my_topic)에 메시지를 게시한다
+                mqtt::message_ptr send_msg = mqtt::make_message(TOPIC, publish_msg);
+                send_msg->set_qos(QOS);
+                client.publish(send_msg)->wait_for(std::chrono::seconds(5));
+                printf("다음 메시지가 브로커에 게시됨: %s\n", publish_msg);
+            }
+        }
     }
     catch (const mqtt::exception& exc) {
         std::cerr << "Error: " << exc.what() << std::endl;
-        return 1;
+        delete[] g_recv_msg;
+        return EXIT_FAILURE;
     }
 
-    return 0;
+    delete[] g_recv_msg;
+    return EXIT_SUCCESS;
 }

@@ -79,10 +79,11 @@ C++ 또는 Python의 클라이언트 코드를 실행하여 연결한다.
 #include <cJSON.h>
 #include <mqtt/async_client.h>
 
-const char* ADDRESS = "tcp://localhost:1883";
-const char* CLIENTID = "A";
-const char* TOPIC = "test_topic";
-const int QOS = 1;
+// Send 아님,, Publisher (게시자)
+const char* ADDRESS = "tcp://localhost:1883";               // 브로커의 IP와 포트
+const char* CLIENTID = "A";                                     // 클라이언트 ID
+const char* TOPIC = "test_topic";                           // 게시 토픽
+const int QOS = 2;                                              // 품질 (0~2)
 const int TIMEOUT = 10000L;
 
 int main(int argc, char* argv[])
@@ -103,25 +104,25 @@ int main(int argc, char* argv[])
     payload = cJSON_Print(root);
     cJSON_Delete(root);
 
-    mqtt::async_client cli(ADDRESS, CLIENTID);
+    mqtt::async_client cli(ADDRESS, CLIENTID);                  // [비동기] 브로커의 IP와 PORT 및 클라이언트의 ID로 객체 생성
 
-    mqtt::connect_options connOpts;
-    connOpts.set_keep_alive_interval(20);
-    connOpts.set_clean_session(true);
+    mqtt::connect_options connOpts;                 // 커넥트 객체 생성
+    connOpts.set_keep_alive_interval(20);               // 커넥트 설정1
+    connOpts.set_clean_session(true);                       // 커넥트 설정2
 
     try {
         printf("Connecting...\n");
-        cli.connect(connOpts)->wait();
+        cli.connect(connOpts)->wait();              // 브로커에 connect 시도
         printf("Connected\n");
 
-        mqtt::message_ptr pubmsg = mqtt::make_message(TOPIC, payload);
-        pubmsg->set_qos(QOS);
+        mqtt::message_ptr pubmsg = mqtt::make_message(TOPIC, payload);          // 토픽과 메시지 생성
+        pubmsg->set_qos(QOS);               // 품질 단계 설정
         printf("Publishing message...\n");
-        cli.publish(pubmsg)->wait_for(TIMEOUT);
+        cli.publish(pubmsg)->wait_for(TIMEOUT);             // 메시지 게시
         printf("Message published\n");
 
         printf("Disconnecting...\n");
-        cli.disconnect()->wait();
+        cli.disconnect()->wait();                   // 브로커에서 해제
         printf("Disconnected\n");
     }
     catch (const mqtt::exception& exc) {

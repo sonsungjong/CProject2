@@ -80,12 +80,15 @@ C++ 또는 Python의 클라이언트 코드를 실행하여 연결한다.
 #include <mqtt/async_client.h>
 #include <cJSON.h>
 
-const char* ADDRESS = "tcp://localhost:1883";
-const char* CLIENTID = "B";
-const char* TOPIC = "test_topic";
-const int QOS = 1;
+// 서버 아님,, Subscriber (구독자)
+const char* ADDRESS = "tcp://localhost:1883";               // 브로커의 IP와 포트
+const char* CLIENTID = "B";                                         // 클라이언트 아이디
+const char* TOPIC = "test_topic";                                   // 토픽
+const int QOS = 2;                                                  // 단계 ( 0 ~ 2)
 const int TIMEOUT = 10000L;
 
+// public virtual mqtt::callback 을 상속받은 클래스는 비동기로 수신메시지를 처리할 수 있다
+// 메시지가 도착했을 때 동작하기 위한 이벤트 기반 처리(콜백 함수)
 class Callback : public virtual mqtt::callback
 {
 public:
@@ -114,25 +117,26 @@ public:
 };
 
 int main(int argc, char* argv[]) {
-    mqtt::async_client cli(ADDRESS, CLIENTID);
-    Callback cb;
-    cli.set_callback(cb);
+    mqtt::async_client cli(ADDRESS, CLIENTID);                  // [비동기] 브로커의 IP 와 PORT 및 클라이언트의 ID를 통해 객체 생성
+    Callback cb;                // public virtual mqtt::callback 을 상속받아 이벤트기반이 된 클래스
+    cli.set_callback(cb);           // 이벤트 콜백함수 등록(메시지 수신시 동작을 위한)
 
-    mqtt::connect_options connOpts;
-    connOpts.set_keep_alive_interval(20);
-    connOpts.set_clean_session(true);
+    mqtt::connect_options connOpts;             // 브로커 연결을 위한 객체 생성
+    connOpts.set_keep_alive_interval(20);           // 연결 객체 설정1
+    connOpts.set_clean_session(true);                   // 연결 객체 설정2
 
     try {
         printf("Connecting...\n");
-        cli.connect(connOpts)->wait();
+        cli.connect(connOpts)->wait();                  // 브로커에 연결
         printf("Connected\n");
 
         printf("Subscribing to topic...\n");
-        cli.subscribe(TOPIC, QOS)->wait();
+        cli.subscribe(TOPIC, QOS)->wait();              // [비동기] 구독할 주제와 품질단계(0~2)를 브로커에 요청
         printf("Subscribed\n");
 
         while (true) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));        // 잠깐 대기?
+            printf("메인쓰레드 종료를 방지하기 위한 임시코드\n");
         }
     }
     catch (const mqtt::exception& exc) {
