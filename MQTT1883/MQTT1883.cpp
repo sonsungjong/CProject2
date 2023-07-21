@@ -67,10 +67,11 @@ C++ 또는 Python의 클라이언트 코드를 실행하여 연결한다.
 #include <thread>
 #include "mqtt/async_client.h"
 
+// "tcp://172.16.1.157:8888"
 const char* BROKER_IP_PORT = "tcp://localhost:1883";               // 브로커의 IP와 포트
 const char* CLIENT_ID = "my_id";                                     // 클라이언트 ID
 const char* TOPIC = "my_topic";                           // 토픽 코드
-const int QOS = 2;
+const int QOS = 2;                                          // 품질 (0~2단계)
 char* g_recv_msg = NULL;
 
 // Subscribe시 수신 이벤트로 설정하는 클래스 (오버라이딩)
@@ -78,15 +79,27 @@ class MyEventCallback : public virtual mqtt::callback
 {
 public:
     void message_arrived(mqtt::const_message_ptr msg) override {
-        const char* recv_msg = msg->get_payload_str().c_str();
-        printf("구독하여 받은 메시지 : %s\n", recv_msg);
+        const char* topic_name = msg->get_topic().c_str();
+        const char* payload = msg->get_payload_str().c_str();
+        printf("%s에서 받은 구독메시지 : %s\n", topic_name, payload);
 
-        int len = strlen(recv_msg);
-        if (len >= 1000000) {
-            len = 1000000;
+        if (strcmp(TOPIC, topic_name) == 0) {
+            int len = strlen(payload);
+            if (len >= 1000000) {
+                len = 1000000;
+            }
+            memcpy(g_recv_msg, payload, len);               // 받은 메시지 저장
+            g_recv_msg[len] = '\0';
         }
-        memcpy(g_recv_msg, recv_msg, len);
-        g_recv_msg[len] = '\0';
+        else if (strcmp(topic_name, "topic2") == 0) {
+            printf("topic2 에 게시된 메시지는 별도로 처리합니다.\n");
+        }
+        else if (strcmp(topic_name, "topic3") == 0) {
+            printf("topic3 에 게시된 메시지는 여기서 처리합니다.\n");
+        }
+        else {
+            printf("그 외의 토픽에 게시된 메시지는 여기로 처리합니다.\n");
+        }
     }
 };
 
@@ -95,9 +108,9 @@ int main() {
     g_recv_msg = new char[1000000];
     char flag[1024] = { 0, };
     char publish_msg[1024] = { 0, };
-
+    
     mqtt::async_client client(BROKER_IP_PORT, CLIENT_ID);           // [비동기 기반] 브로커의 IP와 PORT 및 클라이언트ID 로 생성
-    MyEventCallback cb;                 // Subscribe 이벤트 설정
+    MyEventCallback cb;                 // Subscribe 이벤트 객체
     client.set_callback(cb);             // Subscribe 이벤트 설정
     
     mqtt::connect_options conn;                    // 브로커에 연결을 위한 객체
@@ -110,7 +123,9 @@ int main() {
 
         // 구독
         client.subscribe(TOPIC, QOS)->wait();               // 해당 토픽(my_topic)을 구독한다
+        client.subscribe("topic2", QOS)->wait();             // 해당 토픽(topic2)을 구독한다
         printf("해당 TOPIC을 구독했습니다: %s \n", TOPIC);
+        printf("해당 TOPIC을 구독했습니다: %s \n", "topic2");
 
         while (true) {
             memset(flag, 0, 1024);
@@ -131,7 +146,7 @@ int main() {
                 memcpy(publish_msg, flag, 1024);
             }
             else {
-                // 해당 토픽(my_topic)에 메시지를 게시한다
+                // 해당 토픽(my_topic)에 메시지를 게시한다 (PUBLISHER)
                 mqtt::message_ptr send_msg = mqtt::make_message(TOPIC, publish_msg);
                 send_msg->set_qos(QOS);
                 client.publish(send_msg)->wait_for(std::chrono::seconds(5));
