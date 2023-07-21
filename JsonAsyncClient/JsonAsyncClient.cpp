@@ -1,6 +1,6 @@
 /*
     TCP/IP 통신을 위해선
-    방화벽을 해제하거나 
+    방화벽을 해제하거나
     해당 프로그램과 포트에 대해 Windows 방화벽 예외를 추가해야한다.
 
     제어판 -> 시스템 및 보안 -> Windows Defender 방화벽 -> 고급 설정 -> 고급 보안이 포함된 Windows Defender 방화벽
@@ -9,8 +9,8 @@
 */
 
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
-#define IP                         "127.0.0.1" 
-#define PORT                    8888
+#define IP                         "172.16.1.226" 
+#define PORT                    8000
 
 #include <cstdio>
 #include <tchar.h>
@@ -32,7 +32,7 @@ void RecvMsg(SOCKET clientSocket)
     {
         // 서버 응답 기다리기
         memset(buffer, 0, 1024);
-        int read = recv(clientSocket, buffer, sizeof(buffer)-1, 0);
+        int read = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
 
         if (read > 0)
         {
@@ -53,16 +53,16 @@ void RecvMsg(SOCKET clientSocket)
 
 void SendMsg(SOCKET clientSocket)
 {
-    char client_msg[256] = { 0, };
+    char client_msg[256] = "{\r\n    \"UI\":\"req\"\r\n}";
     // "{\r\n    \"UI\":\"req\"\r\n}"
 
     while (true)
     {
-        memset(client_msg, 0, 256);
-        printf("서버에 보낼 메시지>>");
-        rewind(stdin);
-        scanf_s("%[^\n]s", client_msg, 256);
-    
+        //memset(client_msg, 0, 256);
+        //printf("서버에 보낼 메시지>>");
+        //rewind(stdin);
+        //scanf_s("%[^\n]s", client_msg, 256);
+
         send(clientSocket, client_msg, strlen(client_msg), 0);
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
