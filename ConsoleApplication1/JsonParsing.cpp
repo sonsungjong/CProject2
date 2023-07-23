@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstring>
 
-int main()
+int main_jsonparsing()
 {
     // 1. Json형태 문자열 만들기
     //char json[] = "{\"name\":\"jackson\",\"age\":\"19\",\"hobbies\":[\"reading\",\"gaming\",\"hiking\"]}";
