@@ -20,7 +20,7 @@ int SetSystemTimeInSeoul(int year, int month, int day, int hour, int minute, int
 int main() {
 
     // 윈도우 시간 변경
-    if (SetSystemTimeInSeoul(2023, 7, 24, 13, 46, 7)) {
+    if (SetSystemTimeInSeoul(2023, 7, 23, 13, 46, 7)) {
         printf("변경 완료\n");
     }
     else {

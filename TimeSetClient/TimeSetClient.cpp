@@ -9,7 +9,8 @@
 */
 
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
-#define IP                         "192.168.1.1" 
+//#define IP                         "192.168.196.189"
+#define IP                         "192.168.196.252"
 #define PORT                    18888
 
 #include <cstdio>
