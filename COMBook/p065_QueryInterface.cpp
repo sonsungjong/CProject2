@@ -106,7 +106,7 @@ void foo069(IUnknown* _pi)
 	}
 }
 
-int main()
+int main84()
 {
 	// 인터페이스ID : 인터페이스 이름의 중복을 막기위해 정한 고유의 이름
 	// IUnknwon의 QueryInterface : 인터페이스ID를 전달하면 인터페이스 이름을 반환
