@@ -129,6 +129,7 @@
   <ItemGroup>
     <ClCompile Include="p059_interface.cpp" />
     <ClCompile Include="p065_QueryInterface.cpp" />
+    <ClCompile Include="p085_GUID.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
