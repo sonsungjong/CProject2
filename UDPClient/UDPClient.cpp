@@ -4,13 +4,13 @@
 #include <tchar.h>
 #pragma comment(lib, "WS2_32.lib")
 
-#define PORT 40004
-#define IP _T("61.84.89.106")
+#define PORT 23456
+#define IP _T("172.16.1.157")
 
 int main()
 {
 	WSADATA data;
-	WSAStartup(0x0202, &data);
+	(void)WSAStartup(0x0202, &data);
 
 	SOCKET listen_socket = socket(AF_INET, SOCK_DGRAM, 0);
 	sockaddr_in addr_data = { AF_INET, htons(PORT), };
@@ -23,13 +23,13 @@ int main()
 
 	SOCKET out = socket(AF_INET, SOCK_DGRAM, 0);
 
-	char ss[256];
+	char my_msg[256] = { 0, };
 
 	while(true){
 		printf("보낼 메시지 >>");
-		scanf_s("%s", &ss, 256);
-		sendto(out, ss, 256, 0, (sockaddr*)&server, sizeof(server));
-		if (0 == strcmp(ss, "hello"))
+		scanf_s("%s", &my_msg, 256);
+		sendto(out, my_msg, 256, 0, (sockaddr*)&server, sizeof(server));
+		if (0 == strcmp(my_msg, "hello"))
 		{
 			break;			// 입력한 메시지가 hello면 종료
 		}
