@@ -1,7 +1,8 @@
 #include "pch.h"
 
+//using namespace System::Windows::Forms;
 using namespace CsClassLib;
-
+#include <string>
 #include <msclr/marshal_cppstd.h>
 #include "CLRCppLib46.h"
 

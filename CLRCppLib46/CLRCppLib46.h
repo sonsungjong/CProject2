@@ -1,5 +1,7 @@
 #pragma once
 
+// extern "C" __declspec(dllexport) void Run(int num = 0);
+
 class MyClrClass
 {
 public:
@@ -7,3 +9,11 @@ public:
 	void Func2();
 	int Func3(int a, int b);
 };
+
+//namespace MyName {
+//	public ref class CppClrClass
+//	{
+//	public:
+//		void UseCs();
+//	};
+//}
