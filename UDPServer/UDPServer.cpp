@@ -8,8 +8,8 @@
 #include <tchar.h>
 #pragma comment(lib, "WS2_32.lib")
 
-#define PORT 40004
-#define IP _T("61.84.89.106")
+#define PORT 23456
+#define IP _T("127.0.0.1")
 
 void IPCatch(char* my_ip)
 {
@@ -69,7 +69,7 @@ int main()
 		ZeroMemory(serverIP, 256);
 		IPCatch(serverIP);
 
-		printf("%s", serverIP);
+		printf("서버의 아이피 : %s\n", serverIP);
 
 		int byesIn = recvfrom(listen_socket, buf, 1024, 0, (sockaddr*)&recv_socket, &recv_len);
 
@@ -77,20 +77,16 @@ int main()
 		ZeroMemory(clientIP, 256);
 		inet_ntop(AF_INET, &recv_socket.sin_addr, clientIP, 256);
 		printf("Message rect from %s : %s \n", clientIP, buf);
-		if (0 == strcmp(buf, serverIP)) 
-		{
-			break;				// 받은 메시지가 서버의 IP와 동일하면 종료
+
+		// 로그파일 찍기
+		FILE* p_file;
+		p_file = fopen("C:\\log\\udp_server_tester.txt", "at");
+		if (NULL != p_file) {
+			fprintf(p_file, buf);
+			fprintf(p_file, "\n");
+			fclose(p_file);	
 		}
-		else {
-			// 로그파일 찍기
-			FILE* p_file;
-			p_file = fopen("C:\\txt\\sung.txt", "at");
-			if (NULL != p_file) {
-				fprintf(p_file, buf);
-				fprintf(p_file, "\n");
-				fclose(p_file);
-			}
-		}
+
 	}
 
 	closesocket(listen_socket);
