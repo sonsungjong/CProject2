@@ -59,6 +59,22 @@ mosquitto -p 포트번호
 를 입력하여 브로커를 실행한다.
 C++ 또는 Python의 클라이언트 코드를 실행하여 연결한다.
 브로커의 기본 포트는 1883
+
+<MQTT IP셋팅>
+C:\Program Files\mosquitto\mosquitto.conf
+파일을 열어서 아래 두군데를 수정해야 IP로 셋팅이 가능하다 (안하면 localhost 만 가능)
+
+<listener 포트할당 후 주석해제(#listener 부분만 변경)>
+# listener port-number [ip address/host name/unix socket path]
+listener 1883
+
+<allow_anonymous 주석 해제 후 false를 true로 변경 (#allow_anonymous false 부분만 변경)>
+# Defaults to false, unless there are no listeners defined in the configuration
+# file, in which case it is set to true, but connections are only allowed from
+# the local machine.
+allow_anonymous true
+
+<저장 후 mosquitto 를 서비스에서 다시 시작 한다>
 */
 
 // 구독자
