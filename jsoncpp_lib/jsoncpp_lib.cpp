@@ -10,6 +10,8 @@ git clone https://github.com/open-source-parsers/jsoncpp.git
 cd jsoncpp
 mkdir build
 cd build
+
+아래 명령어를 통해 lib기반의 솔루션 프로젝트를 만든다
 cmake -G "Visual Studio 17 2022" -A x64 -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release ..
 sln 프로젝트를 실행하고 jsoncpp_static 을 빌드한다
 
