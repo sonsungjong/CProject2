@@ -19,7 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="WindowVersionGet.cpp" />
+    <ClCompile Include="IP_Get.cpp" />
+    <ClCompile Include="WindowVersion_Get.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

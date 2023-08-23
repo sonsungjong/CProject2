@@ -15,7 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="WindowVersionGet.cpp">
+    <ClCompile Include="WindowVersion_Get.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IP_Get.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
