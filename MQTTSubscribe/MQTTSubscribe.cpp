@@ -69,8 +69,6 @@ C:\Program Files\mosquitto\mosquitto.conf
 listener 1883
 
 <allow_anonymous 주석 해제 후 false를 true로 변경 (#allow_anonymous false 부분만 변경)>
-# Defaults to false, unless there are no listeners defined in the configuration
-# file, in which case it is set to true, but connections are only allowed from
 # the local machine.
 allow_anonymous true
 
