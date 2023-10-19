@@ -69,8 +69,8 @@ C++ 또는 Python의 클라이언트 코드를 실행하여 연결한다.
 
 // "tcp://172.16.1.157:8888"
 const char* BROKER_IP_PORT = "tcp://localhost:1883";               // 브로커의 IP와 포트
-const char* CLIENT_ID = "my_id";                                     // 클라이언트 ID
-const char* TOPIC = "my_topic";                           // 토픽 코드
+const char* CLIENT_ID = "server_id";                                     // 클라이언트 ID
+const char* TOPIC = "ai";                           // 토픽 코드
 const int QOS = 2;                                          // 품질 (0~2단계)
 char* g_recv_msg = NULL;
 
