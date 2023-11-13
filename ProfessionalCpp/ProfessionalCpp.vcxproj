@@ -171,6 +171,11 @@
     <ClCompile Include="p0156_Employee.cppm" />
     <ClCompile Include="p0156_EmployeeTest.cpp" />
     <ClCompile Include="p0156_main.cpp" />
+    <ClCompile Include="p0338_memory.cpp" />
+    <ClCompile Include="p0341_delete_pointer_array.cpp" />
+    <ClCompile Include="p0344_double_ptr_alloc.cpp" />
+    <ClCompile Include="p0348_array_pointer.cpp" />
+    <ClCompile Include="p0358_memory_leak.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HeaderUnits.h">
