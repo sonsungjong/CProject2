@@ -153,5 +153,11 @@
     <ClCompile Include="p0358_memory_leak.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="p0363_unique_ptr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p0368_shared_ptr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
