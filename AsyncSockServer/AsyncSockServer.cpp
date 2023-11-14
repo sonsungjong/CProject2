@@ -21,7 +21,9 @@
 
 // 라이브러리 링크
 #pragma comment(lib, "WS2_32.lib")
-#define MAX_USER            200
+
+#define MAX_USER            2000
+#define PORT                    8888
 
 // 서버에 접속한 클라이언트 정보
 struct User
@@ -40,6 +42,7 @@ public:
     {
         WSADATA wsaData;
         (void)WSAStartup(0x0202, &wsaData);                     // 라이브러리 실행
+        m_user = new User[MAX_USER];
         User* p = m_user;
 
         for (int i = 0; i < MAX_USER; i++, p++)
@@ -50,6 +53,10 @@ public:
         }
         m_server_socket = INVALID_SOCKET;
         m_accept_flag = true;
+
+        m_recv_msg = new char[max_buffer_size] {0};
+        m_recv_wmsg = new wchar_t[max_buffer_size] {0};
+        m_response_to_client = new char[max_buffer_size] {0};
     }
 
     // 파괴자
@@ -66,6 +73,10 @@ public:
         }
 
         WSACleanup();
+
+        delete[] m_recv_msg;
+        delete[] m_recv_wmsg;
+        delete[] m_response_to_client;
     }
 
     /*
@@ -146,23 +157,22 @@ public:
 
         while (target_user->running == true)
         {
-            char buffer[1024];
-            TCHAR wbuffer[1024] = { 0, };
-            memset(buffer, 0, sizeof(buffer));
-            memset(wbuffer, 0, sizeof(wbuffer));
-            char ip[16] = { 0, };
-            char respon[2000] = { 0, };
+            memset(m_recv_msg, 0, max_buffer_size);
+            memset(m_recv_wmsg, 0, max_buffer_size);
+            memset(m_response_to_client, 0, max_buffer_size+16);
+            char ip[16] = { 0 };
 
             // 메시지 수신
-            int read = recv(clientSocket, buffer, sizeof(buffer)-1, 0);
+            int read = recv(clientSocket, m_recv_msg, max_buffer_size -1, 0);
             if (read > 0)
             {
-                A2Wpchar(buffer, wbuffer);
-                _tprintf(_T("\n %s : %s \n"), target_user->ip, wbuffer);
+                m_recv_msg[read] = '\0';
+                A2Wpchar(m_recv_msg, m_recv_wmsg);
+                _tprintf(_T("\n %s : %s \n"), target_user->ip, m_recv_wmsg);
 
                 W2Apchar(target_user->ip, ip);
-                sprintf_s(respon, 2000, "%s : %s", ip, buffer);
-                SendBroadcast(respon);
+                sprintf_s(m_response_to_client, read+17, "%s : %s", ip, m_recv_msg);
+                SendBroadcast(m_response_to_client);
             }
             else if (read == 0)
             {
@@ -281,12 +291,17 @@ public:
     }
 
 private:
-    User m_user[MAX_USER];
+    User* m_user;
     SOCKET m_server_socket = INVALID_SOCKET;
     sockaddr_in m_server_address;
 
     std::future<void> m_accept_future;
     std::atomic<bool> m_accept_flag;
+
+    char* m_recv_msg;
+    wchar_t* m_recv_wmsg;
+    char* m_response_to_client;
+    const int max_buffer_size = 16384;
 };
 
 int main()
