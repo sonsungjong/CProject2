@@ -33,5 +33,20 @@
     <ClCompile Include="p175_switch.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="p180_for.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p185_while.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p195_nested_for.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p227_scope.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p234_extern.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
