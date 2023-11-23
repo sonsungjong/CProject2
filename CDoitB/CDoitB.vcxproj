@@ -138,6 +138,9 @@
     <ClCompile Include="p195_nested_for.c" />
     <ClCompile Include="p227_scope.c" />
     <ClCompile Include="p234_extern.c" />
+    <ClCompile Include="p255_array.cpp" />
+    <ClCompile Include="p265_array.cpp" />
+    <ClCompile Include="p270_string.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -48,5 +48,14 @@
     <ClCompile Include="p234_extern.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="p255_array.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p265_array.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p270_string.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
