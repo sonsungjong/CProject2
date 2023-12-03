@@ -1,6 +1,6 @@
 import "HeaderUnits.h";
 
-int main()
+int main378()
 {
 	const size_t number_of_elements = 10;
 	std::unique_ptr<int[]> values = std::make_unique<int[]>(number_of_elements);
