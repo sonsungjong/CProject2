@@ -19,10 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>16.0</VCProjectVersion>
+    <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{5ce3b6ff-a773-4120-a946-14e4cec7e28c}</ProjectGuid>
-    <RootNamespace>ProfessionalCpp</RootNamespace>
+    <ProjectGuid>{151d8e96-2155-46ba-b604-85a14e284bb9}</ProjectGuid>
+    <RootNamespace>SingletonManager</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -76,7 +76,6 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -91,7 +90,6 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -103,10 +101,9 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>false</SDLCheck>
+      <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -118,10 +115,9 @@
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>false</SDLCheck>
+      <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -131,65 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="p0059_iostream.cpp" />
-    <ClCompile Include="p0065_namespace.cpp" />
-    <ClCompile Include="p0068_literal.cpp" />
-    <ClCompile Include="p0071_int_max.cpp" />
-    <ClCompile Include="p0072_zero_initialization.cpp" />
-    <ClCompile Include="p0076_enumerated.cpp" />
-    <ClCompile Include="p0080_module.cppm" />
-    <ClCompile Include="p0080_struct.cpp" />
-    <ClCompile Include="p0087_threewaycomparison.cpp" />
-    <ClCompile Include="p0091_attribute.cpp" />
-    <ClCompile Include="p0098_array.cpp" />
-    <ClCompile Include="p0099_vector.cpp" />
-    <ClCompile Include="p0100_pair.cpp" />
-    <ClCompile Include="p0101_optional.cpp" />
-    <ClCompile Include="p0102_binding.cpp" />
-    <ClCompile Include="p0103_loop.cpp" />
-    <ClCompile Include="p0107_string.cpp" />
-    <ClCompile Include="p0108_AirlineTicket.cpp" />
-    <ClCompile Include="p0108_AirlineTicket.cppm" />
-    <ClCompile Include="p0108_AirlineTicketUse.cpp" />
-    <ClCompile Include="p0112_scope.cpp" />
-    <ClCompile Include="p0113_initClass.cpp" />
-    <ClCompile Include="p0119_dynamic_memory.cpp" />
-    <ClCompile Include="p0122_pointer.cpp" />
-    <ClCompile Include="p0123_dynamic_array.cpp" />
-    <ClCompile Include="p0124_const.cpp" />
-    <ClCompile Include="p0129_constexpr.cpp" />
-    <ClCompile Include="p0132_reference.cpp" />
-    <ClCompile Include="p0142_reference_param.cpp" />
-    <ClCompile Include="p0147_exception.cpp" />
-    <ClCompile Include="p0149_TypeAlias.cpp" />
-    <ClCompile Include="p0151_auto.cpp" />
-    <ClCompile Include="p0152_auto_reference.cpp" />
-    <ClCompile Include="p0156_Database.cpp" />
-    <ClCompile Include="p0156_Database.cppm" />
-    <ClCompile Include="p0156_DatabaseTest.cpp" />
-    <ClCompile Include="p0156_Employee.cpp" />
-    <ClCompile Include="p0156_Employee.cppm" />
-    <ClCompile Include="p0156_EmployeeTest.cpp" />
-    <ClCompile Include="p0156_main.cpp" />
-    <ClCompile Include="p0338_memory.cpp" />
-    <ClCompile Include="p0341_delete_pointer_array.cpp" />
-    <ClCompile Include="p0344_double_ptr_alloc.cpp" />
-    <ClCompile Include="p0348_array_pointer.cpp" />
-    <ClCompile Include="p0358_memory_leak.cpp" />
-    <ClCompile Include="p0363_unique_ptr.cpp" />
-    <ClCompile Include="p0368_shared_ptr.cpp" />
-    <ClCompile Include="p0373_weak_ptr.cpp" />
-    <ClCompile Include="p0378_unique_shared_ptr.cpp" />
-    <ClCompile Include="SpreadsheetCell.cpp" />
-    <ClCompile Include="SpreadsheetCell.cppm" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="HeaderUnits.h">
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsHeaderUnit</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsHeaderUnit</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsHeaderUnit</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CompileAsHeaderUnit</CompileAs>
-    </ClCompile>
+    <ClCompile Include="SingletonManager.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

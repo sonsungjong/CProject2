@@ -13,7 +13,7 @@ void doHire(Database& db);
 void doFire(Database& db);
 void doPromote(Database& db);
 
-int main()
+int main0156main()
 {
 	Database employeeDB;
 	bool done { false };
@@ -47,6 +47,8 @@ int main()
 			break;
 		}
 	}
+
+	return 0;
 }
 
 int displayMenu()

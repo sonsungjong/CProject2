@@ -4,6 +4,8 @@ import <iostream>;
 import <optional>;
 import <utility>;
 import <format>;
+import <memory>;
+import <cstddef>;
 
 using namespace std;
 
