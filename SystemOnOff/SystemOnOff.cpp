@@ -64,15 +64,48 @@ BOOL ProcessKill1(const TCHAR* a_process_name)
     return FALSE;
 }
 
-int main()
+bool isProcessRunning(const TCHAR* a_process_name)
 {
-    if (ProcessKill1(_T("vmplayer.exe")))
+    bool exists = false;
+    PROCESSENTRY32 entry;
+    entry.dwSize = sizeof(PROCESSENTRY32);
+
+    HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
+
+    if (Process32First(snapshot, &entry))
     {
-        printf("종료 성공1\n");
+        do {
+            if (!_wcsicmp(entry.szExeFile, a_process_name)) {
+                exists = true;
+                break;
+            }
+        } while (Process32Next(snapshot, &entry));
+    }
+
+    CloseHandle(snapshot);
+    return exists;
+}
+
+void runProcess(const char* a_program_path, const TCHAR* a_process_name) {
+    if (isProcessRunning(a_process_name) == false) {
+        system(a_program_path);
     }
     else {
-        printf("종료 안됨1\n");
+        printf("Process is already running.\n");
     }
+}
+
+int main()
+{
+    runProcess("C:\\exe\\WPF-RJ.exe", _T("WPF-RJ.exe"));
+    //Sleep(50);
+    //if (ProcessKill1(_T("vmplayer.exe")))
+    //{
+    //    printf("종료 성공1\n");
+    //}
+    //else {
+    //    printf("종료 안됨1\n");
+    //}
     //Sleep(10);
     //WindowsOff2(20);
 }
