@@ -2,7 +2,6 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <map>
 #include <string>
 
 class IniFile
@@ -45,6 +44,7 @@ public:
                 }
             }
         }
+        file.close();
     }
 
     std::string getUsername()
