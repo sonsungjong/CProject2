@@ -2,6 +2,7 @@
 #include <TlHelp32.h>
 #include <tchar.h>
 #include <cstdio>
+#include <cstdlib>
 
 void WindowsOff1()
 {
