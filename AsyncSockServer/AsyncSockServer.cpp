@@ -77,6 +77,7 @@ public:
         delete[] m_recv_msg;
         delete[] m_recv_wmsg;
         delete[] m_response_to_client;
+        delete[] m_user;
     }
 
     /*
@@ -293,7 +294,7 @@ public:
 private:
     User* m_user;
     SOCKET m_server_socket = INVALID_SOCKET;
-    sockaddr_in m_server_address;
+    sockaddr_in m_server_address = { 0 };
 
     std::future<void> m_accept_future;
     std::atomic<bool> m_accept_flag;
