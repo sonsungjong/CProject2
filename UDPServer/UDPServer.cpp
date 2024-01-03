@@ -8,8 +8,8 @@
 #include <tchar.h>
 #pragma comment(lib, "WS2_32.lib")
 
-#define PORT 23456
-#define IP _T("127.0.0.1")
+#define PORT				23456
+#define BASIC_IP			_T("127.0.0.1")
 
 void IPCatch(char* my_ip)
 {
@@ -48,9 +48,13 @@ int main()
 	WSADATA data;
 	WSAStartup(0x0202, &data);
 
+	char serverIP[256] = { 0 };
+	IPCatch(serverIP);
+
 	SOCKET listen_socket = socket(AF_INET, SOCK_DGRAM, 0);
 	sockaddr_in addr_data = { AF_INET, htons(PORT), };
-	InetPton(AF_INET, IP, &addr_data.sin_addr.s_addr);
+	InetPtonA(AF_INET, serverIP, &addr_data.sin_addr.s_addr);		// 내 PC 아이피
+	//InetPton(AF_INET, BASIC_IP, &addr_data.sin_addr.s_addr);			// 127.0.0.1
 
 	bind(listen_socket, (sockaddr*)&addr_data, sizeof(addr_data));
 
@@ -58,22 +62,19 @@ int main()
 	ZeroMemory(&recv_socket, sizeof(recv_socket));
 	int recv_len = sizeof(recv_socket);
 
-	char buf[1024];
-	ZeroMemory(buf, 1024);
+	char buf[1024] = { 0 };
+	char clientIP[256];
+
+
+	printf("서버의 아이피 : %s\n", serverIP);
 
 	while (true)
 	{
 		ZeroMemory(buf, 1024);
 
-		char serverIP[256];
-		ZeroMemory(serverIP, 256);
-		IPCatch(serverIP);
-
-		printf("서버의 아이피 : %s\n", serverIP);
 
 		int byesIn = recvfrom(listen_socket, buf, 1024, 0, (sockaddr*)&recv_socket, &recv_len);
 
-		char clientIP[256];
 		ZeroMemory(clientIP, 256);
 		inet_ntop(AF_INET, &recv_socket.sin_addr, clientIP, 256);
 		printf("Message rect from %s : %s \n", clientIP, buf);
