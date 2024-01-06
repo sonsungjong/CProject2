@@ -5,6 +5,7 @@
 #include <vector>
 
 // ODBC 설치가 필요함
+// x64 Access Database Engine 설치가 필요함
 
 class MSAcessMDB
 {

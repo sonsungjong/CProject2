@@ -21,7 +21,7 @@ void IPCatch(char* my_ip)
 
 	if (0 == WSAStartup(wVersionRequested, &wsaData))
 	{
-		char ucHostName[255];
+		char ucHostName[255] = { 0 };
 		if (0 == gethostname(ucHostName, sizeof(ucHostName)))
 		{
 			PHOSTENT phostInfo = gethostbyname(ucHostName);
