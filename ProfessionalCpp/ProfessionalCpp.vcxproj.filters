@@ -171,5 +171,11 @@
     <ClCompile Include="SpreadsheetCell.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="p0430_friend.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Spreadsheet.cppm">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

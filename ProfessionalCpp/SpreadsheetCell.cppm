@@ -2,6 +2,7 @@ export module spreadsheet_cell;
 import <string>;
 import <string_view>;
 import <vector>;
+import <charconv>;
 
 export class SpreadsheetCell
 {

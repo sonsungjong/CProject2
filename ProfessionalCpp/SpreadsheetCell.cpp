@@ -1,5 +1,5 @@
 module spreadsheet_cell;
-import <charconv>;
+
 import <iostream>;
 using namespace std;
 
@@ -64,10 +64,10 @@ SpreadsheetCell& SpreadsheetCell::operator=(const SpreadsheetCell& rhs)
 	}
 }
 
-SpreadsheetCell::SpreadsheetCell()
-{
-	m_value = 0;
-}
+//SpreadsheetCell::SpreadsheetCell()
+//{
+//	m_value = 0;
+//}
 
 class EvenSequence8
 {
