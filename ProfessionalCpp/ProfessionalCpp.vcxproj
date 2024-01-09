@@ -181,6 +181,7 @@
     <ClCompile Include="p0373_weak_ptr.cpp" />
     <ClCompile Include="p0378_unique_shared_ptr.cpp" />
     <ClCompile Include="p0430_friend.cpp" />
+    <ClCompile Include="Spreadsheet.cpp" />
     <ClCompile Include="Spreadsheet.cppm" />
     <ClCompile Include="SpreadsheetCell.cpp" />
     <ClCompile Include="SpreadsheetCell.cppm" />
