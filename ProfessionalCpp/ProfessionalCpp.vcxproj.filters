@@ -180,5 +180,8 @@
     <ClCompile Include="Spreadsheet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="p0437_dynamic_err.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

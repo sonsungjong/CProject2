@@ -44,7 +44,7 @@ void printFoo(const Foo430& a_foo)
 	printf("다른 클래스의 private 또는 protected 변수 접근 : %d\n", a_foo.foo_protected_num);
 }
 
-int main()
+int main0430()
 {
 	Foo430 foo;
 	Bar430 bar;

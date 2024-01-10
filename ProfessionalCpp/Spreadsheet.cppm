@@ -11,11 +11,15 @@ public:
 	void setCellAt(size_t x, size_t y, const SpreadsheetCell& cell);
 	SpreadsheetCell& getCellAt(size_t x, size_t y);
 
+	// 클래스 멤버변수에 동적할당 변수가 있으므로 복제생성자와 대입연산자를 직접 구현해줘야한다
+	Spreadsheet(const Spreadsheet& src);								// 복제생성자
+	Spreadsheet& operator=(const Spreadsheet& rhs);			// 대입연산자
+	
 private:
 	bool inRange(size_t value, size_t upper) const;
 	void verifyCoordinate(size_t x, size_t y) const;
 	size_t m_width { 0 };
 	size_t m_height { 0 };
-	SpreadsheetCell** m_cells { nullptr };
+	SpreadsheetCell** m_cells { nullptr };				// 동적할당 메모리
 };
 
