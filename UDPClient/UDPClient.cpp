@@ -17,9 +17,6 @@ void IPCatch(char* my_ip)
 	WORD wVersionRequested = MAKEWORD(0x02, 0x02);
 	WSADATA wsaData;
 
-	//char my_ip[256];
-	//ZeroMemory(my_ip, 256);
-
 	if (0 == WSAStartup(wVersionRequested, &wsaData))
 	{
 		char ucHostName[255] = { 0 };

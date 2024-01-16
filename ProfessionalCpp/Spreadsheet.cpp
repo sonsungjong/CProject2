@@ -1,6 +1,7 @@
 module spreadsheet;
 #include <stdexcept>
 #include <format>
+#include <utility>
 
 // 생성자
 Spreadsheet::Spreadsheet(size_t width, size_t height)
@@ -51,34 +52,17 @@ Spreadsheet::Spreadsheet(const Spreadsheet& src)
 // 대입연산자 정의 (멤버변수에 동적할당이 필요하면 필수구현)
 Spreadsheet& Spreadsheet::operator=(const Spreadsheet& rhs)
 {
-	// 자신을 대입하는지 확인한다
-	if (this == &rhs) {
-		return *this;
-	}
-
-	// 기존 메모리를 해제한다
-	for (size_t i = 0; i < m_width; ++i) {
-		delete[] m_cells[i];
-	}
-	delete[] m_cells;
-	m_cells = nullptr;
-
-	// 메모리를 새로 할당한다
-	m_width = rhs.m_width;
-	m_height = rhs.m_height;
-	m_cells = new SpreadsheetCell*[m_width];
-	for (size_t i = 0; i < m_width; ++i) {
-		m_cells[i] = new SpreadsheetCell[m_height];
-	}
-
-	// 데이터를 복제한다
-	for (size_t i = 0; i < m_width; ++i) {
-		for (size_t j = 0; j < m_height; ++j) {
-			m_cells[i][j] = rhs.m_cells[i][j];
-		}
-	}
+	Spreadsheet temp(rhs);				// 복제
+	swap(temp);								// 현재 객체와 맞바꾸기
 
 	return *this;
+}
+
+void Spreadsheet::swap(Spreadsheet& other) noexcept
+{
+	std::swap(m_width, other.m_width);
+	std::swap(m_height, other.m_height);
+	std::swap(m_cells, other.m_cells);
 }
 
 
@@ -100,4 +84,9 @@ void Spreadsheet::verifyCoordinate(size_t x, size_t y) const
 	if (y >= m_height) {
 		throw std::out_of_range(std::format("{} must be less than {}.", y, m_height));
 	}
+}
+
+void swap(Spreadsheet& first, Spreadsheet& second) noexcept
+{
+	first.swap(second);
 }
