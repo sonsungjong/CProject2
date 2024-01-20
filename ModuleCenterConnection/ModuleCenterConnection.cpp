@@ -121,6 +121,11 @@ public:
     }
 };
 
+void globalPrint()
+{
+    printf("hello world!\n");
+}
+
 int main()
 {
     Class1* p_class1 = new Class1;
@@ -133,6 +138,7 @@ int main()
     service.registerFunction(CenterService::METHOD2, std::function<int(std::string)>(std::bind(&Class2::method2, &class2, std::placeholders::_1)));
     service.registerFunction(CenterService::METHOD3, std::function<void(void)>(std::bind(&Class3::method3, p_class3)));
     service.registerFunction(CenterService::METHOD4, std::function<void(int, double)>(std::bind(&Class3::method4, p_class3, std::placeholders::_1, std::placeholders::_2)));
+    service.registerFunction(CenterService::NONE, std::function<void(void)>(globalPrint));
 
     std::string str = "hello world";
 
@@ -140,6 +146,7 @@ int main()
     int result2 = service.useFunction(CenterService::METHOD2, str);
 
     printf("main 리턴 결과 : %s, %d\n", result1.c_str(), result2);
+    service.useFunction(CenterService::NONE);
 
     service.useFunction(CenterService::METHOD3);
     service.useFunction(CenterService::METHOD4, 444, 4.14);
