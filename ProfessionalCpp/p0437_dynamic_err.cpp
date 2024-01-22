@@ -5,7 +5,7 @@ void printSpreadsheet(Spreadsheet s) {
 	printf("동일한 메모리 위치가 복제된다\n");
 }
 
-int main()
+int main437()
 {
 	Spreadsheet s1(2,2), s2(4,3);
 

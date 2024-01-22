@@ -183,5 +183,11 @@
     <ClCompile Include="p0437_dynamic_err.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="p0452_exchange.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p0454_SpreadsheetTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

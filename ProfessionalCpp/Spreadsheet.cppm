@@ -1,5 +1,5 @@
 export module spreadsheet;
-#include <cstddef>
+//#include <cstddef>
 
 export import spreadsheet_cell;
 
@@ -21,6 +21,15 @@ public:
 	//Spreadsheet(const Spreadsheet& src) = delete;
 	//Spreadsheet& operator=(const Spreadsheet& rhs) = delete;
 
+	// 이동 의미론 구현
+	Spreadsheet(Spreadsheet&& src) noexcept;									// 이동 생성자
+	Spreadsheet& operator=(Spreadsheet&& rhs) noexcept;				// 이동 대입 연산자
+	void cleanup() noexcept;
+	void moveFrom(Spreadsheet& src) noexcept;
+
+	template<typename T>
+	void swapCopy(T& a, T& b);
+
 private:
 	bool inRange(size_t value, size_t upper) const;
 	void verifyCoordinate(size_t x, size_t y) const;
@@ -30,4 +39,3 @@ private:
 };
 
 export void swap(Spreadsheet& first, Spreadsheet& second) noexcept;
-
