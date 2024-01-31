@@ -11,8 +11,8 @@ https://www.boost.org/ -> Download -> boost_1_84_0.zip -> 압축해제
 boost_1_84_0 폴더 -> 관리자 권한으로 cmd 실행 -> .\bootstrap.bat 입력하여 실행
 .\b2.exe 입력하여 빌드
 
-포함 디렉토리 : boost_1_84_0
-라이브러리 디렉토리 : boost_1_84_0\stage\lib
+포함 디렉토리 : C:\boost_1_84_0
+라이브러리 디렉토리 : C:\boost_1_84_0\stage\lib
 필요한 라이브러리를 입력에 넣어야함
 
 라이브러리 입력(릴리즈64) : libboost_system-vc143-mt-x64-1_84.lib
