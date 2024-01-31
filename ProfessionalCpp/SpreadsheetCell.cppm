@@ -17,14 +17,18 @@ public:
 	~SpreadsheetCell();				// 소멸자
 
 	void setValue(double value);
-	double getValue() const;
+	void setValue(std::string_view value);				// 오버로딩 (매개변수의 타입이나 갯수가 다르다)
+	void setValue(int) = delete;								// 오버로딩 (정수로는 대입하지 못하게 한다)
+
+	double getValue() const;				// 멤버 변수를 변경하지 않는 메서드 const
 
 	void setString(std::string_view inString);
-	std::string getString() const;
+	std::string getString() const;				// 멤버 변수를 변경하지 않는 메서드 const (const는 프로토타입의 일부분이기 때문에 구현코드에서도 적어줘야한다)
 
 private:
-	std::string doubleToString(double value) const;
-	double stringToDouble(std::string_view inString) const;
+	static std::string doubleToString(double value);				// (static은 구현코드에서는 생략 가능)
+	static double stringToDouble(std::string_view inString);
 	double m_value { 0 };
 
+	mutable size_t m_numAccesses = 0;				// mutable로 선언하면 const메서드에서도 수정이 가능하다
 };

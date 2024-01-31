@@ -9,7 +9,8 @@ public:
 	Spreadsheet(size_t width, size_t height);
 	~Spreadsheet();
 	void setCellAt(size_t x, size_t y, const SpreadsheetCell& cell);
-	SpreadsheetCell& getCellAt(size_t x, size_t y);
+	SpreadsheetCell& getCellAt(size_t x = 100, size_t y = 100);				// 디폴트인수는 오른쪽부터 차례로 정의할 수 있다.
+	const SpreadsheetCell& getCellAt(size_t x, size_t y) const;				// const를 통해서도 오버로딩할 수 있다
 
 	// 클래스 멤버변수에 동적할당 변수가 있으므로 복제생성자와 대입연산자를 직접 구현해줘야한다
 	Spreadsheet(const Spreadsheet& src);								// 복제생성자

@@ -184,6 +184,7 @@
     <ClCompile Include="p0437_dynamic_err.cpp" />
     <ClCompile Include="p0452_exchange.cpp" />
     <ClCompile Include="p0454_SpreadsheetTest.cpp" />
+    <ClCompile Include="p0468_ref_qualified.cpp" />
     <ClCompile Include="Spreadsheet.cpp" />
     <ClCompile Include="Spreadsheet.cppm" />
     <ClCompile Include="SpreadsheetCell.cpp" />

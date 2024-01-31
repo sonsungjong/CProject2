@@ -6,7 +6,7 @@ Spreadsheet createObject()
 	return Spreadsheet { 3,2 };
 }
 
-int main()
+int main0454()
 {
 	std::vector<Spreadsheet> vec;
 	for (size_t i = 0; i < 2; ++i) {

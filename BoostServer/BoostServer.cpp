@@ -36,17 +36,24 @@ public:
 private:
     void read() {
         auto self(shared_from_this());
+        memset(buffer_, 0, sizeof(buffer_));
         socket_.async_read_some(
             boost::asio::buffer(buffer_),
             [this, self](boost::system::error_code ec, std::size_t bytes_transferred) {
                 if (!ec) {
-                    std::string msg(buffer_.data(), bytes_transferred);
-                    std::cout << "Received: " << msg << std::endl;
-                    for (auto& client : clients_) {
-                        if (client != shared_from_this()) {
-                            client->deliver(msg);
+                    std::string msg(buffer_, bytes_transferred);
+
+                    // 수신 메시지에 대한 후처리는 별도 쓰레드에서 detach 로 진행
+                    std::thread([this, msg]() {
+                        std::cout << "Received: " << msg << std::endl;
+                        for (auto& client : clients_) {
+                            if (client != shared_from_this()) {
+                                client->deliver(msg);
+                            }
                         }
-                    }
+                    }).detach();
+
+                    // 다음 데이터 수신을 위해 read() 재귀적 호출
                     read();
                 }
                 else {
@@ -57,14 +64,25 @@ private:
 
     tcp::socket socket_;
     std::set<ClientConnectionPtr>& clients_;
-    std::array<char, 1024> buffer_;
+    char buffer_[1024] = { 0, };
 };
 
 class ChatServer {
 public:
     ChatServer(boost::asio::io_context& io_context, short port)
-        : acceptor_(io_context, tcp::endpoint(tcp::v4(), port)) {
+        : acceptor_(io_context, tcp::endpoint(tcp::v4(), port))
+    {
         accept();
+    }
+
+    void sendMsgAllClients(std::string msg)
+    {
+        std::thread([this, msg]() {
+            for (auto& client : clients_)
+            {
+                client->deliver(msg);
+            }
+        }).detach();
     }
 
 private:
@@ -88,11 +106,31 @@ private:
 int main() {
     try {
         boost::asio::io_context io_context;
+
         short port = DEFAULT_PORT;
 
         ChatServer server(io_context, port);
 
-        io_context.run();
+        std::thread server_thread([&io_context]() {
+            io_context.run();
+        });
+
+        server_thread.detach();
+
+        while (true) {
+            std::string input = "";
+            printf("공지를 입력하세요>>");
+            std::getline(std::cin, input);
+            if (input == "")              // 빈문자 "" 입력 시 종료
+            {
+                break;
+            }
+            else 
+            {
+                server.sendMsgAllClients("서버공지: " + input);
+            }
+            
+        }
     }
     catch (std::exception& e) {
         std::cerr << "Exception: " << e.what() << std::endl;

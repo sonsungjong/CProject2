@@ -189,5 +189,8 @@
     <ClCompile Include="p0454_SpreadsheetTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="p0468_ref_qualified.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

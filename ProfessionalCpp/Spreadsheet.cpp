@@ -38,6 +38,14 @@ SpreadsheetCell& Spreadsheet::getCellAt(size_t x, size_t y)
 	return m_cells[x][y];
 }
 
+const SpreadsheetCell& Spreadsheet::getCellAt(size_t x, size_t y) const
+{
+	// const 붙여서 오버로딩
+	return const_cast<SpreadsheetCell&>(std::as_const(*this).getCellAt(x, y));
+	// std::as_const 를 사용하여 *this -> const Spreadsheet& 로 캐스팅
+	// const_cast 를 사용해서 비 const로 변경
+}
+
 // 복제생성자 정의 (멤버변수에 동적할당이 필요하면 필수구현)
 Spreadsheet::Spreadsheet(const Spreadsheet& src)
 	: Spreadsheet(src.m_width, src.m_height)			// 위임 생성자
