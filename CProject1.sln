@@ -313,6 +313,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ExcelCOM", "ExcelCOM\ExcelC
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Timer1", "Timer1\Timer1.vcxproj", "{8ED15AB4-5CDF-42F9-9E1C-B9D0F2353BB3}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Boost_JSON", "Boost_JSON\Boost_JSON.vcxproj", "{7FC3EAAA-AD64-48FE-8F14-BF59A47C57EF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -1561,6 +1563,14 @@ Global
 		{8ED15AB4-5CDF-42F9-9E1C-B9D0F2353BB3}.Release|x64.Build.0 = Release|x64
 		{8ED15AB4-5CDF-42F9-9E1C-B9D0F2353BB3}.Release|x86.ActiveCfg = Release|Win32
 		{8ED15AB4-5CDF-42F9-9E1C-B9D0F2353BB3}.Release|x86.Build.0 = Release|Win32
+		{7FC3EAAA-AD64-48FE-8F14-BF59A47C57EF}.Debug|x64.ActiveCfg = Debug|x64
+		{7FC3EAAA-AD64-48FE-8F14-BF59A47C57EF}.Debug|x64.Build.0 = Debug|x64
+		{7FC3EAAA-AD64-48FE-8F14-BF59A47C57EF}.Debug|x86.ActiveCfg = Debug|Win32
+		{7FC3EAAA-AD64-48FE-8F14-BF59A47C57EF}.Debug|x86.Build.0 = Debug|Win32
+		{7FC3EAAA-AD64-48FE-8F14-BF59A47C57EF}.Release|x64.ActiveCfg = Release|x64
+		{7FC3EAAA-AD64-48FE-8F14-BF59A47C57EF}.Release|x64.Build.0 = Release|x64
+		{7FC3EAAA-AD64-48FE-8F14-BF59A47C57EF}.Release|x86.ActiveCfg = Release|Win32
+		{7FC3EAAA-AD64-48FE-8F14-BF59A47C57EF}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
