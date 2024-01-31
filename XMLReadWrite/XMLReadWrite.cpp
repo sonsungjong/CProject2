@@ -1,31 +1,31 @@
 #include <iostream>
 #include <string>
 
-#define XML_MAX_SIZE            15000
+#define XML_MAX_SIZE            262144
 
 class XMLManager
 {
 private:
 
 public:
-    char xml_content[XML_MAX_SIZE];
-    int xml_size = 0;
+    char* mp_xml_content;
     const int xml_max_size = XML_MAX_SIZE;
     std::string xml_title = "";
 
-    XMLManager() {
-        for (int i = 0; i < XML_MAX_SIZE; i++) {
-            xml_content[i] = 0;
-        }
+    XMLManager() 
+        : mp_xml_content(new char[XML_MAX_SIZE] {0})
+    {
     }
-    virtual ~XMLManager() {}
+
+    virtual ~XMLManager() {
+        delete[] mp_xml_content;
+    }
 
     // XML 파일을 읽어 문자열로 저장
     size_t ReadXmlFileToString(const char* a_filename)
     {
-        xml_size = 0;
         for (int i = 0; i < XML_MAX_SIZE; i++) {
-            xml_content[i] = 0;
+            mp_xml_content[i] = 0;
         }
 
         FILE* p_file = NULL;
@@ -37,8 +37,8 @@ public:
             return 0;
         }
 
-        size_t bytes_read = fread(xml_content, 1, xml_max_size - 1, p_file);
-        xml_content[bytes_read] = '\0';
+        size_t bytes_read = fread(mp_xml_content, 1, xml_max_size - 1, p_file);
+        mp_xml_content[bytes_read] = '\0';
 
         fclose(p_file);
         return bytes_read;
@@ -55,8 +55,8 @@ public:
             return 0;
         }
 
-        size_t length = strlen(xml_content);
-        size_t written = fwrite(xml_content, 1, length, p_file);
+        size_t length = strlen(mp_xml_content);
+        size_t written = fwrite(mp_xml_content, 1, length, p_file);
 
         fclose(p_file);
 
@@ -69,16 +69,19 @@ public:
     }
 };
 
+/*
+간단히 읽고 카피하는 예제
+*/
 int main()
 {
     // XML파일을 읽어 문자열로 저장
     XMLManager xml;
 
-    xml.xml_size = xml.ReadXmlFileToString("C:\\xml\\scenario1.xml");
-    printf("%s\n xml크기: %d\n", xml.xml_content, xml.xml_size);
-    
+    // XML 파일 전체를 읽어 문자열로 저장한다
+    size_t xml_size = xml.ReadXmlFileToString("C:\\xml\\OTS.xml");
+    printf("xml크기: %lld\n%s\n", xml_size, xml.mp_xml_content);
 
-    // 소켓을 통해 xml_size와 xml_content를 전송
+    // 읽은 내용을 새로운 xml 파일로 카피한다
     int result = xml.WriteStringToXmlFile("C:\\xml\\시나리오 파일을 새로 생성1.xml");          // xml_size와 xml_content를 멤버변수에 담아 WriteStringToXmlFile을 사용
     printf("생성결과 : %d", result);
 }
