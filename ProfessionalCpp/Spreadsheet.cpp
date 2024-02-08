@@ -1,11 +1,18 @@
+module;
+
+#include <cstddef>
 module spreadsheet;
-#include <stdexcept>
-#include <format>
-#include <utility>
+
+import <utility>;
+import <stdexcept>;
+import <format>;
+//import <algorithm>;
+
+size_t Spreadsheet::ms_count = 0;
 
 // 생성자
-Spreadsheet::Spreadsheet(size_t width, size_t height)
-	: m_width(width), m_height(height)			// 위임생성자
+Spreadsheet::Spreadsheet(const SpreadsheetApplication& theApp, size_t width, size_t height)
+	: m_width(std::min(width, MaxWidth)), m_height(std::min(height, MaxHeight)),m_id(ms_count++), m_theApp(theApp)
 {
 	printf("Normal constructor\n");
 	// 생성자에서 동적할당
@@ -24,6 +31,12 @@ Spreadsheet::~Spreadsheet()
 	}
 	delete[] m_cells;					// 바깥 배열 정리하고
 	m_cells = nullptr;				// nullptr로 대입
+}
+
+Spreadsheet::Cell::Cell(double initialValue)
+	: m_value {initialValue}
+{
+
 }
 
 void Spreadsheet::setCellAt(size_t x, size_t y, const SpreadsheetCell& cell)
@@ -48,7 +61,7 @@ const SpreadsheetCell& Spreadsheet::getCellAt(size_t x, size_t y) const
 
 // 복제생성자 정의 (멤버변수에 동적할당이 필요하면 필수구현)
 Spreadsheet::Spreadsheet(const Spreadsheet& src)
-	: Spreadsheet(src.m_width, src.m_height)			// 위임 생성자
+	: Spreadsheet(src.m_theApp, src.m_width, src.m_height)			// 위임 생성자
 {
 	printf("Copy constructor\n");
 	// 깊은 복사로 대입한다
@@ -77,6 +90,7 @@ void Spreadsheet::swap(Spreadsheet& other) noexcept
 
 // 이동 의미론 구현 : 이동 생성자
 Spreadsheet::Spreadsheet(Spreadsheet&& src) noexcept
+	:m_theApp(src.m_theApp)
 {
 	printf("Move constructor\n");
 	moveFrom(src);
@@ -127,6 +141,11 @@ void Spreadsheet::moveFrom(Spreadsheet& src) noexcept
 
 	// 객체 데이터 멤버는 std::move() 로 이동
 	//m_name = std::move(src.m_name);
+}
+
+size_t Spreadsheet::getId() const
+{
+	return m_id;
 }
 
 bool Spreadsheet::inRange(size_t value, size_t upper) const

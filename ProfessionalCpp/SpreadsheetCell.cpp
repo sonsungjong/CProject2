@@ -34,6 +34,60 @@ string SpreadsheetCell::getString() const
 	return doubleToString(m_value);
 }
 
+void SpreadsheetCell::setColor(Color color)
+{
+	m_color = color;
+}
+
+SpreadsheetCell::Color SpreadsheetCell::getColor() const
+{
+	return m_color;
+}
+
+SpreadsheetCell SpreadsheetCell::add(const SpreadsheetCell& cell) const
+{
+	return SpreadsheetCell{getValue() + cell.getValue()};
+}
+
+SpreadsheetCell SpreadsheetCell::operator+(const SpreadsheetCell& cell) const
+{
+	return SpreadsheetCell{getValue() + cell.getValue()};
+}
+
+SpreadsheetCell SpreadsheetCell::operator+(double rhs) const
+{
+	return SpreadsheetCell(getValue() + rhs);
+}
+
+SpreadsheetCell SpreadsheetCell::operator+=(const SpreadsheetCell& rhs)
+{
+	setValue(getValue() + rhs.getValue());
+	return *this;
+}
+
+SpreadsheetCell SpreadsheetCell::operator-=(const SpreadsheetCell& rhs)
+{
+	setValue(getValue() - rhs.getValue());
+	return *this;
+}
+
+SpreadsheetCell SpreadsheetCell::operator*=(const SpreadsheetCell& rhs)
+{
+	setValue(getValue() * rhs.getValue());
+	return *this;
+}
+
+SpreadsheetCell SpreadsheetCell::operator/=(const SpreadsheetCell& rhs)
+{
+	if (rhs.getValue() != 0) {
+		setValue(getValue() / rhs.getValue());
+	}
+	else {
+		throw invalid_argument{ "Divided by zero." };
+	}
+	return *this;
+}
+
 string SpreadsheetCell::doubleToString(double value)
 {
 	return to_string(value);
@@ -75,6 +129,21 @@ SpreadsheetCell& SpreadsheetCell::operator=(const SpreadsheetCell& rhs)
 //	m_value = 0;
 //}
 
+// 전역함수 (매개변수 위치 자유화)
+SpreadsheetCell operator+(const SpreadsheetCell& lhs, const SpreadsheetCell& rhs)
+{
+	return SpreadsheetCell{ lhs.getValue() + rhs.getValue() };
+}
+
+SpreadsheetCell operator/(const SpreadsheetCell& lhs, const SpreadsheetCell& rhs)
+{
+	if (rhs.getValue() == 0)
+	{
+		throw invalid_argument{ "Divide by zero." };				// 0으로 나누려하면 익셉션을 던지도록 작성
+	}
+	return SpreadsheetCell { lhs.getValue() / rhs.getValue() };
+}
+
 class EvenSequence8
 {
 public:
@@ -105,7 +174,7 @@ private:
 	std::vector<double> m_sequence;
 };
 
-int mainChapter8()
+int main()
 {
 	SpreadsheetCell myCell1{ 4 };
 	SpreadsheetCell myCell2{ myCell1 };				// 복제
