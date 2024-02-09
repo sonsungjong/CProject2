@@ -174,7 +174,7 @@ private:
 	std::vector<double> m_sequence;
 };
 
-int main()
+int mainCell88()
 {
 	SpreadsheetCell myCell1{ 4 };
 	SpreadsheetCell myCell2{ myCell1 };				// º¹Á¦

@@ -192,5 +192,11 @@
     <ClCompile Include="p0468_ref_qualified.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="p0506_inherit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p0529_super_constructor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
