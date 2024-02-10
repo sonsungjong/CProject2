@@ -187,6 +187,9 @@
     <ClCompile Include="p0468_ref_qualified.cpp" />
     <ClCompile Include="p0506_inherit.cpp" />
     <ClCompile Include="p0529_super_constructor.cpp" />
+    <ClCompile Include="p0534_chain_inherit.cpp" />
+    <ClCompile Include="p0541_pure_virtual_method.cpp" />
+    <ClCompile Include="p0549_multiple_inheritance.cpp" />
     <ClCompile Include="Spreadsheet.cpp" />
     <ClCompile Include="Spreadsheet.cppm" />
     <ClCompile Include="SpreadsheetCell.cpp" />

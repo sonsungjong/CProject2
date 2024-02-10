@@ -198,5 +198,14 @@
     <ClCompile Include="p0529_super_constructor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="p0534_chain_inherit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p0541_pure_virtual_method.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p0549_multiple_inheritance.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
