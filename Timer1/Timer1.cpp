@@ -9,7 +9,7 @@
 class MyTimer
 {
 public:
-    MyTimer() : m_running(false) 
+    MyTimer() : m_running(false), m_count(0)
     {}
 
     virtual ~MyTimer()
@@ -17,21 +17,31 @@ public:
         stop();
     }
 
-    virtual void start(const long long a_milliseconds, std::function<void()> callback)
+    // 주기(ms), 콜백함수, 최대실행횟수
+    virtual void start(const long long a_milliseconds, std::function<void()> callback, int count = -1)
     {
         if (m_running == false)
         {
             m_running = true;
-            std::thread([=]() {
-                while (m_running == true)
+            m_count = count;
+            std::thread([=]() mutable {
+                while (m_running == true && (m_count != 0))
                 {
                     std::this_thread::sleep_for(std::chrono::milliseconds(a_milliseconds));
                     if (m_running == true)
                     {
                         callback();
+                        if (m_count > 0) 
+                        {
+                            --m_count;
+                            if (m_count == 0)
+                            {
+                                stop();
+                            }
+                        }
                     }
                 }
-                }).detach();
+            }).detach();
         }
     }
 
@@ -50,6 +60,7 @@ public:
 
 private:
     bool m_running;
+    int m_count;                // 콜백함수가 호출될 횟수
 };
 
 class OtherClass
@@ -126,8 +137,8 @@ int main()
     // [1] 클래스 내부에서 타이머 객체 생성해서 사용
     other.run();
 
-    // [2] 전역함수 타이머 시작
-    timer1.start(2000, gg);
+    // [2] 전역함수 타이머 시작 (+최대 5번)
+    timer1.start(2000, gg, 5);
 
     // [3] 람다로 메서드를 커스터마이징해서 타이머 사용
     timer3.start(3000, [&]() 
@@ -140,7 +151,7 @@ int main()
     }
     );
 
-    // [4] 객체의 메서드에 대해 타이머 사용 (단, 타이머 실행 중 객체가 해제되지 않게할 것!)
+    // [4] 객체의 메서드에 대해 타이머 사용
     timer4.start(2500, std::bind(&OtherClass::loopInfinity, other));
 
 
