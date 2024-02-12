@@ -10,9 +10,9 @@
 #include <chrono>
 #pragma comment(lib, "WS2_32.lib")
 
-#define THIS_PORT			30001
-#define DST_PORT            20001
-#define DST_IP					"192.168.212.252"
+#define THIS_PORT			28888
+#define DST_PORT            8888
+#define DST_IP					"127.0.0.1"
 
 class UDPUnicast
 {
