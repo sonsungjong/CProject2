@@ -1,9 +1,3 @@
-#include <cstdio>
-#include <iostream>
-#include <thread>
-#include <boost/asio.hpp>
-#include <tchar.h>
-
 // Boost 라이브러리 1.84.0 버전
 /*
 설치
@@ -20,6 +14,11 @@ boost_1_84_0 폴더 -> 관리자 권한으로 cmd 실행 -> .\bootstrap.bat 입력하여 실행
 라이브러리 입력(릴리즈32) : libboost_system-vc143-mt-x32-1_84.lib
 라이브러리 입력(디버그32) : libboost_system-vc143-mt-gd-x32-1_84.lib
 */
+#include <cstdio>
+#include <iostream>
+#include <thread>
+#include <boost/asio.hpp>
+#include <tchar.h>
 
 using boost::asio::ip::tcp;
 
