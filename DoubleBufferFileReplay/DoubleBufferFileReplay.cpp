@@ -13,9 +13,10 @@ typedef struct FileHeader
 {
     long long startTime;
     long long endTime;
-    long long totalPlayTime;                // ms
+    long long totalPlayTime;                            // ms
+    char scenarioName[_MAX_PATH][10];               // 사용된 시나리오들
     char padding;               // ETX(3)
-} stFileHeader;             // 25
+} stFileHeader;             // 2625
 
 typedef struct DataFormat
 {
@@ -32,59 +33,10 @@ typedef struct DataFormat
 // 위치찾아서 해당 위치의 5개 전 데이터부터 큐에 쌓아놓는다 (첫 시작시 waypoint 5개 보내주기 위해서)
 // 해당 시간대보다 이전인 큐데이터는 모조리 송신한다
 
-class DoubleBufferFileLoadAndReplay
-{
-public:
-    int m_maxBufferSize = 65536;             // 64kb
-    std::queue<std::string> m_buffer1;
-    std::queue<std::string> m_buffer2;
-    std::queue<std::string>* m_currentBuffer;                 // 비워지면 교체하고 파일에서 채워놓는다 (수신 재현용)
-    std::queue<std::string>* m_processingBuffer;         // 미리 채워놓는다 (fileLoad)
-    long long m_startTime;
-    long long m_endTime;
-    long long m_totalPlayTime;                       // 파일의 header (총 재현시간 ms단위, 파일 맨앞에 있음)
-    long long m_timerTime;               // 타이머의 경과시간
-    std::atomic<bool> m_endFlag;
-    std::mutex m_mutex;
-    std::condition_variable m_cv;
-
-    
-
-    // 2000ms마다 타이머를 통해 pReplayBuffer의 time값이 타이머의 시간보다 작거나 같은 값들을 순차적으로 모두 printf
-    DoubleBufferFileLoadAndReplay() {
-        // pFileLoadBuffer 를 미리 채워놓고 pReplayBuffer와 swap한다
-        
-    }
-    
-    ~DoubleBufferFileLoadAndReplay() {
-
-    }
-
-    void printTimer() {
-        // 별도의 쓰레드에서 2000ms 마다 동작
-        // 타이머타임보다 이전 시간 값인 pReplayBuffer의 값들을 순차적으로 printf 하고
-        // 전부 사용했으면 swap한다
-
-    }
-
-    void fileloader() {
-        // swap된 버퍼pFileLoadBuffer를 별도의 쓰레드에서 채워놓는다
-        // 
-
-    }
-
-    void swapBuffer() {
-        // 전부 사용된 버퍼는 교체한다
-        std::queue<std::string>* temp = m_currentBuffer;
-        m_currentBuffer = m_processingBuffer;
-        m_processingBuffer = temp;
-    }
-};
-
 class DoubleBufferRecvAndSaveFile
 {
 public:
-    int m_maxBufferSize;             // 64kb
+    int m_maxBufferSize;             // 64KB
     std::atomic<int> m_curBufferSize;
     std::queue<std::string> m_buffer1;
     std::queue<std::string> m_buffer2;
@@ -92,9 +44,9 @@ public:
     std::queue<std::string>* mp_processingBuffer;          // 비우면서 파일에 기록한다
     
     long long m_startTime;                         // 수신을 시작한 ms시간 (나중에 수신종료 명령시 현재시간에서 startTime을 빼서 playTime을 기록)
-    std::atomic<long long> m_endTime;
+    long long m_endTime;
     long long m_playTime;                       // 파일에 기록할 총 경과시간, 마지막에 모든 버퍼를 파일로 저장하고 맨 앞에 기록한다, ms 단위
-    std::atomic<long long> m_timerTime;               // 타이머의 경과시간 (30ms 단위, 30Hz이상)
+    //std::atomic<long long> m_timerTime;               // 타이머의 경과시간 (30ms 단위, 30Hz이상)
     std::atomic<bool> m_endFlag;                               // 종료 플래그
     std::mutex m_mutex;             // 버퍼 스왑을 위한 뮤텍스
     std::condition_variable m_cv;
@@ -111,7 +63,7 @@ public:
 
     ~DoubleBufferRecvAndSaveFile() {
         // 스레드를 안전하게 종료
-
+        m_endFlag.store(true);
     }
 
     void init()
@@ -130,7 +82,7 @@ public:
         mp_currentBuffer = &m_buffer1;
         mp_processingBuffer = &m_buffer2;
         m_startTime = 0;
-        m_timerTime = 0;
+        //m_timerTime = 0;
         m_endTime = 0;
         m_playTime = 0;
 
@@ -205,8 +157,9 @@ public:
 
     }
 
-    void sendTask(std::string data)
+    void sendTask(const std::string& data)
     {
+        // View로 보내는 작업을 처리한다
         printf("%s\n", data.c_str());
     }
 
@@ -217,8 +170,7 @@ public:
         {
             std::string recvStr(1651, '1');             // 수신모의 (매개변수)
             m_curBufferSize += recvStr.size();         // 추가하고
-            //printf("%s\n", recvStr.c_str());               // 송신하고
-            //sendTask(recvStr);
+
             m_sendThread = std::thread([this, recvStr]() {this->sendTask(recvStr); });
             m_sendThread.detach();
 
@@ -269,14 +221,125 @@ public:
     }
 };
 
+class DoubleBufferFileLoadAndReplay
+{
+public:
+    int m_maxBufferSize;             // 64KB
+    std::queue<std::string> m_buffer1;
+    std::queue<std::string> m_buffer2;
+    std::queue<std::string>* m_currentBuffer;                 // 비워지면 교체하고 파일에서 채워놓는다 (재현용)
+    std::queue<std::string>* m_processingBuffer;         // fileLoad 담당
+    long long m_startTime;
+    long long m_endTime;
+    long long m_totalPlayTime;                       // 파일의 header (총 재현시간 ms단위, 파일 맨앞에 있음)
+    long long m_timerTime;                              // 경과시간 (ms)
+    std::atomic<bool> m_endFlag;                        // 종료 플래그
+    std::mutex m_mutex;                             // 버퍼 스왚을 위한 뮤택스
+    std::condition_variable m_cv;
+    std::string m_filePath;                         // 대상 파일
+
+    std::thread m_sendThread;
+    std::thread m_useBufThread;
+    std::thread m_loadThread;
+
+    // 2000ms마다 타이머를 통해 pReplayBuffer의 time값이 타이머의 시간보다 작거나 같은 값들을 순차적으로 모두 printf
+    DoubleBufferFileLoadAndReplay() : m_maxBufferSize(65536)
+    {
+
+        init();
+    }
+
+    ~DoubleBufferFileLoadAndReplay() {
+
+    }
+
+    void init()
+    {
+        // m_buffer1을 비운다
+        // m_buffer2를 비운다
+
+        // 변수들을 초기화한다
+    }
+
+    void startReplay()
+    {
+        // 시간 지점부터 데이터를 채워넣는다
+        
+        // 꺼내서 사용한다
+        //m_useBuffer
+    }
+
+    void stopReplay()
+    {
+
+    }
+
+    void pauseReplay()
+    {
+
+    }
+
+    void speedReplay(int _speed)
+    {
+
+    }
+
+    /*
+        정지 또는 일시정지가 아니라면 일시정지하고 데이터비운다음
+        선택한 구간에 대해 시작으로부터 x미리초 후 위치로 받아서
+        재생시간 변경 후
+        저장해놓은 시작시간으로부터 더한 다음
+        이전 5개의 waypoint 그리기를 위해 해당 지점으로 백한다음 버퍼에 받아온다음 스왚
+        스타트
+    */
+    void moveReplay(long long sectionTime)
+    {
+        
+        
+    }
+
+
+    void loadFile(std::string _fullpath)
+    {
+        // 해당 파일명을 멤버변수에 저장하고
+        // 헤더정보를 통해 관련된 파일들도 셋팅하고
+        // mp_processingBuffer에 값을 채워넣고 
+        // mp_currentBuffer가 일정량 이하면 swap한다 (무조건 실행)
+
+        // (추후 : 사용된 모든 시나리오 내용을 프론트에 보내준다)
+        
+    }
+
+
+
+    void useBuffer() {
+        // (추후: 별도의 쓰레드에서 30ms 마다 동작 타이머타임보다 이전 시간 값인 pReplayBuffer의 값들을 순차적으로 printf 하고)
+        // 테스트용 : 별도 쓰레드에서 30ms마다 1바이트씩 꺼내서 printf (원래는 저장과 동일한 사이즈로 맞춰야함)
+        // m_sendThread
+        
+        // 전부 사용했으면 swap한다 (swap하기 전에 상대버퍼도 비어있는지 체크하고 둘다 비어있으면 재생을 일시정지한다)
+        
+
+    }
+
+    void swapBuffer() {
+        // 전부 사용된 버퍼는 교체한다 (단, 상대 버퍼도 비어있으면 스왚하지않는다)
+        std::queue<std::string>* temp = m_currentBuffer;
+        m_currentBuffer = m_processingBuffer;
+        m_processingBuffer = temp;
+        // 성공적으로 스왚했으면 별도쓰레드에서 내용을 채운다
+    }
+};
+
 int main()
 {
     DoubleBufferRecvAndSaveFile* receiver = new DoubleBufferRecvAndSaveFile;
-    receiver->startSave();
+    DoubleBufferFileLoadAndReplay* replayer = new DoubleBufferFileLoadAndReplay;
+    replayer->loadFile("C:\\UITCC\\scenario_1712126163818.dat");
 
     while (true) {
         std::string input = "";
-        printf("0.프로그램 종료, 1.Recv중지, 2.Replay중지\n");
+        printf("[0]프로그램 종료, [1]Save시작, [2]Save종료, [3]Replay시작, [4]Replay중지, [5]Replay일시중지, [6]Replay배속2배, [7]Replay구간이동\n");
         std::getline(std::cin, input);
         if (input == "0")
         {
@@ -284,9 +347,35 @@ int main()
         }
         else if (input == "1")
         {
-            receiver->endSave();
+            receiver->startSave();          // 여러번해도 버그가 없어야함
+        }
+        else if (input == "2")
+        {
+            receiver->endSave();            // 여러번해도 버그가 없어야함
+        }
+        else if (input == "3")
+        {
+            //replayer->startReplay();
+        }
+        else if (input == "4")
+        {
+            //replayer->stopReplay();
+        }
+        else if (input == "5")
+        {
+            //replayer->pauseReplay();
+        }
+        else if (input == "6")
+        {
+            //replayer->speedReplay(2);             // 2배속 재생
+        }
+        else if (input == "7")
+        {
+            // long long clickTime = 3000;                 // 시작으로부터 3초 후 위치
+            //replayer->moveReplay(clickTime);           // 시작시간(ms) + ms - waypoint5개
         }
     }
 
+    delete replayer;
     delete receiver;
 }
