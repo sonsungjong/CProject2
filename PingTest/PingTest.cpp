@@ -1,4 +1,4 @@
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
+//#define _WINSOCK_DEPRECATED_NO_WARNINGS
 
 #include <iostream>
 #include <WinSock2.h>
@@ -8,7 +8,7 @@
 #include <chrono>
 #include <future>
 #include <string>
-#include <Windows.h>
+#include <WS2tcpip.h>
 
 #pragma comment(lib, "ws2_32.lib")
 #pragma comment(lib, "iphlpapi.lib")
@@ -55,16 +55,25 @@ public:
     }
 
     // 컴퓨터에 핑을 전송하여 true/false로 반환하는 함수
-    bool SendPing(const std::string& a_address) {
-        DWORD dw_ret_val;
+    bool SendPing(const std::string& a_address) 
+    {
+        struct sockaddr_in sa;
+        memset(&sa, 0, sizeof(sa));
+
+        DWORD dw_ret_val = 0;
         const int buffer_size = sizeof(ICMP_ECHO_REPLY) + 32 +8;
         BYTE reply_buffer[buffer_size];
         DWORD dw_reply_size = sizeof(reply_buffer);
         bool ping_result = false;
+        
+        int conn_result = inet_pton(AF_INET, a_address.c_str(), &(sa.sin_addr));
 
-        dw_ret_val = IcmpSendEcho(h_icmp_file, inet_addr(a_address.c_str()), NULL, 0, NULL, reply_buffer, dw_reply_size, dw_timeout);
+        if (h_icmp_file != INVALID_HANDLE_VALUE && conn_result > 0)
+        {
+            dw_ret_val = IcmpSendEcho(h_icmp_file, sa.sin_addr.S_un.S_addr, NULL, 0, NULL, reply_buffer, dw_reply_size, dw_timeout);
+            ping_result = dw_ret_val != 0;          // 핑 결과를 true/false로 변환
+        }
 
-        ping_result = dw_ret_val != 0;          // 핑 결과를 true/false로 변환
         return ping_result;
     }
 
