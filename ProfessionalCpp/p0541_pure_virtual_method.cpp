@@ -98,4 +98,6 @@ int main541()
 	myDbl.set(8.4);
 	StringSpreadsheetCell541 result{ myDbl + myDbl };
 	printf("%s\n", result.getString().c_str());
+
+	return 0;
 }

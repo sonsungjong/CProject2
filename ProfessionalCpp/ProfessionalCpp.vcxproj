@@ -190,6 +190,13 @@
     <ClCompile Include="p0534_chain_inherit.cpp" />
     <ClCompile Include="p0541_pure_virtual_method.cpp" />
     <ClCompile Include="p0549_multiple_inheritance.cpp" />
+    <ClCompile Include="p1280_thread.cpp" />
+    <ClCompile Include="p1284_lambda_thread.cpp" />
+    <ClCompile Include="p1285_method_thread.cpp" />
+    <ClCompile Include="p1286_thread_local.cpp" />
+    <ClCompile Include="p1287_jthread.cpp" />
+    <ClCompile Include="p1289_thread_exception.cpp" />
+    <ClCompile Include="p1292_atomic_type.cpp" />
     <ClCompile Include="Spreadsheet.cpp" />
     <ClCompile Include="Spreadsheet.cppm" />
     <ClCompile Include="SpreadsheetCell.cpp" />

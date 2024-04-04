@@ -47,7 +47,7 @@ public:
 	using Dog549::eat;
 };
 
-int main()
+int main549()
 {
 	DogBird549 confusedAnimal;
 	confusedAnimal.bark();
@@ -56,4 +56,6 @@ int main()
 	dynamic_cast<Dog549&>(confusedAnimal).eat();				// 모호성 해결
 	confusedAnimal.Dog549::eat();										// 모호성 해결
 	confusedAnimal.eat();
+
+	return 0;
 }

@@ -51,4 +51,6 @@ int main0430()
 	bar.UseNum(foo);		// Foo430에서 Bar430을 friend class 로 지정했기 때문에 Bar430에서 Foo430의 private 또는 protected에 접근이 가능하다
 	//bar.processFoo430(foo);
 	printFoo(foo);
+
+	return 0;
 }

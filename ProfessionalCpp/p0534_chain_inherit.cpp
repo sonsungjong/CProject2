@@ -56,4 +56,6 @@ int main534()
 	printf("%s\n",book.getDescription().c_str());								// Book
 	printf("%d\n",novel.getHeight());												// 60
 	printf("%d\n",book.getHeight());													// 120
+
+	return 0;
 }
