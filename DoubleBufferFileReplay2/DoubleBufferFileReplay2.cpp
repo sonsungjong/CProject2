@@ -9,15 +9,40 @@
 #include <fstream>
 #include <filesystem>
 
+#pragma pack(push, 1)
+typedef struct FileHeader
+{
+    long long startTime;
+    long long endTime;
+    long long totalPlayTime;                            // ms
+    char scenarioContent[65510];               // 시나리오 배포하는 내용을 저장 (여러개 로드할 수 있기 때문) 
+    char padding;               // ETX(3)
+} stFileHeader;             // 65535
+
+typedef struct DataFormat
+{
+    long long curTime;                         // ms
+    int fullSize;                               // 8 + 4 + 4 + x + 1
+    int id;                                    // 훈련수행&재생 전용식별자
+    std::string data;                   // 바이너리 데이터 (구조체)
+    char padding;                       // ETX(3)
+} stDataFormat;                 // 8 + 4 + 4 + x + 1 (17+)
+#pragma pack(pop)
+
+// 큐의 데이터를 저장할 때 구분자(3, ETX)를 넣고
+// 특정 시간대부터 불러오고 싶을 때 구분자를 기준으로 그다음 8바이트만큼 가져와서 시간을 훑은다음
+// 위치찾아서 해당 위치의 5개 전 데이터부터 큐에 쌓아놓는다 (첫 시작시 waypoint 5개 보내주기 위해서)
+// 해당 시간대보다 이전인 큐데이터는 모조리 송신한다
+
 class DoubleBufferRecvAndSaveFile
 {
 public:
     int m_maxBufferSize;             // 64KB
     std::atomic<int> m_curBufferSize;
-    std::queue<std::string> m_buffer1;
-    std::queue<std::string> m_buffer2;
-    std::queue<std::string>* mp_currentBuffer;            // 수신받을때마다 전처리하여 채우고 일정량이 채워지면 교체한다
-    std::queue<std::string>* mp_processingBuffer;          // 비우면서 파일에 기록한다
+    std::queue<stDataFormat> m_buffer1;
+    std::queue<stDataFormat> m_buffer2;
+    std::queue<stDataFormat>* mp_currentBuffer;            // 수신받을때마다 전처리하여 채우고 일정량이 채워지면 교체한다
+    std::queue<stDataFormat>* mp_processingBuffer;          // 비우면서 파일에 기록한다
 
     long long m_startTime;                         // 수신을 시작한 ms시간 (나중에 수신종료 명령시 현재시간에서 startTime을 빼서 playTime을 기록)
     long long m_endTime;
@@ -27,9 +52,11 @@ public:
     std::mutex m_mutex;             // 버퍼 스왑을 위한 뮤텍스
     std::condition_variable m_cv;
 
+    char m_scenarioPathList[_MAX_PATH][10];             // 최대 10개 중첩
     std::thread m_sendThread;
     std::thread m_addBufThread;
     std::thread m_saveThread;
+    int m_testerMsg = 0;
 
     DoubleBufferRecvAndSaveFile() :
         m_maxBufferSize(65536)
@@ -45,11 +72,11 @@ public:
     void initPlay()
     {
         if (!m_buffer1.empty()) {
-            std::queue<std::string> emptyQueue1;
+            std::queue<stDataFormat> emptyQueue1;
             m_buffer1.swap(emptyQueue1);
         }
         if (!m_buffer2.empty()) {
-            std::queue<std::string> emptyQueue2;
+            std::queue<stDataFormat> emptyQueue2;
             m_buffer2.swap(emptyQueue2);
         }
         m_curBufferSize = 0;
@@ -61,24 +88,52 @@ public:
         //m_timerTime = 0;
         m_endTime = 0;
         m_playTime = 0;
+        memset(m_scenarioPathList, 0, sizeof(m_scenarioPathList));
+    }
+
+    // 
+    void initPlay(const char(&scenarioPathList)[_MAX_PATH][10])
+    {
+        if (!m_buffer1.empty()) {
+            std::queue<stDataFormat> emptyQueue1;
+            m_buffer1.swap(emptyQueue1);
+        }
+        if (!m_buffer2.empty()) {
+            std::queue<stDataFormat> emptyQueue2;
+            m_buffer2.swap(emptyQueue2);
+        }
+        m_curBufferSize = 0;
+        m_endFlag.store(true);
+
+        mp_currentBuffer = &m_buffer1;
+        mp_processingBuffer = &m_buffer2;
+        m_startTime = 0;
+        m_endTime = 0;
+        m_playTime = 0;
+        memcpy(m_scenarioPathList, scenarioPathList, sizeof(m_scenarioPathList));
 
     }
 
+
+    // 훈련시작
     void startSave()
     {
         if (m_endFlag == true)
         {
             m_endFlag.store(false);
             m_startTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-            // 폴더 및 파일을 생성하고 맨 앞 부분에 훈련시간을 8바이트만큼 0으로 기록한다 (경로에 폴더가 없으면 생성, 기존에 파일이 있으면 기존거 삭제)
-            m_playTime = m_endTime - m_startTime;
+            // 폴더 및 파일을 생성하고 맨 앞 부분에 헤더만큼 임시값을 기록한다 (경로에 폴더가 없으면 생성, 기존에 파일이 있으면 기존거 삭제)
+            stFileHeader header;
+            memset(&header, 0, sizeof(stFileHeader));
+            header.padding = 3;
+
             std::string filename = "C:\\data\\scenario_" + std::to_string(m_startTime) + ".dat";
             std::ofstream timeWriter(filename.c_str());
             if (!timeWriter.is_open()) {
                 printf("Failed to open file\n");
             }
             else {
-                timeWriter.write(reinterpret_cast<const char*>(&m_playTime), sizeof(m_playTime));               // 일단 0으로 기록해놓기
+                timeWriter.write(reinterpret_cast<const char*>(&header), sizeof(stFileHeader));               // 일단 기록해놓기 (추후 스타트시간이 0이면 깨진 파일)
                 if (!timeWriter)
                 {
                     printf("Failed to write data\n");
@@ -98,7 +153,7 @@ public:
         }
     }
 
-    // Recv중지 명령 받음
+    // 훈련중지 명령 받음
     void endSave() {
         // recv 멈추고
         if (m_endFlag == false)
@@ -122,9 +177,17 @@ public:
                 std::unique_lock<std::mutex> lock(m_mutex);
                 m_cv.wait(lock, [this]() {return mp_processingBuffer->empty(); });
             }
-
-            // m_playTime으로 맨 앞 8바이트를 덮어쓴다
             m_playTime = m_endTime - m_startTime;
+
+            // 맨 앞 헤더를 덮어쓴다
+            stFileHeader header;
+            memset(&header, 0, sizeof(stFileHeader));
+            header.padding = 3;
+            header.startTime = m_startTime;
+            header.endTime = m_endTime;
+            header.totalPlayTime = m_playTime;
+            
+
             std::string filename = "C:\\data\\scenario_" + std::to_string(m_startTime) + ".dat";
             std::ofstream timeWriter(filename.c_str(), std::ios::in | std::ios::out | std::ios::binary);
             if (!timeWriter.is_open()) {
@@ -132,13 +195,13 @@ public:
             }
             else {
                 timeWriter.seekp(0, std::ios::beg);
-                timeWriter.write(reinterpret_cast<const char*>(&m_playTime), sizeof(m_playTime));
+                timeWriter.write(reinterpret_cast<const char*>(&header), sizeof(stFileHeader));
                 if (!timeWriter)
                 {
                     printf("Failed to write data\n");
                     return;
                 }
-                else 
+                else
                 {
                     printf("총 플레이타임: %lld\n", m_playTime);
                 }
@@ -147,17 +210,17 @@ public:
             }
             printf("플레이가 정상 중지\n");
         }
-        else 
+        else
         {
             printf("플레이가 실행중이 아님\n");
         }
 
     }
 
-    void sendTask(const std::string& data)
+    void sendTask(const stDataFormat& dataset)
     {
         // View로 보내는 작업을 처리한다
-        printf("%s\n", data.c_str());
+        printf("시간:%lld, 총크기:%d, 식별자:%d, 데이터:%s, 패딩:%c\n", dataset.curTime, dataset.fullSize, dataset.id, dataset.data.c_str(), dataset.padding);
     }
 
     void addBufTimer()
@@ -165,24 +228,55 @@ public:
         // 별도의 쓰레드에서 버퍼를 채운다 (추후에는 수신받을때 바디사이즈와 시간과 id까지 기록해서 push)
         while (m_endFlag != true)
         {
-            std::string recvStr(1651, '1');             // 수신모의 (매개변수)
-            m_curBufferSize += recvStr.size();         // 추가하고
-
-            //m_sendThread = std::thread([this, recvStr]() {this->sendTask(recvStr); });
-            //m_sendThread.detach();
-            sendTask(recvStr);
-
+            stDataFormat dataset = {0, 0, 0, "", 3};
+            std::string recvStr = "";
+            if (m_testerMsg == 0)
             {
-                std::lock_guard<std::mutex> lock(m_mutex);
-                mp_currentBuffer->push(recvStr);               // 저장하고
+                recvStr.assign(200, '1');
+                dataset.id = 1;
             }
-
-            if (m_curBufferSize >= (m_maxBufferSize * 0.9))
+            else if (m_testerMsg == 1)
             {
-                swapBuffer();
+                recvStr.assign(1651, '2');
+                dataset.id = 2;
             }
+            else if (m_testerMsg == 2)
+            {
+                recvStr.assign(6426, '4');
+                dataset.id = 44;
+            }
+            else if (m_testerMsg == 3)
+            {
+                recvStr.assign(500, '5');
+                dataset.id = 55;
+            }
+            dataset.curTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+            dataset.fullSize = 17 + recvStr.size();
+            dataset.data.assign(recvStr);
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(200));            // 수신 임시모의
+
+            // 꼬이지 않았다면
+            if (dataset.data != "")
+            {
+                m_curBufferSize += dataset.fullSize;         // 추가하고
+
+                m_sendThread = std::thread([this, dataset]() {this->sendTask(dataset); });
+                m_sendThread.detach();
+                //sendTask(dataset);
+
+                {
+                    std::lock_guard<std::mutex> lock(m_mutex);
+                    mp_currentBuffer->push(dataset);               // 저장하고
+                }
+
+                if (m_curBufferSize >= (m_maxBufferSize * 0.9))
+                {
+                    swapBuffer();
+                }
+
+                m_testerMsg = (m_testerMsg + 1) % 4;
+                std::this_thread::sleep_for(std::chrono::milliseconds(200));            // 수신 임시모의
+            }
         }
     }
 
@@ -192,14 +286,20 @@ public:
         std::string filename = "C:\\data\\scenario_" + std::to_string(m_startTime) + ".dat";
         std::ofstream outFile(filename.c_str(), std::ios::binary | std::ios::app | std::ios::out);
         if (!outFile.is_open()) {
-            std::cerr << "Failed to open file for writing." << std::endl;
+            printf("Failed to open file for writing\n");
             return;
         }
 
+        // 바이너리로 저장
+        std::string binData;
         while (!mp_processingBuffer->empty())
         {
-            const std::string& data = mp_processingBuffer->front();
-            outFile.write(data.c_str(), data.size());
+            binData.clear();
+            const stDataFormat& dataset = mp_processingBuffer->front();
+            binData.assign(reinterpret_cast<const char*>(&dataset), 16);
+            binData.append(dataset.data);
+            binData.append(1, dataset.padding);
+            outFile.write(binData.c_str(), dataset.fullSize);
             mp_processingBuffer->pop();
         }
         outFile.close();                // 파일 닫기
@@ -209,14 +309,14 @@ public:
     void swapBuffer() {
         // 90%이상 채워진 pRecvBuffer를 temp를 통해 교체한다
         std::lock_guard<std::mutex> lock(m_mutex);
-        std::queue<std::string>* temp = mp_currentBuffer;
+        std::queue<stDataFormat>* temp = mp_currentBuffer;
         mp_currentBuffer = mp_processingBuffer;
         mp_processingBuffer = temp;
         m_curBufferSize = 0;
 
         m_saveThread = std::thread([this] {
-            this->fileSaver(); 
-        });
+            this->fileSaver();
+            });
         m_saveThread.detach();
     }
 };
@@ -298,11 +398,11 @@ public:
             // 별도 쓰레드에서 버퍼를 사용시킨다
             m_useBufThread = std::thread([this] {
                 this->useBuffer();
-            });
+                });
             m_useBufThread.detach();
             printf("재생 시작\n");
         }
-        else if(m_endFlag == 2)
+        else if (m_endFlag == 2)
         {
             m_endFlag.store(0);
 
@@ -416,7 +516,7 @@ public:
                 printf("파일 열기 실패\n");
             }
         }
-        else 
+        else
         {
             printf("경로에 파일이 없습니다.\n");
         }
@@ -496,7 +596,7 @@ public:
             // 스왚했으면 별도쓰레드에서 내용을 채운다
             m_loadThread = std::thread([this] {
                 this->fillBuffer();
-            });
+                });
             m_loadThread.detach();
         }
         else
@@ -557,7 +657,7 @@ public:
                 {
                     swapBuffer();
                 }
-                else 
+                else
                 {
                     // 둘다 전부 사용했다 (끝)
                     m_endFlag.store(1);
@@ -572,8 +672,8 @@ public:
 int main()
 {
     DoubleBufferRecvAndSaveFile* receiver = new DoubleBufferRecvAndSaveFile;
-    DoubleBufferFileLoadAndReplay* replayer = new DoubleBufferFileLoadAndReplay;
-    replayer->loadFile("C:\\data\\scenario_1712287203219.dat");
+    //DoubleBufferFileLoadAndReplay* replayer = new DoubleBufferFileLoadAndReplay;
+    //replayer->loadFile("C:\\data\\scenario_1712287203219.dat");
 
     while (true) {
         std::string input = "";
@@ -593,19 +693,19 @@ int main()
         }
         else if (input == "3")
         {
-            replayer->startReplay();
+            //replayer->startReplay();
         }
         else if (input == "4")
         {
-            replayer->stopReplay();
+            //replayer->stopReplay();
         }
         else if (input == "5")
         {
-            replayer->pauseReplay();
+            //replayer->pauseReplay();
         }
         else if (input == "6")
         {
-            replayer->speedReplay(8);             // 8배속 재생
+            //replayer->speedReplay(8);             // 8배속 재생
         }
         else if (input == "7")
         {
@@ -614,10 +714,10 @@ int main()
         }
         else if (input == "8")
         {
-            replayer->speedReplay(1);             // 1배속 재생
+            //replayer->speedReplay(1);             // 1배속 재생
         }
     }
 
-    delete replayer;
+    //delete replayer;
     delete receiver;
 }
