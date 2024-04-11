@@ -30,7 +30,7 @@ class Bar1292
 	int m_int;
 };				// 락프리 ==> 추가적인 동기화 메커니즘이 필요없음
 
-int main()
+int main1292()
 {
 	// std::is_trivially_copyable_v ==> 쉽게 복제가 가능한가? 1
 	// is_lock_free()    ==> 락 프리인가? 0
