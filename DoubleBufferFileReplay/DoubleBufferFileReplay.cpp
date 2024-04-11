@@ -294,7 +294,24 @@ public:
         if (m_endFlag == 1)
         {
             m_endFlag.store(0);
-            loadFile(m_filePath);
+            //loadFile(m_filePath);
+            if (!m_buffer1.empty())
+            {
+                std::queue<std::string> emptyQueue1;
+                m_buffer1.swap(emptyQueue1);
+            }
+            if (!m_buffer2.empty())
+            {
+                std::queue<std::string> emptyQueue2;
+                m_buffer2.swap(emptyQueue2);
+            }
+            m_currentBufferSize = 0;
+            m_fileStream.clear();
+            m_fileStream.seekg(8, std::ios_base::beg);
+            std::cout << "position: " << m_fileStream.tellg() << std::endl;
+            fillBuffer();
+            swapBuffer();
+            
             // 별도 쓰레드에서 버퍼를 사용시킨다
             m_useBufThread = std::thread([this] {
                 this->useBuffer();
@@ -360,22 +377,22 @@ public:
 
     }
 
-    // (추후 : 사용된 모든 시나리오 내용을 프론트에 보내준다)
+    // (로드에서는 헤더만 읽는다)
     void loadFile(const std::string& _fullPath)
     {
         // 해당 파일명을 멤버변수에 저장하고
         m_filePath = _fullPath;
         // 헤더정보를 통해 멤버변수를 셋팅하고
-        if (!m_buffer1.empty())
-        {
-            std::queue<std::string> emptyQueue1;
-            m_buffer1.swap(emptyQueue1);
-        }
-        if (!m_buffer2.empty())
-        {
-            std::queue<std::string> emptyQueue2;
-            m_buffer2.swap(emptyQueue2);
-        }
+        //if (!m_buffer1.empty())
+        //{
+        //    std::queue<std::string> emptyQueue1;
+        //    m_buffer1.swap(emptyQueue1);
+        //}
+        //if (!m_buffer2.empty())
+        //{
+        //    std::queue<std::string> emptyQueue2;
+        //    m_buffer2.swap(emptyQueue2);
+        //}
         m_currentBufferSize = 0;
 
         // 파일이 있는지 체크하고 파일이 있으면 파일로부터 mp_currentBuffer 버퍼를 채운다
@@ -408,8 +425,8 @@ public:
                 //        m_currentBufferSize += m_chunkSize;
                 //    }
                 //}
-                fillBuffer();
-                swapBuffer();
+                //fillBuffer();
+                //swapBuffer();
             }
             else
             {
@@ -455,14 +472,14 @@ public:
         }
 
         char oneData[m_chunkSize] = { 0 };
-        while (m_fileStream && (m_currentBufferSize + m_chunkSize <= m_maxBufferSize))
+        while ((m_currentBufferSize + m_chunkSize <= m_maxBufferSize))
         {
             if ((m_maxBufferSize - m_currentBufferSize) <= m_chunkSize || (m_maxBufferSize - m_currentBufferSize) <= 0)
             {
                 break;
             }
 
-            if (!m_fileStream.read(oneData, std::min(m_chunkSize, m_maxBufferSize - m_currentBufferSize)))
+            if (!m_fileStream.read(oneData, m_chunkSize))
             {
                 break;          // 파일에서 더이상 읽을 데이터가 없음
             }
