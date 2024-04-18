@@ -144,8 +144,9 @@ public:
             }
 
             // recv를 시작한다 (==> Queue 저장로직을 연다)
-            m_addBufThread = std::thread([this] {this->addBufTimer(); });
-            m_addBufThread.detach();
+            //m_addBufThread = 
+                std::thread([this] {this->addBufTimer(); }).detach();
+            //m_addBufThread.detach();
             delete header;
             printf("플레이 시작!\n");
         }
@@ -259,8 +260,9 @@ public:
             {
                 m_curBufferSize += dataset.fullSize;         // 추가하고
 
-                m_sendThread = std::thread([this, dataset]() {this->sendTask(dataset); });
-                m_sendThread.detach();
+                //m_sendThread = 
+                    std::thread([this, dataset]() {this->sendTask(dataset); }).detach();
+                //m_sendThread.detach();
                 //sendTask(dataset);
 
                 {
@@ -314,10 +316,11 @@ public:
         mp_processingBuffer = temp;
         m_curBufferSize = 0;
 
-        m_saveThread = std::thread([this] {
+        //m_saveThread = 
+            std::thread([this] {
             this->fileSaver();
-            });
-        m_saveThread.detach();
+            }).detach();
+        //m_saveThread.detach();
     }
 };
 
@@ -435,14 +438,16 @@ public:
             fillBuffer();
             swapBuffer();
 
-            m_timerThread = std::thread([this] {
+            //m_timerThread = 
+                std::thread([this] {
                 this->startReplayTimer();
-                });
-            m_timerThread.detach();
-            m_useBufThread = std::thread([this] {
+                }).detach();
+            //m_timerThread.detach();
+            //m_useBufThread = 
+                std::thread([this] {
                 this->useBuffer();
-                });
-            m_useBufThread.detach();
+                }).detach();
+            //m_useBufThread.detach();
             printf("재생 시작\n");
         }
         else if (m_endFlag == 2)
@@ -637,10 +642,11 @@ public:
             mp_processingBuffer->swap(initQueue);
             m_processingBufferSize = 0;
             // 스왚했으면 별도쓰레드에서 내용을 채운다
-            m_loadThread = std::thread([this] {
+            //m_loadThread = 
+                std::thread([this] {
                 this->fillBuffer();
-            });
-            m_loadThread.detach();
+            }).detach();
+            //m_loadThread.detach();
         }
 
 
