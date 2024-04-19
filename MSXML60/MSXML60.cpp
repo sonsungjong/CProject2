@@ -25,6 +25,7 @@ CWinApp theApp;
 
 using namespace std;
 
+// 읽기 예제
 void XMLDOMElementSample()
 {
     try {
@@ -36,7 +37,7 @@ void XMLDOMElementSample()
         TESTHR(docPtr.CreateInstance("Msxml2.DOMDocument.6.0"));
 
         // Load a document.  
-        _variant_t varXml("C:\\books.xml");
+        _variant_t varXml("C:\\RadarData.xml");
         //_variant_t varXml("C:\\MAKsimpletime.xml");
         //_variant_t varXml("C:\\OTS.xml");
         _variant_t varOut((bool)TRUE);
@@ -51,6 +52,63 @@ void XMLDOMElementSample()
     {
         MessageBox(NULL, _T("Exception occurred"), _T("Error"), MB_OK);
     }
+    CoUninitialize();
+}
+
+void XMLSaver()
+{
+    try 
+    {
+        MSXML2::IXMLDOMDocumentPtr docPtr;
+        MSXML2::IXMLDOMElementPtr rootPtr;
+
+        // COM 라이브러리 초기화
+        TESTHR(CoInitialize(NULL));
+        TESTHR(docPtr.CreateInstance("Msxml2.DOMDocument.6.0"));
+        docPtr->async = VARIANT_FALSE;              // 비동기 처리 비활성화
+        //rootPtr->indent = 1;
+        //docPtr->preserveWhiteSpace = VARIANT_TRUE;
+
+        // 새 XML 문서 생성
+        docPtr->appendChild(docPtr->createProcessingInstruction("xml", "version='1.0' encoding='UTF-8'"));
+        rootPtr = docPtr->createElement("Radar");
+        rootPtr->setAttribute("id", "1");
+        docPtr->appendChild(rootPtr);
+
+        // 첫 번째 Distance 엘리먼트 추가
+        MSXML2::IXMLDOMElementPtr distancePtr = docPtr->createElement("Distance");
+        distancePtr->setAttribute("value", "500");
+        rootPtr->appendChild(distancePtr);
+
+        // Data 엘리먼트 추가
+        MSXML2::IXMLDOMElementPtr dataPtr1 = docPtr->createElement("data");
+        dataPtr1->setAttribute("Angle", "0");
+        dataPtr1->setAttribute("Lat", "100.0");
+        dataPtr1->setAttribute("Lon", "120.0");
+        distancePtr->appendChild(dataPtr1);
+
+        MSXML2::IXMLDOMElementPtr dataPtr2 = docPtr->createElement("data");
+        dataPtr2->setAttribute("Angle", "1");
+        dataPtr2->setAttribute("Lat", "110.0");
+        dataPtr2->setAttribute("Lon", "120.0");
+        distancePtr->appendChild(dataPtr2);
+
+        // 파일로 저장
+        //docPtr->save("C:\\UITCC\\scenario\\LOS\\LOS1.xml");
+        docPtr->save("C:\\LOS1.xml");
+
+        printf("XML 생성 성공\n");
+    }
+    catch (_com_error& e)
+    {
+        wprintf(L"%s\n", (wchar_t*)e.Description());
+    }
+    catch (...)
+    {
+        printf("%s\n", "Exception Occuration\n");
+    }
+    
+
     CoUninitialize();
 }
 
@@ -125,7 +183,8 @@ int main()
         {
             // TODO: code your application's behavior here.
             printf("start !@\n");
-            XMLDOMElementSample();
+            //XMLDOMElementSample();
+            XMLSaver();
         }
     }
     else
