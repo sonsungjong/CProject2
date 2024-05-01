@@ -204,6 +204,8 @@
     <ClCompile Include="p1307_mutex_lock.cpp" />
     <ClCompile Include="p1308_call_once.cpp" />
     <ClCompile Include="p1310_mutex_example.cpp" />
+    <ClCompile Include="p1311_mutex_example.cpp" />
+    <ClCompile Include="p1312_mutex_timed.cpp" />
     <ClCompile Include="Spreadsheet.cpp" />
     <ClCompile Include="Spreadsheet.cppm" />
     <ClCompile Include="SpreadsheetCell.cpp" />

@@ -13,7 +13,7 @@ void init1308()
 void processing1308()
 {
 	// 공유 리소스는 반드시 초기화하되 한번만...
-	std::call_once(g_onceFlag, init1308);			// 여러 쓰레드가 있어도 한번만 사용됨
+	std::call_once(g_onceFlag, init1308);			// 여러 쓰레드가 있어도 한번만 사용할 함수는 std::call_once로 감싸준다
 
 	// 원하는 작업을 수행한다 (공유 리소스 사용)
 	printf("Processing\n");
