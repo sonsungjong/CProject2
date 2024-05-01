@@ -16,10 +16,10 @@ namespace NS
 int main0112()
 {
 	Demo d;
-	cout << d.get() << endl;				// 5
-	cout << NS::get() << endl;			// 20
-	cout << ::get() << endl;				// 10
-	cout << get() << endl;					// 10
+	std::cout << d.get() << std::endl;				// 5
+	std::cout << NS::get() << std::endl;			// 20
+	std::cout << ::get() << std::endl;				// 10
+	std::cout << get() << std::endl;					// 10
 
 	return 0;
 }

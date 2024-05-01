@@ -71,7 +71,7 @@ void separateOddsAndEvens2(const int arr[], size_t size, int*& odds, size_t& num
 }
 
 // 백터를 사용할 경우
-void separateOddsAndEvens3(const vector<int>& arr, vector<int>& odds, vector<int>& evens)
+void separateOddsAndEvens3(const std::vector<int>& arr, std::vector<int>& odds, std::vector<int>& evens)
 {
 	for (int i : arr) {
 		if (i % 2 == 1) {
@@ -83,11 +83,11 @@ void separateOddsAndEvens3(const vector<int>& arr, vector<int>& odds, vector<int
 	}
 }
 
-struct OddsAndEvens { vector<int> odds, evens; };
+struct OddsAndEvens { std::vector<int> odds, evens; };
 
-OddsAndEvens separateOddsAndEvens4(const vector<int>& arr)
+OddsAndEvens separateOddsAndEvens4(const std::vector<int>& arr)
 {
-	vector<int> odds, evens;
+	std::vector<int> odds, evens;
 	for (int i : arr) {
 		if (i % 2 == 1) {
 			odds.push_back(i);
@@ -108,8 +108,8 @@ int main0142()
 	size_t numOdds{ 0 };
 	size_t numEvens{ 0 };
 
-	vector<int> venUnSplit {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-	vector<int> odds, evens;
+	std::vector<int> venUnSplit {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+	std::vector<int> odds, evens;
 
 	auto start = std::chrono::high_resolution_clock::now();
 	separateOddsAndEvens1(unSplit, std::size(unSplit), &oddNums, &numOdds, &evenNums, &numEvens);				// 0.4 microseconds

@@ -11,7 +11,7 @@ get_stop_source()
 
 int main1287()
 {
-	std::jthread job([](stop_token token) {
+	std::jthread job([](std::stop_token token) {
 		while (!token.stop_requested())
 		{
 

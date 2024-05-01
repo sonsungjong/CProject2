@@ -21,7 +21,7 @@ int main0147()
 		printf("%lf \n", divideNumbers(4.5, 2.5));
 	}
 	catch (const std::invalid_argument& exception) {
-		cout << "Exception caught: " << exception.what() << endl;
+		std::cout << "Exception caught: " << exception.what() << std::endl;
 	}
 
 	return 0;

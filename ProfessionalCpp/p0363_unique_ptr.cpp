@@ -13,7 +13,7 @@ public:
 
 void leaky363()
 {
-	auto my_ptr = make_unique<int>();				// int* 생성
+	auto my_ptr = std::make_unique<int>();				// int* 생성
 	*my_ptr = 1;
 	printf("%d\n", *my_ptr);
 
@@ -22,13 +22,13 @@ void leaky363()
 
 void leaky0363()
 {
-	unique_ptr<Simple0363> my_ptr2 = std::make_unique<Simple0363>();			
-	unique_ptr<Simple0363> my_ptr1 {new Simple0363{}};			
+	std::unique_ptr<Simple0363> my_ptr2 = std::make_unique<Simple0363>();
+	std::unique_ptr<Simple0363> my_ptr1 {new Simple0363{}};
 
 	my_ptr1.reset();										// 리소스 해제 후 nullptr로 할당
 	my_ptr2.reset(new Simple0363);				// 리소스 해제 후 새로운 인스턴스 할당
 
-	auto my_var = make_unique<int[]>(10);
+	auto my_var = std::make_unique<int[]>(10);
 	my_var[1] = 123;
 }
 

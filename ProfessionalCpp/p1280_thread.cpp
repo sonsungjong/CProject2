@@ -45,7 +45,7 @@ int main1280()
 
 	std::thread th3(Counter1283(3, 20));
 	Counter1283 counter(4, 12);
-	thread th4(counter);
+	std::thread th4(counter);
 
 	th3.join();				// 같은 구간내에서 join끼리는 경쟁
 	th4.join();				// 같은 구간내에서 join끼리는 경쟁

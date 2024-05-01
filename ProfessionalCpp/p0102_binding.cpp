@@ -10,7 +10,7 @@ struct Point0102
 
 int main0102()
 {
-	array values { 11, 22, 33 };				// 배열
+	std::array values { 11, 22, 33 };				// 배열
 
 	// 구조적 바인딩을 사용하려면 자료형을 auto 로 명시해야한다
 	auto [x1, y1, z1] {values};

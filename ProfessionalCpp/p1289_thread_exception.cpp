@@ -9,11 +9,11 @@ void doSomeWork1289()
 		printf("%d\n", i);
 	}
 	printf("Thread throwing a runtime_error exception...\n");
-	throw runtime_error("Exception from thread");					// 익셉션을 던지게 한다
+	throw std::runtime_error("Exception from thread");					// 익셉션을 던지게 한다
 }
 
 // 처리할 익셉션에 대한 레퍼런스를 받아서 exception_ptr 매개변수에 대입하고 스레드는 정상적으로 종료하도록 구성
-void threadFunc1289(exception_ptr& err)
+void threadFunc1289(std::exception_ptr& err)
 {
 	try
 	{
@@ -22,13 +22,13 @@ void threadFunc1289(exception_ptr& err)
 	catch (...)
 	{
 		printf("Thread caught exception, returning exception...\n");
-		err = current_exception();				// 처리할 익셉션의 레퍼런스(current_exception())를 대입!!
+		err = std::current_exception();				// 처리할 익셉션의 레퍼런스(current_exception())를 대입!!
 	}
 }
 
 void doWorkInThread1289()
 {
-	exception_ptr error;
+	std::exception_ptr error;
 	std::thread th(threadFunc1289, std::ref(error));
 	th.join();
 
@@ -50,7 +50,7 @@ int main1289()
 	{
 		doWorkInThread1289();
 	}
-	catch (const exception& e) 
+	catch (const std::exception& e)
 	{
 		printf("Main function caught: %s\n", e.what());
 	}

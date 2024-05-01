@@ -29,14 +29,14 @@ int main0348()
 
 	size_t arrSize = 4;
 	int* freeStoreArray = new int[arrSize] {1, 5, 3, 4};
-	doubleInts(freeStoreArray, arrSize);
+	doubleInts(freeStoreArray, static_cast<int>(arrSize));
 	delete[] freeStoreArray;
 	freeStoreArray = NULL;
 
 	int stackArray[] = { 5,7,9,11 };
 	arrSize = sizeof(stackArray) / sizeof(stackArray[0]);				// ¹è¿­ °¹¼ö
 	doubleInts(stackArray, 4);
-	doubleInts(&stackArray[0], arrSize);
+	doubleInts(&stackArray[0], static_cast<int>(arrSize));
 
 	return 0;
 }

@@ -2,7 +2,7 @@ import "HeaderUnits.h";
 #include <array>
 #include <initializer_list>
 
-int makeSum(initializer_list<int> values)
+int makeSum(std::initializer_list<int> values)
 {
 	int total{ 0 };
 	for (int value : values) {

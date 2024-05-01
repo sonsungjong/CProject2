@@ -14,12 +14,12 @@ void fileClose(FILE* a_file_ptr)
 
 int main0368()
 {
-	auto my_shared_ptr = make_shared<int>();
+	auto my_shared_ptr = std::make_shared<int>();
 	*my_shared_ptr = 2;
 	printf("%d\n", *my_shared_ptr);
 
 	FILE* file_ptr = fopen("data.txt", "w");
-	shared_ptr<FILE> shared_file_ptr{ file_ptr, fileClose };
+	std::shared_ptr<FILE> shared_file_ptr{ file_ptr, fileClose };
 	if (shared_file_ptr == nullptr) {
 		printf("Error opening file\n");
 	}

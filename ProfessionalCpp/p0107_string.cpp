@@ -2,9 +2,9 @@ import "HeaderUnits.h";
 
 int main0107()
 {
-	string myString{ "Hello, World" };
-	cout << format("The value of myString is {}", myString) << endl;
-	cout << format("The second letter is {}", myString[1]) << endl;
+	std::string myString{ "Hello, World" };
+	std::cout << std::format("The value of myString is {}", myString) << std::endl;
+	std::cout << std::format("The second letter is {}", myString[1]) << std::endl;
 
 	return 0;
 }

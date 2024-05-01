@@ -2,8 +2,8 @@ import "HeaderUnits.h";
 
 // auto&
 // auto*
-const string message0152 { "Test" };
-const string& foo0152() { return message0152; }
+const std::string message0152 { "Test" };
+const std::string& foo0152() { return message0152; }
 
 int main0152() {
 	// 값을 복제하는 것이 아닌 주소값을 전달하고자 하면

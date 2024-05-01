@@ -197,6 +197,13 @@
     <ClCompile Include="p1287_jthread.cpp" />
     <ClCompile Include="p1289_thread_exception.cpp" />
     <ClCompile Include="p1292_atomic_type.cpp" />
+    <ClCompile Include="p1294_atomic_calculation.cpp" />
+    <ClCompile Include="p1296_atomic_example.cpp" />
+    <ClCompile Include="p1300_atomic_example2.cpp" />
+    <ClCompile Include="p1301_mutex.cpp" />
+    <ClCompile Include="p1307_mutex_lock.cpp" />
+    <ClCompile Include="p1308_call_once.cpp" />
+    <ClCompile Include="p1310_mutex_example.cpp" />
     <ClCompile Include="Spreadsheet.cpp" />
     <ClCompile Include="Spreadsheet.cppm" />
     <ClCompile Include="SpreadsheetCell.cpp" />

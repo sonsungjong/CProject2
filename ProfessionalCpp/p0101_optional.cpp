@@ -14,15 +14,15 @@ int main0101()
 	std::optional<int> data1 { GetData(true) };
 	std::optional<int> data2 { GetData(false) };
 
-	cout << "data1.has_value = " << data1.has_value() << endl;
+	std::cout << "data1.has_value = " << data1.has_value() << std::endl;
 
 	if (data2) {
-		cout << "data2 has a value." << endl;
+		std::cout << "data2 has a value." << std::endl;
 	}
 
-	cout << "data1.value = " << data1.value() << endl;
-	cout << "data1.value = " << *data1 << endl;
-	cout << "data2.value = " << data2.value_or(0) << endl;
+	std::cout << "data1.value = " << data1.value() << std::endl;
+	std::cout << "data1.value = " << *data1 << std::endl;
+	std::cout << "data2.value = " << data2.value_or(0) << std::endl;
 
 	return 0;
 }

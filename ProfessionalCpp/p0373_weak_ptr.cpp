@@ -13,7 +13,7 @@ public:
 	}
 };
 
-void useResource373(weak_ptr<Simple0373>& a_weak_int)
+void useResource373(std::weak_ptr<Simple0373>& a_weak_int)
 {
 	auto res = a_weak_int.lock();
 	if (res) {
@@ -26,8 +26,8 @@ void useResource373(weak_ptr<Simple0373>& a_weak_int)
 
 int main0373() 
 {
-	auto shared_int_ptr = make_shared<Simple0373>();
-	weak_ptr<Simple0373> weak_int = shared_int_ptr;
+	auto shared_int_ptr = std::make_shared<Simple0373>();
+	std::weak_ptr<Simple0373> weak_int = shared_int_ptr;
 
 	useResource373(weak_int);				// shared_ptr이 잘 참조 중인지 해제됬는지 검사
 

@@ -8,13 +8,13 @@ import "HeaderUnits.h";
 using IntPtr = int*;				// 기존 타입 표현 대신 사용할 수 있게 된다 (타입 앨리어스)
 typedef float* FloatPtr;				// 타입 디파인
 
-using string = basic_string<char>;				// 긴 타입 이름을 줄인다
+using string = std::basic_string<char>;				// 긴 타입 이름을 줄인다
 
 int main0149() {
 	int* p1 = NULL;
 	IntPtr p2 = NULL;
 
-	vector<basic_string<char>> myVector;
+	std::vector<std::basic_string<char>> myVector;
 	string str;
 
 
