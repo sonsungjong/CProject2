@@ -6,6 +6,7 @@
 #include <vcclr.h>
 
 using namespace System;
+using namespace System::Runtime::InteropServices;
 using namespace Microsoft::Office::Interop::Excel;
 
 // '참조 추가' -> 어셈블리 -> 프레임워크 -> System.Windows.Forms 추가
@@ -313,18 +314,28 @@ public:
 
     bool readFile(const std::string& filePath, const std::string& sheetName)
     {
-        m_excelCreator = gcnew CoreExcelCreator();          // 멤버를 사용
+        // void* 에 객체할당
+        CoreExcelCreator^ newCreator = gcnew CoreExcelCreator();          // 멤버를 사용
+        GCHandle gch = GCHandle::Alloc(newCreator);
+        m_excelCreator = GCHandle::ToIntPtr(gch).ToPointer();
+
         String^ clrFilePath = gcnew String(filePath.c_str());
         String^ clrSheetName = gcnew String(sheetName.c_str());
 
-        bool result = m_excelCreator->readFile(clrFilePath, clrSheetName);
+        // void*를 형변환
+        CoreExcelCreator^ creator = safe_cast<CoreExcelCreator^>(GCHandle::FromIntPtr(IntPtr(m_excelCreator)).Target);
+        bool result = creator->readFile(clrFilePath, clrSheetName);
         return result;
     }
 
     std::string readCell(const std::string& columnName, int rowNumber)
     {
         String^ clrColumnName = gcnew String(columnName.c_str());
-        String^ clrValue = m_excelCreator->readCell(clrColumnName, rowNumber);
+
+        GCHandle gch = GCHandle::FromIntPtr(IntPtr(m_excelCreator));
+        CoreExcelCreator^ creator = safe_cast<CoreExcelCreator^>(gch.Target);
+        String^ clrValue = creator->readCell(clrColumnName, rowNumber);
+
         std::string value = std::string();
         if (clrValue != nullptr)
         {
@@ -336,12 +347,14 @@ public:
 
     void readEnd()
     {
-        m_excelCreator->readEnd();
+        GCHandle gch = GCHandle::FromIntPtr(IntPtr(m_excelCreator));
+        CoreExcelCreator^ creator = safe_cast<CoreExcelCreator^>(gch.Target);
+        creator->readEnd();
         m_excelCreator = nullptr;      // 가비지 컬렉터가 가져갈 수 있게 nullptr로
     }
 
 private:
-    gcroot<CoreExcelCreator^> m_excelCreator;
+    void* m_excelCreator;
 };
 
 int main()
@@ -384,6 +397,7 @@ int main()
     value = app.readOnceCell("C:\\test\\점검항목.xls", "81082502", "D", 8);
     printf("%s\n", value.c_str());
 
+    // readFile, readCell, readEnd 는 셋트로 사용할 것 (readCell 여러번 사용하기)
     app.readFile("C:\\test\\sample.xlsx", "Sheet1");
     printf("%s\n", app.readCell("C", 3).c_str());
     printf("%s\n", app.readCell("D", 3).c_str());
