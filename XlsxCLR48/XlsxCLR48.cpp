@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <msclr/marshal_cppstd.h>
+#include <vcclr.h>
 
 using namespace System;
 using namespace Microsoft::Office::Interop::Excel;
@@ -17,6 +18,25 @@ using namespace Microsoft::Office::Interop::Excel;
 public ref class CoreExcelCreator
 {
 public:
+    CoreExcelCreator()
+    {
+        m_workbook = nullptr;
+        m_excel = nullptr;
+    }
+
+    ~CoreExcelCreator()
+    {
+        if (m_workbook != nullptr)
+        {
+            m_workbook->Close(false, Type::Missing, Type::Missing);
+        }
+        if (m_excel != nullptr)
+        {
+            m_excel->Quit();
+            delete m_excel;
+        }
+    }
+
     bool createExcelWithHeaders(String^ filePath, array<String^>^ headers)
     {
         bool func_result = false;
@@ -155,8 +175,79 @@ public:
         }
     }
 
-private:
+    bool readFile(String^ filePath, String^ sheetName)
+    {
+        try
+        {
+            if (System::IO::File::Exists(filePath))
+            {
+                m_excel = gcnew ApplicationClass();
+                m_excel->Visible = false;
+                Workbooks^ workbooks = m_excel->Workbooks;
+                m_workbook = workbooks->Open(filePath,
+                    Type::Missing, // UpdateLinks
+                    true, // ReadOnly
+                    Type::Missing, // Format
+                    Type::Missing, // Password
+                    Type::Missing, // WriteResPassword
+                    Type::Missing, // IgnoreReadOnlyRecommended
+                    Type::Missing, // Origin
+                    Type::Missing, // Delimiter
+                    Type::Missing, // Editable
+                    Type::Missing, // Notify
+                    Type::Missing, // Converter
+                    Type::Missing, // AddToMru
+                    Type::Missing, // Local
+                    Type::Missing  // CorruptLoad
+                );
+                m_worksheet = safe_cast<Worksheet^>(m_workbook->Sheets[sheetName]);
+            }
+            else
+            {
+                Console::WriteLine("파일이 존재하지 않습니다.");
+                return false;
+            }
+        }
+        catch (Exception^ e)
+        {
+            Console::WriteLine(e->Message->ToString());
+            return false;
+        }
 
+        return true;
+    }
+
+    String^ readCell(String^ columnName, int rowNumber)
+    {
+        Range^ cell = m_worksheet->Range[columnName + rowNumber.ToString(), Type::Missing];
+
+        String^ value = nullptr;
+        if (cell != nullptr && cell->Value2 != nullptr) 
+        {
+            value = cell->Value2->ToString();           // 숫자 값을 문자열로 변환
+        }
+        return value;
+    }
+
+    void readEnd()
+    {
+        if (m_workbook != nullptr)
+        {
+            m_workbook->Close(false, Type::Missing, Type::Missing);
+            m_workbook = nullptr;
+        }
+        if (m_excel != nullptr)
+        {
+            m_excel->Quit();
+            delete m_excel;
+            m_excel = nullptr;
+        }
+    }
+
+private:
+    Microsoft::Office::Interop::Excel::Application^ m_excel;
+    Workbook^ m_workbook;
+    Worksheet^ m_worksheet;
 };
 
 class ExcelCreator
@@ -219,12 +310,44 @@ public:
 
         return value;
     }
+
+    bool readFile(const std::string& filePath, const std::string& sheetName)
+    {
+        m_excelCreator = gcnew CoreExcelCreator();          // 멤버를 사용
+        String^ clrFilePath = gcnew String(filePath.c_str());
+        String^ clrSheetName = gcnew String(sheetName.c_str());
+
+        bool result = m_excelCreator->readFile(clrFilePath, clrSheetName);
+        return result;
+    }
+
+    std::string readCell(const std::string& columnName, int rowNumber)
+    {
+        String^ clrColumnName = gcnew String(columnName.c_str());
+        String^ clrValue = m_excelCreator->readCell(clrColumnName, rowNumber);
+        std::string value = std::string();
+        if (clrValue != nullptr)
+        {
+            value = msclr::interop::marshal_as<std::string>(clrValue);
+        }
+
+        return value;
+    }
+
+    void readEnd()
+    {
+        m_excelCreator->readEnd();
+        m_excelCreator = nullptr;      // 가비지 컬렉터가 가져갈 수 있게 nullptr로
+    }
+
+private:
+    gcroot<CoreExcelCreator^> m_excelCreator;
 };
 
 int main()
 {
     ExcelCreator app;
-    /*
+    
     std::string filepath = "C:\\test\\sample.xlsx";
     
     std::vector<std::string> header;
@@ -256,15 +379,30 @@ int main()
             printf("파일 생성 완료\n");
         }
     }
-    */
+    
 
     std::string value = "";
     value = app.readCell("C:\\test\\점검항목.xls", "81082502", "D", 8);
     printf("%s\n", value.c_str());
-    value = app.readCell("C:\\test\\점검항목.xls", "81082502", "F", 439);
-    printf("%s\n", value.c_str());
-    value = app.readCell("C:\\test\\점검항목.xls", "81082502", "C", 9);
-    printf("%s\n", value.c_str());
+
+    app.readFile("C:\\test\\sample.xlsx", "Sheet1");
+    printf("%s\n", app.readCell("C", 3).c_str());
+    printf("%s\n", app.readCell("D", 3).c_str());
+    printf("%s\n", app.readCell("A", 3).c_str());
+    app.readEnd();
+
+    app.readFile("C:\\test\\점검항목.xls", "81082502");
+    printf("%s\n", app.readCell("D", 8).c_str());
+    printf("%s\n", app.readCell("C", 9).c_str());
+    app.readEnd();
+
+    app.readFile("C:\\test\\점검항목.xls", "81082502");
+    printf("%s\n", app.readCell("F", 439).c_str());
+    printf("%s\n", app.readCell("D", 8).c_str());
+    app.readEnd();
+
+
+    printf("프로그램 종료\n");
 
     return 0;
 }
