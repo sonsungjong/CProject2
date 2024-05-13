@@ -6,18 +6,17 @@
 using namespace System;
 using namespace Microsoft::Office::Interop::Excel;
 
+// '참조 추가' -> 어셈블리 -> 프레임워크 -> System.Windows.Forms 추가
 // '참조 추가' -> COM -> Microsoft Excel 16.0 Object Library (ver 1.9) 추가
 // vsproj에서 <EmbedInteropTypes>false</EmbedInteropTypes>   <!-- false로 변경 -->
 // clean -> Rebuild
-// '참조 추가' -> 어셈블리 -> 프레임워크 -> System.Windows.Forms 추가
 
 using namespace System;
 using namespace Microsoft::Office::Interop::Excel;
 
-public ref class ExcelCreator
+public ref class CoreExcelCreator
 {
 public:
-    ExcelCreator() {}
     bool createExcelWithHeaders(String^ filePath, array<String^>^ headers)
     {
         bool func_result = false;
@@ -42,7 +41,8 @@ public:
                     worksheet->Cells[1, i + 1] = headers[i];
                 }
 
-                workbook->SaveAs(filePath, Type::Missing, Type::Missing, Type::Missing, Type::Missing, Type::Missing, XlSaveAsAccessMode::xlNoChange, Type::Missing, Type::Missing, Type::Missing, Type::Missing, Type::Missing);
+                // workbook->SaveAs(filePath, XlFileFormat::xlExcel8, Type::Missing, Type::Missing, Type::Missing, Type::Missing, XlSaveAsAccessMode::xlNoChange, Type::Missing, Type::Missing, Type::Missing, Type::Missing, Type::Missing);       // xls
+                workbook->SaveAs(filePath, Type::Missing, Type::Missing, Type::Missing, Type::Missing, Type::Missing, XlSaveAsAccessMode::xlNoChange, Type::Missing, Type::Missing, Type::Missing, Type::Missing, Type::Missing);                   // xlsx
                 workbook->Close(false, Type::Missing, Type::Missing);
                 excel->Quit();
                 func_result = true;
@@ -112,11 +112,12 @@ private:
 
 };
 
-class WrapExcelCreator
+class ExcelCreator
 {
 public:
-    bool createExcelWithHeaders(const std::string& filePath, const std::vector<std::string>& headers) {
-        ExcelCreator^ excelCreator = gcnew ExcelCreator();
+    bool createExcelWithHeaders(const std::string& filePath, const std::vector<std::string>& headers)
+    {
+        CoreExcelCreator^ excelCreator = gcnew CoreExcelCreator();
 
         // std::string을 System::String으로 변환
         String^ clrFilePath = gcnew String(filePath.c_str());
@@ -131,8 +132,9 @@ public:
         return excelCreator->createExcelWithHeaders(clrFilePath, clrHeaders);
     }
 
-    bool appendExcelData(const std::string& filePath, const std::vector<std::vector<std::string>>& data) {
-        ExcelCreator^ excelCreator = gcnew ExcelCreator();
+    bool appendExcelData(const std::string& filePath, const std::vector<std::vector<std::string>>& data) 
+    {
+        CoreExcelCreator^ excelCreator = gcnew CoreExcelCreator();
 
         // std::string을 System::String으로 변환
         String^ clrFilePath = gcnew String(filePath.c_str());
@@ -153,7 +155,7 @@ public:
 
 int main()
 {
-    WrapExcelCreator app;
+    ExcelCreator app;
     std::string filepath = "C:\\test\\sample5.xlsx";
     std::vector<std::string> header;
     std::vector<std::vector<std::string>> content;
