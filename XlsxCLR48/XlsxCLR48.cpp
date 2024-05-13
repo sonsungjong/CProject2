@@ -128,7 +128,7 @@ public:
         return func_result;
     }
 
-    String^ readCell(String^ filePath, String^ sheetName, String^ columnName, int rowNumber)
+    String^ readOnceCell(String^ filePath, String^ sheetName, String^ columnName, int rowNumber)
     {
         Microsoft::Office::Interop::Excel::Application^ excel = gcnew ApplicationClass();
         try
@@ -290,14 +290,14 @@ public:
         return excelCreator->appendExcelData(clrFilePath, clrData);
     }
 
-    std::string readCell(const std::string& filePath, const std::string& sheetName, const std::string& columnName, int rowNumber)
+    std::string readOnceCell(const std::string& filePath, const std::string& sheetName, const std::string& columnName, int rowNumber)
     {
         CoreExcelCreator^ excelCreator = gcnew CoreExcelCreator();
         String^ clrFilePath = gcnew String(filePath.c_str());
         String^ clrSheetName = gcnew String(sheetName.c_str());
         String^ clrColumnName = gcnew String(columnName.c_str());
 
-        String^ result = excelCreator->readCell(clrFilePath, clrSheetName, clrColumnName, rowNumber);
+        String^ result = excelCreator->readOnceCell(clrFilePath, clrSheetName, clrColumnName, rowNumber);
         std::string value;
         if (result != nullptr)
         {
@@ -379,10 +379,9 @@ int main()
             printf("파일 생성 완료\n");
         }
     }
-    
 
     std::string value = "";
-    value = app.readCell("C:\\test\\점검항목.xls", "81082502", "D", 8);
+    value = app.readOnceCell("C:\\test\\점검항목.xls", "81082502", "D", 8);
     printf("%s\n", value.c_str());
 
     app.readFile("C:\\test\\sample.xlsx", "Sheet1");
