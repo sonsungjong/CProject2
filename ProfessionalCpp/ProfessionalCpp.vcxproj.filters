@@ -255,5 +255,14 @@
     <ClCompile Include="p1312_mutex_timed.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="p1315_condition_variable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p1316_condition_variable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p1317_condition_variable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -206,6 +206,9 @@
     <ClCompile Include="p1310_mutex_example.cpp" />
     <ClCompile Include="p1311_mutex_example.cpp" />
     <ClCompile Include="p1312_mutex_timed.cpp" />
+    <ClCompile Include="p1315_condition_variable.cpp" />
+    <ClCompile Include="p1316_condition_variable.cpp" />
+    <ClCompile Include="p1317_condition_variable.cpp" />
     <ClCompile Include="Spreadsheet.cpp" />
     <ClCompile Include="Spreadsheet.cppm" />
     <ClCompile Include="SpreadsheetCell.cpp" />

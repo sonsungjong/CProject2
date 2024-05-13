@@ -1,8 +1,9 @@
 import "HeaderUnits.h";
-// std::call_once : 여러 쓰레드에서 공유하는 중 하나의 쓰레드만 사용하게 할 때 (std::once_flag 와 같이 사용)
 
+// std::call_once : 여러 쓰레드에서 공유하는 중 하나의 쓰레드만 초기화할 수 있게 (std::once_flag 와 같이 사용)
 std::once_flag g_onceFlag;
 
+// 초기화 함수
 void init1308()
 {
 	// 여러 스레드가 사용할 공유 리소스를 초기화한다
