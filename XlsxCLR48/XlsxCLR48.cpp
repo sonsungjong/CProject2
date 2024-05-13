@@ -323,8 +323,7 @@ public:
         String^ clrSheetName = gcnew String(sheetName.c_str());
 
         // void*를 형변환
-        CoreExcelCreator^ creator = safe_cast<CoreExcelCreator^>(GCHandle::FromIntPtr(IntPtr(m_excelCreator)).Target);
-        bool result = creator->readFile(clrFilePath, clrSheetName);
+        bool result = dynamic_cast<CoreExcelCreator^>(GCHandle::FromIntPtr(IntPtr(m_excelCreator)).Target)->readFile(clrFilePath, clrSheetName);
         return result;
     }
 
@@ -332,8 +331,7 @@ public:
     {
         String^ clrColumnName = gcnew String(columnName.c_str());
 
-        GCHandle gch = GCHandle::FromIntPtr(IntPtr(m_excelCreator));
-        CoreExcelCreator^ creator = safe_cast<CoreExcelCreator^>(gch.Target);
+        CoreExcelCreator^ creator = dynamic_cast<CoreExcelCreator^>(GCHandle::FromIntPtr(IntPtr(m_excelCreator)).Target);
         String^ clrValue = creator->readCell(clrColumnName, rowNumber);
 
         std::string value = std::string();
@@ -347,9 +345,11 @@ public:
 
     void readEnd()
     {
-        GCHandle gch = GCHandle::FromIntPtr(IntPtr(m_excelCreator));
-        CoreExcelCreator^ creator = safe_cast<CoreExcelCreator^>(gch.Target);
+        CoreExcelCreator^ creator = dynamic_cast<CoreExcelCreator^>(GCHandle::FromIntPtr(IntPtr(m_excelCreator)).Target);
         creator->readEnd();
+        
+        GCHandle gch = GCHandle::FromIntPtr(IntPtr(m_excelCreator));
+        gch.Free();
         m_excelCreator = nullptr;      // 가비지 컬렉터가 가져갈 수 있게 nullptr로
     }
 
