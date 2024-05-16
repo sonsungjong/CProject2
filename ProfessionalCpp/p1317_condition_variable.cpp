@@ -105,7 +105,7 @@ private:
 	int m_num = 0;
 };
 
-int main()
+int main1317()
 {
 	ConditionVariable1317 obj;
 	std::string msg = "MyData=";

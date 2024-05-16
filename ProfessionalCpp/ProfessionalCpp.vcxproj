@@ -209,6 +209,8 @@
     <ClCompile Include="p1315_condition_variable.cpp" />
     <ClCompile Include="p1316_condition_variable.cpp" />
     <ClCompile Include="p1317_condition_variable.cpp" />
+    <ClCompile Include="p1318_latch.cpp" />
+    <ClCompile Include="p1320_barrier.cpp" />
     <ClCompile Include="Spreadsheet.cpp" />
     <ClCompile Include="Spreadsheet.cppm" />
     <ClCompile Include="SpreadsheetCell.cpp" />
