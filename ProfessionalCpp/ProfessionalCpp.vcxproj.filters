@@ -270,5 +270,11 @@
     <ClCompile Include="p1320_barrier.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="p1321_semaphore.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p1322_future.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

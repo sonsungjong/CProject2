@@ -13,7 +13,7 @@ void completionFunction() noexcept
 	printf("All threads have reached the barrier point.\n");
 }
 
-int main()
+int main1320()
 {
     const size_t numberOfThreads = 4;
     std::barrier barrierPoint(numberOfThreads, completionFunction);
