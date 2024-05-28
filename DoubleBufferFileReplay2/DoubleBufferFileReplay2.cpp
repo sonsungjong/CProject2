@@ -738,7 +738,7 @@ int main()
 {
     DoubleBufferRecvAndSaveFile* receiver = new DoubleBufferRecvAndSaveFile;
     DoubleBufferFileLoadAndReplay* replayer = new DoubleBufferFileLoadAndReplay;
-    replayer->loadFile("C:\\data\\scenario_1712554792301.dat");             // req수신함수
+    replayer->loadFile("C:\\data\\scenario_1716886382737.dat");             // req수신함수
 
     while (true) {
         std::string input = "";
@@ -770,16 +770,24 @@ int main()
         }
         else if (input == "6")
         {
-            replayer->speedReplay(8);             // 8배속 재생
-        }
-        else if (input == "7")
-        {
             //long long clickTime = 3000;                 // 시작으로부터 3초 후 위치
             //replayer->moveReplay(clickTime);           // 시작시간(ms) + ms - waypoint5개
         }
+        else if (input == "7")
+        {
+            replayer->speedReplay(1);             // 1배속 재생
+        }
         else if (input == "8")
         {
-            //replayer->speedReplay(1);             // 1배속 재생
+            replayer->speedReplay(2);             // 2배속 재생
+        }
+        else if (input == "9")
+        {
+            replayer->speedReplay(4);             // 4배속 재생
+        }
+        else if (input == "10")
+        {
+            replayer->speedReplay(8);             // 8배속 재생
         }
     }
 

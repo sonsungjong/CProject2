@@ -9,22 +9,12 @@
 #include <fstream>
 #include <filesystem>
 
-
-// 관찰망에서 나눠서 멤버변수에 보관하고 parser에 전달한다
-std::string observation_scenario = R"(
-<?xml version="1.0" encoding="EUC-KR"?>
-<scenario name="UAEMain3" desc="UAEMain3" time="2024-04-17 15:15:18" los_check="0"><offense_scenario><ats id="1" kind="1" route_id="2" parameter="MIG-21MF" iff="1" time="0.000000" jamming="0" jammer_target_mfr_id="0" latitude="25.741282" longitude="56.487701" altitude="0.000000"><iff_data mode1="0001" mode2="0002" mode3="0003" mode4="NOTINTERROGATED" mode5="INTERROGATEDVALIDRESPONSE" mode5Pin="00034" mode5NO="1776"/><jammer id="0" type="0" range="0.000000" noj_param="NOJ_FLT"/></ats><ats id="3" kind="1" route_id="1" parameter="MIG-21MF" iff="1" time="0.000000" jamming="1" jammer_target_mfr_id="1" latitude="26.441418" longitude="55.061626" altitude="0.000000"><iff_data mode1="0003" mode2="0003" mode3="0003" mode4="INTERROGATEDVALIDRESPONSE" mode5="INTERROGATEDVALIDRESPONSE" mode5Pin="07125" mode5NO="0340"/><jammer id="1" type="3" range="0.000000" noj_param="NOJ_FLT"/></ats><route id="1"><waypoint id="1" type="4" mission="0" speed="30000000.000000" latitude="26.091873" longitude="55.166203" altitude="3000.000000" orbit_radius="0.000000"/><waypoint id="2" type="4" mission="0" speed="30000000.000000" latitude="24.877535" longitude="54.576759" altitude="3000.000000" orbit_radius="0.000000"/><waypoint id="3" type="4" mission="0" speed="30000000.000000" latitude="24.458519" longitude="54.938030" altitude="3000.000000" orbit_radius="0.000000"/><waypoint id="4" type="4" mission="0" speed="30000000.000000" latitude="24.129238" longitude="55.090145" altitude="3000.000000" orbit_radius="0.000000"/><waypoint id="5" type="4" mission="0" speed="30000000.000000" latitude="24.133577" longitude="55.251770" altitude="3000.000000" orbit_radius="0.000000"/></route><route id="2"><waypoint id="1" type="4" mission="0" speed="3000000.000000" latitude="24.756727" longitude="56.345093" altitude="3000.000000" orbit_radius="0.000000"/><waypoint id="2" type="4" mission="0" speed="30000000.000000" latitude="24.406584" longitude="56.240513" altitude="3000.000000" orbit_radius="0.000000"/><waypoint id="3" type="4" mission="0" speed="30000000.000000" latitude="24.081509" longitude="56.050369" altitude="3000.000000" orbit_radius="0.000000"/><waypoint id="4" type="4" mission="0" speed="30000000.000000" latitude="23.646791" longitude="55.941040" altitude="3000.000000" orbit_radius="0.000000"/><waypoint id="5" type="4" mission="0" speed="30000000.000000" latitude="23.507376" longitude="56.340340" altitude="3000.000000" orbit_radius="0.000000"/></route></offense_scenario><defense_scenario><ecs id="1" latitude="24.454191" longitude="55.441914" altitude="183.000000" main_fire_direction="0.000000" MDIL="22528" TADIL_J="36" use_order="1"><mfr id="1" latitude="24.454191" longitude="55.441914" altitude="183.000000" radar_mode="1"/><vls id="1" latitude="24.455748" longitude="55.442901" altitude="190.000000" state="0" msl_link="1/1/1/1/1/1/1/1" msl_type="1/1/1/1/1/1/1/1" msl_SAU="1/1/1/1/1/1/1/1"/><vls id="2" latitude="24.454191" longitude="55.443889" altitude="165.000000" state="0" msl_link="1/1/1/1/1/1/1/1" msl_type="1/1/1/1/1/1/1/1" msl_SAU="1/1/1/1/1/1/1/1"/><vls id="3" latitude="24.452634" longitude="55.442901" altitude="174.000000" state="0" msl_link="1/1/1/1/1/1/1/1" msl_type="1/1/1/1/1/1/1/1" msl_SAU="1/1/1/1/1/1/1/1"/><vls id="4" latitude="24.452634" longitude="55.440926" altitude="172.000000" state="0" msl_link="1/1/1/1/1/1/1/1" msl_type="1/1/1/1/1/1/1/1" msl_SAU="1/1/1/1/1/1/1/1"/><vls id="5" latitude="24.454191" longitude="55.439938" altitude="179.000000" state="0" msl_link="1/1/1/1/1/1/1/1" msl_type="1/1/1/1/1/1/1/1" msl_SAU="1/1/1/1/1/1/1/1"/><vls id="6" latitude="24.455748" longitude="55.440926" altitude="195.000000" state="0" msl_link="1/1/1/1/1/1/1/1" msl_type="1/1/1/1/1/1/1/1" msl_SAU="1/1/1/1/1/1/1/1"/></ecs><icc id="1" latitude="24.782625" longitude="55.541737" altitude="194.000000" MDIL="5632" TADIL_J="97"/><ewr id="1" latitude="24.907719" longitude="55.922024" altitude="257.000000" radar_mode="1"/><c2 id="1" latitude="24.501781" longitude="55.793678" altitude="316.000000" MDIL="20480" TADIL_J="54"/></defense_scenario><region_scenario file_name="UAEMain3_region"/><draw_scenario file_name="UAEMain3_draw"/></scenario>
-)";
-std::string observation_scenario_name = "UAEMain3";             // 시나리오 이름 추출해서 멤버변수에 보관
-
 #pragma pack(push, 1)
-typedef struct FileHeader
+typedef struct ReplayHeader
 {
     long long startTime;
     long long endTime;
-    char scenarioContent[60000];                    // 배포한 시나리오 내용
-    char padding;           // 3
-} stFileHeader;
+} stReplayHeader;
 
 typedef struct DataFormat
 {
@@ -47,15 +37,12 @@ public:
     std::atomic<int> m_curBufferSize;
     std::queue<stDataFormat> m_buffer1;
     std::queue<stDataFormat> m_buffer2;
-    std::queue<stDataFormat> m_buffer_log;              // 시나리오 내용과 로그와 웨이포인트 기록
     std::queue<stDataFormat>* mp_currentBuffer;            // 수신받을때마다 전처리하여 채우고 일정량이 채워지면 교체한다
     std::queue<stDataFormat>* mp_processingBuffer;          // 비우면서 파일에 기록한다
     int m_maxQueueCount = 0;
 
     long long m_startTime;                         // 수신을 시작한 ms시간 (나중에 수신종료 명령시 현재시간에서 startTime을 빼서 playTime을 기록)
     long long m_endTime;
-    //long long m_playTime;                       // 파일에 기록할 총 경과시간, 마지막에 모든 버퍼를 파일로 저장하고 맨 앞에 기록한다, ms 단위
-    //std::atomic<long long> m_timerTime;               // 타이머의 경과시간 (32ms 단위, 약 30Hz)
     std::atomic<bool> m_endFlag;                               // 종료 플래그
     std::mutex m_mutex;             // 버퍼 스왑을 위한 뮤텍스
     std::condition_variable m_cv;
@@ -71,7 +58,7 @@ public:
     DoubleBufferRecvAndSaveFile() :
         m_maxBufferSize(65536)
     {
-        
+        initPlay();
     }
 
     ~DoubleBufferRecvAndSaveFile() {
@@ -92,11 +79,7 @@ public:
             std::queue<stDataFormat> temp;       // 껍데기
             m_buffer2.swap(temp);
         }
-        if (!m_buffer_log.empty())
-        {
-            std::queue<stDataFormat> temp;       // 껍데기
-            m_buffer_log.swap(temp);
-        }
+
         // 사이즈를 비운다
         m_curBufferSize = 0;
         // 중지플래그를 true로 초기화한다
@@ -108,39 +91,32 @@ public:
 
         m_startTime = 0;                // 훈련 시작시간 초기화
         m_endTime = 0;                  // 훈련 종료시간 초기화
-        //m_playTime = 0;                 // 전체 플레이타임 초기화
     }
 
-    // 훈련시작 (관찰망으로부터 시나리오 내용을 받아서 헤더파일에 저장한다, startSave한다음 시나리오는 비워도 됨)
-    void startSave(const std::string& scenarioContent, std::string filePath = "C:\\UITCC\\scenario\\Replay\\Station1\\")
+    // 기록시작 (훈련 시작 시 시나리오 배포 때 정한 파일명과 훈련시작 시간을 받아온다)
+    void startSave(std::string replayFileName, long long startTime)
     {
         if (m_endFlag == true)
         {
             m_endFlag.store(false);
 
-            std::string scenarioName = "";
-            m_startTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-            if (scenarioContent != "")
-            {
+            //m_startTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();           // 훈련 시작 시간
+            m_startTime = startTime;
+            
+            
                 // 훈련 시작 배포전에 헤더파일을 먼저 저장한다.
-                m_filePath = filePath + scenarioName + "_" + std::to_string(m_startTime) + ".dat";
-                m_filePath_log = filePath + scenarioName + "_" + std::to_string(m_startTime) + "_logfile.dat";           // _logfile 을 붙인다
-                stFileHeader* p_header = new stFileHeader;
-                memset(p_header, 0, sizeof(stFileHeader));
+                m_filePath = replayFileName + "_" + std::to_string(m_startTime) +"_st1" + ".dat";
+                stReplayHeader* p_header = new stReplayHeader;
+                memset(p_header, 0, sizeof(stReplayHeader));
                 p_header->startTime = m_startTime;
                 p_header->endTime = 0;                              // 처음엔 0으로 넣기
-                memset(p_header->scenarioContent, 0, sizeof(p_header->scenarioContent));
-                memcpy(p_header->scenarioContent, scenarioContent.c_str(), scenarioContent.size());
-                p_header->padding = 3;          // ETX
 
                 std::thread headerSaver([=]() {
                     std::ofstream outFile(m_filePath_log, std::ios::binary);
                     if (outFile.is_open())
                     {
-                        outFile.write(reinterpret_cast<const char*>(&p_header->startTime), sizeof(p_header->startTime));
-                        outFile.write(reinterpret_cast<const char*>(&p_header->endTime), sizeof(p_header->endTime));
-                        outFile.write(p_header->scenarioContent, sizeof(p_header->scenarioContent));
-                        outFile.write(reinterpret_cast<const char*>(&p_header->padding), sizeof(p_header->padding));
+                        outFile.write(reinterpret_cast<const char*>(&p_header->startTime), sizeof(p_header->startTime));            // 훈련 시작시간 기록 (8바이트)
+                        outFile.write(reinterpret_cast<const char*>(&p_header->endTime), sizeof(p_header->endTime));                // 임시값 기록 (8바이트)
                         outFile.close();
                     }
                 });
@@ -148,7 +124,7 @@ public:
                 headerSaver.join();
 
                 delete p_header;
-            }
+            
 
             // recv를 시작한다 (==> Queue 저장로직을 연다)
             std::thread([this] {this->addBufTimer(); }).detach();
@@ -161,7 +137,7 @@ public:
     }
 
     // 훈련중지 명령 받음 (훈련중지 배포하고 헤더파일 덮어쓰고 훈련중지완료응답 프론트로)
-    void endSave() 
+    void endSave(long long endTime) 
     {
         // recv 멈추고
         if (m_endFlag == false)
@@ -169,7 +145,8 @@ public:
             m_endFlag.store(true);
 
             // end_time 계산하고
-            m_endTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+            //m_endTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+            m_endTime = endTime;                // 훈련 종료시간 받아오고 (훈련중지 배포 후의 시간을 넣을 것)
 
             // m_processingBuffer가 모두 비워지는 것을 기다린다음
             {
@@ -185,9 +162,10 @@ public:
                 std::unique_lock<std::mutex> lock(m_mutex);
                 m_cv.wait(lock, [this]() {return mp_processingBuffer->empty(); });
             }
-            long long playTime = m_endTime - m_startTime;           // 디버깅용
 
-            printf("총 플레이타임: %lld, 총 큐 개수: %d\n", playTime, m_maxQueueCount);
+            printf("시작시간: %lld\n", m_startTime);
+            printf("종료시간: %lld\n", m_endTime);
+            printf("총 플레이타임: %lld, 총 큐 개수: %d\n", m_endTime - m_startTime, m_maxQueueCount);
 
             // 맨 앞 헤더를 덮어쓴다
             std::ofstream headerWriter(m_filePath_log.c_str(), std::ios::in | std::ios::out | std::ios::binary);
@@ -196,33 +174,12 @@ public:
             }
             else {
                 headerWriter.seekp(m_startTime, std::ios::beg);             // 시작위치로부터 startTime만큼 이동
-                headerWriter.write(reinterpret_cast<const char*>(&m_endTime), sizeof(m_endTime));
+                headerWriter.write(reinterpret_cast<const char*>(&m_endTime), sizeof(m_endTime));           // 종료시간 덮어씀
                 if (!headerWriter)
                 {
                     printf("Failed to write data\n");
                     return;
                 }
-
-                // 시작위치로부터 stFileHeader만큼 이동
-                headerWriter.seekp(sizeof(stFileHeader), std::ios::beg);
-                // 로그버퍼에 있는 내용을 모두 저장
-                while (!m_buffer_log.empty())
-                {
-                    stDataFormat st = m_buffer_log.front();
-                    std::string buffer = "";
-                    buffer.resize(st.fullSize);
-                    buffer.append(reinterpret_cast<const char*>(&st.curTime), sizeof(st.curTime));
-                    buffer.append(reinterpret_cast<const char*>(&st.fullSize), sizeof(st.fullSize));
-                    buffer.append(reinterpret_cast<const char*>(&st.id), sizeof(st.id));
-                    buffer.append(st.data);
-                    buffer.append(1, st.padding);
-
-                    headerWriter.write(buffer.data(), buffer.size());
-                    m_buffer_log.pop();
-                }
-
-                headerWriter.close();
-                printf("파일 저장완료 %s\n", m_filePath_log.c_str());
             }
             printf("플레이가 정상 중지\n");
         }
@@ -247,49 +204,26 @@ public:
         {
             stDataFormat dataset = { 0, 0, 0, "", 3 };
             std::string recvStr = "";
-            std::string displayLogMsg = "";
-            std::string displayWaypoint = "";
 
             if (m_testerMsg == 0)
             {
                 dataset.id = 1;
-                displayLogMsg = "[1]들어왔습니다.";
                 recvStr.assign(200, '1');
-                if (displayLogMsg != "")
-                {
-                    recvStr.append(displayLogMsg.c_str());              // display 메시지를 모든 구조체에 추가한다(append는 구조체가 아니니 임시용, 프론트에서 비어있지 않으면 로그메시지로 등록)
-                }
             }
             else if (m_testerMsg == 1)
             {
                 dataset.id = 2;
                 recvStr.assign(1651, '2');
-                displayLogMsg = "[2]들어왔습니다.";
-                if (displayLogMsg != "")
-                {
-                    recvStr.append(displayLogMsg.c_str());              // display 메시지를 모든 구조체에 추가한다(append는 구조체가 아니니 임시용)
-                }
             }
             else if (m_testerMsg == 2)
             {
                 dataset.id = 44;
                 recvStr.assign(6426, '4');
-                displayLogMsg = "[44]들어왔습니다.";
-                displayWaypoint = "1111.11/2222.22/3333.33";
-                if (displayLogMsg != "")
-                {
-                    recvStr.append(displayLogMsg.c_str());              // display 메시지를 모든 구조체에 추가한다(append는 구조체가 아니니 임시용)
-                }
             }
             else if (m_testerMsg == 3)
             {
                 dataset.id = 55;
                 recvStr.assign(500, '5');
-                displayLogMsg = "[55]들어왔습니다.";
-                if (displayLogMsg != "")
-                {
-                    recvStr.append(displayLogMsg.c_str());              // display 메시지를 모든 구조체에 추가한다 (append는 구조체가 아니니 임시용)
-                }
             }
             dataset.curTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
             dataset.fullSize = sizeof(dataset.curTime) + sizeof(dataset.fullSize) + sizeof(dataset.id) + sizeof(dataset.padding) + recvStr.size();          // 17 + x
@@ -311,25 +245,6 @@ public:
                 if (m_curBufferSize >= (m_maxBufferSize * 0.9))
                 {
                     swapBuffer();
-                }
-
-                if (displayLogMsg != "")
-                {
-                    // 로그버퍼에 추가
-                    stDataFormat logData = { dataset.curTime, 0, 10001, "", 3 };             // [10001]은 로그, [10002]는 웨이포인트
-                    logData.fullSize = sizeof(logData.curTime) + sizeof(logData.fullSize) + sizeof(logData.id) + displayLogMsg.size() + sizeof(logData.padding);
-                    logData.data.assign(displayLogMsg);
-
-                    m_buffer_log.push(logData);
-                }
-
-                if (displayWaypoint != "")
-                {
-                    stDataFormat waypointData = { dataset.curTime, 0, 10002, "", 3 };             // [10001]은 로그, [10002]는 웨이포인트
-                    waypointData.fullSize = sizeof(waypointData.curTime) + sizeof(waypointData.fullSize) + sizeof(waypointData.id) + displayWaypoint.size() + sizeof(waypointData.padding);
-                    waypointData.data.assign(displayWaypoint);
-
-                    m_buffer_log.push(waypointData);
                 }
 
                 m_testerMsg = (m_testerMsg + 1) % 4;
@@ -371,14 +286,13 @@ public:
         mp_processingBuffer = temp;
         m_curBufferSize = 0;
 
-        //m_saveThread = 
         std::thread([this] {
             this->fileSaver();
             }).detach();
-            //m_saveThread.detach();
     }
 };
 
+// 시나리오와 전체 시간은 파일로드할 때 이미 보내놓았다
 class DoubleBufferFileLoadAndReplay
 {
 public:
@@ -387,22 +301,18 @@ public:
     int m_processingBufferSize;
     std::queue<stDataFormat> m_buffer1;
     std::queue<stDataFormat> m_buffer2;
-    std::queue<stDataFormat> m_buffer_log;
     std::queue<stDataFormat>* mp_currentBuffer;                 // 비워지면 교체하고 파일에서 채워놓는다 (재현용)
     std::queue<stDataFormat>* mp_processingBuffer;         // fileLoad 담당
-    std::string m_scenarioContent;                                  // 시나리오 보내고, 시간보내고
     long long m_startTime;
     long long m_endTime;
     long long m_totalPlayTime;                       // 파일의 header (총 재현시간 ms단위, 파일 맨앞에 있음)
     long long m_curPlayTime;                              // 경과시간 (ms)
-    std::atomic<int> m_endFlag;                        // 종료 플래그,, [0]시작, [1]중지, [2]일시정지
+    std::atomic<int> m_endReplayFlag;                        // 종료 플래그,, [0]시작, [1]중지, [2]일시정지
     std::mutex m_mutex;                             // 버퍼 스왚을 위한 뮤택스
     std::condition_variable m_cv;
-    std::string m_filePath;                         // 대상 파일경로
-    std::string m_filePath_log;                         // 헤더 경로
+    std::string m_filePath;                         // st1의 리플레이 파일 경로
     std::ifstream m_fileStream;
-    long long m_speed;
-    stFileHeader m_curHeader;
+    long long m_speed;              // 배속
     int m_minSize;
 
     std::thread m_sendThread;
@@ -413,7 +323,7 @@ public:
     // 2000ms마다 타이머를 통해 pReplayBuffer의 time값이 타이머의 시간보다 작거나 같은 값들을 순차적으로 모두 printf
     DoubleBufferFileLoadAndReplay() : m_maxBufferSize(65536)
     {
-        initReplay();
+        initReplay();           // 초기화
     }
 
     ~DoubleBufferFileLoadAndReplay() {
@@ -423,7 +333,6 @@ public:
         }
     }
 
-    // 시나리오 이름을 반영한다
     void initReplay()
     {
         // 버퍼를 비운다
@@ -437,49 +346,91 @@ public:
             std::queue<stDataFormat> temp;
             m_buffer2.swap(temp);
         }
-        if (!m_buffer_log.empty())
-        {
-            std::queue<stDataFormat> temp;
-            m_buffer_log.swap(temp);
-        }
 
         // 변수들을 초기화한다
         m_currentBufferSize = 0;
         m_processingBufferSize = 0;
-        m_endFlag = 1;          // 중지상태
+        m_endReplayFlag = 1;          // 중지상태
         mp_currentBuffer = &m_buffer1;
         mp_processingBuffer = &m_buffer2;
         m_startTime = 0;
-        m_curPlayTime = 0;
         m_endTime = 0;
+        m_curPlayTime = 0;
         m_totalPlayTime = 0;
         m_speed = 1;
         m_minSize = 17;
     }
 
+    // 플레이시간 계산용
     void startReplayTimer()
     {
-        while (m_endFlag != 1)             // 재생중이면
+        while (m_endReplayFlag != 1)             // 중지상태가 아니라면
         {
-            if (m_endFlag == 2)
+            if (m_endReplayFlag == 0)               // 재생상태라면
             {
-                std::this_thread::sleep_for(std::chrono::milliseconds(1));
-                continue;               // 다른 대기방법 알아보기
+                std::this_thread::sleep_for(std::chrono::milliseconds(32));         // 32ms 마다 플레이시간을 증가시킨다
+                m_curPlayTime += (32 * m_speed);            // 현재시간에 (32ms * speed) 를 더한다
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(32));
-            m_curPlayTime += (32 * m_speed);
+            else if (m_endReplayFlag == 2)               // 일시정지 상태라면
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));          // 다른 대기방법 알아보기
+            }
         }
     }
 
-    void startReplay()
+    // 재생 시작 버튼 (중심파일의 시작시간과 종료시간을 받아온다)
+    void startReplay(long long startTime, long long endTime)
     {
         // 일시중지였으면 이어서, 정지상태였으면 처음부터 버퍼읽기
         // 해당 구간의 시간 지점부터 데이터를 채워넣는다
-        if (m_endFlag == 1)
+        if (m_endReplayFlag == 1)               // 정지상태라면
         {
-            m_endFlag.store(0);
-            // 별도 쓰레드에서 버퍼를 사용시킨다
-            //loadFile(m_filePath);               // 처음부터 재생
+            m_endReplayFlag.store(0);           // 시작으로 변경
+
+            // 초기화는 init 또는 정지버튼에서 한다
+            m_startTime = startTime;
+            m_startTime = endTime;
+
+            m_fileStream.clear();
+            m_fileStream.seekg(sizeof(stReplayHeader), std::ios_base::beg);         // 헤더만큼 건너뛰고
+            std::cout << "position: " << m_fileStream.tellg() << std::endl;
+            fillBuffer();               // 버퍼채우기
+            swapBuffer();           // 교체
+
+            // 플레이타이머 계산 시작
+            std::thread([this] {
+                this->startReplayTimer();
+                }).detach();
+
+                // 버퍼 사용 시작
+                std::thread([this] {
+                    this->useBuffer();
+                    }).detach();
+
+                    printf("재생 시작\n");
+        }
+        else if (m_endReplayFlag == 2)          // 일시정지 였다면
+        {
+            m_endReplayFlag.store(0);               // 재생으로 변경
+
+            printf("일시정지 해제\n");
+        }
+        else
+        {
+            printf("이미 재생 중\n");
+        }
+    }
+
+    // 정지 버튼
+    void stopReplay()
+    {
+        if (m_endReplayFlag != 1)               // 정지가 아니었다면
+        {
+            m_endReplayFlag.store(1);               // 정지로
+            m_speed = 1;                        // 속도 초기화
+            m_curPlayTime = 0;              // 플레이시간 초기화
+
+            // 버퍼와 버퍼사이즈 초기화
             if (!m_buffer1.empty())
             {
                 std::queue<stDataFormat> emptyQueue1;
@@ -492,45 +443,7 @@ public:
                 m_buffer2.swap(emptyQueue2);
             }
             m_processingBufferSize = 0;
-            //m_curPlayTime = m_curHeader.startTime;
 
-            m_fileStream.clear();
-            m_fileStream.seekg(sizeof(stFileHeader), std::ios_base::beg);
-            std::cout << "position: " << m_fileStream.tellg() << std::endl;
-            fillBuffer();
-            swapBuffer();
-
-            //m_timerThread = 
-            std::thread([this] {
-                this->startReplayTimer();
-                }).detach();
-                //m_timerThread.detach();
-                //m_useBufThread = 
-                std::thread([this] {
-                    this->useBuffer();
-                    }).detach();
-                    //m_useBufThread.detach();
-                    printf("재생 시작\n");
-        }
-        else if (m_endFlag == 2)
-        {
-            m_endFlag.store(0);
-
-            printf("일시정지 해제\n");
-        }
-        else
-        {
-            printf("이미 재생 중\n");
-        }
-    }
-
-    void stopReplay()
-    {
-        if (m_endFlag != 1)
-        {
-            m_endFlag.store(1);
-            m_speed = 1;
-            m_curPlayTime = 0;
             printf("재생 중지\n");
         }
         else
@@ -541,9 +454,9 @@ public:
 
     void pauseReplay()
     {
-        if (m_endFlag == 0)
+        if (m_endReplayFlag == 0)               // 재생 중 이었다면
         {
-            m_endFlag.store(2);
+            m_endReplayFlag.store(2);               // 일시 정지로
 
             printf("재생 일시중지\n");
         }
@@ -555,7 +468,7 @@ public:
 
     void speedReplay(int _speed)
     {
-        m_speed = _speed;           // 1, 2, 4, 8
+        m_speed = _speed;           // 1, 2, 4, 8 (배속 설정)
     }
 
     /*
@@ -568,7 +481,33 @@ public:
     */
     void moveReplay(long long sectionTime)
     {
+        int curReplayFlag = m_endReplayFlag.load();         // 기존 상태 백업 ([0]재생, [1]중지, [2]일시중지)
+        if (m_endReplayFlag == 0)               // 재생 중이었다면
+        {
+            m_endReplayFlag.store(2);           // 일시정지로
+        }
+
+        // 버퍼와 버퍼사이즈 초기화
+        if (!m_buffer1.empty())
+        {
+            std::queue<stDataFormat> emptyQueue1;
+            m_buffer1.swap(emptyQueue1);
+        }
+        m_currentBufferSize = 0;
+        if (!m_buffer2.empty())
+        {
+            std::queue<stDataFormat> emptyQueue2;
+            m_buffer2.swap(emptyQueue2);
+        }
+        m_processingBufferSize = 0;
+        m_curPlayTime = sectionTime;                // 플레이타임을 이동시점으로
         
+        // 파일의 처음위치부터 해당 시간((m_startTime+m_curPlayTime) =< curTime)의 위치를 찾을때까지 waypoint[5]와 상태메시지들을 백업한다
+        // 찾은 위치로 seek 를 이동시킨다
+
+        // 버퍼를 채운다
+
+        // 기존 상태가 재생중이었다면 재생을 시작하고 
     }
 
     // (추후 : 사용된 모든 시나리오 내용을 프론트에 보내준다)
@@ -595,10 +534,10 @@ public:
                 m_filePath = _fullPath;
 
                 // 헤더시간(플레이타임) 읽기
-                memset(&m_curHeader, 0, sizeof(stFileHeader));
-                char* temp = new char[sizeof(stFileHeader) + 1] {0};
-                m_fileStream.read(temp, sizeof(stFileHeader));
-                memcpy(&m_curHeader, temp, sizeof(stFileHeader));             // 바이너리니깐 memcpy로 읽는다
+                memset(&m_curHeader, 0, sizeof(stReplayHeader));
+                char* temp = new char[sizeof(stReplayHeader) + 1] {0};
+                m_fileStream.read(temp, sizeof(stReplayHeader));
+                memcpy(&m_curHeader, temp, sizeof(stReplayHeader));             // 바이너리니깐 memcpy로 읽는다
 
                 m_curPlayTime = m_curHeader.startTime;
                 convertMsToTime(m_curHeader.endTime - m_curHeader.startTime);           // 디버깅용
@@ -800,7 +739,7 @@ int main()
 {
     DoubleBufferRecvAndSaveFile* receiver = new DoubleBufferRecvAndSaveFile;
     DoubleBufferFileLoadAndReplay* replayer = new DoubleBufferFileLoadAndReplay;
-    replayer->loadFile("C:\\data\\scenario_1712554792301.dat");             // req수신함수
+    replayer->loadFile("C:\\data\\scenario_1712554792301_st1.dat");             // req수신함수
 
     while (true) {
         std::string input = "";
@@ -812,11 +751,14 @@ int main()
         }
         else if (input == "1")
         {
-            receiver->startSave();          // 여러번해도 버그가 없어야함
+            std::string distributionName = "scenario";
+            long long time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();           // 훈련 시작 시간
+            receiver->startSave(distributionName, time);          // 여러번해도 버그가 없어야함
         }
         else if (input == "2")
         {
-            receiver->endSave();            // 훈련 종료시 메인시나리오 이름을 반영해야할듯...
+            long long time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();           // 훈련 종료 시간
+            receiver->endSave(time);
         }
         else if (input == "3")
         {
@@ -832,16 +774,24 @@ int main()
         }
         else if (input == "6")
         {
-            replayer->speedReplay(8);             // 8배속 재생
-        }
-        else if (input == "7")
-        {
             //long long clickTime = 3000;                 // 시작으로부터 3초 후 위치
             //replayer->moveReplay(clickTime);           // 시작시간(ms) + ms - waypoint5개
         }
+        else if (input == "7")
+        {
+            replayer->speedReplay(1);             // 1배속 재생
+        }
         else if (input == "8")
         {
-            //replayer->speedReplay(1);             // 1배속 재생
+            replayer->speedReplay(2);             // 2배속 재생
+        }
+        else if (input == "9")
+        {
+            replayer->speedReplay(4);             // 4배속 재생
+        }
+        else if (input == "10")
+        {
+            replayer->speedReplay(8);             // 8배속 재생
         }
     }
 
