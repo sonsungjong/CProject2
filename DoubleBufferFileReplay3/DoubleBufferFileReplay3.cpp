@@ -326,7 +326,7 @@ public:
     std::string m_filePath;                         // st1의 리플레이 파일 경로
     std::ifstream m_fileStream;
     stReplayHeader m_curHeader;
-    long long m_speed;              // 배속
+    double m_speed;              // 배속
     int m_minSize;
 
     std::thread m_sendThread;
@@ -371,19 +371,25 @@ public:
         //m_endTime = 0;
         m_curPlayTime = 0;
         m_totalPlayTime = 0;
-        m_speed = 1;
+        m_speed = 1.0;
         m_minSize = 17;
     }
 
     // 플레이시간 계산용
     void startReplayTimer()
     {
+        auto lastTime = std::chrono::steady_clock::now();
         while (m_endReplayFlag != 1)             // 중지상태가 아니라면
         {
             if (m_endReplayFlag == 0)               // 재생상태라면
             {
-                std::this_thread::sleep_for(std::chrono::milliseconds(32));         // 32ms 마다 플레이시간을 증가시킨다
-                m_curPlayTime += (32 * m_speed);            // 현재시간에 (32ms * speed) 를 더한다
+                auto now = std::chrono::steady_clock::now();
+                auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastTime).count();
+                lastTime = now;
+
+                m_curPlayTime += (elapsed * m_speed);  // 경과 시간에 속도를 곱하여 현재 시간에 더함
+
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));  // 잠시 대기
             }
             else if (m_endReplayFlag == 2)               // 일시정지 상태라면
             {
@@ -684,7 +690,7 @@ public:
             {
                 // 추후에는 타이머보다 이하인 시간은 일괄 전송하다가 넘어가면 pop안하고 전송안하는 것으로 넘기기
                 {
-                    //std::lock_guard<std::mutex> lock(m_mutex);
+                    std::lock_guard<std::mutex> lock(m_mutex);
                     while (!mp_currentBuffer->empty())
                     {
                         popData = mp_currentBuffer->front();
@@ -698,8 +704,7 @@ public:
                         {
                             break;
                         }
-                        //m_sendThread = std::thread([this, result]() {this->sendTask(result); });
-                        //m_sendThread.detach();
+                        
                     }
                 }
 
@@ -738,7 +743,7 @@ public:
                     // 둘다 전부 사용했다 (끝)
                     m_endReplayFlag.store(1);
                     m_speed = 1;
-                    g_debugReplayEndTime = m_curPlayTime;
+                    g_debugReplayEndTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
                     //printf("재생 완료 [총플레이타임: %lld]\n", m_curPlayTime - m_curHeader.startTime);
                     printf("원본 시간 [총플레이타임: %lld]\n", m_curHeader.endTime - m_curHeader.startTime);
                 }
@@ -751,16 +756,17 @@ int main()
 {
     DoubleBufferRecvAndSaveFile* receiver = new DoubleBufferRecvAndSaveFile;
     DoubleBufferFileLoadAndReplay* replayer = new DoubleBufferFileLoadAndReplay;
-    replayer->loadFile("C:\\data\\scenario_1716890616180_st1.dat");             // req수신함수
+    replayer->loadFile("C:\\data\\scenario_1716894176237_st1.dat");             // req수신함수
     long long startTime = 0;
 
     while (true) {
         std::string input = "";
-        printf("[0]프로그램 종료, [1]Save시작, [2]Save종료, [3]Replay시작, [4]Replay중지, [5]Replay일시중지, [6]Replay배속8배, [7]Replay구간이동, [8]Replay배속1배\n");
+        printf("[0]프로그램 종료, [1]Save시작, [2]Save종료, [3]Replay시작, [4]Replay중지, [5]Replay일시중지, [6]Replay구간이동, [7]배속1, [8]배속2, [9]배속4, [10]배속8\n");
         std::getline(std::cin, input);
         if (input == "0")
         {
-            replayer->convertMsToTime(g_debugReplayEndTime);            // 리플레이 경과시간
+            replayer->convertMsToTime(g_debugReplayEndTime - startTime);            // 리플레이 경과시간
+            printf("경과시간: %lld\n", g_debugReplayEndTime - startTime);
             
             break;
         }
