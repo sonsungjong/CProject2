@@ -738,7 +738,7 @@ int main()
 {
     DoubleBufferRecvAndSaveFile* receiver = new DoubleBufferRecvAndSaveFile;
     DoubleBufferFileLoadAndReplay* replayer = new DoubleBufferFileLoadAndReplay;
-    replayer->loadFile("C:\\data\\scenario_1716886382737.dat");             // req수신함수
+    replayer->loadFile("C:\\data\\scenario_1716889917200.dat");             // req수신함수
 
     while (true) {
         std::string input = "";
