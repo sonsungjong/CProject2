@@ -369,9 +369,9 @@ public:
         mp_processingBuffer = &m_buffer2;
         //m_startTime = 0;
         //m_endTime = 0;
-        m_curPlayTime = 0.0;
+        m_curPlayTime = m_curHeader.startTime;
         
-        m_speed = 1.1;
+        m_speed = 1.0;
         m_minSize = 17;
     }
 
@@ -396,10 +396,10 @@ public:
                 if (sleepTime.count() > 0) {
                     std::this_thread::sleep_for(sleepTime);
                 }
-                else {
-                    // 누적된 오차 보정
-                    lastTime += (std::chrono::milliseconds(-sleepTime.count()));
-                }
+                //else {
+                //    // 누적된 오차 보정
+                //    lastTime += (std::chrono::milliseconds(-sleepTime.count()));
+                //}
             }
             else if (m_endReplayFlag == 2)               // 일시정지 상태라면
             {
@@ -457,8 +457,8 @@ public:
         if (m_endReplayFlag != 1)               // 정지가 아니었다면
         {
             m_endReplayFlag.store(1);               // 정지로
-            m_speed = 1;                        // 속도 초기화
-            m_curPlayTime = 0;              // 플레이시간 초기화
+            m_speed = 1.0;                        // 속도 초기화
+            m_curPlayTime = m_curHeader.startTime;              // 플레이시간 초기화
 
             // 버퍼와 버퍼사이즈 초기화
             if (!m_buffer1.empty())
@@ -496,7 +496,7 @@ public:
         }
     }
 
-    void speedReplay(int _speed)
+    void speedReplay(double _speed)
     {
         m_speed = _speed;           // 1, 2, 4, 8 (배속 설정)
     }
@@ -530,7 +530,7 @@ public:
             m_buffer2.swap(emptyQueue2);
         }
         m_processingBufferSize = 0;
-        m_curPlayTime = sectionTime;                // 플레이타임을 이동시점으로
+        m_curPlayTime = sectionTime + m_curHeader.startTime;                // 플레이타임을 이동시점으로
         
         // 파일의 처음위치부터 해당 시간((m_startTime+m_curPlayTime) =< curTime)의 위치를 찾을때까지 waypoint[5]와 상태메시지들을 백업한다
         // 찾은 위치로 seek 를 이동시킨다
@@ -693,33 +693,44 @@ public:
     void useBuffer() {
         // (추후: 별도의 쓰레드에서 32ms 마다 동작 타이머타임보다 이전 시간 값인 pReplayBuffer의 값들을 순차적으로 printf 하고)
         // 테스트용 : 별도 쓰레드에서 32ms마다 큐를 하나씩 꺼내서 printf (원래는 저장과 동일한 사이즈로 맞춰야함)
+        stDataFormat popData = { 0, 0, 0, "", 3 };
         while (m_endReplayFlag != 1)
         {
-            stDataFormat popData = { 0, 0, 0, "", 3 };
             if (m_endReplayFlag == 0)
             {
                 // 추후에는 타이머보다 이하인 시간은 일괄 전송하다가 넘어가면 pop안하고 전송안하는 것으로 넘기기
+                
+                //std::lock_guard<std::mutex> lock(m_mutex);
+                while (!mp_currentBuffer->empty())
                 {
-                    std::lock_guard<std::mutex> lock(m_mutex);
-                    while (!mp_currentBuffer->empty())
+                    popData = mp_currentBuffer->front();
+                    if (popData.curTime <= m_curPlayTime)
                     {
-                        popData = mp_currentBuffer->front();
-                        if (popData.curTime < m_curPlayTime)
-                        {
-                            m_curPlayTime = popData.curTime;
-                            mp_currentBuffer->pop();
-                            sendTask(popData);
-                        }
-                        else
-                        {
-                            break;
-                        }
+                        mp_currentBuffer->pop();
+                        sendTask(popData);
+                    }
+                    else
+                    {
+                        break;
+                    }
                         
+                }
+                if (mp_currentBuffer->empty())
+                {
+                    // 다른쪽은 채워져있니?
+                    if (!mp_processingBuffer->empty())
+                    {
+                        swapBuffer();
+                    }
+                    else
+                    {
+                        // 둘다 전부 사용했다 (끝)
+                        initReplay();
+                        g_debugReplayEndTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+                        //printf("재생 완료 [총플레이타임: %lld]\n", m_curPlayTime - m_curHeader.startTime);
+                        printf("원본 시간 [총플레이타임: %lld]\n", m_curHeader.endTime - m_curHeader.startTime);
                     }
                 }
-
-                //std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
             }
             else if (m_endReplayFlag == 2)
             {
@@ -741,23 +752,23 @@ public:
                 printf("이건 뭐지??\n");
             }
 
-            if (mp_currentBuffer->empty())
-            {
-                // 다른쪽은 채워져있니?
-                if (!mp_processingBuffer->empty())
-                {
-                    swapBuffer();
-                }
-                else
-                {
-                    // 둘다 전부 사용했다 (끝)
-                    m_endReplayFlag.store(1);
-                    m_speed = 1;
-                    g_debugReplayEndTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-                    //printf("재생 완료 [총플레이타임: %lld]\n", m_curPlayTime - m_curHeader.startTime);
-                    printf("원본 시간 [총플레이타임: %lld]\n", m_curHeader.endTime - m_curHeader.startTime);
-                }
-            }
+            //if (mp_currentBuffer->empty())
+            //{
+            //    // 다른쪽은 채워져있니?
+            //    if (!mp_processingBuffer->empty())
+            //    {
+            //        swapBuffer();
+            //    }
+            //    else
+            //    {
+            //        // 둘다 전부 사용했다 (끝)
+            //        m_endReplayFlag.store(1);
+            //        m_speed = 1.0;
+            //        g_debugReplayEndTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+            //        //printf("재생 완료 [총플레이타임: %lld]\n", m_curPlayTime - m_curHeader.startTime);
+            //        printf("원본 시간 [총플레이타임: %lld]\n", m_curHeader.endTime - m_curHeader.startTime);
+            //    }
+            //}
         }
     }
 };
@@ -766,7 +777,7 @@ int main()
 {
     DoubleBufferRecvAndSaveFile* receiver = new DoubleBufferRecvAndSaveFile;
     DoubleBufferFileLoadAndReplay* replayer = new DoubleBufferFileLoadAndReplay;
-    replayer->loadFile("C:\\data\\scenario_1716894176237_st1.dat");             // req수신함수
+    replayer->loadFile("C:\\data\\scenario_1716900025225_st1.dat");             // req수신함수
     long long startTime = 0;
 
     while (true) {
@@ -799,6 +810,7 @@ int main()
         else if (input == "4")
         {
             replayer->stopReplay();
+            g_debugReplayEndTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         }
         else if (input == "5")
         {
@@ -811,19 +823,19 @@ int main()
         }
         else if (input == "7")
         {
-            replayer->speedReplay(1);             // 1배속 재생
+            replayer->speedReplay(1.0);             // 1배속 재생
         }
         else if (input == "8")
         {
-            replayer->speedReplay(2);             // 2배속 재생
+            replayer->speedReplay(2.0);             // 2배속 재생
         }
         else if (input == "9")
         {
-            replayer->speedReplay(4);             // 4배속 재생
+            replayer->speedReplay(4.0);             // 4배속 재생
         }
         else if (input == "10")
         {
-            replayer->speedReplay(8);             // 8배속 재생
+            replayer->speedReplay(8.0);             // 8배속 재생
         }
     }
 
