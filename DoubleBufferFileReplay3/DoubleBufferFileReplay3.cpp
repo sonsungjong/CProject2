@@ -318,8 +318,8 @@ public:
     std::queue<stDataFormat>* mp_processingBuffer;         // fileLoad 담당
     //long long m_startTime;
     //long long m_endTime;
-    long long m_totalPlayTime;                       // 파일의 header (총 재현시간 ms단위, 파일 맨앞에 있음)
-    long long m_curPlayTime;                              // 경과시간 (ms)
+    
+    double m_curPlayTime;                              // 경과시간 (ms)
     std::atomic<int> m_endReplayFlag;                        // 종료 플래그,, [0]시작, [1]중지, [2]일시정지
     std::mutex m_mutex;                             // 버퍼 스왚을 위한 뮤택스
     std::condition_variable m_cv;
@@ -369,9 +369,9 @@ public:
         mp_processingBuffer = &m_buffer2;
         //m_startTime = 0;
         //m_endTime = 0;
-        m_curPlayTime = 0;
-        m_totalPlayTime = 0;
-        m_speed = 1.0;
+        m_curPlayTime = 0.0;
+        
+        m_speed = 1.1;
         m_minSize = 17;
     }
 
@@ -379,6 +379,7 @@ public:
     void startReplayTimer()
     {
         auto lastTime = std::chrono::steady_clock::now();
+        const std::chrono::milliseconds frameDuration(32);
         while (m_endReplayFlag != 1)             // 중지상태가 아니라면
         {
             if (m_endReplayFlag == 0)               // 재생상태라면
@@ -387,9 +388,18 @@ public:
                 auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastTime).count();
                 lastTime = now;
 
-                m_curPlayTime += (elapsed * m_speed);  // 경과 시간에 속도를 곱하여 현재 시간에 더함
+                m_curPlayTime += (static_cast<double>(elapsed) * m_speed);  // 경과 시간에 속도를 곱하여 현재 시간에 더함
 
-                std::this_thread::sleep_for(std::chrono::milliseconds(1));  // 잠시 대기
+                //std::this_thread::sleep_for(std::chrono::milliseconds(1));  // 잠시 대기
+                // 고정된 프레임 시간 유지
+                auto sleepTime = frameDuration - std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - now);
+                if (sleepTime.count() > 0) {
+                    std::this_thread::sleep_for(sleepTime);
+                }
+                else {
+                    // 누적된 오차 보정
+                    lastTime += (std::chrono::milliseconds(-sleepTime.count()));
+                }
             }
             else if (m_endReplayFlag == 2)               // 일시정지 상태라면
             {
