@@ -789,6 +789,7 @@ public:
                     {
                         // 둘다 전부 사용했다 (끝)
                         timeKillEvent(m_timerId);
+                        m_timerId = 0;
                         m_curPlayTime = m_curHeader.startTime;
                         initReplay();
                         g_debugReplayEndTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
