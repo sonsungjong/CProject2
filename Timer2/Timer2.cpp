@@ -1,16 +1,46 @@
 #include <iostream>
 #include <string>
+#include <chrono>
 
-// 헤더와 라이브러리 추가
+// 헤더와 라이브러리 추가 (윈도우 멀티미디어 타이머)
 #include <Windows.h>
 #include <mmsystem.h>
 #pragma comment(lib, "winmm.lib")
+
+// 출력용
+char* convertMsToTime(long long milliseconds) {
+    const long long msPerSecond = 1000;
+    const long long msPerMinute = msPerSecond * 60;
+    const long long msPerHour = msPerMinute * 60;
+    const long long msPerDay = msPerHour * 24;
+
+    long long days = milliseconds / msPerDay;
+    milliseconds -= days * msPerDay;
+    long long hours = milliseconds / msPerHour;
+    milliseconds -= hours * msPerHour;
+    long long minutes = milliseconds / msPerMinute;
+    milliseconds -= minutes * msPerMinute;
+    long long seconds = milliseconds / msPerSecond;
+    milliseconds -= seconds * msPerSecond;
+
+    char* str = (char*)malloc(256 * sizeof(char));          // 할당
+    if (str == NULL) {
+        exit(EXIT_FAILURE);
+    }
+    sprintf_s(str, 256, "%lld일 %lld시간 %lld분 %lld초 %lld밀리초\n", days, hours, minutes, seconds, milliseconds);
+    return str;
+}
 
 // 타이머 콜백 함수 정의
 void __stdcall TimerCallback(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2)
 {
     static int num = 0;
-    printf("Timer triggered! %d\n", ++num);
+    static long long time = 0;
+
+    time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    char* timeString = convertMsToTime(time);
+    printf("Time: %s, Count: %d\n", timeString, ++num);
+    free(timeString);           // 해제
 }
 
 int main()

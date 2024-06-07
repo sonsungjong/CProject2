@@ -1,3 +1,5 @@
+#pragma comment(lib, "winmm.lib")
+
 #include <iostream>
 #include <string>
 #include <memory>
@@ -8,9 +10,15 @@
 #include <mutex>
 #include <fstream>
 #include <filesystem>
-#include <deque>
+#include <stack>
 
+#include <Windows.h>
+#include <mmsystem.h>
+
+long long g_debugReplayStartTime = 0;
 long long g_debugReplayEndTime = 0;
+long long g_debugPauseTime = 0;
+std::vector<long long> g_debugPauseEndTime;
 
 #pragma pack(push, 1)
 typedef struct ReplayHeader
@@ -19,14 +27,21 @@ typedef struct ReplayHeader
     long long endTime;
 } stReplayHeader;
 
-typedef struct DataFormat
+typedef struct DataSet
 {
     long long curTime;
     int fullSize;
     int id;
     std::string data;
     char padding;                       // ETX(3)
-} stDataFormat;                 // 8 + 4 + 4 + x + 1 (17+)
+} stDataSet;                 // 8 + 4 + 4 + x + 1 (17+)
+
+typedef struct __myPoint
+{
+    double latitude;
+    double longitude;
+} stPoint;
+
 #pragma pack(pop)
 
 // 큐의 데이터를 저장할 때 구분자(3, ETX)를 넣고
@@ -47,10 +62,10 @@ class DoubleBufferRecvAndSaveFile
 public:
     int m_maxBufferSize;             // 64KB
     std::atomic<int> m_curBufferSize;
-    std::queue<stDataFormat> m_buffer1;
-    std::queue<stDataFormat> m_buffer2;
-    std::queue<stDataFormat>* mp_currentBuffer;            // 수신받을때마다 전처리하여 채우고 일정량이 채워지면 교체한다
-    std::queue<stDataFormat>* mp_processingBuffer;          // 비우면서 파일에 기록한다
+    std::queue<stDataSet> m_buffer1;
+    std::queue<stDataSet> m_buffer2;
+    std::queue<stDataSet>* mp_currentBuffer;            // 수신받을때마다 전처리하여 채우고 일정량이 채워지면 교체한다
+    std::queue<stDataSet>* mp_processingBuffer;          // 비우면서 파일에 기록한다
     int m_maxQueueCount = 0;
 
     long long m_startTime;                         // 수신을 시작한 ms시간 (나중에 수신종료 명령시 현재시간에서 startTime을 빼서 playTime을 기록)
@@ -83,11 +98,11 @@ public:
     {
         // 버퍼를 비운다
         if (!m_buffer1.empty()) {
-            std::queue<stDataFormat> temp;       // 껍데기
+            std::queue<stDataSet> temp;       // 껍데기
             m_buffer1.swap(temp);
         }
         if (!m_buffer2.empty()) {
-            std::queue<stDataFormat> temp;       // 껍데기
+            std::queue<stDataSet> temp;       // 껍데기
             m_buffer2.swap(temp);
         }
 
@@ -203,7 +218,7 @@ public:
 
     }
 
-    void sendTask(const stDataFormat& dataset)
+    void sendTask(const stDataSet& dataset)
     {
         // View로 보내는 작업을 처리한다
         printf("시간:%lld, 총크기:%d, 식별자:%d, 데이터:%s, 패딩:%d\n", dataset.curTime, dataset.fullSize, dataset.id, dataset.data.c_str(), dataset.padding);
@@ -215,7 +230,7 @@ public:
         // 별도의 쓰레드에서 버퍼를 채운다 (추후에는 수신받을때 바디사이즈와 시간과 id까지 기록해서 push)
         while (m_endFlag != true)
         {
-            stDataFormat dataset = { 0, 0, 0, "", 3 };
+            stDataSet dataset = { 0, 0, 0, "", 3 };
             std::string recvStr = "";
 
             if (m_testerMsg == 0)
@@ -280,7 +295,7 @@ public:
         while (!mp_processingBuffer->empty())
         {
             binData.clear();
-            const stDataFormat& dataset = mp_processingBuffer->front();
+            const stDataSet& dataset = mp_processingBuffer->front();
             binData.assign(reinterpret_cast<const char*>(&dataset), 16);
             binData.append(dataset.data);
             binData.append(1, dataset.padding);
@@ -294,7 +309,7 @@ public:
     void swapBuffer() {
         // 90%이상 채워진 pRecvBuffer를 temp를 통해 교체한다
         std::lock_guard<std::mutex> lock(m_mutex);
-        std::queue<stDataFormat>* temp = mp_currentBuffer;
+        std::queue<stDataSet>* temp = mp_currentBuffer;
         mp_currentBuffer = mp_processingBuffer;
         mp_processingBuffer = temp;
         m_curBufferSize = 0;
@@ -312,22 +327,27 @@ public:
     const int m_maxBufferSize;             // 64KB
     int m_currentBufferSize;
     int m_processingBufferSize;
-    std::queue<stDataFormat> m_buffer1;
-    std::queue<stDataFormat> m_buffer2;
-    std::queue<stDataFormat>* mp_currentBuffer;                 // 비워지면 교체하고 파일에서 채워놓는다 (재현용)
-    std::queue<stDataFormat>* mp_processingBuffer;         // fileLoad 담당
-    //long long m_startTime;
-    //long long m_endTime;
+    std::queue<stDataSet> m_buffer1;
+    std::queue<stDataSet> m_buffer2;
+    std::queue<stDataSet>* mp_currentBuffer;                 // 비워지면 교체하고 파일에서 채워놓는다 (재현용)
+    std::queue<stDataSet>* mp_processingBuffer;         // fileLoad 담당
+    long long m_startTime;
+    long long m_endTime;
     
-    double m_curPlayTime;                              // 경과시간 (ms)
+    long long m_curPlayTime;                              // 경과시간 (ms)
     std::atomic<int> m_endReplayFlag;                        // 종료 플래그,, [0]시작, [1]중지, [2]일시정지
+    
     std::mutex m_mutex;                             // 버퍼 스왚을 위한 뮤택스
     std::condition_variable m_cv;
     std::string m_filePath;                         // st1의 리플레이 파일 경로
     std::ifstream m_fileStream;
     stReplayHeader m_curHeader;
-    double m_speed;              // 배속
+    
     int m_minSize;
+
+    UINT m_timerInterval;
+    TIMECAPS m_tc;
+    UINT m_timerId;
 
     std::thread m_sendThread;
     std::thread m_useBufThread;
@@ -337,10 +357,25 @@ public:
     // 2000ms마다 타이머를 통해 pReplayBuffer의 time값이 타이머의 시간보다 작거나 같은 값들을 순차적으로 모두 printf
     DoubleBufferFileLoadAndReplay() : m_maxBufferSize(65536)
     {
-        initReplay();           // 초기화
+        m_curPlayTime = 0;
+        m_timerInterval = 32;           // 32ms (최초속도)
+        m_timerId = 0;
+        if (timeGetDevCaps(&m_tc, sizeof(TIMECAPS)) != TIMERR_NOERROR)
+        {
+            printf("Failed to get timer capabilities.\n");
+            return;
+        }
+        timeBeginPeriod(m_tc.wPeriodMin);
+
+        initReplay();           // 기타 초기화
     }
 
     ~DoubleBufferFileLoadAndReplay() {
+        if (m_timerId != 0)
+        {
+            timeKillEvent(m_timerId);
+        }
+        timeEndPeriod(m_tc.wPeriodMin);
         if (m_fileStream.is_open())
         {
             m_fileStream.close();
@@ -352,12 +387,12 @@ public:
         // 버퍼를 비운다
         if (!m_buffer1.empty())
         {
-            std::queue<stDataFormat> temp;
+            std::queue<stDataSet> temp;
             m_buffer1.swap(temp);
         }
         if (!m_buffer2.empty())
         {
-            std::queue<stDataFormat> temp;
+            std::queue<stDataSet> temp;
             m_buffer2.swap(temp);
         }
 
@@ -367,46 +402,11 @@ public:
         m_endReplayFlag = 1;          // 중지상태
         mp_currentBuffer = &m_buffer1;
         mp_processingBuffer = &m_buffer2;
-        //m_startTime = 0;
-        //m_endTime = 0;
-        m_curPlayTime = m_curHeader.startTime;
         
-        m_speed = 1.0;
         m_minSize = 17;
     }
 
-    // 플레이시간 계산용
-    void startReplayTimer()
-    {
-        auto lastTime = std::chrono::steady_clock::now();
-        const std::chrono::milliseconds frameDuration(32);
-        while (m_endReplayFlag != 1)             // 중지상태가 아니라면
-        {
-            if (m_endReplayFlag == 0)               // 재생상태라면
-            {
-                auto now = std::chrono::steady_clock::now();
-                auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastTime).count();
-                lastTime = now;
 
-                m_curPlayTime += (static_cast<double>(elapsed) * m_speed);  // 경과 시간에 속도를 곱하여 현재 시간에 더함
-
-                //std::this_thread::sleep_for(std::chrono::milliseconds(1));  // 잠시 대기
-                // 고정된 프레임 시간 유지
-                auto sleepTime = frameDuration - std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - now);
-                if (sleepTime.count() > 0) {
-                    std::this_thread::sleep_for(sleepTime);
-                }
-                //else {
-                //    // 누적된 오차 보정
-                //    lastTime += (std::chrono::milliseconds(-sleepTime.count()));
-                //}
-            }
-            else if (m_endReplayFlag == 2)               // 일시정지 상태라면
-            {
-                std::this_thread::sleep_for(std::chrono::milliseconds(1));          // 다른 대기방법 알아보기
-            }
-        }
-    }
 
     // 재생 시작 버튼 (중심파일의 시작시간과 종료시간을 받아온다)
     void startReplay()
@@ -415,33 +415,29 @@ public:
         // 해당 구간의 시간 지점부터 데이터를 채워넣는다
         if (m_endReplayFlag == 1)               // 정지상태라면
         {
+            g_debugReplayStartTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();        // 디버깅용
             m_endReplayFlag.store(0);           // 시작으로 변경
 
             // 초기화는 init 또는 정지버튼에서 한다
             //m_startTime = startTime;
             //m_endTime = endTime;
+            m_curPlayTime = m_curHeader.startTime;
 
             m_fileStream.clear();
             m_fileStream.seekg(sizeof(stReplayHeader), std::ios_base::beg);         // 헤더만큼 건너뛰고
-            std::cout << "position: " << m_fileStream.tellg() << std::endl;
             fillBuffer();               // 버퍼채우기
             swapBuffer();           // 교체
 
-            // 플레이타이머 계산 시작
-            std::thread([this] {
-                this->startReplayTimer();
-                }).detach();
+            // 타이머 시작
+            useBufferTimer();
 
-                // 버퍼 사용 시작
-                std::thread([this] {
-                    this->useBuffer();
-                    }).detach();
-
-                    printf("재생 시작\n");
+            printf("재생 시작\n");
         }
         else if (m_endReplayFlag == 2)          // 일시정지 였다면
         {
             m_endReplayFlag.store(0);               // 재생으로 변경
+            useBufferTimer();
+            g_debugPauseEndTime.push_back(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() - g_debugPauseTime);
 
             printf("일시정지 해제\n");
         }
@@ -457,22 +453,24 @@ public:
         if (m_endReplayFlag != 1)               // 정지가 아니었다면
         {
             m_endReplayFlag.store(1);               // 정지로
-            m_speed = 1.0;                        // 속도 초기화
+            // 타이머 종료
+            timeKillEvent(m_timerId);
             m_curPlayTime = m_curHeader.startTime;              // 플레이시간 초기화
 
             // 버퍼와 버퍼사이즈 초기화
             if (!m_buffer1.empty())
             {
-                std::queue<stDataFormat> emptyQueue1;
+                std::queue<stDataSet> emptyQueue1;
                 m_buffer1.swap(emptyQueue1);
             }
             m_currentBufferSize = 0;
             if (!m_buffer2.empty())
             {
-                std::queue<stDataFormat> emptyQueue2;
+                std::queue<stDataSet> emptyQueue2;
                 m_buffer2.swap(emptyQueue2);
             }
             m_processingBufferSize = 0;
+            initReplay();
 
             printf("재생 중지\n");
         }
@@ -487,6 +485,7 @@ public:
         if (m_endReplayFlag == 0)               // 재생 중 이었다면
         {
             m_endReplayFlag.store(2);               // 일시 정지로
+            timeKillEvent(m_timerId);
 
             printf("재생 일시중지\n");
         }
@@ -496,9 +495,36 @@ public:
         }
     }
 
-    void speedReplay(double _speed)
+    void speedReplay(int _speed)
     {
-        m_speed = _speed;           // 1, 2, 4, 8 (배속 설정)
+        UINT newInterval = m_timerInterval;
+
+        if (_speed == 1)
+        {
+            newInterval = 32;
+        }
+        else if (_speed == 2)
+        {
+            newInterval = 16;
+        }
+        else if (_speed == 4)
+        {
+            newInterval = 8;
+        }
+        else if (_speed == 8)
+        {
+            newInterval = 4;
+        }
+
+        if (newInterval != m_timerInterval)
+        {
+            m_timerInterval = newInterval;
+            if (m_timerId != 0)
+            {
+                timeKillEvent(m_timerId);
+                m_timerId = timeSetEvent(m_timerInterval, 1, TimerUseBuffer, reinterpret_cast<DWORD_PTR>(this), TIME_PERIODIC);
+            }
+        }
     }
 
     /*
@@ -512,32 +538,67 @@ public:
     void moveReplay(long long sectionTime)
     {
         int curReplayFlag = m_endReplayFlag.load();         // 기존 상태 백업 ([0]재생, [1]중지, [2]일시중지)
-        if (m_endReplayFlag == 0)               // 재생 중이었다면
-        {
-            m_endReplayFlag.store(2);           // 일시정지로
-        }
+
+        // 재생장치를 일시정지시킨다
+        m_endReplayFlag.store(2);           // 일시정지로
+        timeKillEvent(m_timerId);           // 타이머 중지
 
         // 버퍼와 버퍼사이즈 초기화
         if (!m_buffer1.empty())
         {
-            std::queue<stDataFormat> emptyQueue1;
+            std::queue<stDataSet> emptyQueue1;
             m_buffer1.swap(emptyQueue1);
         }
         m_currentBufferSize = 0;
         if (!m_buffer2.empty())
         {
-            std::queue<stDataFormat> emptyQueue2;
+            std::queue<stDataSet> emptyQueue2;
             m_buffer2.swap(emptyQueue2);
         }
         m_processingBufferSize = 0;
         m_curPlayTime = sectionTime + m_curHeader.startTime;                // 플레이타임을 이동시점으로
-        
-        // 파일의 처음위치부터 해당 시간((m_startTime+m_curPlayTime) =< curTime)의 위치를 찾을때까지 waypoint[5]와 상태메시지들을 백업한다
-        // 찾은 위치로 seek 를 이동시킨다
+
+        // 파일의 처음위치부터 해당 시간(m_curPlayTime >= curTime)의 위치를 찾을때까지
+        // 파일을 읽어 상태메시지는 큐에 담고 wayPoint는 스택에 담는다. (버퍼는 사용하지 않는다)
+        // wayPoint는 5개만 보낸 후 비운다
+        // 상태메시지는 일일히 하나씩 쭉 보낸다 (65535 오버플로우 방지)
+        m_fileStream.clear();
+        m_fileStream.seekg(sizeof(stReplayHeader), std::ios_base::beg);         // 헤더만큼 건너뛰고
+
+        // 스택과 큐를 생성한다
+        std::queue<std::string> stateLog;
+        std::stack<stPoint> wayPointLog;
+        std::stack<stPoint> wayPoint5;          // 역순 백업용 5개
+
+        while (!m_fileStream.eof()) 
+        {
+            // 파일에서 DataSet을 읽는다
+             
+            //if (m_curPlayTime > 읽은시간) 
+            {
+                // wayPoint(특정ID에 대해 wayPoint추출)와 상태메시지(메시지의 뒤에서부터 100바이트 읽기)를 쌓는다
+                
+            }
+            //else
+            {
+                // 도달
+                // wayPoint 마지막 5개만 뽑아서 백업 후 원본 비우고 하나씩 보낸다
+                // 상태메시지는 비워질때까지 계속 보낸다 
+                break;
+            }
+        }
 
         // 버퍼를 채운다
+        fillBuffer();               // 버퍼채우기
+        swapBuffer();           // 교체
 
-        // 기존 상태가 재생중이었다면 재생을 시작하고 
+        // 기존 상태가 재생중이었다면 재생을 시작을 시작한다
+        m_endReplayFlag = curReplayFlag;
+        if (curReplayFlag == 0)
+        {
+            // 여기서 재생장치를 실행시킨다
+            m_timerId = timeSetEvent(m_timerInterval, 1, TimerUseBuffer, reinterpret_cast<DWORD_PTR>(this), TIME_PERIODIC);
+        }
     }
 
     // 스테이션 1의 파일만 불러온다
@@ -569,7 +630,10 @@ public:
                 m_fileStream.read(temp, sizeof(stReplayHeader));
                 memcpy(&m_curHeader, temp, sizeof(stReplayHeader));             // 바이너리니깐 memcpy로 읽는다
 
-                m_curPlayTime = m_curHeader.startTime;
+                m_curPlayTime = m_curHeader.startTime;          // 현재시간에 시작시간을 담아놓는다
+                m_startTime = m_curHeader.startTime;
+                m_endTime = m_curHeader.endTime;
+
                 convertMsToTime(m_curHeader.endTime - m_curHeader.startTime);           // 디버깅용
 
                 delete[] temp;
@@ -616,7 +680,7 @@ public:
         while (m_fileStream && (m_maxBufferSize - m_processingBufferSize) > m_minSize)
         {
             char dumpFrontData[17]{ 0 };             // 앞쪽 3개만
-            stDataFormat tempFormat = { 0, 0, 0, "", 3 };           // 시간, 사이즈, 아이디
+            stDataSet tempFormat = { 0, 0, 0, "", 3 };           // 시간, 사이즈, 아이디
             if (!m_fileStream.read(dumpFrontData, (std::min)(16, m_maxBufferSize - m_processingBufferSize)))
             {
                 break;          // 파일에서 더이상 읽을 데이터가 없음
@@ -660,20 +724,20 @@ public:
         // 전부 사용된 버퍼는 교체한다 (단, 상대 버퍼도 비어있으면 스왚하지않는다)
         if (!mp_processingBuffer->empty())
         {
-            std::queue<stDataFormat>* temp = mp_currentBuffer;
+            std::queue<stDataSet>* temp = mp_currentBuffer;
             mp_currentBuffer = mp_processingBuffer;
             mp_processingBuffer = temp;
             m_currentBufferSize = m_processingBufferSize;
 
             // 스왚 후 내용을 비운다
-            std::queue<stDataFormat> initQueue;
+            std::queue<stDataSet> initQueue;
             mp_processingBuffer->swap(initQueue);
             m_processingBufferSize = 0;
             // 스왚했으면 별도쓰레드에서 내용을 채운다
 
             std::thread([this] {
                 this->fillBuffer();
-                }).detach();
+            }).detach();
 
         }
 
@@ -685,91 +749,58 @@ public:
         }
     }
 
-    void sendTask(const stDataFormat& dataset)
+    void sendTask(const stDataSet& dataset)
     {
         printf("시간:%lld, 총크기:%d, 식별자:%d, 데이터:%s, 패딩%d\n", dataset.curTime, dataset.fullSize, dataset.id, dataset.data.c_str(), dataset.padding);
     }
 
-    void useBuffer() {
-        // (추후: 별도의 쓰레드에서 32ms 마다 동작 타이머타임보다 이전 시간 값인 pReplayBuffer의 값들을 순차적으로 printf 하고)
-        // 테스트용 : 별도 쓰레드에서 32ms마다 큐를 하나씩 꺼내서 printf (원래는 저장과 동일한 사이즈로 맞춰야함)
-        stDataFormat popData = { 0, 0, 0, "", 3 };
-        while (m_endReplayFlag != 1)
+    static void CALLBACK TimerUseBuffer(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2)
+    {
+        DoubleBufferFileLoadAndReplay* p_instance = reinterpret_cast<DoubleBufferFileLoadAndReplay*>(dwUser);
+        if (p_instance)
         {
-            if (m_endReplayFlag == 0)
+            p_instance->TimerUseBufferImpl(uTimerID, uMsg, dwUser, dw1, dw2);
+        }
+    }
+
+    void TimerUseBufferImpl(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2)
+    {
+        m_curPlayTime += 32;        // 이미 시작시간이 담겨있음
+        if (m_endReplayFlag == 0)           // 재생 중
+        {        
+            std::lock_guard<std::mutex> lock(m_mutex);
+            stDataSet popData = { 0, 0, 0, "", 3 };
+            if (!mp_currentBuffer->empty())          // 비어있지 않은 동안에
             {
-                // 추후에는 타이머보다 이하인 시간은 일괄 전송하다가 넘어가면 pop안하고 전송안하는 것으로 넘기기
-                
-                //std::lock_guard<std::mutex> lock(m_mutex);
-                while (!mp_currentBuffer->empty())
+                popData = mp_currentBuffer->front();
+                if (popData.curTime <= m_curPlayTime)
                 {
-                    popData = mp_currentBuffer->front();
-                    if (popData.curTime <= m_curPlayTime)
-                    {
-                        mp_currentBuffer->pop();
-                        sendTask(popData);
-                    }
-                    else
-                    {
-                        break;
-                    }
-                        
+                    mp_currentBuffer->pop();
+                    sendTask(popData);
                 }
-                if (mp_currentBuffer->empty())
+
+                if (mp_currentBuffer->empty())      // 현재꺼 비워짐
                 {
-                    // 다른쪽은 채워져있니?
-                    if (!mp_processingBuffer->empty())
+                    if (!mp_processingBuffer->empty())            // 다른쪽은 채워져있니?
                     {
-                        swapBuffer();
+                        swapBuffer();           // 채워져있으면 스왚
                     }
                     else
                     {
                         // 둘다 전부 사용했다 (끝)
+                        timeKillEvent(m_timerId);
+                        m_curPlayTime = m_curHeader.startTime;
                         initReplay();
                         g_debugReplayEndTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-                        //printf("재생 완료 [총플레이타임: %lld]\n", m_curPlayTime - m_curHeader.startTime);
                         printf("원본 시간 [총플레이타임: %lld]\n", m_curHeader.endTime - m_curHeader.startTime);
                     }
                 }
             }
-            else if (m_endReplayFlag == 2)
-            {
-                while (m_endReplayFlag == 2)
-                {
-                    // 일시정지
-                    std::this_thread::sleep_for(std::chrono::milliseconds(32));
-                }
-                // 일시정지 해제시
-                // HW장치도 일시정지 해제
-            }
-            else if (m_endReplayFlag == 1)
-            {
-                printf("====재생 중지====\n");
-            }
-            else
-            {
-                std::this_thread::sleep_for(std::chrono::milliseconds(500));
-                printf("이건 뭐지??\n");
-            }
-
-            //if (mp_currentBuffer->empty())
-            //{
-            //    // 다른쪽은 채워져있니?
-            //    if (!mp_processingBuffer->empty())
-            //    {
-            //        swapBuffer();
-            //    }
-            //    else
-            //    {
-            //        // 둘다 전부 사용했다 (끝)
-            //        m_endReplayFlag.store(1);
-            //        m_speed = 1.0;
-            //        g_debugReplayEndTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-            //        //printf("재생 완료 [총플레이타임: %lld]\n", m_curPlayTime - m_curHeader.startTime);
-            //        printf("원본 시간 [총플레이타임: %lld]\n", m_curHeader.endTime - m_curHeader.startTime);
-            //    }
-            //}
         }
+    }
+
+    void useBufferTimer() {
+        m_timerId = timeSetEvent(m_timerInterval, 1, TimerUseBuffer, reinterpret_cast<DWORD_PTR>(this), TIME_PERIODIC);
     }
 };
 
@@ -777,8 +808,7 @@ int main()
 {
     DoubleBufferRecvAndSaveFile* receiver = new DoubleBufferRecvAndSaveFile;
     DoubleBufferFileLoadAndReplay* replayer = new DoubleBufferFileLoadAndReplay;
-    replayer->loadFile("C:\\data\\scenario_1716900025225_st1.dat");             // req수신함수
-    long long startTime = 0;
+    replayer->loadFile("C:\\data\\scenario_1716890355512_st1.dat");             // req수신함수
 
     while (true) {
         std::string input = "";
@@ -786,8 +816,12 @@ int main()
         std::getline(std::cin, input);
         if (input == "0")
         {
-            replayer->convertMsToTime(g_debugReplayEndTime - startTime);            // 리플레이 경과시간
-            printf("경과시간: %lld\n", g_debugReplayEndTime - startTime);
+            long long totalTime = g_debugReplayEndTime - g_debugReplayStartTime;
+            for (long long value : g_debugPauseEndTime) {
+                totalTime -= value;
+            }
+            replayer->convertMsToTime(totalTime);            // 리플레이 경과시간
+            printf("경과시간: %lld\n", totalTime);
             
             break;
         }
@@ -804,7 +838,6 @@ int main()
         }
         else if (input == "3")
         {
-            startTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();         // 리플레이 시작시간
             replayer->startReplay();
         }
         else if (input == "4")
@@ -815,27 +848,28 @@ int main()
         else if (input == "5")
         {
             replayer->pauseReplay();
+            g_debugPauseTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         }
         else if (input == "6")
         {
-            //long long clickTime = 3000;                 // 시작으로부터 3초 후 위치
-            //replayer->moveReplay(clickTime);           // 시작시간(ms) + ms - waypoint5개
+            long long clickTime = 3000;                 // 시작으로부터 3초 후 위치
+            replayer->moveReplay(clickTime);           // 시작시간(ms) + ms - waypoint5개
         }
         else if (input == "7")
         {
-            replayer->speedReplay(1.0);             // 1배속 재생
+            replayer->speedReplay(1);             // 1배속 재생
         }
         else if (input == "8")
         {
-            replayer->speedReplay(2.0);             // 2배속 재생
+            replayer->speedReplay(2);             // 2배속 재생
         }
         else if (input == "9")
         {
-            replayer->speedReplay(4.0);             // 4배속 재생
+            replayer->speedReplay(4);             // 4배속 재생
         }
         else if (input == "10")
         {
-            replayer->speedReplay(8.0);             // 8배속 재생
+            replayer->speedReplay(8);             // 8배속 재생
         }
     }
 
