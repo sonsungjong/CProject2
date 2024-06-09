@@ -136,6 +136,12 @@ public:
             // 훈련 시작 배포전에 헤더파일을 먼저 저장한다.
             m_filePath = replayFileName + "_" + std::to_string(m_startTime) +"_st1" + ".dat";
 
+            std::filesystem::path dir = std::filesystem::path(m_filePath).remove_filename();
+            if (!std::filesystem::exists(dir))
+            {
+                std::filesystem::create_directories(dir);
+            }
+
             std::thread headerSaver([=]() {
                 std::ofstream outFile(m_filePath, std::ios::binary);
                 if (outFile.is_open())
@@ -402,8 +408,14 @@ public:
         m_endReplayFlag = 1;          // 중지상태
         mp_currentBuffer = &m_buffer1;
         mp_processingBuffer = &m_buffer2;
+        m_curPlayTime = m_curHeader.startTime;
         
         m_minSize = 17;
+        if (m_timerId != 0)
+        {
+            timeKillEvent(m_timerId);
+            m_timerId = 0;
+        }
     }
 
 
@@ -454,7 +466,11 @@ public:
         {
             m_endReplayFlag.store(1);               // 정지로
             // 타이머 종료
-            timeKillEvent(m_timerId);
+            if (m_timerId != 0)
+            {
+                timeKillEvent(m_timerId);
+                m_timerId = 0;
+            }
             m_curPlayTime = m_curHeader.startTime;              // 플레이시간 초기화
 
             // 버퍼와 버퍼사이즈 초기화
@@ -528,14 +544,14 @@ public:
     }
 
     /*
-        정지 또는 일시정지가 아니라면 일시정지하고 데이터비운다음
         선택한 구간에 대해 시작으로부터 x미리초 후 위치로 받아서
+        정지 또는 일시정지가 아니라면 일시정지하고 데이터비운다음
         재생시간 변경 후
         저장해놓은 시작시간으로부터 더한 다음
         이전 5개의 waypoint 그리기를 위해 해당 지점으로 백한다음 버퍼에 받아온다음 스왚
         스타트
     */
-    void moveReplay(long long sectionTime)
+    void moveReplay(long long sectionMSTime)
     {
         int curReplayFlag = m_endReplayFlag.load();         // 기존 상태 백업 ([0]재생, [1]중지, [2]일시중지)
 
@@ -556,7 +572,7 @@ public:
             m_buffer2.swap(emptyQueue2);
         }
         m_processingBufferSize = 0;
-        m_curPlayTime = sectionTime + m_curHeader.startTime;                // 플레이타임을 이동시점으로
+        m_curPlayTime = sectionMSTime + m_curHeader.startTime;                // 플레이타임을 이동시점으로 (받은 ms 와 시작시간을 더한다)
 
         // 파일의 처음위치부터 해당 시간(m_curPlayTime >= curTime)의 위치를 찾을때까지
         // 파일을 읽어 상태메시지는 큐에 담고 wayPoint는 스택에 담는다. (버퍼는 사용하지 않는다)
@@ -568,22 +584,61 @@ public:
         // 스택과 큐를 생성한다
         std::queue<std::string> stateLog;
         std::stack<stPoint> wayPointLog;
-        std::stack<stPoint> wayPoint5;          // 역순 백업용 5개
+        stPoint wayPoint5[5] = { {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}};          // 메시지 보내기용 포맷 (메시지 정의할 것)
 
-        while (!m_fileStream.eof()) 
+        while (m_fileStream) 
         {
             // 파일에서 DataSet을 읽는다
-             
-            //if (m_curPlayTime > 읽은시간) 
+            char dumpFrontData[17]{ 0 };             // 앞쪽 3개만
+            stDataSet tempFormat = { 0, 0, 0, "", 3 };           // 시간, 사이즈, 아이디
+            if (!m_fileStream.read(dumpFrontData, (std::min)(16, m_maxBufferSize - m_processingBufferSize)))
             {
-                // wayPoint(특정ID에 대해 wayPoint추출)와 상태메시지(메시지의 뒤에서부터 100바이트 읽기)를 쌓는다
-                
+                break;          // 파일에서 더이상 읽을 데이터가 없음
             }
-            //else
+
+            // 파일 끝에 도달했거나, 지정된 크기만큼 읽지못했다면 중단
+            int bytesRead = m_fileStream.gcount();              // 실제로 읽은 바이트 수
+            if (m_fileStream.eof())
             {
-                // 도달
-                // wayPoint 마지막 5개만 뽑아서 백업 후 원본 비우고 하나씩 보낸다
-                // 상태메시지는 비워질때까지 계속 보낸다 
+                m_endReplayFlag.store(1);           // 정지로
+                stopReplay();
+                break;
+            }
+
+            memcpy(&tempFormat, dumpFrontData, 16);
+            // 바디와 패딩을 추가로 읽는다
+            if (m_curPlayTime > tempFormat.curTime)
+            {
+                int bodySize = tempFormat.fullSize - 17;
+                if (bodySize > 0)
+                {
+                    tempFormat.data.resize(bodySize);
+                    m_fileStream.read(&tempFormat.data[0], bodySize);
+
+                    // 아이디를 검사해서 wayPoint가 있으면 추출해서 스택에 담고
+                    // 상태메시지(tempFormat.data의 뒤에서 100글자)를 큐에 담는다
+                    
+                }
+                else
+                {
+                    printf("바디사이즈0\n");
+                }
+                m_fileStream.read(&tempFormat.padding, 1);
+                if (m_fileStream.eof())
+                {
+                    m_endReplayFlag.store(1);           // 정지로
+                    stopReplay();
+                    break;              // 파일이 끝나버림... (마지막 위치)
+                }
+            }
+            else
+            {
+                // 도달 (seekg를 16만큼 앞으로 간다)
+                m_fileStream.seekg(-16, std::ios_base::cur);         // 헤더만큼 다시 앞으로 가고
+                
+                // wayPoint 스택에서 5개만 뽑아 메시지포맷 배열에 담아 보내고
+                // 상태메시지는 비워질때까지 보낸다 (상태메시지 갯수 + 300개 배열) -> 버퍼 남아있으면 비우고 다시 채워서 또 보냄
+
                 break;
             }
         }
@@ -593,11 +648,14 @@ public:
         swapBuffer();           // 교체
 
         // 기존 상태가 재생중이었다면 재생을 시작을 시작한다
-        m_endReplayFlag = curReplayFlag;
-        if (curReplayFlag == 0)
+        if (m_endReplayFlag != 1)
         {
-            // 여기서 재생장치를 실행시킨다
-            m_timerId = timeSetEvent(m_timerInterval, 1, TimerUseBuffer, reinterpret_cast<DWORD_PTR>(this), TIME_PERIODIC);
+            m_endReplayFlag = curReplayFlag;
+            if (curReplayFlag == 0)
+            {
+                // 여기서 재생장치를 실행시킨다
+                m_timerId = timeSetEvent(m_timerInterval, 1, TimerUseBuffer, reinterpret_cast<DWORD_PTR>(this), TIME_PERIODIC);
+            }
         }
     }
 
@@ -788,9 +846,9 @@ public:
                     else
                     {
                         // 둘다 전부 사용했다 (끝)
-                        timeKillEvent(m_timerId);
-                        m_timerId = 0;
-                        m_curPlayTime = m_curHeader.startTime;
+                        //timeKillEvent(m_timerId);
+                        //m_timerId = 0;
+                        //m_curPlayTime = m_curHeader.startTime;
                         initReplay();
                         g_debugReplayEndTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
                         printf("원본 시간 [총플레이타임: %lld]\n", m_curHeader.endTime - m_curHeader.startTime);
@@ -809,11 +867,11 @@ int main()
 {
     DoubleBufferRecvAndSaveFile* receiver = new DoubleBufferRecvAndSaveFile;
     DoubleBufferFileLoadAndReplay* replayer = new DoubleBufferFileLoadAndReplay;
-    replayer->loadFile("C:\\data\\scenario_1716890355512_st1.dat");             // req수신함수
+    replayer->loadFile("C:\\data\\scenario_1717974606012_st1.dat");             // req수신함수
 
     while (true) {
         std::string input = "";
-        printf("[0]프로그램 종료, [1]Save시작, [2]Save종료, [3]Replay시작, [4]Replay중지, [5]Replay일시중지, [6]Replay구간이동, [7]배속1, [8]배속2, [9]배속4, [10]배속8\n");
+        printf("[0]프로그램 종료, [1]Save시작, [2]Save종료, [3]Replay시작, [4]Replay중지, [5]Replay일시중지, [6]배속1, [7]배속2, [8]배속4, [9]배속8, [10]Replay구간이동 10초, [11]Replay구간이동 100초\n");
         std::getline(std::cin, input);
         if (input == "0")
         {
@@ -853,27 +911,32 @@ int main()
         }
         else if (input == "6")
         {
-            long long clickTime = 3000;                 // 시작으로부터 3초 후 위치
-            replayer->moveReplay(clickTime);           // 시작시간(ms) + ms - waypoint5개
+            replayer->speedReplay(1);             // 1배속 재생
         }
         else if (input == "7")
         {
-            replayer->speedReplay(1);             // 1배속 재생
+            replayer->speedReplay(2);             // 2배속 재생
         }
         else if (input == "8")
         {
-            replayer->speedReplay(2);             // 2배속 재생
+            replayer->speedReplay(4);             // 4배속 재생
         }
         else if (input == "9")
         {
-            replayer->speedReplay(4);             // 4배속 재생
+            replayer->speedReplay(8);             // 8배속 재생
         }
         else if (input == "10")
         {
-            replayer->speedReplay(8);             // 8배속 재생
+            long long clickTime = 10000;                 // 시작으로부터 10초 후 위치
+            replayer->moveReplay(clickTime);           // 시작시간(ms) + ms - waypoint5개
+        }
+        else if (input == "11")
+        {
+            long long clickTime = 100000;                 // 시작으로부터 100초 후 위치
+            replayer->moveReplay(clickTime);           // 시작시간(ms) + ms - waypoint5개
         }
     }
 
     //delete replayer;
-    delete receiver;
+    //delete receiver;
 }
