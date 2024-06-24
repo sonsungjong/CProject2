@@ -11,7 +11,7 @@ void doWork1322(std::promise<int> thePromise)
 	thePromise.set_value(result);
 }
 
-int main()
+int main1322()
 {
 // 스레드에 전달할 promise를 생성
     std::promise<int> myPromise;

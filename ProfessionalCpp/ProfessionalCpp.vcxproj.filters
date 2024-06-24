@@ -276,5 +276,8 @@
     <ClCompile Include="p1322_future.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="z0001_ThreadSafeQueue.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
