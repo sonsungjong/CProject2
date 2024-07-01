@@ -28,12 +28,14 @@ cmake --install .
 C:\xlnt\include
 
 <포함 라이브러리 디렉토리 경로>
+C:\xlnt\build\source\Debug
 C:\xlnt\build\source\Release
 
 <포함 라이브러리>
+xlntd.lib
 xlnt.lib
 
-<dll PATH 지정>
+<dll PATH 지정 또는 환경변수설정 또는 실행파일옆에 위치>
 Project -> Properties -> Configuration Properties -> Debugging -> Environment 에다가
 
 PATH=C:\xlnt\build\source\Release;
@@ -58,7 +60,7 @@ int main()
     _tsetlocale(0, _T("korean"));
 
     xlnt::workbook wb;
-    wb.load(L"C:\\csv\\신궁 군수.xlsx");
+    wb.load(L"C:\\test\\FIRST.xlsx");
     wchar_t cell_value[256] = { 0, };
 
     int skip_row = 1;               // 위에서 부터 스킵할 행의 개수
