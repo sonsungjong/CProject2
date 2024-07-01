@@ -11,6 +11,7 @@
 #include <fstream>
 #include <filesystem>
 #include <stack>
+#include <map>
 
 #include <Windows.h>
 #include <mmsystem.h>
@@ -36,11 +37,29 @@ typedef struct DataSet
     char padding;                       // ETX(3)
 } stDataSet;                 // 8 + 4 + 4 + x + 1 (17+)
 
+typedef struct StateMsg 
+{
+    int count;                              // 실제 채워진 갯수
+    char msg[300][100];             // 100글자를 300개까지 저장가능
+} stStateMsg;
+
 typedef struct __myPoint
 {
     double latitude;
     double longitude;
 } stPoint;
+
+typedef struct PointData
+{
+    int id;
+    stPoint waypoint[5];
+} stPointData;
+
+typedef struct PointDataList
+{
+    int count;
+    stPointData data[100];
+} stPointDataList;
 
 #pragma pack(pop)
 
@@ -132,9 +151,9 @@ public:
             memset(p_header, 0, sizeof(stReplayHeader));
             p_header->startTime = m_startTime;
             p_header->endTime = 0;                              // 처음엔 0으로 넣기
-            
+
             // 훈련 시작 배포전에 헤더파일을 먼저 저장한다.
-            m_filePath = replayFileName + "_" + std::to_string(m_startTime) +"_st1" + ".dat";
+            m_filePath = replayFileName + "_" + std::to_string(m_startTime) + "_st1" + ".dat";
 
             std::filesystem::path dir = std::filesystem::path(m_filePath).remove_filename();
             if (!std::filesystem::exists(dir))
@@ -150,12 +169,12 @@ public:
                     outFile.write(reinterpret_cast<const char*>(&p_header->endTime), sizeof(p_header->endTime));                // 임시값 기록 (8바이트)
                     outFile.close();
                 }
-            });
+                });
 
             headerSaver.join();
 
             delete p_header;
-            
+
 
             // recv를 시작한다 (==> Queue 저장로직을 연다)
             std::thread([this] {this->addBufTimer(); }).detach();
@@ -168,7 +187,7 @@ public:
     }
 
     // 훈련중지 명령 받음 (훈련중지 배포하고 헤더파일 덮어쓰고 훈련중지완료응답 프론트로)
-    void endSave(long long endTime) 
+    void endSave(long long endTime)
     {
         // recv 멈추고
         if (m_endFlag == false)
@@ -339,16 +358,16 @@ public:
     std::queue<stDataSet>* mp_processingBuffer;         // fileLoad 담당
     long long m_startTime;
     long long m_endTime;
-    
+
     long long m_curPlayTime;                              // 경과시간 (ms)
     std::atomic<int> m_endReplayFlag;                        // 종료 플래그,, [0]시작, [1]중지, [2]일시정지
-    
+
     std::mutex m_mutex;                             // 버퍼 스왚을 위한 뮤택스
     std::condition_variable m_cv;
     std::string m_filePath;                         // st1의 리플레이 파일 경로
     std::ifstream m_fileStream;
     stReplayHeader m_curHeader;
-    
+
     int m_minSize;
 
     UINT m_timerInterval;
@@ -409,7 +428,7 @@ public:
         mp_currentBuffer = &m_buffer1;
         mp_processingBuffer = &m_buffer2;
         m_curPlayTime = m_curHeader.startTime;
-        
+
         m_minSize = 17;
         if (m_timerId != 0)
         {
@@ -581,31 +600,34 @@ public:
         m_fileStream.clear();
         m_fileStream.seekg(sizeof(stReplayHeader), std::ios_base::beg);         // 헤더만큼 건너뛰고
 
-        // 스택과 큐를 생성한다
-        std::queue<std::string> stateLog;
-        std::stack<stPoint> wayPointLog;
-        stPoint wayPoint5[5] = { {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}};          // 메시지 보내기용 포맷 (메시지 정의할 것)
+        std::map<int, std::deque<stPoint>> waypointMap;
 
-        while (m_fileStream) 
+        while (m_fileStream)
         {
             // 파일에서 DataSet을 읽는다
             char dumpFrontData[17]{ 0 };             // 앞쪽 3개만
             stDataSet tempFormat = { 0, 0, 0, "", 3 };           // 시간, 사이즈, 아이디
-            if (!m_fileStream.read(dumpFrontData, (std::min)(16, m_maxBufferSize - m_processingBufferSize)))
+            if (!m_fileStream.read(dumpFrontData, 16))
             {
                 break;          // 파일에서 더이상 읽을 데이터가 없음
             }
 
             // 파일 끝에 도달했거나, 지정된 크기만큼 읽지못했다면 중단
-            int bytesRead = m_fileStream.gcount();              // 실제로 읽은 바이트 수
             if (m_fileStream.eof())
             {
                 m_endReplayFlag.store(1);           // 정지로
                 stopReplay();
                 break;
             }
+            else
+            {
+                int bytesRead = m_fileStream.gcount();              // 실제로 읽은 바이트 수
+                if (bytesRead == 16)                // 16바이트를 읽었으면 덮어쓰기
+                {
+                    memcpy(&tempFormat, dumpFrontData, 16);
+                }
+            }
 
-            memcpy(&tempFormat, dumpFrontData, 16);
             // 바디와 패딩을 추가로 읽는다
             if (m_curPlayTime > tempFormat.curTime)
             {
@@ -615,9 +637,25 @@ public:
                     tempFormat.data.resize(bodySize);
                     m_fileStream.read(&tempFormat.data[0], bodySize);
 
-                    // 아이디를 검사해서 wayPoint가 있으면 추출해서 스택에 담고
-                    // 상태메시지(tempFormat.data의 뒤에서 100글자)를 큐에 담는다
-                    
+                    // 아이디를 검사해서 wayPoint가 있으면 추출해서 담는다
+                    // 상태메시지(tempFormat.data의 뒤에서 100글자)를 담는다
+                    if (tempFormat.id == 1020)          // wayPoint를 갖고있는 아이디만 검사
+                    {
+                        int pointId = *reinterpret_cast<int*>(&tempFormat.data[0]);
+                        double lat = *reinterpret_cast<double*>(&tempFormat.data[0]);
+                        double lon = *reinterpret_cast<double*>(&tempFormat.data[sizeof(double)]);
+                        stPoint point = { lat, lon };
+
+                        if (waypointMap[pointId].size() >= 5)
+                        {
+                            waypointMap[pointId].pop_front();
+                        }
+                        waypointMap[pointId].push_back(point);
+                    }
+
+                    // 상태메시지(char[100]) 추출 (300개가 모두 채워졌으면 보낸다)
+                    std::string stateMessage = tempFormat.data.substr(tempFormat.data.size() - 100, 100);
+
                 }
                 else
                 {
@@ -633,9 +671,9 @@ public:
             }
             else
             {
-                // 도달 (seekg를 16만큼 앞으로 간다)
+                // 위치에 도달 (seekg를 16만큼 앞으로 간다)
                 m_fileStream.seekg(-16, std::ios_base::cur);         // 헤더만큼 다시 앞으로 가고
-                
+
                 // wayPoint 스택에서 5개만 뽑아 메시지포맷 배열에 담아 보내고
                 // 상태메시지는 비워질때까지 보낸다 (상태메시지 갯수 + 300개 배열) -> 버퍼 남아있으면 비우고 다시 채워서 또 보냄
 
@@ -653,7 +691,7 @@ public:
             m_endReplayFlag = curReplayFlag;
             if (curReplayFlag == 0)
             {
-                // 여기서 재생장치를 실행시킨다
+                // 재생장치를 실행시킨다
                 m_timerId = timeSetEvent(m_timerInterval, 1, TimerUseBuffer, reinterpret_cast<DWORD_PTR>(this), TIME_PERIODIC);
             }
         }
@@ -795,7 +833,7 @@ public:
 
             std::thread([this] {
                 this->fillBuffer();
-            }).detach();
+                }).detach();
 
         }
 
@@ -825,7 +863,7 @@ public:
     {
         m_curPlayTime += 32;        // 이미 시작시간이 담겨있음
         if (m_endReplayFlag == 0)           // 재생 중
-        {        
+        {
             std::lock_guard<std::mutex> lock(m_mutex);
             stDataSet popData = { 0, 0, 0, "", 3 };
             if (!mp_currentBuffer->empty())          // 비어있지 않은 동안에
@@ -881,7 +919,7 @@ int main()
             }
             replayer->convertMsToTime(totalTime);            // 리플레이 경과시간
             printf("경과시간: %lld\n", totalTime);
-            
+
             break;
         }
         else if (input == "1")
