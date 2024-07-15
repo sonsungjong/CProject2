@@ -345,6 +345,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CrossCpp", "CrossCpp\CrossC
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CrossCppLib", "CrossCppLib\CrossCppLib.vcxproj", "{9997DD01-1409-4253-BD4E-E90CED18D624}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Timer_winmm", "Timer_winmm\Timer_winmm.vcxproj", "{C69B3126-47E5-4A7D-A043-DA36F70A47D6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -1721,6 +1723,14 @@ Global
 		{9997DD01-1409-4253-BD4E-E90CED18D624}.Release|x64.Build.0 = Release|x64
 		{9997DD01-1409-4253-BD4E-E90CED18D624}.Release|x86.ActiveCfg = Release|Win32
 		{9997DD01-1409-4253-BD4E-E90CED18D624}.Release|x86.Build.0 = Release|Win32
+		{C69B3126-47E5-4A7D-A043-DA36F70A47D6}.Debug|x64.ActiveCfg = Debug|x64
+		{C69B3126-47E5-4A7D-A043-DA36F70A47D6}.Debug|x64.Build.0 = Debug|x64
+		{C69B3126-47E5-4A7D-A043-DA36F70A47D6}.Debug|x86.ActiveCfg = Debug|Win32
+		{C69B3126-47E5-4A7D-A043-DA36F70A47D6}.Debug|x86.Build.0 = Debug|Win32
+		{C69B3126-47E5-4A7D-A043-DA36F70A47D6}.Release|x64.ActiveCfg = Release|x64
+		{C69B3126-47E5-4A7D-A043-DA36F70A47D6}.Release|x64.Build.0 = Release|x64
+		{C69B3126-47E5-4A7D-A043-DA36F70A47D6}.Release|x86.ActiveCfg = Release|Win32
+		{C69B3126-47E5-4A7D-A043-DA36F70A47D6}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
