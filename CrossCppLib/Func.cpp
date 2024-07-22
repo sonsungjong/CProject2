@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Func.h"
 
-void HelloWorld()
+void HelloLib()
 {
-	printf("Hewllo World?");
+	printf("\n===========\n");
 }

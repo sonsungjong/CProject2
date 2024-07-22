@@ -14,9 +14,16 @@
 #include <atomic>
 #include <cstdio>
 #include <string>
-#include <queue>
-#include <unordered_map>
 #include <vector>
-
+#include <list>
+#include <deque>
+#include <stack>
+#include <queue>
+#include <map>
+#include <set>
+#include <unordered_map>
+#include <unordered_set>
+#include <concurrent_unordered_map.h>
+#include <concurrent_unordered_set.h>
 
 #endif //PCH_H

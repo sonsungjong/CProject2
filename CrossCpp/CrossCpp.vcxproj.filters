@@ -9,12 +9,16 @@
   <ItemGroup>
     <ClCompile Include="CrossCpp.cpp" />
     <ClCompile Include="pch.cpp" />
+    <ClCompile Include="p203_naming.cpp" />
+    <ClCompile Include="p229_STL.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="resource.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
+    <ClInclude Include="p203_naming.h" />
+    <ClInclude Include="p229_STL.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="CrossCpp.rc">
