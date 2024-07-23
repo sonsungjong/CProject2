@@ -7,7 +7,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CrossCpp.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="p203_naming.cpp" />
     <ClCompile Include="p229_STL.cpp" />

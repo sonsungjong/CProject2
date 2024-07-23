@@ -16,14 +16,15 @@ namespace STL229
 	void stdStack();
 	void stdQueue();
 	
-	// map : 이진 검색 트리, 순차 정렬, log n, 정렬 및 순차접근이 필요한 경우 사용 (순서가 중요한 경우)
+	// map : 이진 검색 트리, 자동 순차 정렬, log n, 정렬 및 순차접근이 필요한 경우 사용 (순서가 중요한 경우)
 	// unordered_map : 해시 테이블, 임의 순서, 1 ~ n, 검색과 삽입과 삭제가 빠르다 (성능이 중요한 경우)
 	void stdMap();
 	void stdUnorderedMap();
-	void stdMultimap();
+	void stdMultimap();				// 중복키 가능
 	void mapSorting();
 
-	// set : 중복방지, 정렬순서
+	// set : 중복방지, 자동정렬
 	// unordered_set : 중복방지, 빠른 성능(검색, 삽입, 삭제)
-
+	void stdSet();
+	void stdUnorderedSet();
 }

@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CrossCpp.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="p203_naming.cpp" />
     <ClCompile Include="p229_STL.cpp" />
     <ClCompile Include="pch.cpp">

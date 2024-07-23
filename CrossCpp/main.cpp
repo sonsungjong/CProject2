@@ -11,7 +11,6 @@
 #endif
 
 int main() {
-    HelloLib();
     STL229::stdVector();
     
     HelloLib();
@@ -26,6 +25,21 @@ int main() {
     HelloLib();
     STL229::stdQueue();
     HelloLib();
+
+    STL229::stdMap();
+    HelloLib();
+    STL229::stdUnorderedMap();
+    HelloLib();
+    STL229::stdMultimap();
+    HelloLib();
+    STL229::mapSorting();
+    HelloLib();
+
+    STL229::stdSet();
+    HelloLib();
+    STL229::stdUnorderedSet();
+    HelloLib();
+
 
     (void)getchar();        // 프로그램 종료 방지
     return 0;
