@@ -13,6 +13,7 @@
     <ClCompile Include="p229_STL.cpp" />
     <ClCompile Include="Singleton.cpp" />
     <ClCompile Include="RingMemory.cpp" />
+    <ClCompile Include="p283_static.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -23,6 +24,7 @@
     <ClInclude Include="p229_STL.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="RingMemory.h" />
+    <ClInclude Include="p283_static.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="CrossCpp.rc">

@@ -5,6 +5,7 @@
 #include "p229_STL.h"
 #include "Singleton.h"
 #include "RingMemory.h"
+#include "p283_static.h"
 
 #ifdef _DEBUG
 #pragma comment(lib, "../x64/Debug/CrossCppLib.lib")
@@ -52,16 +53,26 @@ int main() {
     HelloLib();
     CRingMemory ring;
     ring.Create(1 * 1000 * 1000);
-    for (int i = 0; i < 10; ++i)
+    for (int i = 0; i < 20; ++i)
     {
         auto* pMemoryToken = ring.Alloc(128 * 1000);
         
         memset(pMemoryToken, 0, 128 * 1000);
         memcpy(pMemoryToken, "Hello World~", 13);
-        printf("%s\n", pMemoryToken);
+        printf("%s\t", pMemoryToken);
     }
 
     ring.Destroy();
+
+    HelloLib();
+    memoryRegion();
+    HelloLib();
+
+    CStatic::staticMemberFunction();
+    CStatic obj;
+    obj.memberFunction();
+    obj.staticMemberFunction();
+    HelloLib();
 
     (void)getchar();        // 프로그램 종료 방지
     return 0;
