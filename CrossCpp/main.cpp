@@ -6,6 +6,7 @@
 #include "Singleton.h"
 #include "RingMemory.h"
 #include "p283_static.h"
+#include "p331_thread.h"
 
 #ifdef _DEBUG
 #pragma comment(lib, "../x64/Debug/CrossCppLib.lib")
@@ -72,6 +73,9 @@ int main() {
     CStatic obj;
     obj.memberFunction();
     obj.staticMemberFunction();
+    HelloLib();
+
+    Multi::ThreadTester();
     HelloLib();
 
     (void)getchar();        // 프로그램 종료 방지
