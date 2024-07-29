@@ -134,6 +134,12 @@
     <ClCompile Include="p40_SequentialQueue.cpp" />
     <ClCompile Include="p39_ThreadSafeQueue.cpp" />
     <ClCompile Include="p42_Parallel_STL.cpp" />
+    <ClCompile Include="p44_Parallel_foreach.cpp" />
+    <ClCompile Include="utils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="common_objs.h" />
+    <ClInclude Include="utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
