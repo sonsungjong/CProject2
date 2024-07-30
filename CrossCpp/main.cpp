@@ -14,6 +14,12 @@
 #pragma comment(lib, "../x64/Release/CrossCppLib.lib")
 #endif
 
+typedef struct
+{
+    int nMsgId;
+    char szMsg[256];
+} ST_Struct;
+
 int main() {
     STL229::stdVector();
     
@@ -61,6 +67,28 @@ int main() {
         memset(pMemoryToken, 0, 128 * 1000);
         memcpy(pMemoryToken, "Hello World~", 13);
         printf("%s\t", pMemoryToken);
+    }
+
+    // 구조체 할당 예제 추가 (링메모리)
+    printf("\n");
+    int nNumber = 1;
+    // 20번
+    for (int i = 0; i < 20; ++i) {
+        // ST_Struct을 5개 배열로 생성하려 할 때
+        unsigned char* pMemoryToken = ring.Alloc(sizeof(ST_Struct) * 5);
+        ST_Struct* p_st = reinterpret_cast<ST_Struct*>(pMemoryToken);
+
+        for (int j = 0; j < 5; j++) {
+            p_st[j].nMsgId = j + 1;
+            std::string strDump = std::to_string(nNumber) + "번째 데이터";
+            nNumber++;
+            strncpy_s(p_st[j].szMsg, sizeof(p_st[j].szMsg), strDump.c_str(), strDump.size());
+        }
+
+        for (int j = 0; j < 5; j++) {
+            printf("id: %d, msg: %s\n", p_st[j].nMsgId, p_st[j].szMsg);
+        }
+        printf("\n===================\n");
     }
 
     ring.Destroy();
