@@ -21,7 +21,7 @@ public:
         m_queue = other_queue.m_queue;
     }
 
-    void push(T& value) {
+    void push(const T& value) {
         std::lock_guard<std::mutex> lg(m_mtx);
         m_queue.push(std::make_shared<T>(value));
         m_cv.notify_one();
@@ -64,7 +64,7 @@ public:
         m_cv.wait(lg, [this] {
             return !m_queue.empty();
             });
-        ref = *(m_queue.front().get());
+        ref = *(m_queue.front());
         m_queue.pop();
         return true;
     }
@@ -72,7 +72,7 @@ public:
     bool pop(T& ref) {
         std::lock_guard<std::mutex> lg(m_mtx);
         if (!m_queue.empty()) {
-            ref = m_queue.front();
+            ref = *(m_queue.front());
             m_queue.pop();
             return true;
         }

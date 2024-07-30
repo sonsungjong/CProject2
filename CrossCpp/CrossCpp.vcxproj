@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="commonQueue.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="p203_naming.cpp" />
     <ClCompile Include="p229_STL.cpp" />
@@ -34,6 +35,7 @@
     <ClCompile Include="Singleton.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="commonQueue.h" />
     <ClInclude Include="p203_naming.h" />
     <ClInclude Include="p229_STL.h" />
     <ClInclude Include="p283_static.h" />

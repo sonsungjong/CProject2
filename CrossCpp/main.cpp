@@ -7,6 +7,7 @@
 #include "RingMemory.h"
 #include "p283_static.h"
 #include "p331_thread.h"
+#include "commonQueue.h"
 
 #ifdef _DEBUG
 #pragma comment(lib, "../x64/Debug/CrossCppLib.lib")
@@ -104,6 +105,75 @@ int main() {
     HelloLib();
 
     Multi::ThreadTester();
+    HelloLib();
+
+    CCommonThreadSafeQueue<int> q;
+    std::atomic<int> nQueueValue = 0;
+
+    // 처리 쓰레드를 늘리면 밀리지 않는다
+    // 처리쓰레드1
+    std::thread thWaitPop([&]() {
+        while (true) {
+            int qValue = *(q.wait_pop());
+            Sleep(100);                 // 밀리는 작업 처리 시간
+            printf("pop: %d, size: %llu\n", qValue, q.size());
+            if (qValue > 12 && q.size() == 0) {
+                break;
+            }
+        }
+    });
+
+    // 처리쓰레드2
+    std::thread thWaitPop2([&]() {
+        while (true) {
+            int qValue = *(q.wait_pop());
+            Sleep(100);                 // 밀리는 작업 처리 시간
+            printf("pop: %d, size: %llu\n", qValue, q.size());
+            if (qValue > 12 && q.size() == 0) {
+                break;
+            }
+        }
+    });
+
+    // 처리쓰레드3
+    std::thread thWaitPop3([&]() {
+        while (true) {
+            int qValue = *(q.wait_pop());
+            Sleep(100);                 // 밀리는 작업 처리 시간
+            printf("pop: %d, size: %llu\n", qValue, q.size());
+            if (qValue > 12 && q.size() == 0) {
+                break;
+            }
+        }
+    });
+
+    // 수신쓰레드 모의
+    std::thread thPush([&](){
+        for (int i = 0; i < 3; i++) {
+            // 빠른 수신 모의
+            q.push(nQueueValue++);
+            Sleep(1);               // 섞이지 않기위해(실제에선 메시지 종류별로 나누면 될 것 같음)
+            q.push(nQueueValue++);
+            Sleep(1);
+            q.push(nQueueValue++);
+            Sleep(1);
+            q.push(nQueueValue++);
+            Sleep(100);
+        }
+        q.push(nQueueValue++);
+        Sleep(1);
+        q.push(nQueueValue++);
+        Sleep(100);
+        q.push(nQueueValue++);
+        Sleep(1);
+        q.push(nQueueValue++);
+    });
+
+    thWaitPop.join();
+    thWaitPop2.join();
+    thPush.join();
+    thWaitPop3.join();
+
     HelloLib();
 
     (void)getchar();        // 프로그램 종료 방지

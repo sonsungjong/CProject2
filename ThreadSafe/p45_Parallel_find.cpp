@@ -14,7 +14,7 @@
 
 const size_t g_testSize = 100'000'000;
 
-int main() {
+int main45() {
 	// 테스트를 위한 큰 백터 생성
 	std::vector<int> vecNumbers(g_testSize);
 	for (size_t i = 0; i < g_testSize; i++) {
