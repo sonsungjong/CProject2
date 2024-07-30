@@ -83,7 +83,7 @@ void parallelForeachAsync(Iterator first, Iterator last, Func f)
 
 size_t g_ullTestSize = 1000;
 
-int main() {
+int main44() {
 	std::vector<int> vecNumbers(g_ullTestSize);
 	for (auto& i : vecNumbers) {
 		i = 1;

@@ -135,6 +135,7 @@
     <ClCompile Include="p39_ThreadSafeQueue.cpp" />
     <ClCompile Include="p42_Parallel_STL.cpp" />
     <ClCompile Include="p44_Parallel_foreach.cpp" />
+    <ClCompile Include="p45_Parallel_find.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>

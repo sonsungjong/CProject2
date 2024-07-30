@@ -107,7 +107,7 @@ void func1_2() {
     printf("finish push\n");
 }
 
-int main1()
+int main39()
 {
     std::thread th1(func1_1);             // pop쓰레드
     std::thread th2(func1_2);             // push 쓰레드

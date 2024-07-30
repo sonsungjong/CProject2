@@ -31,7 +31,7 @@ void printResults(
 	Serial STL : Lowest: 4502 Highest: 4.29497e+09 Time: 316.047100ms
 	Parallel STL : Lowest: 4502 Highest: 4.29497e+09 Time: 48.393900ms
 */
-int main3() {
+int main42() {
 	std::random_device rd;
 
 	printf("Testing with %zu...\n", g_ullSize);

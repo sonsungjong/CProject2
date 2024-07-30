@@ -130,7 +130,7 @@ void func2_2() {
 	printf("finish push\n");
 }
 
-int main2()
+int main40()
 {
 	queueInteger.push(1111);
 	queueInteger.push(2222);
