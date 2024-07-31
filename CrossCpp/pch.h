@@ -11,6 +11,7 @@
 #include <iostream>
 #include <memory>
 #include <thread>
+#include <future>
 #include <atomic>
 #include <cstdio>
 #include <string>

@@ -173,8 +173,70 @@ int main() {
     thWaitPop2.join();
     thPush.join();
     thWaitPop3.join();
+    printf("\njoin 버전 종료\n");
 
     HelloLib();
+
+    CCommonThreadSafeQueue<int> q2;
+    nQueueValue = 0;
+
+    // async 호출 즉시 비동기 작업이 시작됨
+    auto futureWaitPop1 = std::async(std::launch::async, [&]() {
+        while (true) {
+            int qValue = *(q2.wait_pop());
+            Sleep(100);                 // 밀리는 작업 처리 시간
+            printf("pop: %d, size: %llu\n", qValue, q2.size());
+            if (qValue > 12 && q2.size() == 0) {
+                break;
+            }
+        }
+    });
+
+    auto futureWaitPop2= std::async(std::launch::async, [&]() {
+        while (true) {
+            int qValue = *(q2.wait_pop());
+            Sleep(100);                 // 밀리는 작업 처리 시간
+            printf("pop: %d, size: %llu\n", qValue, q2.size());
+            if (qValue > 12 && q2.size() == 0) {
+                break;
+            }
+        }
+    });
+
+    auto futureWaitPop3 = std::async(std::launch::async, [&]() {
+        while (true) {
+            int qValue = *(q2.wait_pop());
+            Sleep(100);                 // 밀리는 작업 처리 시간
+            printf("pop: %d, size: %llu\n", qValue, q2.size());
+            if (qValue > 12 && q2.size() == 0) {
+                break;
+            }
+        }
+    });
+
+    auto futurePush = std::async(std::launch::async, [&]() {
+        for (int i = 0; i < 3; i++) {
+            // 빠른 수신 모의
+            q2.push(nQueueValue++);
+            Sleep(1);               // 섞이지 않기위해(실제에선 메시지 종류별로 나누면 될 것 같음)
+            q2.push(nQueueValue++);
+            Sleep(1);
+            q2.push(nQueueValue++);
+            Sleep(1);
+            q2.push(nQueueValue++);
+            Sleep(100);
+        }
+        q2.push(nQueueValue++);
+        Sleep(1);
+        q2.push(nQueueValue++);
+        Sleep(100);
+        q2.push(nQueueValue++);
+        Sleep(1);
+        q2.push(nQueueValue++);
+    });
+    printf("\nfuture는 메인스레드 동시 진행 가능\n");
+
+    
 
     (void)getchar();        // 프로그램 종료 방지
     return 0;
