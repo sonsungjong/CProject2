@@ -13,6 +13,7 @@
     <ClCompile Include="p44_Parallel_foreach.cpp" />
     <ClCompile Include="utils.cpp" />
     <ClCompile Include="p45_Parallel_find.cpp" />
+    <ClCompile Include="p47_Parallel_sum.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common_objs.h" />
