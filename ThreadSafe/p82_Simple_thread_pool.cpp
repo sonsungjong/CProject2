@@ -1,3 +1,5 @@
+#include <WinSock2.h>
+#include <Windows.h>
 #include <iostream>
 #include <thread>
 #include <mutex>
@@ -76,11 +78,14 @@ public:
 		return m_queue.size();
 	}
 
-	bool wait_pop(T& ref) {
+	bool wait_pop(T& ref, long long timeout_ms = 20000) {
 		std::unique_lock<std::mutex> lg(m_mtx);
-		m_cv.wait(lg, [this] {
-			return !m_queue.empty();
-		});
+		auto timeout_time = std::chrono::steady_clock::now() + std::chrono::milliseconds(timeout_ms);		// 타임아웃 20초
+		if (!m_cv.wait_until(lg, timeout_time, [this] {
+			return !m_queue.empty();		// wait_until : 절대시간, wait_for : 시스템 상대시간
+			})) {
+			return false; // 타임아웃 발생 시 false 반환
+		}
 		ref = *(m_queue.front());
 		m_queue.pop();
 		return true;
@@ -172,10 +177,6 @@ public:
 	function_wrapper(const function_wrapper&) = delete;
 	function_wrapper(function_wrapper&) = delete;
 	function_wrapper& operator=(const function_wrapper&) = delete;
-
-	
-
-
 };
 
 class CSimpleThreadPool
@@ -188,23 +189,20 @@ class CSimpleThreadPool
 	void worker_thread() {
 		while (!m_done) {
 			std::function<void()> task;
-			if (m_work_queue.try_pop(task)) {
+			if (m_work_queue.wait_pop(task)) {
 				task();
-			}
-			else {
-				std::this_thread::yield();
 			}
 		}
 	}
 
 public:
-	CSimpleThreadPool() : m_done(false), m_joiner(m_threads) 
+	CSimpleThreadPool(int _thread_count = std::thread::hardware_concurrency())
+		: m_done(false), m_joiner(m_threads) 
 	{
-		int const thread_count = std::thread::hardware_concurrency();
-		printf("thread count : %d\n", thread_count);
+		printf("thread count : %d\n", _thread_count);
 
 		try {
-			for (int i = 0; i < thread_count; i++) {
+			for (int i = 0; i < _thread_count; i++) {
 				m_threads.push_back(std::thread(&CSimpleThreadPool::worker_thread, this));
 			}
 		}
@@ -216,6 +214,17 @@ public:
 
 	~CSimpleThreadPool() {
 		m_done = true;
+
+		for (size_t i = 0; i < m_threads.size(); ++i) {
+			m_work_queue.push([] {});			// 더미 작업 추가
+		}
+
+		// 스레드가 종료되기를 기다립니다.
+		for (auto& thread : m_threads) {
+			if (thread.joinable()) {
+				thread.join();
+			}
+		}
 	}
 
 	template<typename Function_type>
@@ -225,22 +234,84 @@ public:
 		auto task = std::make_shared<std::packaged_task<result_type()>>(std::move(f));
 		std::future<result_type> res = task->get_future();
 
-		// std::function<void()>로 변환하여 작업을 큐에 push
 		m_work_queue.push([task]() { (*task)(); });
 
 		return res;
 	}
 };
 
-int main() {
-	CSimpleThreadPool pool;
+CSafeQueue<int> g_queue1;
+int g_value = 0;
 
+// 빼서 쓰기
+void func82_pop500() {
+
+	while (true) {
+		bool pop_result = g_queue1.wait_pop(g_value);
+		if (pop_result == true)
+		{
+			printf("pop: %d, size:%llu\n", g_value, g_queue1.size());
+			Sleep(500);				// 작업 처리 시간 0.5초
+			if (g_value >= 19) {
+				break;			// pop 종료 조건
+			}
+		}
+		else if(g_value >= 19){
+			printf("timeout wait_pop and break\n");
+			break;
+		}
+		else {
+			printf("timeout wait_pop\n");
+		}
+	}
+	printf("finish pop\n");
+}
+
+// 넣기
+void func82_push100() {
+	static int x = 0;
+
+	// 20까지만
+	while (x < 20) {
+		g_queue1.push(x);
+		printf("pushing %d, size:%llu\n", x, g_queue1.size());
+		x++;
+		Sleep(100);				// 수신 시간 0.1초 주기
+	}
+	printf("finish push\n");
+}
+
+int main() {
+	int thread_count = std::thread::hardware_concurrency() * 2 + 1;
+	if (thread_count <= 1) {
+		thread_count = 4;
+	}
+
+	CSimpleThreadPool pool(thread_count);
+	
 	for (int i = 0; i < 100; i++) {
 		pool.submit([=] {
-			printf(" %d printed by thread - %s \n", i, std::this_thread::get_id());
+			printf(" %d printed by thread - %d \n", i, std::this_thread::get_id());
+			Sleep(100);
 		});
 	}
 
+	pool.submit(func82_pop500);
+	pool.submit(func82_pop500);
+	pool.submit(func82_pop500);
+	pool.submit(func82_pop500);
+	pool.submit(func82_pop500);
+	pool.submit(func82_pop500);
+	pool.submit(func82_pop500);
+	pool.submit(func82_push100);
+
+	while (true) {
+		std::string str;
+		std::getline(std::cin, str);
+		if (str == "") {
+			break;
+		}
+	}
 	system("pause");
 
 	return 0;

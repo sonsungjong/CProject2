@@ -28,7 +28,7 @@ void SequentialPartialSum(Iterator _first, Iterator _last, OutIterator _y) {
 	}
 }
 
-int main() {
+int main47() {
 	std::vector<int> ints(g_testSize3, 1);
 	std::vector<int> outs(g_testSize3);
 	for (size_t i = 0; i < ints.size(); ++i) {

@@ -14,7 +14,7 @@
     <ClCompile Include="utils.cpp" />
     <ClCompile Include="p45_Parallel_find.cpp" />
     <ClCompile Include="p47_Parallel_sum.cpp" />
-    <ClCompile Include="p82_Simple_thread_poll.cpp" />
+    <ClCompile Include="p82_Simple_thread_pool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common_objs.h" />
