@@ -347,6 +347,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Timer_winmm", "Timer_winmm\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ThreadSafe", "ThreadSafe\ThreadSafe.vcxproj", "{DB481F91-46EF-4E89-B932-3FC0E67DFC47}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ShapeMap1", "ShapeMap1\ShapeMap1.vcxproj", "{4D353A3F-7C4C-4FFA-8A11-CE55381E63DC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -1731,6 +1733,14 @@ Global
 		{DB481F91-46EF-4E89-B932-3FC0E67DFC47}.Release|x64.Build.0 = Release|x64
 		{DB481F91-46EF-4E89-B932-3FC0E67DFC47}.Release|x86.ActiveCfg = Release|Win32
 		{DB481F91-46EF-4E89-B932-3FC0E67DFC47}.Release|x86.Build.0 = Release|Win32
+		{4D353A3F-7C4C-4FFA-8A11-CE55381E63DC}.Debug|x64.ActiveCfg = Debug|x64
+		{4D353A3F-7C4C-4FFA-8A11-CE55381E63DC}.Debug|x64.Build.0 = Debug|x64
+		{4D353A3F-7C4C-4FFA-8A11-CE55381E63DC}.Debug|x86.ActiveCfg = Debug|Win32
+		{4D353A3F-7C4C-4FFA-8A11-CE55381E63DC}.Debug|x86.Build.0 = Debug|Win32
+		{4D353A3F-7C4C-4FFA-8A11-CE55381E63DC}.Release|x64.ActiveCfg = Release|x64
+		{4D353A3F-7C4C-4FFA-8A11-CE55381E63DC}.Release|x64.Build.0 = Release|x64
+		{4D353A3F-7C4C-4FFA-8A11-CE55381E63DC}.Release|x86.ActiveCfg = Release|Win32
+		{4D353A3F-7C4C-4FFA-8A11-CE55381E63DC}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
