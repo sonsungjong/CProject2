@@ -30,7 +30,7 @@ void readShapeFile(const char* filename) {
             continue;
         }
 
-        printf("Entity %d, 꼭지점수: %d\n", i, pShape->nVertices);
+        //printf("Entity %d, 꼭지점수: %d\n", i, pShape->nVertices);
         ////printf("한 엔티티의 Bounding box: (%f, %f) to (%f, %f)\n", pShape->dfXMin, pShape->dfYMin, pShape->dfXMax, pShape->dfYMax);
         std::vector<std::pair<float, float>> vecVertices;
         vecVertices.resize(pShape->nVertices);
@@ -63,7 +63,7 @@ void readShapeFile(const char* filename) {
         }
         //printf("\n");
         oss << "\n";
-        std::cout << oss.str();             // 버퍼링으로 모아서 출력
+        //std::cout << oss.str();             // 버퍼링으로 모아서 출력
     }
 }
 
@@ -98,7 +98,7 @@ void readShapeDirectory(const std::string& _strDirectoryPath)
     static int shpCount = 0;
     static int dbfCount = 0;
 
-    std::vector<std::future<void>> vecFuture;
+    //std::vector<std::future<void>> vecFuture;
 
     for (const auto& entry : std::filesystem::directory_iterator(_strDirectoryPath))
     {
@@ -107,23 +107,23 @@ void readShapeDirectory(const std::string& _strDirectoryPath)
             std::string fileFullPath = entry.path().string();
             if (entry.path().extension() == ".shp") 
             {
-                //readShapeFile(fileFullPath.c_str());
-                vecFuture.emplace_back(std::async(std::launch::async, readShapeFile, fileFullPath.c_str()));
+                readShapeFile(fileFullPath.c_str());
+                //vecFuture.emplace_back(std::async(std::launch::async, readShapeFile, fileFullPath.c_str()));
                 shpCount++;
             }
             else if (entry.path().extension() == ".dbf") 
             {
-                //readDBFFile(fileFullPath.c_str());
-                vecFuture.emplace_back(std::async(std::launch::async, readDBFFile, fileFullPath.c_str()));
+                readDBFFile(fileFullPath.c_str());
+                //vecFuture.emplace_back(std::async(std::launch::async, readDBFFile, fileFullPath.c_str()));
                 dbfCount++;
             }
         }
     }
 
     // 작업이 완료될때까지 대기
-    for (auto& future : vecFuture) {
-        future.get();
-    }
+    //for (auto& future : vecFuture) {
+    //    future.get();
+    //}
 
     printf("SHP : %d개, DBF : %d개\n", shpCount, dbfCount);
 }
