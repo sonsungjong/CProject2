@@ -353,6 +353,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Timer3", "Timer3\Timer3.vcx
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "py311Embedding", "py311Embedding\py311Embedding.vcxproj", "{96680BD4-B38D-4AE4-B0E4-B290ECC7EA80}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TCPClient", "TCPClient\TCPClient.vcxproj", "{B6FDBFBB-D43E-41AD-A83D-7D8BD3F8E544}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -1761,6 +1763,14 @@ Global
 		{96680BD4-B38D-4AE4-B0E4-B290ECC7EA80}.Release|x64.Build.0 = Release|x64
 		{96680BD4-B38D-4AE4-B0E4-B290ECC7EA80}.Release|x86.ActiveCfg = Release|Win32
 		{96680BD4-B38D-4AE4-B0E4-B290ECC7EA80}.Release|x86.Build.0 = Release|Win32
+		{B6FDBFBB-D43E-41AD-A83D-7D8BD3F8E544}.Debug|x64.ActiveCfg = Debug|x64
+		{B6FDBFBB-D43E-41AD-A83D-7D8BD3F8E544}.Debug|x64.Build.0 = Debug|x64
+		{B6FDBFBB-D43E-41AD-A83D-7D8BD3F8E544}.Debug|x86.ActiveCfg = Debug|Win32
+		{B6FDBFBB-D43E-41AD-A83D-7D8BD3F8E544}.Debug|x86.Build.0 = Debug|Win32
+		{B6FDBFBB-D43E-41AD-A83D-7D8BD3F8E544}.Release|x64.ActiveCfg = Release|x64
+		{B6FDBFBB-D43E-41AD-A83D-7D8BD3F8E544}.Release|x64.Build.0 = Release|x64
+		{B6FDBFBB-D43E-41AD-A83D-7D8BD3F8E544}.Release|x86.ActiveCfg = Release|Win32
+		{B6FDBFBB-D43E-41AD-A83D-7D8BD3F8E544}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
