@@ -150,7 +150,7 @@ public:
         std::lock_guard<std::mutex> lock(clientsMutex);
         for (auto& clientContext : clients) {
             if (clientContext && clientContext->socket != INVALID_SOCKET) {
-                send(clientContext->socket, message.c_str(), message.size(), 0);
+                send(clientContext->socket, message.c_str(), static_cast<int>(message.size()), 0);
             }
         }
     }
@@ -228,7 +228,7 @@ int main() {
 
     std::string inputMessage;
     while (true) {
-        std::cout << "Enter message to send to all clients: ";
+        std::cout << "\nEnter message to send to all clients:\n";
         std::getline(std::cin, inputMessage);
         if (inputMessage == "exit") {
             break;
