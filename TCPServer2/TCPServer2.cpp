@@ -165,10 +165,40 @@ public:
     }
 
     void sendData(const std::string& message) {
-        std::lock_guard<std::mutex> lock(m_clientsMutex);
-        for (auto& clientContext : m_clients) {
-            if (clientContext && clientContext->socket != INVALID_SOCKET) {
-                send(clientContext->socket, message.c_str(), static_cast<int>(message.size()), 0);
+        ST_TCPMsg msg = { 0, };
+        msg.송신자 = 'B';
+        msg.수신자 = 'F';
+        msg.메시지아이디 = 1;
+        msg.바디크기 = message.size();
+        msg.strBodyMsg = message;
+
+        std::string sendData = "";
+        size_t nHeaderSize = sizeof(msg.송신자) + sizeof(msg.수신자) + sizeof(msg.메시지아이디) + sizeof(msg.바디크기);
+        sendData.reserve(nHeaderSize + msg.바디크기);
+        
+        sendData.append(reinterpret_cast<char*>(&msg.송신자), sizeof(msg.송신자));
+        sendData.append(reinterpret_cast<char*>(&msg.수신자), sizeof(msg.수신자));
+        sendData.append(reinterpret_cast<char*>(&msg.메시지아이디), sizeof(msg.메시지아이디));
+        sendData.append(reinterpret_cast<char*>(&msg.바디크기), sizeof(msg.바디크기));
+        sendData.append(msg.strBodyMsg);
+
+        {
+            std::lock_guard<std::mutex> lock(m_clientsMutex);
+            for (auto& clientContext : m_clients) {
+                if (clientContext && clientContext->socket != INVALID_SOCKET) {
+                    const char* dataPtr = sendData.c_str();
+                    int nTotalSent = 0;
+                    int nDataSize = static_cast<int>(sendData.size());
+
+                    while (nTotalSent < nDataSize) {
+                        int nSent = send(clientContext->socket, dataPtr + nTotalSent, nDataSize - nTotalSent, 0);
+                        if (nSent == SOCKET_ERROR) {
+                            std::cerr << "전송 실패: " << WSAGetLastError() << "\n";
+                            break;
+                        }
+                        nTotalSent += nSent;
+                    }
+                }
             }
         }
     }
@@ -225,7 +255,7 @@ private:
                     stMsg.수신자 = clientContext->receiveBuffer[1];
 
                     // 메시지아이디 추출 (4바이트)
-                    memcpy(&stMsg.바디크기, &clientContext->receiveBuffer[2], sizeof(int));
+                    memcpy(&stMsg.메시지아이디, &clientContext->receiveBuffer[2], sizeof(int));
 
                     // 바디크기 추출 (8바이트)
                     memcpy(&stMsg.바디크기, &clientContext->receiveBuffer[6], sizeof(size_t));
@@ -258,7 +288,7 @@ private:
                             << ", 수신자: " << static_cast<char>(stMsg.수신자)
                             << ", 메시지아이디: " << stMsg.메시지아이디
                             << ", 바디크기: " << stMsg.바디크기
-                            << ", 메시지 내용: " << firstPart << " ... " << lastPart
+                            << ", 메시지 내용: " << firstPart << "     " << lastPart
                             << "\n실제크기: " << std::to_string(stMsg.strBodyMsg.size())
                             << "\n";
 
@@ -312,7 +342,7 @@ int main() {
         if (inputMessage == "exit") {
             break;
         }
-        server.sendData(inputMessage);
+        server.sendData(inputMessage);              // 헤더를 붙여서 바이트로 전송한다
     }
 
     server.Stop();
