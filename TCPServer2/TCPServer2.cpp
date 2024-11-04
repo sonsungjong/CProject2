@@ -15,6 +15,7 @@
 #define MAX_CLIENTS 5
 #define BUFFER_SIZE 65507
 
+#pragma pack(push, 1)
 typedef struct TCPMsg {
     unsigned char 송신자;
     unsigned char 수신자;
@@ -22,6 +23,7 @@ typedef struct TCPMsg {
     unsigned long long 바디크기;
     std::string strBodyMsg;
 } ST_TCPMsg; // 14바이트
+#pragma pack(pop)
 
 typedef struct ClientContext {
     SOCKET socket;

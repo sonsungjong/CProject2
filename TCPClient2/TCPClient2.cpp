@@ -12,6 +12,7 @@
 #define HEADER_SIZE 14
 
 // TCPMsg 구조체 정의
+#pragma pack(push, 1)
 typedef struct TCPMsg {
     unsigned char 송신자;
     unsigned char 수신자;
@@ -19,6 +20,7 @@ typedef struct TCPMsg {
     unsigned long long 바디크기;
     std::string strBodyMsg;
 } ST_TCPMsg; // 총 14바이트의 헤더
+#pragma pack(pop)
 
 class CTCPClient
 {
