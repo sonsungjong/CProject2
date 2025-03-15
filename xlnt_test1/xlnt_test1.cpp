@@ -1,11 +1,19 @@
-/*
-<¶óÀÌºê·¯¸® ºôµå ¹æ¹ı(Release x64)>
-Git Bash ¸¦ ¼³Ä¡ÇÑ´Ù.
-CMake¸¦ ¼³Ä¡ÇÑ´Ù.
-Visual Studio¸¦ ¼³Ä¡ÇÑ´Ù (Visual Studio 17 2022, Visual Studio 16 2019 µî)
-Cµå¶óÀÌºê¿¡ git bash¸¦ °ü¸®ÀÚ ±ÇÇÑÀ¸·Î ½ÇÇàÇÏ°í
+ï»¿/*
+https://github.com/tfussell/xlnt
+Git Bash ë¥¼ ì„¤ì¹˜í•œë‹¤.
+CMakeë¥¼ ì„¤ì¹˜í•œë‹¤.
+Visual Studioë¥¼ ì„¤ì¹˜í•œë‹¤ (Visual Studio 17 2022, Visual Studio 16 2019 ë“±)
+Cë“œë¼ì´ë¸Œì— git bashë¥¼ ê´€ë¦¬ì ê¶Œí•œìœ¼ë¡œ ì‹¤í–‰í•˜ê³ 
+
+git clone https://github.com/microsoft/vcpkg.git
+cd vcpkg
+./bootstrap-vcpkg.sh
+./vcpkg integrate install
+./vcpkg install xlnt
+
+
 git clone https://github.com/tfussell/xlnt.git
-¸¦ ÀÔ·ÂÇÏ¿© ÇÁ·ÎÁ§Æ®¸¦ ¼³Ä¡ÇÑ´Ù.
+ë¥¼ ì…ë ¥í•˜ì—¬ í”„ë¡œì íŠ¸ë¥¼ ì„¤ì¹˜í•œë‹¤.
 
 cd xlnt/third-party/
 rm -rf libstudxml
@@ -17,71 +25,177 @@ cmake -G "Visual Studio 17 2022" -A x64 ..
 cmake --build . --config Release
 cmake --install .
 
-¸¸¾à, 64ºñÆ®·Î ºôµåÇÏ°í 32ºñÆ®µµ ºôµåÇÏ°íÀÚ ÇÏ¸é ÀÌÀü ºôµå ÆÄÀÏ°ú CMake Ä³½Ã¸¦ Á¦°ÅÇØ¾ßÇÑ´Ù.
+ë§Œì•½, 64ë¹„íŠ¸ë¡œ ë¹Œë“œí•˜ê³  32ë¹„íŠ¸ë„ ë¹Œë“œí•˜ê³ ì í•˜ë©´ ì´ì „ ë¹Œë“œ íŒŒì¼ê³¼ CMake ìºì‹œë¥¼ ì œê±°í•´ì•¼í•œë‹¤.
 cd C:/xlnt/build
 rm -rf CMakeCache.txt CMakeFiles/
 cmake -G "Visual Studio 17 2022" -A Win32 ..
 cmake --build . --config Release
 cmake --install .
 
-<Æ÷ÇÔ Çì´õ µğ·ºÅä¸® °æ·Î>
+<í¬í•¨ í—¤ë” ë””ë ‰í† ë¦¬ ê²½ë¡œ>
 C:\xlnt\include
 
-<Æ÷ÇÔ ¶óÀÌºê·¯¸® µğ·ºÅä¸® °æ·Î>
+<í¬í•¨ ë¼ì´ë¸ŒëŸ¬ë¦¬ ë””ë ‰í† ë¦¬ ê²½ë¡œ>
 C:\xlnt\build\source\Debug
 C:\xlnt\build\source\Release
 
-<Æ÷ÇÔ ¶óÀÌºê·¯¸®>
+<í¬í•¨ ë¼ì´ë¸ŒëŸ¬ë¦¬>
 xlntd.lib
 xlnt.lib
 
-<dll PATH ÁöÁ¤ ¶Ç´Â È¯°æº¯¼ö¼³Á¤ ¶Ç´Â ½ÇÇàÆÄÀÏ¿·¿¡ À§Ä¡>
-Project -> Properties -> Configuration Properties -> Debugging -> Environment ¿¡´Ù°¡
+<dll PATH ì§€ì • ë˜ëŠ” í™˜ê²½ë³€ìˆ˜ì„¤ì • ë˜ëŠ” ì‹¤í–‰íŒŒì¼ì˜†ì— ìœ„ì¹˜>
+Project -> Properties -> Configuration Properties -> Debugging -> Environment ì—ë‹¤ê°€
 
 PATH=C:\xlnt\build\source\Release;
 %PATH%;
-*/
 
-#include <xlnt/xlnt.hpp>
+*/
 #include <iostream>
+#include <xlnt/xlnt.hpp>
 #include <Windows.h>
 #include <tchar.h>
+#include <vector>
+#include <map>
 
-std::wstring utf8_to_wstring(const std::string& utf8str)
+#ifdef _DEBUG
+#pragma comment(lib, "xlnt//xlntd.lib")
+#else
+#pragma comment(lib, "xlnt//xlnt.lib")
+#endif
+
+std::wstring convertUTF8toUTF16(const std::string& utf8)
 {
-    int wlen = MultiByteToWideChar(CP_UTF8, 0, utf8str.c_str(), -1, NULL, 0);
-    std::wstring wstr(wlen, 0);
-    MultiByteToWideChar(CP_UTF8, 0, utf8str.c_str(), -1, &wstr[0], wlen);
-    return wstr;
+    std::wstring strUTF16 = L"";
+
+    if (!utf8.empty()) {
+        int bufferSize = MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), -1, NULL, 0);
+        if (bufferSize > 0) {
+            strUTF16.assign(static_cast<size_t>(bufferSize) - 1, L'\0');
+            MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), -1, &strUTF16[0], bufferSize);
+        }
+    }
+
+    return strUTF16;
+}
+
+std::string convertUTF16toUTF8(const std::wstring& utf16)
+{
+    std::string strUTF8 = "";
+
+    // ë¹ˆë¬¸ìê°€ ì•„ë‹ë•Œ
+    if (!utf16.empty()) {
+        // UTF-8 ë³€í™˜ì— í•„ìš”í•œ ë²„í¼ í¬ê¸° ê³„ì‚°
+        int bufferSize = WideCharToMultiByte(CP_UTF8, 0, utf16.c_str(), -1, NULL, 0, NULL, NULL);
+        if (bufferSize > 0) {
+            strUTF8.assign(static_cast<size_t>(bufferSize) - 1, '\0');
+            WideCharToMultiByte(CP_UTF8, 0, utf16.c_str(), -1, &strUTF8[0], bufferSize, NULL, NULL);
+        }
+    }
+
+    return strUTF8;
+}
+
+void save_xlnt()
+{
+    xlnt::workbook wb;
+    xlnt::worksheet ws = wb.active_sheet();                                     // ì‹œíŠ¸ë¥¼ ì—°ë‹¤
+    xlnt::alignment align;
+    align.vertical(xlnt::vertical_alignment::center);
+    //align.horizontal(xlnt::horizontal_alignment::center);
+
+    ws.row_height(8.25);
+    
+    ws.cell("A9").value(5);                  // ì›ë˜ A1 -> A9
+    std::wstring wstr = L"í•œê¸€ ë¬¸ìì—´";
+    std::string utf8KO = convertUTF16toUTF8(wstr);
+    ws.cell("B10").value(utf8KO);       // ì›ë˜ B2 -> B10
+    ws.cell("C11").formula("=SUM(A9, 3)");         // ì›ë˜ C3 -> C11
+    
+	ws.merge_cells("C11:C12");    		                // ì…€ C3ì™€ C4ë¥¼ ë³‘í•©í•œë‹¤.  
+	//ws.freeze_panes("B2");                              // ì…€ B2 ë¥¼ ê¸°ì¤€ìœ¼ë¡œ ê³ ì • ì˜ì—­ì„ ë§Œë“ ë‹¤
+
+    for (auto row : ws.rows(false)) 
+    {
+		for (auto cell : row)
+		{
+			cell.alignment(align);
+		}
+    }
+    wb.save("example.xlsx");
+}
+
+const std::map<unsigned int, std::map<unsigned int, std::string>>& load_xlnt()
+{
+    std::map<unsigned int, std::map<unsigned int, std::string>> sheet_data;             // í–‰, ì—´ (0,0ì—ëŠ” íŒŒì¼ëª…, 0,1ì—ëŠ” ì²«ë²ˆì§¸ ì‹œíŠ¸ëª…, 0,2ì—ëŠ” ë‘ë²ˆì§¸ ì‹œíŠ¸ëª… ë“±) [1][1] ë¶€í„° ë‚´ìš© ì‹œì‘
+
+    xlnt::workbook wb;
+    try {
+        xlnt::path ca = xlnt::path("example.xlsx");
+        wb.load(ca);
+    }
+    catch (const std::exception& e) {
+        std::cerr << "ì—‘ì…€ íŒŒì¼ ë¡œë“œ ì˜¤ë¥˜: " << e.what() << std::endl;
+        return sheet_data;
+    }
+
+    auto ws = wb.active_sheet();                // ì‹œíŠ¸ë¥¼ ì½ëŠ”ë‹¤ (sheet_by_title, sheet_by_index)
+    
+    for (auto row : ws.rows(false))
+    {
+        if (row.empty()) {
+            continue;               // ë¹„ì–´ìˆìœ¼ë©´ ê±´ë„ˆë›´ë‹¤
+        }
+
+        // í–‰ ë²ˆí˜¸
+        unsigned int row_number = (*row.begin()).reference().row();
+        std::map<unsigned int, std::string> row_data;
+        
+        // ê° ì…€ì— ëŒ€í•´
+        for (auto cell : row)
+        {
+            std::string cell_str = cell.to_string();                             // value<int>() ë„ ê°€ëŠ¥
+            if (!cell_str.empty()) {
+                // ì—´ ì •ë³´ (A : 1, B : 2, ...)
+                unsigned int col_number = cell.reference().column().index;
+				row_data[col_number] = cell_str;
+            }
+            else if (cell.has_formula())
+            {
+                std::string cell_formula = cell.formula();
+                unsigned int col_number = cell.reference().column().index;
+                row_data[col_number] = cell_formula;
+            }
+        }
+
+        if (!row_data.empty()) {
+            sheet_data[row_number] = row_data;                // í–‰ì— ë°ì´í„°ê°€ ìˆì„ ë•Œ ì €ì¥
+        }
+    }
+
+
+
+
+    // ì €ì¥ ë°ì´í„° ì¶œë ¥ (ë””ë²„ê¹…ìš©)
+    for (const auto& row_pair : sheet_data)
+    {
+        std::wcout << L"Row " << row_pair.first << L": ";
+
+        for (const auto& col_pair : row_pair.second)
+        {
+            std::wcout << L"[" << col_pair.first << L": " << convertUTF8toUTF16(col_pair.second) << L"] ";
+        }
+        printf("\n");
+    }
+
+    return sheet_data;
 }
 
 int main()
 {
     _tsetlocale(0, _T("korean"));
 
-    xlnt::workbook wb;
-    wb.load(L"C:\\test\\FIRST.xlsx");
-    wchar_t cell_value[256] = { 0, };
-
-    int skip_row = 1;               // À§¿¡¼­ ºÎÅÍ ½ºÅµÇÒ ÇàÀÇ °³¼ö
-
-    auto ws = wb.active_sheet();
-    // false´Â ¹üÀ§¿¡ Æ÷ÇÔµÇÁö ¾Ê´Â ºó ¼¿À» °Ç³Ê¶Ù±â À§ÇÑ ¿É¼ÇÀÔ´Ï´Ù.
-    for (auto row : ws.rows(false))
-    {
-        if (skip_row > 0) {
-            skip_row--;
-            continue;
-        }
-
-        for (auto cell : row)
-        {
-            memset(cell_value, 0, sizeof(cell_value));
-            memcpy(cell_value, utf8_to_wstring(cell.to_string()).c_str(), 256);
-            wprintf(L"%s ", cell_value);
-        }
-        printf("\n");
-    }
+    save_xlnt();
+    load_xlnt();
 
     return 0;
 }
