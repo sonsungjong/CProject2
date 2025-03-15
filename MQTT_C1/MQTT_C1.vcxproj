@@ -19,10 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>16.0</VCProjectVersion>
+    <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{f925ef79-95ad-485f-9219-eb5933c3769b}</ProjectGuid>
-    <RootNamespace>PahoMqttCppSend</RootNamespace>
+    <ProjectGuid>{c673b7a8-1b6d-48ad-b293-f7790451c1a1}</ProjectGuid>
+    <RootNamespace>MQTTC1</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -70,21 +70,18 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\paho.mqtt.c\src;C:\paho.mqtt.cpp\src;C:\cJSON;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\paho.mqtt.c\build\src\Debug;C:\paho.mqtt.cpp\build\src\Debug;C:\cJSON\build\Debug;$(LibraryPath)</LibraryPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\paho.mqtt.c\src;C:\paho.mqtt.cpp\src;C:\cJSON;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\paho.mqtt.c\build\src\Release;C:\paho.mqtt.cpp\build\src\Release;C:\cJSON\build\Release;$(LibraryPath)</LibraryPath>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\paho.mqtt.c\src;C:\paho.mqtt.cpp\src;C:\cJSON;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\paho.mqtt.c\build\src\Debug;C:\paho.mqtt.cpp\build\src\Debug;C:\cJSON\build\Debug;$(LibraryPath)</LibraryPath>
+    <TargetName>$(ProjectName)D</TargetName>
+    <OutDir>$(ProjectDir)\</OutDir>
+    <IncludePath>$(SolutionDir)inc;$(IncludePath)</IncludePath>
+    <ReferencePath>$(ReferencePath)</ReferencePath>
+    <LibraryPath>$(SolutionDir)lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\paho.mqtt.c\src;C:\paho.mqtt.cpp\src;C:\cJSON;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\paho.mqtt.c\build\src\Release;C:\paho.mqtt.cpp\build\src\Release;C:\cJSON\build\Release;$(LibraryPath)</LibraryPath>
+    <OutDir>$(ProjectDir)\</OutDir>
+    <IncludePath>$(SolutionDir)inc;$(IncludePath)</IncludePath>
+    <ReferencePath>$(ReferencePath)</ReferencePath>
+    <LibraryPath>$(SolutionDir)lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -96,7 +93,6 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>paho-mqtt3a.lib;paho-mqtt3c.lib;paho-mqttpp3-static.lib;cjson.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -113,7 +109,6 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>paho-mqtt3a.lib;paho-mqtt3c.lib;paho-mqttpp3-static.lib;cjson.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -122,11 +117,11 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>paho-mqtt3a.lib;paho-mqtt3c.lib;paho-mqttpp3-static.lib;cjson.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -137,17 +132,17 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>paho-mqtt3a.lib;paho-mqtt3c.lib;paho-mqttpp3-static.lib;cjson.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="PahoMqttCppSend.cpp" />
+    <ClCompile Include="MQTT_C1.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
