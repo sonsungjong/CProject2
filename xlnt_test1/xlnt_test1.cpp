@@ -56,6 +56,7 @@ PATH=C:\xlnt\build\source\Release;
 #include <tchar.h>
 #include <vector>
 #include <map>
+#include <filesystem>
 
 #ifdef _DEBUG
 #pragma comment(lib, "xlnt//xlntd.lib")
@@ -95,7 +96,7 @@ std::string convertUTF16toUTF8(const std::wstring& utf16)
     return strUTF8;
 }
 
-void save_xlnt()
+void save_xlnt_example()
 {
     xlnt::workbook wb;
     xlnt::worksheet ws = wb.active_sheet();                                     // 시트를 연다
@@ -124,78 +125,162 @@ void save_xlnt()
     wb.save("example.xlsx");
 }
 
-const std::map<unsigned int, std::map<unsigned int, std::string>>& load_xlnt()
+bool save_xlnt(std::string _strFilePath, const std::map<unsigned int, std::map<unsigned int, std::string>>& _sheet_data)
 {
-    std::map<unsigned int, std::map<unsigned int, std::string>> sheet_data;             // 행, 열 (0,0에는 파일명, 0,1에는 첫번째 시트명, 0,2에는 두번째 시트명 등) [1][1] 부터 내용 시작
+    bool bResult = false;
+
+    // 전달받은 파일 경로의 상위 폴더가 없으면 생성
+    std::filesystem::path filePath(_strFilePath);
+    std::filesystem::path parentDir = filePath.parent_path();
+    if (!parentDir.empty() && !std::filesystem::exists(parentDir))
+    {
+        try {
+            std::filesystem::create_directories(parentDir);
+        }
+        catch (const std::exception& e) {
+            std::cerr << "폴더 생성 오류: " << e.what() << std::endl;
+        }
+    }
 
     xlnt::workbook wb;
-    try {
-        xlnt::path ca = xlnt::path("example.xlsx");
-        wb.load(ca);
-    }
-    catch (const std::exception& e) {
-        std::cerr << "엑셀 파일 로드 오류: " << e.what() << std::endl;
-        return sheet_data;
-    }
+    xlnt::worksheet ws = wb.active_sheet();                                     // 시트를 연다
+    xlnt::alignment align;
+    align.vertical(xlnt::vertical_alignment::center);
+    //align.horizontal(xlnt::horizontal_alignment::center);
 
-    auto ws = wb.active_sheet();                // 시트를 읽는다 (sheet_by_title, sheet_by_index)
-    
-    for (auto row : ws.rows(false))
+    for (const auto& row_pair : _sheet_data)
     {
-        if (row.empty()) {
-            continue;               // 비어있으면 건너뛴다
+        if (row_pair.first == 0) {
+            continue;			   // 0행은 파일명, 시트명 등이므로 건너뛴다
         }
-
-        // 행 번호
-        unsigned int row_number = (*row.begin()).reference().row();
-        std::map<unsigned int, std::string> row_data;
-        
-        // 각 셀에 대해
-        for (auto cell : row)
-        {
-            std::string cell_str = cell.to_string();                             // value<int>() 도 가능
-            if (!cell_str.empty()) {
-                // 열 정보 (A : 1, B : 2, ...)
-                unsigned int col_number = cell.reference().column().index;
-				row_data[col_number] = cell_str;
-            }
-            else if (cell.has_formula())
-            {
-                std::string cell_formula = cell.formula();
-                unsigned int col_number = cell.reference().column().index;
-                row_data[col_number] = cell_formula;
-            }
-        }
-
-        if (!row_data.empty()) {
-            sheet_data[row_number] = row_data;                // 행에 데이터가 있을 때 저장
-        }
-    }
-
-
-
-
-    // 저장 데이터 출력 (디버깅용)
-    for (const auto& row_pair : sheet_data)
-    {
-        std::wcout << L"Row " << row_pair.first << L": ";
 
         for (const auto& col_pair : row_pair.second)
         {
-            std::wcout << L"[" << col_pair.first << L": " << convertUTF8toUTF16(col_pair.second) << L"] ";
+            if (col_pair.first == 0) {
+                continue;           // 0번 열은 없음 ( 1: A, 2: B, ...)
+            }
+
+            xlnt::cell_reference ref(col_pair.first, row_pair.first);
+            ws.cell(ref).value(col_pair.second);
         }
-        printf("\n");
     }
 
-    return sheet_data;
+    for (auto row : ws.rows(false))
+    {
+        for (auto cell : row)
+        {
+            cell.alignment(align);                  // 수직 가운데 정렬
+        }
+    }
+
+    try {
+        wb.save(_strFilePath);
+        bResult = true;
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Excel 파일 저장 오류: " << e.what() << std::endl;
+        bResult = false;
+    }
+    
+
+    return bResult;
+}
+
+/*
+    행, 열 (0,0에는 파일명, 0,1에는 첫번째 시트명, 0,2에는 두번째 시트명 등) [1][1] 부터 내용 시작
+*/
+bool load_xlnt(const std::string& _strFilePath, std::map<unsigned int, std::map<unsigned int, std::string>>& _sheet_data)
+{
+    bool bResult = false;
+
+    // 파일이 존재하는지 체크
+    if (!std::filesystem::exists(_strFilePath))
+    {
+        std::cerr << "파일이 존재하지 않습니다: " << _strFilePath << std::endl;
+        return false;
+    }
+
+    xlnt::workbook wb;
+    try {
+        xlnt::path ca = xlnt::path(_strFilePath);
+        wb.load(ca);
+        bResult = true;
+    }
+    catch (const std::exception& e) {
+        std::cerr << "엑셀 파일 로드 오류: " << e.what() << std::endl;
+        bResult = false;
+    }
+
+    if(bResult == true)
+    {
+        auto ws = wb.active_sheet();                // 시트를 읽는다 (sheet_by_title, sheet_by_index)
+
+        for (auto row : ws.rows(false))
+        {
+            if (row.empty()) {
+                continue;               // 비어있으면 건너뛴다
+            }
+
+            // 행 번호
+            unsigned int row_number = (*row.begin()).reference().row();
+            std::map<unsigned int, std::string> row_data;
+
+            // 각 셀에 대해
+            for (auto cell : row)
+            {
+                std::string cell_str = cell.to_string();                             // value<int>() 도 가능
+                if (!cell_str.empty()) {
+                    // 열 정보 (A : 1, B : 2, ...)
+                    unsigned int col_number = cell.reference().column().index;
+                    row_data[col_number] = cell_str;
+                }
+                else if (cell.has_formula())
+                {
+                    std::string cell_formula = cell.formula();
+                    unsigned int col_number = cell.reference().column().index;
+                    row_data[col_number] = cell_formula;
+                }
+            }
+
+            if (!row_data.empty()) {
+                _sheet_data[row_number] = row_data;                // 행에 데이터가 있을 때 저장
+            }
+        }
+    }
+    
+    return bResult;
 }
 
 int main()
 {
     _tsetlocale(0, _T("korean"));
 
-    save_xlnt();
-    load_xlnt();
+    // 한 시트의 내용을 UTF8로 담는다 [행][열] = UTF8내용
+    std::map<unsigned int, std::map<unsigned int, std::string>> excel_data;             // [1][1] : A1
+    excel_data[1][1] = convertUTF16toUTF8(L"A1");            // 1행 A열
+    excel_data[2][1] = convertUTF16toUTF8(L"A2");            // 2행 A열
+    excel_data[1][2] = convertUTF16toUTF8(L"B1");            // 1행 B열
+    excel_data[2][2] = convertUTF16toUTF8(L"B2");            // 2행 B열
+    excel_data[4][3] = convertUTF16toUTF8(L"C4");            // 4행 C열
+    excel_data[5][2] = convertUTF16toUTF8(L"5행 B열");            // 5행 B열
+    
+
+    save_xlnt("sample.xlsx", excel_data);
+    Sleep(10);
+
+    std::map<unsigned int, std::map<unsigned int, std::string>> load_data;
+    load_xlnt("sample.xlsx", load_data);
+
+    for (const auto& row_pair : load_data)
+    {
+        std::wcout << L"Row " << row_pair.first << L": ";
+
+        for (const auto& col_pair : row_pair.second)
+        {
+            std::wcout << L"[" << col_pair.first << L": " << convertUTF8toUTF16(col_pair.second) << L"] ";          // UTF8을 변환해서 사용
+        }
+        printf("\n");
+    }
 
     return 0;
 }
