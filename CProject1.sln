@@ -365,6 +365,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xlnt_test1", "xlnt_test1\xl
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BasicExcel_xls", "BasicExcel_xls\BasicExcel_xls.vcxproj", "{49BE991B-100E-4E46-AE53-3A4214AEEE2D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LZR920_1", "LZR920_1\LZR920_1.vcxproj", "{C8D6C6DF-5147-4419-98F5-150043F4FDC5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -1821,6 +1823,14 @@ Global
 		{49BE991B-100E-4E46-AE53-3A4214AEEE2D}.Release|x64.Build.0 = Release|x64
 		{49BE991B-100E-4E46-AE53-3A4214AEEE2D}.Release|x86.ActiveCfg = Release|Win32
 		{49BE991B-100E-4E46-AE53-3A4214AEEE2D}.Release|x86.Build.0 = Release|Win32
+		{C8D6C6DF-5147-4419-98F5-150043F4FDC5}.Debug|x64.ActiveCfg = Debug|x64
+		{C8D6C6DF-5147-4419-98F5-150043F4FDC5}.Debug|x64.Build.0 = Debug|x64
+		{C8D6C6DF-5147-4419-98F5-150043F4FDC5}.Debug|x86.ActiveCfg = Debug|Win32
+		{C8D6C6DF-5147-4419-98F5-150043F4FDC5}.Debug|x86.Build.0 = Debug|Win32
+		{C8D6C6DF-5147-4419-98F5-150043F4FDC5}.Release|x64.ActiveCfg = Release|x64
+		{C8D6C6DF-5147-4419-98F5-150043F4FDC5}.Release|x64.Build.0 = Release|x64
+		{C8D6C6DF-5147-4419-98F5-150043F4FDC5}.Release|x86.ActiveCfg = Release|Win32
+		{C8D6C6DF-5147-4419-98F5-150043F4FDC5}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
