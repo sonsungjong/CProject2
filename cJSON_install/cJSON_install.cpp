@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <cJSON.h>
+#include "cJSON.h"
 
 
 // 이 밑은 테스트 코드
