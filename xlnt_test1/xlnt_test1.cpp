@@ -96,34 +96,34 @@ std::string convertUTF16toUTF8(const std::wstring& utf16)
     return strUTF8;
 }
 
-void save_xlnt_example()
-{
-    xlnt::workbook wb;
-    xlnt::worksheet ws = wb.active_sheet();                                     // 시트를 연다
-    xlnt::alignment align;
-    align.vertical(xlnt::vertical_alignment::center);
-    //align.horizontal(xlnt::horizontal_alignment::center);
-
-    ws.row_height(8.25);
-    
-    ws.cell("A9").value(5);                  // 원래 A1 -> A9
-    std::wstring wstr = L"한글 문자열";
-    std::string utf8KO = convertUTF16toUTF8(wstr);
-    ws.cell("B10").value(utf8KO);       // 원래 B2 -> B10
-    ws.cell("C11").formula("=SUM(A9, 3)");         // 원래 C3 -> C11
-    
-	ws.merge_cells("C11:C12");    		                // 셀 C3와 C4를 병합한다.  
-	//ws.freeze_panes("B2");                              // 셀 B2 를 기준으로 고정 영역을 만든다
-
-    for (auto row : ws.rows(false)) 
-    {
-		for (auto cell : row)
-		{
-			cell.alignment(align);
-		}
-    }
-    wb.save("example.xlsx");
-}
+//void save_xlnt_example()
+//{
+//    xlnt::workbook wb;
+//    xlnt::worksheet ws = wb.active_sheet();                                     // 시트를 연다
+//    xlnt::alignment align;
+//    align.vertical(xlnt::vertical_alignment::center);
+//    //align.horizontal(xlnt::horizontal_alignment::center);
+//
+//    ws.row_height(8.25);
+//    
+//    ws.cell("A9").value(5);                  // 원래 A1 -> A9
+//    std::wstring wstr = L"한글 문자열";
+//    std::string utf8KO = convertUTF16toUTF8(wstr);
+//    ws.cell("B10").value(utf8KO);       // 원래 B2 -> B10
+//    ws.cell("C11").formula("=SUM(A9, 3)");         // 원래 C3 -> C11
+//    
+//	ws.merge_cells("C11:C12");    		                // 셀 C3와 C4를 병합한다.  
+//	//ws.freeze_panes("B2");                              // 셀 B2 를 기준으로 고정 영역을 만든다
+//
+//    for (auto row : ws.rows(false)) 
+//    {
+//		for (auto cell : row)
+//		{
+//			cell.alignment(align);
+//		}
+//    }
+//    wb.save("example.xlsx");
+//}
 
 bool save_xlnt(std::string _strFilePath, const std::map<unsigned int, std::map<unsigned int, std::string>>& _sheet_data)
 {
@@ -187,7 +187,7 @@ bool save_xlnt(std::string _strFilePath, const std::map<unsigned int, std::map<u
 }
 
 /*
-    행, 열 (0,0에는 파일명, 0,1에는 첫번째 시트명, 0,2에는 두번째 시트명 등) [1][1] 부터 내용 시작
+    행, 열 [1][1] 부터 내용 시작
 */
 bool load_xlnt(const std::string& _strFilePath, std::map<unsigned int, std::map<unsigned int, std::string>>& _sheet_data)
 {
@@ -202,8 +202,7 @@ bool load_xlnt(const std::string& _strFilePath, std::map<unsigned int, std::map<
 
     xlnt::workbook wb;
     try {
-        xlnt::path ca = xlnt::path(_strFilePath);
-        wb.load(ca);
+        wb.load(_strFilePath);
         bResult = true;
     }
     catch (const std::exception& e) {
@@ -264,12 +263,15 @@ int main()
     excel_data[4][3] = convertUTF16toUTF8(L"C4");            // 4행 C열
     excel_data[5][2] = convertUTF16toUTF8(L"5행 B열");            // 5행 B열
     
+    char szEXEPath[255]{};
+    GetCurrentDirectoryA(255, szEXEPath);
+    std::string strFilePath = std::string(szEXEPath) + "\\output\\sample.xlsx";
 
-    save_xlnt("sample.xlsx", excel_data);
+    save_xlnt(strFilePath, excel_data);
     Sleep(10);
 
     std::map<unsigned int, std::map<unsigned int, std::string>> load_data;
-    load_xlnt("sample.xlsx", load_data);
+    load_xlnt(strFilePath, load_data);
 
     for (const auto& row_pair : load_data)
     {
