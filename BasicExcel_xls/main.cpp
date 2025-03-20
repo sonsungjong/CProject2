@@ -106,9 +106,9 @@ bool save_xls(std::string _strFilePath, const std::map<unsigned int, std::map<un
     return true;
 }
 
-bool load_xls(const std::string& _strFilePath, std::map<unsigned int, std::map<unsigned int, std::string>>& _sheet_data)
+bool load_xls(std::string _strFilePath, std::map<unsigned int, std::map<unsigned int, std::string>>& _sheet_data)
 {
-    try {
+
         YExcel::BasicExcel xls;
         if (!xls.Load(_strFilePath.c_str())) {
             std::cerr << "ÆÄÀÏ ·Îµå ½ÇÆÐ: " << _strFilePath << std::endl;
@@ -155,11 +155,7 @@ bool load_xls(const std::string& _strFilePath, std::map<unsigned int, std::map<u
                 }
             }
         }
-    }
-    catch (const std::exception& e) {
-        std::cerr << "¿¢¼¿ ÆÄÀÏ ·Îµå ¿À·ù: " << e.what() << std::endl;
-        return false;
-    }
+
 
     return true;
 }
@@ -226,10 +222,12 @@ void main()
 
     char szEXEPath[255]{};
     GetCurrentDirectoryA(255, szEXEPath);
-    std::string strFilePath = std::string(szEXEPath) + "\\output\\sample.xls";
+    //std::string strFilePath = std::string(szEXEPath) + "\\output.xls";
+    std::string strFilePath = std::string(szEXEPath) + "\\sample.xls";
+    //std::string strFilePath = std::string(szEXEPath) + "\\À¯µµÅº_Ãµ±Ã15A017-00_È®ÀÎ_202503201049.xls";
 
-    save_xls(strFilePath, excel_data);
-    Sleep(10);
+    //save_xls(strFilePath, excel_data);
+    //Sleep(10);
 
     std::map<unsigned int, std::map<unsigned int, std::string>> load_data;
     load_xls(strFilePath, load_data);

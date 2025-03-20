@@ -4859,6 +4859,7 @@ bool BasicExcel::RenameWorksheet(const wchar_t* from, const wchar_t* to)
 
 size_t BasicExcel::Read(const char* data, size_t dataSize)
 {
+	int test = strlen(data);
 	size_t bytesRead = 0;
 	BOF bof;
 	short code;
