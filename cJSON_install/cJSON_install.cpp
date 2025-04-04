@@ -1,18 +1,10 @@
-// 1. cJSON을 설치하기 위해선 사전 설치 프로그램이 필요하다 [ cmake, git bash, visual studio ]
-// 2. git clone https://github.com/DaveGamble/cJSON.git 을 통해 클론을 진행한다.
-// 3. cd cJSON 으로 들어간다.
-// 4. mkdir build 를 입력해 폴더를 만든다
-// 5. cd build 로 들어간다
-// 6. cmake ..
-// 7. build 디렉토리 안에 있는 cJSON.sln 파일을 실행한다.
-// 8. cjson 프로젝트를 빌드한다. (릴리즈 디버그는 선택)
-// 9. cjson.h 경로를 추가하고, lib와 dll을 추가하여 사용한다.
+// https://github.com/DaveGamble/cJSON.git
 
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "cJSON.h"
+#include "cJSON_Utils.h"
 
 
 // 이 밑은 테스트 코드
