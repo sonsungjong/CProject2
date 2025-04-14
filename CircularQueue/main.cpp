@@ -1,20 +1,74 @@
-﻿// CircularQueue.cpp : 이 파일에는 'main' 함수가 포함됩니다. 거기서 프로그램 실행이 시작되고 종료됩니다.
-//
-
+﻿#include "CircularQueue1.h"
 #include <iostream>
+#include <thread>
+#include <condition_variable>
+#include <cstdio>
+#include <cstring>
+#include <mutex>
+
+std::mutex g_end_mtx;
+std::condition_variable g_cv_program_end;
+bool g_program_end = false;
 
 int main()
 {
-    std::cout << "Hello World!\n";
+    ST_CircularQueue queue1;
+    char szSTR[256] = { 0, };
+    int max_count = 100;
+    int queue_id = 0;
+    init_CircularQueue(&queue1, max_count, sizeof(szSTR), queue_id);
+
+    std::thread consumer([&queue1]() {
+        while (g_program_end == false)
+        {
+            void* data = wait_pop_CircularQueue(&queue1);
+            if (data != NULL)
+            {
+                char szCOPY[256] = { 0, };
+                memcpy(szCOPY, data, sizeof(szCOPY));
+                free(data);             // deep_copy를 사용하므로 사용 후 free
+
+                if (strcmp(szCOPY, "exit") == 0)
+                {
+                    // exit 를 받으면 종료
+                    std::lock_guard<std::mutex> lock(g_end_mtx);
+                    g_program_end = true;
+                    g_cv_program_end.notify_one();
+                    printf("추가 쓰레드 종료\n");
+                    break;
+                }
+
+                printf(">>%s\n", szCOPY);
+            }
+        }
+    });
+    consumer.detach();
+
+    while (g_program_end == false)
+    {
+        char keyboard_input[256] = { 0, };
+        memset(keyboard_input, 0, 256);
+        rewind(stdin);
+        scanf_s("%[^\n]s", keyboard_input, 255);
+
+        enqueue_CircularQueue(&queue1, keyboard_input);
+
+        if (strcmp(keyboard_input, "exit") == 0)
+        {
+            printf("입력을 종료\n");
+            break;
+        }
+    }
+
+    // 메인 스레드는 consumer 스레드가 종료될 때까지 대기 (종료 신호)
+    {
+        std::unique_lock<std::mutex> lock(g_end_mtx);
+        g_cv_program_end.wait(lock, [] { return g_program_end; });
+
+        // Sleep(100);          // 모든 쓰레드가 종료될때까지 대기
+    }
+
+    destroy_CircularQueue(&queue1);
+
+    printf("프로그램 정상 종료\n");
 }
-
-// 프로그램 실행: <Ctrl+F5> 또는 [디버그] > [디버깅하지 않고 시작] 메뉴
-// 프로그램 디버그: <F5> 키 또는 [디버그] > [디버깅 시작] 메뉴
-
-// 시작을 위한 팁: 
-//   1. [솔루션 탐색기] 창을 사용하여 파일을 추가/관리합니다.
-//   2. [팀 탐색기] 창을 사용하여 소스 제어에 연결합니다.
-//   3. [출력] 창을 사용하여 빌드 출력 및 기타 메시지를 확인합니다.
-//   4. [오류 목록] 창을 사용하여 오류를 봅니다.
-//   5. [프로젝트] > [새 항목 추가]로 이동하여 새 코드 파일을 만들거나, [프로젝트] > [기존 항목 추가]로 이동하여 기존 코드 파일을 프로젝트에 추가합니다.
-//   6. 나중에 이 프로젝트를 다시 열려면 [파일] > [열기] > [프로젝트]로 이동하고 .sln 파일을 선택합니다.

@@ -25,7 +25,7 @@ void pop_CircularQueue(ST_CircularQueue* q);										// 가장 앞부분을 제거만 한
 void reset_CircularQueue(ST_CircularQueue* q);									// 큐를 초기화
 void destroy_CircularQueue(ST_CircularQueue* q);						// 큐를 없앰
 void testDisplay_CircularQueue(ST_CircularQueue* q);			// 테스트용
-//void* wait_pop_CircularQueue
+void* wait_pop_CircularQueue(ST_CircularQueue* q);                  // wait_pop
 
 #ifdef __cplusplus
 }
