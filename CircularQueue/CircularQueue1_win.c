@@ -204,6 +204,7 @@ void* wait_pop_CircularQueue(ST_CircularQueue* q)
 
 void pop_CircularQueue(ST_CircularQueue* q)
 {
+    EnterCriticalSection(&g_cs[q->id]);
     if (q->front != -1)             // 비어있지 않으면
     {
         if (q->front == q->rear)                // 큐에 요소가 단 한개만 있을 경우
@@ -222,6 +223,7 @@ void pop_CircularQueue(ST_CircularQueue* q)
             }
         }
     }
+    LeaveCriticalSection(&g_cs[q->id]);
 }
 
 /*
@@ -265,102 +267,104 @@ void testDisplay_CircularQueue(ST_CircularQueue* q)
     EnterCriticalSection(&g_cs[q->id]);
     printf("front = %d, rear = %d\n", q->front, q->rear);
 
-    if (isEmpty_CircularQueue(q) == 1)
+    if (q->front == -1)
     {
         printf("Queue is empty\n");
-        return;
     }
-
-    if (q->element_size == sizeof(int))
+    else
     {
-        printf("Queue<int> is :");
+        if (q->element_size == sizeof(int))
+        {
+            printf("Queue<int> is :");
 
-        i = q->front;
-        if (q->front <= q->rear)
-        {
-            while (i <= q->rear)
+            i = q->front;
+            if (q->front <= q->rear)
             {
-                // q->data는 void*이므로 int*로 캐스팅 후 각 요소 출력
-                printf("%d ", ((int*)q->data)[i]);
-                i++;
+                while (i <= q->rear)
+                {
+                    // q->data는 void*이므로 int*로 캐스팅 후 각 요소 출력
+                    printf("%d ", ((int*)q->data)[i]);
+                    i++;
+                }
             }
+            else
+            {
+                while (i < q->max_count)
+                {
+                    printf("%d ", ((int*)q->data)[i]);
+                    i++;
+                }
+                i = 0;
+                while (i <= q->rear)
+                {
+                    printf("%d ", ((int*)q->data)[i]);
+                    i++;
+                }
+            }
+            printf("\n");
         }
-        else
+        else if (q->element_size == sizeof(double))
         {
-            while (i < q->max_count)
-            {
-                printf("%d ", ((int*)q->data)[i]);
-                i++;
-            }
-            i = 0;
-            while (i <= q->rear)
-            {
-                printf("%d ", ((int*)q->data)[i]);
-                i++;
-            }
-        }
-        printf("\n");
-    }
-    else if (q->element_size == sizeof(double))
-    {
-        printf("Queue<double> is :");
+            printf("Queue<double> is :");
 
-        i = q->front;
-        if (q->front <= q->rear)
-        {
-            while (i <= q->rear)
+            i = q->front;
+            if (q->front <= q->rear)
             {
-                // q->data는 void*이므로 int*로 캐스팅 후 각 요소 출력
-                printf("%lf ", ((double*)q->data)[i]);
-                i++;
+                while (i <= q->rear)
+                {
+                    // q->data는 void*이므로 int*로 캐스팅 후 각 요소 출력
+                    printf("%lf ", ((double*)q->data)[i]);
+                    i++;
+                }
             }
+            else
+            {
+                while (i < q->max_count)
+                {
+                    printf("%lf ", ((double*)q->data)[i]);
+                    i++;
+                }
+                i = 0;
+                while (i <= q->rear)
+                {
+                    printf("%lf ", ((double*)q->data)[i]);
+                    i++;
+                }
+            }
+            printf("\n");
         }
-        else
+        else if (q->element_size == sizeof(unsigned char))
         {
-            while (i < q->max_count)
-            {
-                printf("%lf ", ((double*)q->data)[i]);
-                i++;
-            }
-            i = 0;
-            while (i <= q->rear)
-            {
-                printf("%lf ", ((double*)q->data)[i]);
-                i++;
-            }
-        }
-        printf("\n");
-    }
-    else if (q->element_size == sizeof(unsigned char))
-    {
-        printf("Queue<unsigned char> is :");
+            printf("Queue<unsigned char> is :");
 
-        i = q->front;
-        if (q->front <= q->rear)
-        {
-            while (i <= q->rear)
+            i = q->front;
+            if (q->front <= q->rear)
             {
-                // q->data는 void*이므로 unsgiend char*로 캐스팅 후 각 요소 출력
-                printf("%c ", ((unsigned char*)q->data)[i]);
-                i++;
+                while (i <= q->rear)
+                {
+                    // q->data는 void*이므로 unsgiend char*로 캐스팅 후 각 요소 출력
+                    printf("%c ", ((unsigned char*)q->data)[i]);
+                    i++;
+                }
             }
+            else
+            {
+                while (i < q->max_count)
+                {
+                    printf("%c ", ((unsigned char*)q->data)[i]);
+                    i++;
+                }
+                i = 0;
+                while (i <= q->rear)
+                {
+                    printf("%c ", ((unsigned char*)q->data)[i]);
+                    i++;
+                }
+            }
+            printf("\n");
         }
-        else
-        {
-            while (i < q->max_count)
-            {
-                printf("%c ", ((unsigned char*)q->data)[i]);
-                i++;
-            }
-            i = 0;
-            while (i <= q->rear)
-            {
-                printf("%c ", ((unsigned char*)q->data)[i]);
-                i++;
-            }
-        }
-        printf("\n");
     }
+
     LeaveCriticalSection(&g_cs[q->id]);
 }
 
