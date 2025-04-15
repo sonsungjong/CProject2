@@ -173,27 +173,30 @@ void* wait_pop_CircularQueue(ST_CircularQueue* q)
     void* deep_copy = NULL;
 
     pthread_mutex_lock(&g_mtx[q->id]);
-    while (q->front == -1)
+    while ((q->front == -1) && (g_using[q->id] == 1))
     {
-        pthread_cond_wait(&g_cond[q->id], &g_mtx[q->id]);           // 큐가 비어있는 동안 대기
+        pthread_cond_wait(&g_cv[q->id], &g_mtx[q->id]);           // 큐가 비어있는 동안 대기
     }
 
-    deep_copy = malloc(q->element_size);
+    if (g_using[q->id] == 1)
+    {
+        deep_copy = malloc(q->element_size);
 
-    memcpy(deep_copy, (char*)q->data + q->front * q->element_size, q->element_size);
+        memcpy(deep_copy, (char*)q->data + q->front * q->element_size, q->element_size);
 
-    // 큐에 요소가 단 한 개만 있을 경우
-    if (q->front == q->rear) {
-        q->front = -1;
-        q->rear = -1;
-    }
-    else {
-        // 순환 처리: front가 마지막 인덱스이면 0으로
-        if (q->front == q->max_count - 1) {
-            q->front = 0;
+        // 큐에 요소가 단 한 개만 있을 경우
+        if (q->front == q->rear) {
+            q->front = -1;
+            q->rear = -1;
         }
         else {
-            q->front = q->front + 1;
+            // 순환 처리: front가 마지막 인덱스이면 0으로
+            if (q->front == q->max_count - 1) {
+                q->front = 0;
+            }
+            else {
+                q->front = q->front + 1;
+            }
         }
     }
 
@@ -245,17 +248,20 @@ void destroy_CircularQueue(ST_CircularQueue* q)
     if (g_using[q->id] == 1)
     {
         pthread_mutex_lock(&g_mtx[q->id]);            
+        g_using[q->id] = 0;
+        pthread_cond_broadcast(&g_cv[q->id]);               // 대기 중인 쓰레드 모두 깨우기
+
         q->front = -1;
         q->rear = -1;
         if (q->data != NULL) {
             free(q->data);
             q->data = NULL;
         }
+        pthread_mutex_unlock(&g_mtx[q->id]);
 
-        pthread_mutex_unlock(&g_mtx[q->id]);             
+        // 해제
         pthread_mutex_destroy(&g_mtx[q->id]);
         pthread_cond_destroy(&g_cv[q->id]);
-        g_using[q->id] = 0;             
     }
 }
 
