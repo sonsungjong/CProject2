@@ -1,0 +1,131 @@
+﻿#include "RingBuffer1.h"
+#include <iostream>
+#include <thread>
+#include <condition_variable>
+#include <cstdio>
+#include <cstring>
+#include <mutex>
+#include <Windows.h>
+
+//std::mutex g_end_mtx;
+//std::condition_variable g_cv_program_end;
+bool g_program_end = false;
+
+int main()
+{
+    ST_RingBuffer ring1;
+    char szSTR[256] = { 0, };
+    int max_buffer = 1024 * 1024 * 2;           // 2MB
+    int ring_id = 0;
+    RingBuffer_init(&ring1, max_buffer, ring_id);
+
+    std::thread consumer([&ring1]() {
+        while (g_program_end == false)
+        {
+            unsigned char* data;
+            size_t buf_size = RingBuffer_wait_read(&ring1, &data);
+            if (data != NULL)
+            {
+                unsigned char* szCOPY = (unsigned char*)malloc(buf_size);
+                memcpy(szCOPY, data, buf_size);
+                free(data);             // deep_copy를 사용하므로 사용 후 free
+
+                unsigned long long offset = 0;
+                while (offset < buf_size)
+                {
+                    // 분기처리 : 헤더를 먼저 체크하고
+                    // 바디를 읽는다
+                    
+                    // 최소 헤더의 크기가 있어야 함
+                    if (offset + sizeof(unsigned short) > buf_size)
+                    {
+                        // 헤더 크기만큼의 데이터가 부족하면 break (파싱할 수 없음)
+                        break;
+                    }
+
+                    // 헤더에서 바디의 길이(예: unsigned short)를 읽음
+                    unsigned short body_size = 0;
+                    memcpy(&body_size, szCOPY + offset, sizeof(unsigned short));
+                    offset += sizeof(unsigned short);
+
+                    // 헤더에서 지정한 바디의 크기만큼의 데이터가 남아있는지 확인
+                    if (offset + body_size > buf_size)
+                    {
+                        // 남은 데이터가 부족하면 break (메시지 손상 또는 파싱 대기 처리 필요)
+                        break;
+                    }
+
+                    // 분기처리 (크기 또는 아이디)
+                    unsigned char body_msg[256] = { 0 };
+                    memcpy(body_msg, szCOPY + offset, body_size);
+                    if (body_size == 256)
+                    {
+                        printf(">>%s (NULL포함)\n", (const char*)body_msg);
+                    }
+                    else 
+                    {
+                        printf(">>%s\n", (const char*)body_msg);
+                    }
+
+                    if (strcmp((const char*)body_msg, "exit") == 0)
+                    {
+                        // exit 를 받으면 종료
+                        //std::lock_guard<std::mutex> lock(g_end_mtx);
+                        //g_program_end = true;
+                        //g_cv_program_end.notify_one();
+                        g_program_end = true;
+                    }
+
+                    offset += body_size;
+                }
+                free(szCOPY);
+            }
+        }
+        printf("추가 쓰레드 종료\n");
+        });
+    consumer.detach();
+
+    while (g_program_end == false)
+    {
+        char keyboard_input[256] = { 0, };
+        memset(keyboard_input, 0, 256);
+        rewind(stdin);
+        scanf_s("%[^\n]s", keyboard_input, 255);
+
+        // 처음 2바이트에 바디사이즈를 넣고 그 다음에 바디를 넣는다 (하나는 strlen만큼, 하나는 NULL을 포함해서 256만큼)
+        
+		unsigned short body_size = (unsigned short)strlen(keyboard_input);      // strlen 만큼 넣는다
+        unsigned long long total_size = sizeof(body_size) + body_size;
+        unsigned char* header_body = (unsigned char*)malloc(total_size);
+        memcpy(header_body, &body_size, sizeof(body_size));
+        memcpy(header_body + sizeof(body_size), keyboard_input, body_size);
+
+        unsigned short body_size2 = 256;                // NULL을 포함해서 넣는다
+		unsigned long long total_size2 = sizeof(body_size2) + body_size2;
+		unsigned char* header_body2 = (unsigned char*)malloc(total_size2);
+		memcpy(header_body2, &body_size2, sizeof(body_size2));
+		memcpy(header_body2 + sizeof(body_size2), keyboard_input, body_size2);
+
+        RingBuffer_write(&ring1, (const unsigned char*)header_body, total_size);
+        RingBuffer_write(&ring1, (const unsigned char*)header_body2, total_size2);
+
+        if (strcmp(keyboard_input, "exit") == 0)
+        {
+            printf("입력을 종료\n");
+            g_program_end = true;
+        }
+
+        free(header_body);
+    }
+
+    // 메인 스레드는 consumer 스레드가 종료될 때까지 대기 (종료 신호)
+    //{
+    //    std::unique_lock<std::mutex> lock(g_end_mtx);
+    //    g_cv_program_end.wait(lock, [] { return g_program_end; });
+    //}
+    Sleep(100);          // 모든 쓰레드가 종료될때까지 대기
+
+    RingBuffer_destroy(&ring1);
+
+    printf("프로그램 정상 종료\n");
+}

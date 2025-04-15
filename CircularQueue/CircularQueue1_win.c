@@ -173,27 +173,30 @@ void* wait_pop_CircularQueue(ST_CircularQueue* q)
     void* deep_copy = NULL;
 
     EnterCriticalSection(&g_cs[q->id]);             // 크리티컬 섹션 시작
-    while(q->front == -1)
+    while((q->front == -1) && (g_using[q->id] == 1))
     {
         SleepConditionVariableCS(&g_cv[q->id], &g_cs[q->id], INFINITE);             // 큐가 비어있는 동안 대기
     }
 
-    deep_copy = malloc(q->element_size);
+    if (g_using[q->id] == 1)                // 사용 중 일때만 큐에 담는다 (안전 종료)
+    {
+        deep_copy = malloc(q->element_size);
 
-    memcpy(deep_copy, (char*)q->data + q->front * q->element_size, q->element_size);
+        memcpy(deep_copy, (char*)q->data + q->front * q->element_size, q->element_size);
 
-    // 큐에 요소가 단 한 개만 있을 경우
-    if (q->front == q->rear) {
-        q->front = -1;
-        q->rear = -1;
-    }
-    else {
-        // 순환 처리: front가 마지막 인덱스이면 0으로
-        if (q->front == q->max_count - 1) {
-            q->front = 0;
+        // 큐에 요소가 단 한 개만 있을 경우
+        if (q->front == q->rear) {
+            q->front = -1;
+            q->rear = -1;
         }
         else {
-            q->front = q->front + 1;
+            // 순환 처리: front가 마지막 인덱스이면 0으로
+            if (q->front == q->max_count - 1) {
+                q->front = 0;
+            }
+            else {
+                q->front = q->front + 1;
+            }
         }
     }
     
@@ -245,6 +248,9 @@ void destroy_CircularQueue(ST_CircularQueue* q)
     if (g_using[q->id] == 1)
     {
         EnterCriticalSection(&g_cs[q->id]);             // 크리티컬 섹션 시작
+        g_using[q->id] = 0;             // 사용 안함 처리
+        WakeAllConditionVariable(&g_cv[q->id]);				// 대기 중인 스레드 모두 깨우기
+
         q->front = -1;
         q->rear = -1;
         if (q->data != NULL) {
@@ -252,8 +258,8 @@ void destroy_CircularQueue(ST_CircularQueue* q)
             q->data = NULL;
         }
         LeaveCriticalSection(&g_cs[q->id]);             // 크리티컬 섹션 종료
+        Sleep(10);
         DeleteCriticalSection(&g_cs[q->id]);            // 크리티컬 섹션 삭제
-        g_using[q->id] = 0;             // 크리티컬 섹션 없음 플래그
     }
 }
 
