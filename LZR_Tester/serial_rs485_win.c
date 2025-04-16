@@ -5,27 +5,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
+#include <signal.h>
 #include <memory.h>
 #include "RingBuffer1.h"
+#include <mmsystem.h>			//#include <unistd.h>
 
-#define HEADER_SYNC_VAL			0xFFFEFDFC
-
-#define MIN_MSG_SIZE							8					// SYNC(4) + SIZE(2) + FOOTER(2)
-#define HEADER_SYNC_SIZE					4
-#define HEADER_MESSAGE_SIZE			2
-#define MESSAGE_CMD_SIZE					2
-#define FOOTER_CHK_SIZE					2
-
-typedef struct LZR920
-{
-	unsigned int header_sync;					// 0xFFFEFDFC
-	unsigned short header_size;				// message의 크기
-	unsigned short message_cmd;				// 메시지 아이디
-	unsigned char* message_data;			// 데이터
-	unsigned short footer_chk;
-} ST_LZR920;
-
-
+#pragma comment(lib, "winmm.lib")
 
 // static으로 접근 범위를 이 파일로 한정시킨다
 static HANDLE g_hSerial = INVALID_HANDLE_VALUE;
@@ -109,10 +95,7 @@ DWORD WINAPI processMessageThread(void* lpParam)
 
 							if (stData.footer_chk == calc_chk)
 							{
-								printf("[processThread] header_sync OK! CMD=%d, SIZE=%d, footer=%d\n",
-									stData.message_cmd,
-									stData.header_size,
-									stData.footer_chk);
+								//printf("[processThread] header_sync OK! CMD=%d, SIZE=%d, footer=%d\n", stData.message_cmd, stData.header_size, stData.footer_chk);
 							}
 
 							if (stData.message_cmd == 50011)			// MDI
@@ -127,25 +110,25 @@ DWORD WINAPI processMessageThread(void* lpParam)
 									// 그 다음 548 바이트를 unsigned short로 각각 변환한다음
 									// 다시 Plane Number 1바이트를 읽고
 									// 다시 548 바이트를 unsigned short로 각각 변환하고... 총 4번
-									printf("MDI\n");
+									//printf("MDI\n");
 								}
 								else if (size_body_msg == 2196)
 								{
 									// Plane Number + MDI
-									printf("MDI\n");
+									//printf("MDI\n");
 								}
 								else if (size_body_msg == 2216)
 								{
 									// ID + Frame counter
 									// CTN + VNR + Error log + Hot reset counter
 									// Plane Number + MDI
-									printf("MDI\n");
+									//printf("MDI\n");
 								}
 								else if (size_body_msg == 2210)
 								{
 									// CTN + VNR + Error log + Hot reset counter
 									// Plane Number + MDI
-									printf("MDI\n");
+									//printf("MDI\n");
 								}
 							}
 							else if (stData.message_cmd == 50002)			// 모드 변경 응답
@@ -261,9 +244,67 @@ void closeSerialPort(void)
 	// 종료 전 정리
 	g_running_end = 1;
 	Sleep(100);
+	CloseHandle(g_hSerial);
 	RingBuffer_destroy(&ring1);
 	DeleteCriticalSection(&g_cs_end);
-	CloseHandle(g_hSerial);
+}
+
+DWORD WINAPI sendThread(LPVOID lpParam)
+{
+	// 프레임 구성: SYNC(4) + SIZE(2) + CMD(2) + DATA(1) + CHK(2) = 11 bytes
+	unsigned char packet[11] = { 0, };
+	unsigned int sync = HEADER_SYNC_VAL;
+	unsigned short size = 3;             // CMD(2) + DATA(1)
+	unsigned short cmd = 50001;         // SETRAWDATAMODE
+	unsigned char d0 = 1;             // 측정 모드 요청
+
+	// CHK 계산
+	unsigned short chk = 0;
+	chk += cmd & 0xFF;        // LSB
+	chk += (cmd >> 8);        // MSB
+	chk += d0;
+
+	// 패킷 작성 (LSB first)
+	memcpy(&packet[0], &sync, 4);           // SYNC
+	memcpy(&packet[4], &size, 2);           // SIZE
+	memcpy(&packet[6], &cmd, 2);            // CMD
+	packet[8] = d0;                         // DATA
+	memcpy(&packet[9], &chk, 2);            // CHK
+
+	DWORD bytesWritten = 0;
+	WriteFile(g_hSerial, packet, sizeof(packet), &bytesWritten, NULL);
+
+	if (bytesWritten == sizeof(packet))
+	{
+		printf("측정 모드 진입 명령 전송 완료 (0x5001)\n");
+	}
+
+	return 0;
+}
+
+void request_MeasurementMode(void)
+{
+	HANDLE hThread = (HANDLE)_beginthreadex(
+		NULL,       // 보안 속성
+		0,          // 스택 크기 (0 = 기본)
+		sendThread, // 스레드 함수
+		NULL,       // 파라미터
+		0,          // 생성 후 바로 실행
+		NULL
+	);
+	CloseHandle(hThread);
+}
+
+void request_ConfigMode(void)
+{
+	// 타이머를 생성해서 응답을 받기 전까지 계속 보낸다
+	unsigned char packet = 0xA5;					// 패킷
+
+	DWORD bytesWritten = 0;
+	WriteFile(g_hSerial, &packet, sizeof(packet), &bytesWritten, NULL);
+	if (bytesWritten == sizeof(packet)) {
+		printf("설정 모드 진입 명령 전송 완료 (0xA5)\n");
+	}
 }
 
 #endif

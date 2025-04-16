@@ -6,14 +6,10 @@
 
 int main()
 {
-
-    // 수신버퍼에서 갖고 나오는 쓰레드를 별도 생성한다
-
-
     while (1)
     {
         // 버튼 대용
-        printf("0. 종료\n1. 연결하기\n2. 측정모드\n3. 설정모드\n4. 설정값보기\n5. 측정각도변경\n6. 정밀도변경\n");
+        printf("0. 종료\n1. COM번호 입력하고 연결하기\n2. 측정모드\n3. 설정모드\n4. 설정값보기\n5. 측정각도변경\n6. 정밀도변경\n");
         int select_number = -1;
         scanf("%d", &select_number);
 
@@ -32,12 +28,12 @@ int main()
         else if (select_number == 2)
         {
             printf(">>2. 측정모드<<\n");
-            //request_MeasurementMode();
+            request_MeasurementMode();
         }
         else if (select_number == 3)
         {
             printf(">>3. 설정모드<<\n");
-            //request_ConfigMode();
+            request_ConfigMode();
         }
         else if (select_number == 4)
         {
