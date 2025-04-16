@@ -7,11 +7,15 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="CircularQueue1_linux.c" />
-    <ClCompile Include="CircularQueue1_win.c" />
+    <ClCompile Include="main.c" />
+    <ClCompile Include="pch.c" />
+    <ClCompile Include="serial_rs485_win.c" />
+    <ClCompile Include="RingBuffer1_win.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CircularQueue1.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="main.h" />
+    <ClInclude Include="serial_rs485.h" />
+    <ClInclude Include="RingBuffer1.h" />
   </ItemGroup>
 </Project>

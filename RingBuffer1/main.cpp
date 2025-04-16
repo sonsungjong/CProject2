@@ -14,7 +14,6 @@ bool g_program_end = false;
 int main()
 {
     ST_RingBuffer ring1;
-    char szSTR[256] = { 0, };
     int max_buffer = 1024 * 1024 * 2;           // 2MB
     int ring_id = 0;
     RingBuffer_init(&ring1, max_buffer, ring_id);
