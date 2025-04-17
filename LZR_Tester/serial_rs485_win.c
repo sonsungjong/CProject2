@@ -13,6 +13,26 @@
 
 #pragma comment(lib, "winmm.lib")
 
+/*
+	0xA5 : 설정 모드 진입
+	50001 : 측정 모드 진입
+	50002 : 모드상태조회(REQ) + 모드 변경 응답 (RES)
+	50003 : 설정 변경
+	50004 : 설정값 조회(REQ) + 설정값 응답 (RES)
+	50005 : 
+	50006 : 
+	50007 : 
+	50008 : 
+	50009 : 
+	50010 : 레드 레이저 LED 상태 조회(REQ) + 응답(RES)
+	50011 : 
+	50012 : 
+	50013 : 하트비트 상태 조회(REQ) + 응답(RES)
+	50014 : 
+	50015 : 
+
+*/
+
 #define MODE_UNKNOWN				 0
 #define MODE_MEASURE				 1
 #define MODE_CONFIG					 2
