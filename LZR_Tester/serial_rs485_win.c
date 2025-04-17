@@ -175,64 +175,35 @@ int openSerialPort(char* portName, int baudRate)
 
 	if (portName)
 	{
-		g_hSerial = CreateFileA(portName, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+		g_hSerial = CreateFileA(portName, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
 
-		// 시리얼 파라미터 설정
-		DCB dcbSerialParams;
-		memset(&dcbSerialParams, 0, sizeof(dcbSerialParams));
-		dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
-
-		if (GetCommState(g_hSerial, &dcbSerialParams))
+		if (g_hSerial != INVALID_HANDLE_VALUE)
 		{
-			// 보레이트, 데이터 비트, 스톱 비트 등 설정 (예: 460800 8N1)
-			dcbSerialParams.BaudRate = baudRate;
-			dcbSerialParams.ByteSize = 8;
-			dcbSerialParams.Parity = NOPARITY;
-			dcbSerialParams.StopBits = ONESTOPBIT;
-
-			if (SetCommState(g_hSerial, &dcbSerialParams))
+			DCB dcb = { 0 };
+			dcb.DCBlength = sizeof(DCB);
+			BOOL state = GetCommState(g_hSerial, &dcb);
+			if (TRUE == state)
 			{
+				dcb.BaudRate = baudRate;
+				dcb.ByteSize = 8;
+				dcb.Parity = NOPARITY;
+				dcb.StopBits = ONESTOPBIT;
+				SetCommState(g_hSerial, &dcb);
+
 				// 타임아웃 설정
-				COMMTIMEOUTS timeouts = { 0 };
-				timeouts.ReadIntervalTimeout = 50;
-				timeouts.ReadTotalTimeoutConstant = 50;
-				timeouts.ReadTotalTimeoutMultiplier = 10;
-				timeouts.WriteTotalTimeoutConstant = 50;
-				timeouts.WriteTotalTimeoutMultiplier = 10;
+				COMMTIMEOUTS timeouts = { 10, 1, 10, 0, 0 };
+				SetCommTimeouts(g_hSerial, &timeouts);
 
-				if (SetCommTimeouts(g_hSerial, &timeouts))
-				{
-					if (g_hSerial != INVALID_HANDLE_VALUE)
-					{
-						// 링버퍼 생성
-						int max_buffer = 1024 * 1024 * 2;           // 2MB
-						int ring_id = 0;
-						RingBuffer_init(&ring1, max_buffer, ring_id);
+				// 링버퍼 생성
+				int max_buffer = 1024 * 1024 * 2;           // 2MB
+				int ring_id = 0;
+				RingBuffer_init(&ring1, max_buffer, ring_id);
 
-						// 처리 및 수신쓰레드 생성
-						g_hProcessThread = CreateThread(NULL, 0, processMessageThread, NULL, 0, NULL);
-						g_hRecvThread = CreateThread(NULL, 0, recvThreadSerial, NULL, 0, NULL);
-						nResult = 1;
-					}
-				}
-				else
-				{
-					printf("[openSerialPort] SetCommTimeouts() failed.\n");
-					CloseHandle(g_hSerial);
-					g_hSerial = INVALID_HANDLE_VALUE;
-				}
+				// 처리 및 수신쓰레드 생성
+				g_hProcessThread = CreateThread(NULL, 0, processMessageThread, NULL, 0, NULL);
+				g_hRecvThread = CreateThread(NULL, 0, recvThreadSerial, NULL, 0, NULL);
+				nResult = 1;
 			}
-			else {
-				printf("[openSerialPort] SetCommState() failed.\n");
-				CloseHandle(g_hSerial);
-				g_hSerial = INVALID_HANDLE_VALUE;
-			}
-		}
-		else 
-		{
-			printf("[openSerialPort] GetCommState() failed.\n");
-			CloseHandle(g_hSerial);
-			g_hSerial = INVALID_HANDLE_VALUE;
 		}
 	}
 
