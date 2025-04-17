@@ -24,10 +24,15 @@ extern "C" {
 
 	int openSerialPort(char* portName, int baudRate);
 	void closeSerialPort(void);
+
+
+	// 메시지 생성부
 	void request_MeasurementMode(void);
 	void request_ConfigMode(void);
 	//void request_getConfig(void);
 	//void request_changeAngle(int start_angle, int end_angle, int distance_angle);
+	void startTimerRequestConfigurationMode(void);
+	void stopTimerRequestConfigurationMode(void);
 
 #ifdef __cplusplus
 }

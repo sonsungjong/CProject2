@@ -13,6 +13,10 @@
 
 #pragma comment(lib, "winmm.lib")
 
+#define MODE_UNKNOWN				 0
+#define MODE_MEASURE				 1
+#define MODE_CONFIG					 2
+
 // static으로 접근 범위를 이 파일로 한정시킨다
 static HANDLE g_hSerial = INVALID_HANDLE_VALUE;
 static const char* g_portName = "\\\\.\\COM9";
@@ -20,6 +24,10 @@ static const int g_baudRate = 460800;
 static ST_RingBuffer ring1;
 static HANDLE g_hRecvThread;
 static HANDLE g_hProcessThread;
+
+static UINT g_mmTimerID = 0;
+static volatile LONG g_curMode = MODE_CONFIG;      // 1: 측정, 2: 설정, 0: 알수없음
+static CRITICAL_SECTION g_txCS;
 
 static CRITICAL_SECTION g_cs_end;
 static CONDITION_VARIABLE g_cv_end;
@@ -33,7 +41,10 @@ static DWORD WINAPI recvThreadSerial(void* lpParam)
 		unsigned int bytesRead = 0;
 		unsigned char tempBuf[16384] = { 0, };
 		// ReadFile 로 수신받는다
-		if (ReadFile(g_hSerial, tempBuf, sizeof(tempBuf), &bytesRead, NULL))
+		EnterCriticalSection(&g_txCS);
+		BOOL read_result = ReadFile(g_hSerial, tempBuf, sizeof(tempBuf), &bytesRead, NULL);
+		LeaveCriticalSection(&g_txCS);
+		if (read_result)
 		{
 			if (bytesRead > 0)
 			{
@@ -100,6 +111,12 @@ DWORD WINAPI processMessageThread(void* lpParam)
 
 							if (stData.message_cmd == 50011)			// MDI
 							{
+								// MDI 수신은 측정모드니깐 측정모드로 전환
+								if (InterlockedCompareExchange(&g_curMode, 0, 0) != MODE_MEASURE)
+								{
+									InterlockedExchange(&g_curMode, MODE_MEASURE);
+								}
+
 								if (size_body_msg == 2202)
 								{
 									// ID + Frame counter
@@ -137,16 +154,31 @@ DWORD WINAPI processMessageThread(void* lpParam)
 								if (mode == 1)
 								{
 									printf("측정모드 응답\n");
+									if (InterlockedCompareExchange(&g_curMode, 0, 0) != MODE_MEASURE) {
+										stopTimerRequestConfigurationMode();
+										InterlockedExchange(&g_curMode, MODE_MEASURE);
+									}
+
 								}
 								else if (mode == 2)
 								{
 									printf("설정모드 응답\n");
+									if (InterlockedCompareExchange(&g_curMode, 0, 0) != MODE_CONFIG) {
+										stopTimerRequestConfigurationMode();
+										InterlockedExchange(&g_curMode, MODE_CONFIG);
+									}
 								}
 								else
 								{
 									printf("알수없는 모드\n");
+									InterlockedExchange(&g_curMode, MODE_UNKNOWN);
 								}
 							}
+						}
+						if (stData.message_data)
+						{
+							free(stData.message_data);
+							stData.message_data = NULL;
 						}
 					}
 				}
@@ -160,8 +192,11 @@ DWORD WINAPI processMessageThread(void* lpParam)
 					buf_size++;
 				}
 			}
-
-			free(data);
+			if (data)
+			{
+				free(data);
+				data = NULL;
+			}
 		}
 	}
 	return 0;
@@ -172,6 +207,8 @@ int openSerialPort(char* portName, int baudRate)
 {
 	int nResult = 0;
 	InitializeCriticalSection(&g_cs_end);			// 큐 크리티컬 섹션 초기화
+	InitializeCriticalSection(&g_txCS);
+	g_curMode = 2;			// 구성모드로 초기화 후 MDI를 받으면 측정모드로 변경한다
 
 	if (portName)
 	{
@@ -217,6 +254,7 @@ void closeSerialPort(void)
 	Sleep(100);
 	CloseHandle(g_hSerial);
 	RingBuffer_destroy(&ring1);
+	DeleteCriticalSection(&g_txCS);
 	DeleteCriticalSection(&g_cs_end);
 }
 
@@ -243,7 +281,9 @@ DWORD WINAPI sendThread(LPVOID lpParam)
 	memcpy(&packet[9], &chk, 2);            // CHK
 
 	DWORD bytesWritten = 0;
+	EnterCriticalSection(&g_txCS);
 	WriteFile(g_hSerial, packet, sizeof(packet), &bytesWritten, NULL);
+	LeaveCriticalSection(&g_txCS);
 
 	if (bytesWritten == sizeof(packet))
 	{
@@ -253,6 +293,7 @@ DWORD WINAPI sendThread(LPVOID lpParam)
 	return 0;
 }
 
+// 측정모드로
 void request_MeasurementMode(void)
 {
 	HANDLE hThread = (HANDLE)_beginthreadex(
@@ -266,15 +307,70 @@ void request_MeasurementMode(void)
 	CloseHandle(hThread);
 }
 
+
+
+
+// 설정 모드로
 void request_ConfigMode(void)
 {
 	// 타이머를 생성해서 응답을 받기 전까지 계속 보낸다
-	unsigned char packet = 0xA5;					// 패킷
 
-	DWORD bytesWritten = 0;
-	WriteFile(g_hSerial, &packet, sizeof(packet), &bytesWritten, NULL);
-	if (bytesWritten == sizeof(packet)) {
-		printf("설정 모드 진입 명령 전송 완료 (0xA5)\n");
+	// 현재 측정모드면
+	if (InterlockedCompareExchange(&g_curMode, 0, 0) == MODE_MEASURE)
+	{
+		if (g_mmTimerID == 0)
+		{
+			startTimerRequestConfigurationMode();
+		}
+		else
+		{
+			printf("타이머 이미 실행 중 입니다.\n");
+		}
+	}
+	else
+	{
+		printf("이미 설정 모드 입니다\n");
+	}
+}
+
+static void CALLBACK TimerCallbackProc_REQ_CONFIGUREMODE(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2)
+{
+	if (InterlockedCompareExchange(&g_curMode, 0, 0) == MODE_CONFIG)
+	{
+		// 설정모드다
+		stopTimerRequestConfigurationMode();
+	}
+	else
+	{
+		// 현재 측정모드다
+		const unsigned char a5 = 0xA5;
+		DWORD bytesWritten = 0;
+
+		EnterCriticalSection(&g_txCS);
+		WriteFile(g_hSerial, &a5, 1, &bytesWritten, NULL);
+		LeaveCriticalSection(&g_txCS);
+	}
+
+}
+
+void startTimerRequestConfigurationMode(void)
+{
+	if (g_mmTimerID == 0)
+	{
+		unsigned int interval = 1;			// 1ms
+		timeBeginPeriod(1);
+
+		g_mmTimerID = timeSetEvent(interval, 0, TimerCallbackProc_REQ_CONFIGUREMODE, 0, TIME_PERIODIC | TIME_CALLBACK_FUNCTION);
+	}
+}
+
+void stopTimerRequestConfigurationMode(void)
+{
+	if (g_mmTimerID != 0)
+	{
+		timeKillEvent(g_mmTimerID);
+		g_mmTimerID = 0;
+		timeEndPeriod(1);
 	}
 }
 
