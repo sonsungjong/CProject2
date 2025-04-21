@@ -33,6 +33,7 @@ extern "C" {
 	//void request_changeAngle(int start_angle, int end_angle, int distance_angle);
 	void startTimerRequestConfigurationMode(void);
 	void stopTimerRequestConfigurationMode(void);
+	void request_CurrentMode(void);
 
 #ifdef __cplusplus
 }

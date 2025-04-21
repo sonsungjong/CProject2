@@ -9,7 +9,8 @@ int main()
     while (1)
     {
         // 버튼 대용
-        printf("0. 종료\n1. COM번호 입력하고 연결하기\n2. 측정모드\n3. 설정모드\n4. 설정값보기\n5. 측정각도변경\n6. 정밀도변경\n");
+        printf("0. 종료\n1. COM번호 입력하고 연결하기\n2. 측정모드 전환(50001)\n3. 설정모드 전환(0xA5)\n4. 설정값보기(50004)\n5. 측정각도변경\n6. 정밀도변경\n");
+        printf("7. 현재 모드 조회(50002)\n8. 레드 레이저 상태 조회(50010)\n");
         int select_number = -1;
         scanf("%d", &select_number);
 
@@ -22,8 +23,17 @@ int main()
 
             char com_name[16] = { 0 };
             sprintf(com_name, "\\\\.\\COM%d", com_number);
-            printf("%s\n", com_name);
-            openSerialPort(com_name, 460800);          // COM 연결을 시도하고 연결에 성공하면 수신쓰레드를 생성한다
+            
+            int nResult = openSerialPort(com_name, 460800);          // COM 연결을 시도하고 연결에 성공하면 수신쓰레드를 생성한다
+            if (nResult == 1) {
+                printf("%s 연결 성공\n", com_name);
+
+                // 연결 성공하면 바로 현재 모드를 얻어온다
+                request_CurrentMode();
+            }
+            else {
+                printf("%s 연결 실패\n", com_name);
+            }
         }
         else if (select_number == 2)
         {
@@ -61,6 +71,11 @@ int main()
             //scanf("%d", &point_level);
 
             //request_changePointLevel(point_level);
+        }
+        else if (select_number == 7)
+        {
+            printf(">>7. 현재 모드 조회<<\n");
+            request_CurrentMode();
         }
         else if (select_number == 0)
         {

@@ -14,28 +14,30 @@
 #pragma comment(lib, "winmm.lib")
 
 /*
-	0xA5 : 설정 모드 진입
-	50001 : 측정 모드 진입
-	50002 : 모드상태조회(REQ) + 모드 변경 응답 (RES)
-	50003 : 설정 변경
-	50004 : 설정값 조회(REQ) + 설정값 응답 (RES)
-	50005 : 
-	50006 : 
-	50007 : 
-	50008 : 
-	50009 : 
-	50010 : 레드 레이저 LED 상태 조회(REQ) + 응답(RES)
-	50011 : 
-	50012 : 
+	0xA5 : 설정 모드 진입 [필]
+	50001 : 측정 모드 진입 [필]
+	50002 : 모드상태조회(REQ) + 모드 변경 응답 (RES) [필]
+	50003 : 설정 변경 [필]
+	50004 : 설정값 조회(REQ) + 설정값 응답 (RES) [필]
+	50005 : RAM설정을 EEPROM에 저장
+	50006 : 로그 및 카운터 초기화
+	50007 : RAM 설정 초기화
+	50008 : 상태정보 일괄 조회
+	50009 : 레이저 3개 ON/OFF
+	50010 : 레드 레이저 상태 조회(REQ) + 응답(RES)
+	50011 : MDI 반환
+	50012 : 하트비트 ON/OFF
 	50013 : 하트비트 상태 조회(REQ) + 응답(RES)
-	50014 : 
-	50015 : 
+	50014 : SETRAWDATAFRAMECOUNTERRESET
+	50015 : X
 
 */
 
 #define MODE_UNKNOWN				 0
 #define MODE_MEASURE				 1
 #define MODE_CONFIG					 2
+
+#define MAX_CFG_SEND_COUNT			10			// 설정모드 요청 최대 횟수
 
 // static으로 접근 범위를 이 파일로 한정시킨다
 static HANDLE g_hSerial = INVALID_HANDLE_VALUE;
@@ -46,12 +48,14 @@ static HANDLE g_hRecvThread;
 static HANDLE g_hProcessThread;
 
 static UINT g_mmTimerID = 0;
-static volatile LONG g_curMode = MODE_CONFIG;      // 1: 측정, 2: 설정, 0: 알수없음
+static volatile LONG g_curMode = MODE_MEASURE;      // 1: 측정, 2: 설정, 0: 알수없음 (기본값을 측정모드로 해놓고 모드요청을 해본다)
 static CRITICAL_SECTION g_txCS;
 
 static CRITICAL_SECTION g_cs_end;
 static CONDITION_VARIABLE g_cv_end;
 static int g_running_end = 0;			// [0] 종료X [1] 종료O
+static volatile LONG g_cfgSendCount = 0;      // 설정모드 A5 전송 횟수 카운트
+
 
 // 수신부
 static DWORD WINAPI recvThreadSerial(void* lpParam)
@@ -126,16 +130,16 @@ DWORD WINAPI processMessageThread(void* lpParam)
 
 							if (stData.footer_chk == calc_chk)
 							{
-								//printf("[processThread] header_sync OK! CMD=%d, SIZE=%d, footer=%d\n", stData.message_cmd, stData.header_size, stData.footer_chk);
+								printf("[processThread] header_sync OK! CMD=%d, SIZE=%d, footer=%d\n", stData.message_cmd, stData.header_size, stData.footer_chk);
 							}
 
 							if (stData.message_cmd == 50011)			// MDI
 							{
 								// MDI 수신은 측정모드니깐 측정모드로 전환
-								if (InterlockedCompareExchange(&g_curMode, 0, 0) != MODE_MEASURE)
-								{
-									InterlockedExchange(&g_curMode, MODE_MEASURE);
-								}
+								//if (InterlockedCompareExchange(&g_curMode, 0, 0) != MODE_MEASURE)
+								//{
+								//	InterlockedExchange(&g_curMode, MODE_MEASURE);
+								//}
 
 								if (size_body_msg == 2202)
 								{
@@ -167,6 +171,7 @@ DWORD WINAPI processMessageThread(void* lpParam)
 									// Plane Number + MDI
 									//printf("MDI\n");
 								}
+								break;
 							}
 							else if (stData.message_cmd == 50002)			// 모드 변경 응답
 							{
@@ -178,7 +183,7 @@ DWORD WINAPI processMessageThread(void* lpParam)
 										stopTimerRequestConfigurationMode();
 										InterlockedExchange(&g_curMode, MODE_MEASURE);
 									}
-
+									break;
 								}
 								else if (mode == 2)
 								{
@@ -187,11 +192,13 @@ DWORD WINAPI processMessageThread(void* lpParam)
 										stopTimerRequestConfigurationMode();
 										InterlockedExchange(&g_curMode, MODE_CONFIG);
 									}
+									break;
 								}
 								else
 								{
 									printf("알수없는 모드\n");
 									InterlockedExchange(&g_curMode, MODE_UNKNOWN);
+									break;
 								}
 							}
 						}
@@ -200,6 +207,16 @@ DWORD WINAPI processMessageThread(void* lpParam)
 							free(stData.message_data);
 							stData.message_data = NULL;
 						}
+					}
+					else
+					{
+						// 헤더는 맞지만 크기가 안맞으면 좀더 읽기
+						//memmove(data, data + 1, buf_size - 1);
+						//buf_size--;
+						//unsigned char addByte = RingBuffer_readbytes(&ring1, );
+						//data[buf_size] = addByte;
+						//buf_size++;
+						break;
 					}
 				}
 				else
@@ -248,7 +265,8 @@ int openSerialPort(char* portName, int baudRate)
 				SetCommState(g_hSerial, &dcb);
 
 				// 타임아웃 설정
-				COMMTIMEOUTS timeouts = { 10, 1, 10, 0, 0 };
+				//COMMTIMEOUTS timeouts = { 10, 1, 10, 0, 0 };
+				COMMTIMEOUTS timeouts = { MAXDWORD, 0, 0, 0, 0 };
 				SetCommTimeouts(g_hSerial, &timeouts);
 
 				// 링버퍼 생성
@@ -278,7 +296,8 @@ void closeSerialPort(void)
 	DeleteCriticalSection(&g_cs_end);
 }
 
-DWORD WINAPI sendThread(LPVOID lpParam)
+// 측정 모드 요청
+DWORD WINAPI sendMeasurementThread(LPVOID lpParam)
 {
 	// 프레임 구성: SYNC(4) + SIZE(2) + CMD(2) + DATA(1) + CHK(2) = 11 bytes
 	unsigned char packet[11] = { 0, };
@@ -316,18 +335,61 @@ DWORD WINAPI sendThread(LPVOID lpParam)
 // 측정모드로
 void request_MeasurementMode(void)
 {
-	HANDLE hThread = (HANDLE)_beginthreadex(
-		NULL,       // 보안 속성
-		0,          // 스택 크기 (0 = 기본)
-		sendThread, // 스레드 함수
-		NULL,       // 파라미터
-		0,          // 생성 후 바로 실행
-		NULL
-	);
-	CloseHandle(hThread);
+	// 측정모드가 아닐때만 측정모드 요청 전송
+	if (InterlockedCompareExchange(&g_curMode, 0, 0) != MODE_MEASURE)
+	{
+		HANDLE hThread = (HANDLE)_beginthreadex(
+			NULL,       // 보안 속성
+			0,          // 스택 크기 (0 = 기본)
+			sendMeasurementThread, // 스레드 함수
+			NULL,       // 파라미터
+			0,          // 생성 후 바로 실행
+			NULL
+		);
+		CloseHandle(hThread);
+	}
+	else {
+		printf("이미 측정 모드\n");
+	}
 }
 
+// 현재 모드 조회 요청
+DWORD WINAPI sendGetModeThread(LPVOID lpParam)
+{
+	// 프레임 구성: SYNC(4) + SIZE(2) + CMD(2) + CHK(2) = 10 bytes
+	unsigned char packet[10];
+	uint32_t sync = HEADER_SYNC_VAL;           // 0xFFFEFDFC
+	uint16_t size = sizeof(uint16_t);         // CMD만 있으므로 2
+	uint16_t cmd = 50002;                    // GETRAWDATAMODE
+	uint16_t chk = (cmd & 0xFF) + (cmd >> 8); // 체크섬 = CMD LSB+MSB
 
+	// LSB first
+	memcpy(&packet[0], &sync, 4);
+	memcpy(&packet[4], &size, 2);
+	memcpy(&packet[6], &cmd, 2);
+	memcpy(&packet[8], &chk, 2);
+
+	DWORD bytesWritten = 0;
+	EnterCriticalSection(&g_txCS);
+	WriteFile(g_hSerial, packet, sizeof(packet), &bytesWritten, NULL);
+	LeaveCriticalSection(&g_txCS);
+
+	if (bytesWritten == sizeof(packet))
+		printf("현재 모드 조회 요청 전송 완료 (CMD=50002)\n");
+
+	return 0;
+}
+
+// 호출용 래퍼
+void request_CurrentMode(void)
+{
+	HANDLE hThread = (HANDLE)_beginthreadex(
+		NULL, 0,
+		sendGetModeThread,
+		NULL, 0, NULL
+	);\
+	CloseHandle(hThread);
+}
 
 
 // 설정 모드로
@@ -353,31 +415,41 @@ void request_ConfigMode(void)
 	}
 }
 
+// 설정모드 요청 타이머
 static void CALLBACK TimerCallbackProc_REQ_CONFIGUREMODE(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2)
 {
-	if (InterlockedCompareExchange(&g_curMode, 0, 0) == MODE_CONFIG)
+	// 최대 횟수 초과 시 자동 멈춤
+	if (InterlockedIncrement(&g_cfgSendCount) > MAX_CFG_SEND_COUNT)
 	{
-		// 설정모드다
 		stopTimerRequestConfigurationMode();
+		printf("설정 모드 진입 명령 전송을 %d회 수행 후 중단했습니다.\n", MAX_CFG_SEND_COUNT);
 	}
 	else
 	{
-		// 현재 측정모드다
-		const unsigned char a5 = 0xA5;
-		DWORD bytesWritten = 0;
+		if (InterlockedCompareExchange(&g_curMode, 0, 0) == MODE_CONFIG)
+		{
+			// 설정모드다
+			stopTimerRequestConfigurationMode();
+		}
+		else
+		{
+			// 현재 측정모드다
+			const unsigned char a5 = 0xA5;
+			DWORD bytesWritten = 0;
 
-		EnterCriticalSection(&g_txCS);
-		WriteFile(g_hSerial, &a5, 1, &bytesWritten, NULL);
-		LeaveCriticalSection(&g_txCS);
+			EnterCriticalSection(&g_txCS);
+			WriteFile(g_hSerial, &a5, 1, &bytesWritten, NULL);
+			LeaveCriticalSection(&g_txCS);
+		}
 	}
-
 }
 
 void startTimerRequestConfigurationMode(void)
 {
 	if (g_mmTimerID == 0)
 	{
-		unsigned int interval = 1;			// 1ms
+		InterlockedExchange(&g_cfgSendCount, 0);					// 제한 카운터 초기화(100회까지)
+		unsigned int interval = 50;			// 50ms
 		timeBeginPeriod(1);
 
 		g_mmTimerID = timeSetEvent(interval, 0, TimerCallbackProc_REQ_CONFIGUREMODE, 0, TIME_PERIODIC | TIME_CALLBACK_FUNCTION);
@@ -393,5 +465,7 @@ void stopTimerRequestConfigurationMode(void)
 		timeEndPeriod(1);
 	}
 }
+
+
 
 #endif
