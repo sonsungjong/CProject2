@@ -34,6 +34,7 @@ extern "C" {
 	void startTimerRequestConfigurationMode(void);
 	void stopTimerRequestConfigurationMode(void);
 	void request_CurrentMode(void);
+	void sendPacket(const void* buf, unsigned long len);
 
 #ifdef __cplusplus
 }

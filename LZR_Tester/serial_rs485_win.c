@@ -60,8 +60,7 @@ static volatile LONG g_cfgSendCount = 0;      // 설정모드 A5 전송 횟수 카운트
 // 수신부
 static DWORD WINAPI recvThreadSerial(void* lpParam)
 {
-	//DWORD dwEvtMask;
-	//SetCommMask(g_hSerial, EV_RXCHAR);
+
 	while (g_running_end == 0)
 	{
 		unsigned int bytesRead = 0;
@@ -213,7 +212,7 @@ DWORD WINAPI processMessageThread(void* lpParam)
 								unsigned char mode = stData.message_data[0];
 								if (mode == 1)
 								{
-									printf("측정모드 응답\n");
+									printf("=============>측정 모드 응답\n");
 									if (InterlockedCompareExchange(&g_curMode, 0, 0) != MODE_MEASURE) {
 										stopTimerRequestConfigurationMode();
 										InterlockedExchange(&g_curMode, MODE_MEASURE);
@@ -222,7 +221,7 @@ DWORD WINAPI processMessageThread(void* lpParam)
 								}
 								else if (mode == 2)
 								{
-									printf("설정모드 응답\n");
+									printf("=============>설정 모드 응답\n");
 									if (InterlockedCompareExchange(&g_curMode, 0, 0) != MODE_CONFIG) {
 										stopTimerRequestConfigurationMode();
 										InterlockedExchange(&g_curMode, MODE_CONFIG);
@@ -231,7 +230,7 @@ DWORD WINAPI processMessageThread(void* lpParam)
 								}
 								else
 								{
-									printf("알수없는 모드\n");
+									printf("=============>알수 없는 모드\n");
 									InterlockedExchange(&g_curMode, MODE_UNKNOWN);
 									break;
 								}
@@ -302,7 +301,7 @@ int openSerialPort(char* portName, int baudRate)
 				COMMTIMEOUTS timeouts = {
 					MAXDWORD,  // ReadIntervalTimeout: 무조건 논블록킹 인터벌 모드
 					0,         // ReadTotalTimeoutMultiplier
-					15,         // ReadTotalTimeoutConstant: 첫 바이트는 최대 15ms 대기 (11ms ~ 19ms)
+					18,         // ReadTotalTimeoutConstant: 첫 바이트는 최대 15ms 대기 (11ms ~ 19ms)
 					0,         // WriteTotalTimeoutMultiplier
 					0          // WriteTotalTimeoutConstant
 				};
@@ -339,33 +338,35 @@ void closeSerialPort(void)
 DWORD WINAPI sendMeasurementThread(LPVOID lpParam)
 {
 	// 프레임 구성: SYNC(4) + SIZE(2) + CMD(2) + DATA(1) + CHK(2) = 11 bytes
-	unsigned char packet[11] = { 0, };
-	unsigned int sync = HEADER_SYNC_VAL;
-	unsigned short size = 3;             // CMD(2) + DATA(1)
-	unsigned short cmd = 50001;         // SETRAWDATAMODE
-	unsigned char d0 = 1;             // 측정 모드 요청
+	for (int i = 0; i < 3; i++) {
+		unsigned char packet[11] = { 0, };
+		unsigned int sync = HEADER_SYNC_VAL;
+		unsigned short size = 3;             // CMD(2) + DATA(1)
+		unsigned short cmd = 50001;         // SETRAWDATAMODE
+		unsigned char d0 = 1;             // 측정 모드 요청
 
-	// CHK 계산
-	unsigned short chk = 0;
-	chk += cmd & 0xFF;        // LSB
-	chk += (cmd >> 8);        // MSB
-	chk += d0;
+		// CHK 계산
+		unsigned short chk = 0;
+		chk += cmd & 0xFF;        // LSB
+		chk += (cmd >> 8);        // MSB
+		chk += d0;
 
-	// 패킷 작성 (LSB first)
-	memcpy(&packet[0], &sync, 4);           // SYNC
-	memcpy(&packet[4], &size, 2);           // SIZE
-	memcpy(&packet[6], &cmd, 2);            // CMD
-	packet[8] = d0;                         // DATA
-	memcpy(&packet[9], &chk, 2);            // CHK
+		// 패킷 작성 (LSB first)
+		memcpy(&packet[0], &sync, 4);           // SYNC
+		memcpy(&packet[4], &size, 2);           // SIZE
+		memcpy(&packet[6], &cmd, 2);            // CMD
+		packet[8] = d0;                         // DATA
+		memcpy(&packet[9], &chk, 2);            // CHK
 
-	DWORD bytesWritten = 0;
-	EnterCriticalSection(&g_txCS);
-	WriteFile(g_hSerial, packet, sizeof(packet), &bytesWritten, NULL);
-	LeaveCriticalSection(&g_txCS);
+		DWORD bytesWritten = 0;
+		EnterCriticalSection(&g_txCS);
+		WriteFile(g_hSerial, packet, sizeof(packet), &bytesWritten, NULL);
+		LeaveCriticalSection(&g_txCS);
 
-	if (bytesWritten == sizeof(packet))
-	{
-		printf("측정 모드 진입 명령 전송 완료 (0x5001)\n");
+		if (bytesWritten == sizeof(packet))
+		{
+			printf("측정 모드 진입 명령 전송 완료 (0x5001)\n");
+		}
 	}
 
 	return 0;
@@ -396,25 +397,28 @@ void request_MeasurementMode(void)
 DWORD WINAPI sendGetModeThread(LPVOID lpParam)
 {
 	// 프레임 구성: SYNC(4) + SIZE(2) + CMD(2) + CHK(2) = 10 bytes
-	unsigned char packet[10];
-	uint32_t sync = HEADER_SYNC_VAL;           // 0xFFFEFDFC
-	uint16_t size = sizeof(uint16_t);         // CMD만 있으므로 2
-	uint16_t cmd = 50002;                    // GETRAWDATAMODE
-	uint16_t chk = (cmd & 0xFF) + (cmd >> 8); // 체크섬 = CMD LSB+MSB
+	for (int i = 0; i < 3; i++) {
+		unsigned char packet[10];
+		uint32_t sync = HEADER_SYNC_VAL;           // 0xFFFEFDFC
+		uint16_t size = sizeof(uint16_t);         // CMD만 있으므로 2
+		uint16_t cmd = 50002;                    // GETRAWDATAMODE
+		uint16_t chk = (cmd & 0xFF) + (cmd >> 8); // 체크섬 = CMD LSB+MSB
 
-	// LSB first
-	memcpy(&packet[0], &sync, 4);
-	memcpy(&packet[4], &size, 2);
-	memcpy(&packet[6], &cmd, 2);
-	memcpy(&packet[8], &chk, 2);
+		// LSB first
+		memcpy(&packet[0], &sync, 4);
+		memcpy(&packet[4], &size, 2);
+		memcpy(&packet[6], &cmd, 2);
+		memcpy(&packet[8], &chk, 2);
 
-	DWORD bytesWritten = 0;
-	EnterCriticalSection(&g_txCS);
-	WriteFile(g_hSerial, packet, sizeof(packet), &bytesWritten, NULL);
-	LeaveCriticalSection(&g_txCS);
+		DWORD bytesWritten = 0;
+		EnterCriticalSection(&g_txCS);
+		WriteFile(g_hSerial, packet, sizeof(packet), &bytesWritten, NULL);
+		LeaveCriticalSection(&g_txCS);
 
-	if (bytesWritten == sizeof(packet))
-		printf("현재 모드 조회 요청 전송 완료 (CMD=50002)\n");
+		if (bytesWritten == sizeof(packet)) {
+			printf("현재 모드 조회 요청 전송 완료 (CMD=50002)\n");
+		}
+	}
 
 	return 0;
 }
@@ -426,7 +430,7 @@ void request_CurrentMode(void)
 		NULL, 0,
 		sendGetModeThread,
 		NULL, 0, NULL
-	);\
+	);
 	CloseHandle(hThread);
 }
 
@@ -504,7 +508,5 @@ void stopTimerRequestConfigurationMode(void)
 		timeEndPeriod(1);
 	}
 }
-
-
 
 #endif
