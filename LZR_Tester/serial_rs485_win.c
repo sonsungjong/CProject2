@@ -37,7 +37,7 @@
 #define MODE_MEASURE				 1
 #define MODE_CONFIG					 2
 
-#define MAX_CFG_SEND_COUNT			10			// 설정모드 요청 최대 횟수
+#define MAX_CFG_SEND_COUNT			100			// 설정모드 요청 최대 횟수
 
 // static으로 접근 범위를 이 파일로 한정시킨다
 static HANDLE g_hSerial = INVALID_HANDLE_VALUE;
@@ -60,6 +60,8 @@ static volatile LONG g_cfgSendCount = 0;      // 설정모드 A5 전송 횟수 카운트
 // 수신부
 static DWORD WINAPI recvThreadSerial(void* lpParam)
 {
+	//DWORD dwEvtMask;
+	//SetCommMask(g_hSerial, EV_RXCHAR);
 	while (g_running_end == 0)
 	{
 		unsigned int bytesRead = 0;
@@ -89,14 +91,24 @@ DWORD WINAPI processMessageThread(void* lpParam)
 		size_t buf_size = RingBuffer_wait_read(&ring1, &data);
 		if (data != NULL && buf_size > 0)
 		{
-			size_t offset = 0;
-
 			while (buf_size >= 6)					// 최소 헤더
 			{
 				ST_LZR920 stData;
 				size_t idx = 0;
+
+				// 1. SYNC
 				memcpy(&stData.header_sync, data + idx, sizeof(stData.header_sync));
 				idx += sizeof(stData.header_sync);
+
+				if (stData.header_sync != HEADER_SYNC_VAL)
+				{
+					// 잘못된 SYNC이면 1바이트 버리고 재동기화
+					memmove(data, data + 1, buf_size - 1);
+					buf_size--;
+					unsigned char add = RingBuffer_readbyte(&ring1);
+					data[buf_size] = add;
+					continue;
+				}
 
 				if (stData.header_sync == HEADER_SYNC_VAL)			// SYNC 검사 (FF FD FE FF)
 				{
@@ -104,17 +116,40 @@ DWORD WINAPI processMessageThread(void* lpParam)
 					idx += sizeof(stData.header_size);
 					size_t total_len = sizeof(stData.header_sync) + sizeof(stData.header_size) + stData.header_size + sizeof(stData.footer_chk);
 
+					// 4) 전체 프레임이 아직 다 안 왔으면 부족분만큼 더 읽기
+					if (total_len > buf_size)
+					{
+						unsigned long long need = total_len - buf_size;
+						unsigned char* extra = NULL;
+						unsigned long long got = RingBuffer_readbytes(&ring1, &extra, need);
+						if (got > 0)
+						{
+							data = (unsigned char*)realloc(data, buf_size + got);
+							memcpy(data + buf_size, extra, got);
+							buf_size += got;
+						}
+						free(extra);
+						// 그래도 모자라면 루프 탈출해서 다음 차례에 다시 시도
+						if (total_len > buf_size)
+							break;
+					}
+
 					if (total_len <= buf_size)
 					{
 						memcpy(&stData.message_cmd, data + idx, sizeof(stData.message_cmd));
 						idx += sizeof(stData.message_cmd);
 
 						size_t size_body_msg = stData.header_size - sizeof(stData.message_cmd);
-						stData.message_data = (unsigned char*)malloc(size_body_msg);
-						if (stData.message_data)
+						stData.message_data = NULL;
+						if (size_body_msg > 0)
 						{
+							stData.message_data = (unsigned char*)malloc(size_body_msg);
 							memcpy(stData.message_data, data + idx, size_body_msg);
 							idx += size_body_msg;
+						}
+
+						if (stData.message_data)
+						{
 							memcpy(&stData.footer_chk, data + idx, sizeof(stData.footer_chk));
 
 							// CHK 검증
@@ -245,7 +280,6 @@ int openSerialPort(char* portName, int baudRate)
 	int nResult = 0;
 	InitializeCriticalSection(&g_cs_end);			// 큐 크리티컬 섹션 초기화
 	InitializeCriticalSection(&g_txCS);
-	g_curMode = 2;			// 구성모드로 초기화 후 MDI를 받으면 측정모드로 변경한다
 
 	if (portName)
 	{
@@ -265,12 +299,17 @@ int openSerialPort(char* portName, int baudRate)
 				SetCommState(g_hSerial, &dcb);
 
 				// 타임아웃 설정
-				//COMMTIMEOUTS timeouts = { 10, 1, 10, 0, 0 };
-				COMMTIMEOUTS timeouts = { MAXDWORD, 0, 0, 0, 0 };
+				COMMTIMEOUTS timeouts = {
+					MAXDWORD,  // ReadIntervalTimeout: 무조건 논블록킹 인터벌 모드
+					0,         // ReadTotalTimeoutMultiplier
+					15,         // ReadTotalTimeoutConstant: 첫 바이트는 최대 15ms 대기 (11ms ~ 19ms)
+					0,         // WriteTotalTimeoutMultiplier
+					0          // WriteTotalTimeoutConstant
+				};
 				SetCommTimeouts(g_hSerial, &timeouts);
 
 				// 링버퍼 생성
-				int max_buffer = 1024 * 1024 * 2;           // 2MB
+				int max_buffer = 1024 * 1024 * 4;           // 4MB
 				int ring_id = 0;
 				RingBuffer_init(&ring1, max_buffer, ring_id);
 
