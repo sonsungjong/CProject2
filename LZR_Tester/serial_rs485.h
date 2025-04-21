@@ -29,12 +29,12 @@ extern "C" {
 	// 메시지 생성부
 	void request_MeasurementMode(void);
 	void request_ConfigMode(void);
-	//void request_getConfig(void);
+	void request_GetConfig(void);				// 현재 설정값 조회
 	//void request_changeAngle(int start_angle, int end_angle, int distance_angle);
-	void startTimerRequestConfigurationMode(void);
-	void stopTimerRequestConfigurationMode(void);
-	void request_CurrentMode(void);
-	void sendPacket(const void* buf, unsigned long len);
+	void startTimerRequestConfigurationMode(void);			// 설정모드 요청 타이머
+	void stopTimerRequestConfigurationMode(void);			// 설정모드 요청 타이머 중지
+	void request_CurrentMode(void);			// 현재 모드 조회
+	
 
 #ifdef __cplusplus
 }

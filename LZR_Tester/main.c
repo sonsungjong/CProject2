@@ -48,7 +48,7 @@ int main()
         else if (select_number == 4)
         {
             printf(">>4. 설정값보기<<\n");
-            //request_getConfig();
+            //request_GetConfig();
         }
         else if (select_number == 5)
         {
