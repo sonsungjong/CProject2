@@ -205,37 +205,6 @@ DWORD WINAPI processMessageThread(void* lpParam)
 								}
 								break;
 							}
-							else if (stData.message_cmd == 50004)			// GETRAWDATACONFIG 응답 (설정값)
-							{
-								// 1) status bits(D0-D3) 복사
-								unsigned char* p = stData.message_data;
-								unsigned long long copy_size = 0U;
-								if (size_body_msg > sizeof(ST_DataConfig))
-								{
-									copy_size = sizeof(ST_DataConfig);
-								}
-								else {
-									copy_size = size_body_msg;
-								}
-								memcpy(&g_sensorConfig, stData.message_data, size_body_msg);
-
-								const char* baud_strs[] = { "57600", "115200", "230400", "460800", "921600" };
-								const char* baud_rate = (g_sensorConfig.D6_baud_rate < 5 ? baud_strs[g_sensorConfig.D6_baud_rate] : "Unknown");
-
-								// 출력
-								printf("=== 현재 설정값 ===\n");
-								printf("통신부하: %u%%\n", g_sensorConfig.D4D5_comm_charge);
-								printf("Baud rate: %s\n", baud_rate);
-								printf("거리값 개수: %u\n", g_sensorConfig.D1617_number_distance_values);
-								printf("시작 Spot: %u\n", g_sensorConfig.D1819_starting_spot);
-								printf("Spot 간격: %u\n", g_sensorConfig.D2021_gap_between_spots);
-								printf("Plane enable: P0=%s, P1=%s, P2=%s, P3=%s\n",
-									g_sensorConfig.D11_plane0_enable ? "Y" : "N",
-									g_sensorConfig.D12_plane1_enable ? "Y" : "N",
-									g_sensorConfig.D13_plane2_enable ? "Y" : "N",
-									g_sensorConfig.D14_plane3_enable ? "Y" : "N");
-								break;
-							}
 							else if (stData.message_cmd == 50002)			// 모드 변경 응답
 							{
 								unsigned char mode = stData.message_data[0];
@@ -263,6 +232,59 @@ DWORD WINAPI processMessageThread(void* lpParam)
 									InterlockedExchange(&g_curMode, MODE_UNKNOWN);
 									break;
 								}
+							}
+							else if (stData.message_cmd == 50003)
+							{
+								printf("셋팅값 변경!!!!!!\n");
+								unsigned char* p = stData.message_data;
+								break;
+							}
+							else if (stData.message_cmd == 50004)			// GETRAWDATACONFIG 응답 (설정값)
+							{
+								// 1) status bits(D0-D3) 복사
+								unsigned char* p = stData.message_data;
+								unsigned long long copy_size = 0U;
+								if (size_body_msg > sizeof(ST_DataConfig))
+								{
+									copy_size = sizeof(ST_DataConfig);
+								}
+								else {
+									copy_size = size_body_msg;
+								}
+								memcpy(&g_sensorConfig, stData.message_data, size_body_msg);
+
+								const char* baud_strs[] = { "57600", "115200", "230400", "460800", "921600" };
+								const char* baud_rate = (g_sensorConfig.D6_baud_rate < 5 ? baud_strs[g_sensorConfig.D6_baud_rate] : "Unknown");
+
+								// 출력
+								printf("=== 현재 설정값 ===\n");
+								printf("통신부하: %u%%\n", g_sensorConfig.D4D5_comm_charge);
+								printf("전송속도: %s\n", baud_rate);
+								printf("시작 Spot: %u\n", g_sensorConfig.D1819_starting_spot);
+								printf("거리값 개수: %u\n", g_sensorConfig.D1617_number_distance_values);
+								printf("Spot 간격: %u\n", g_sensorConfig.D2021_gap_between_spots);
+								printf("APD 거리: %u\n", g_sensorConfig.D22_apd_distance_range);
+								printf("Plane enable: P0=%s, P1=%s, P2=%s, P3=%s\n",
+									g_sensorConfig.D11_plane0_enable ? "Y" : "N",
+									g_sensorConfig.D12_plane1_enable ? "Y" : "N",
+									g_sensorConfig.D13_plane2_enable ? "Y" : "N",
+									g_sensorConfig.D14_plane3_enable ? "Y" : "N");
+								break;
+							}
+							else if (stData.message_cmd == 50005)
+							{
+								unsigned char* p = stData.message_data;
+								printf("EPPROM 현재 셋팅값 영구 저장 응답\n");
+								break;
+							}
+							else if (stData.message_cmd == 50007)
+							{
+								unsigned char* p = stData.message_data;
+								printf("공장 초기화 응답(RAM만)\n");
+								break;
+							}
+							else {
+								break;
 							}
 						}
 
@@ -356,42 +378,37 @@ int openSerialPort(char* portName, int baudRate)
 	return nResult;
 }
 
-void initConfigData(ST_DataConfig* p_stData)
+void initConfigData(ST_SETRAWDATACONFIG_50003* p_stData)
 {
 	// 포트번호, 통신부하, 전송 속도, 레이저0번, 레이저1번, 레이저2번, 레이저3번, 측정영역, 시작점, 측정거리
-	p_stData->D0_status0 = 0;
-	p_stData->D1_status1 = 0;
-	p_stData->D2_status2 = 0;
-	p_stData->D3_status3 = 0;
-	p_stData->D4D5_comm_charge = 89;								// 출력
-	p_stData->D6_baud_rate = 3;											// 출력
-	p_stData->D7_nodata0 = 0;
-	p_stData->D8_LZR_information = 0;
-	p_stData->D9_Red_laser_timeout = 1;
-	p_stData->D10_test_frame_enable = 0;
-	p_stData->D11_plane0_enable = 1;									// 출력
-	p_stData->D12_plane1_enable = 1;									// 출력
-	p_stData->D13_plane2_enable = 1;									// 출력
-	p_stData->D14_plane3_enable = 1;									// 출력
-	p_stData->D15_pulse_width_enable = 0;
-	p_stData->D1617_number_distance_values = 274;			// 출력
-	p_stData->D1819_starting_spot = 0;								// 출력
-	p_stData->D2021_gap_between_spots = 1;
-	p_stData->D22_apd_distance_range = 1;							// 출력
-	p_stData->D23_can_id_frame_counter_enable = 1;
-	p_stData->D24_diode_lifetime_management_enable = 1;
-	p_stData->D25_polarity_input1 = 1;
-	p_stData->D26_heartbeat_delay_second = 5;
-	p_stData->D27_led1_enable = 1;
-	p_stData->D28_led2_enable = 1;
-	p_stData->D29_led_blue_enable = 1;
-	p_stData->D30_led_error_enable = 1;
-	p_stData->D31_led_boot_duration = 255;
-	p_stData->D3233_max_distance_range_SW = 65000;
-	p_stData->D34_plane_number_inside_frame_enable = 1;
-	p_stData->D35_immunity_level = 1;
-	p_stData->D3637_hot_reset_timer_second = 1200;
-	p_stData->D38_hot_reset_counter = 3;
+	p_stData->D0_baud_rate = 3;											// 출력
+	p_stData->D1_reserved = 0;
+	p_stData->D2_LZR_infos_enable = 0;
+	p_stData->D3_red_laser_timeout = 1;
+	p_stData->D4_test_frame_enable = 0;
+	p_stData->D5_plane0_enable = 1;									// 출력
+	p_stData->D6_plane1_enable = 1;									// 출력
+	p_stData->D7_plane2_enable = 1;									// 출력
+	p_stData->D8_plane3_enable = 1;									// 출력
+	p_stData->D9_pulse_width_enable = 0;
+	p_stData->D10_11_number_distance_values = 274;			// 출력
+	p_stData->D12_13_starting_spot = 0;								// 출력
+	p_stData->D14_15_gap_between_spots = 1;
+	p_stData->D16_apd_distance_range = 1;							// 출력
+	p_stData->D17_canid_fc_enable = 1;
+	p_stData->D18_diode_lifetime_enable = 1;
+	p_stData->D19_polarity_input1 = 1;
+	p_stData->D20_heartbeat_delay = 5;
+	p_stData->D21_led1_enable = 1;
+	p_stData->D22_led2_enable = 1;
+	p_stData->D23_led_blue_enable = 1;
+	p_stData->D24_led_error_enable = 1;
+	p_stData->D25_led_boot_duration = 255;
+	p_stData->D26_27_max_distance_range_SW = 65000;
+	p_stData->D28_plane_number_in_frame = 1;
+	p_stData->D29_immunity_level = 1;
+	p_stData->D30_31_hot_reset_timer = 1200;
+	p_stData->D32_hot_reset_counter = 3;
 }
 
 void closeSerialPort(void)
@@ -641,7 +658,7 @@ DWORD WINAPI sendGetConfigThread(LPVOID lpParam)
 	return 0;
 }
 
-void request_changeSetting(ST_DataConfig stData)
+void request_changeSetting(ST_SETRAWDATACONFIG_50003 stData)
 {
 	unsigned short cmd = 50003;
 	unsigned short data_len = sizeof(stData);
@@ -741,6 +758,40 @@ void request_RestoreSetting(void)
 void request_saveConfig_EEPROM(void)
 {
 	// SETRAWDATACONFIGSTORE
+	// 1) 파라미터 정의
+	const unsigned int SYNC = HEADER_SYNC_VAL; // 0xFFFEFDFC
+	const unsigned short CMD = 50005;           // SETRAWDATACONFIGSTORE
+	const unsigned short SIZE = sizeof(CMD);     // DATA 없으므로 CMD(2바이트)만
+	const unsigned short CHK = (CMD & 0xFF) + (CMD >> 8);
+
+	// 2) 프레임 버퍼 할당 (SYNC(4) + SIZE(2) + CMD(2) + CHK(2) = 10바이트)
+	unsigned char packet[10];
+	size_t idx = 0;
+
+	// 3) SYNC (LSB first)
+	memcpy(packet + idx, &SYNC, sizeof(SYNC));
+	idx += sizeof(SYNC);
+
+	// 4) SIZE
+	memcpy(packet + idx, &SIZE, sizeof(SIZE));
+	idx += sizeof(SIZE);
+
+	// 5) CMD
+	memcpy(packet + idx, &CMD, sizeof(CMD));
+	idx += sizeof(CMD);
+
+	// 6) CHK
+	memcpy(packet + idx, &CHK, sizeof(CHK));
+	idx += sizeof(CHK);
+
+	// 7) 전송
+	long long written = sendPacket(packet, sizeof(packet));
+	if (written == sizeof(packet)) {
+		printf("영구 저장 요청 전송 완료 (CMD=50005)\n");
+	}
+	else {
+		printf("영구 저장 요청 전송 실패: %lld/%zu\n", written, sizeof(packet));
+	}
 }
 
 #endif

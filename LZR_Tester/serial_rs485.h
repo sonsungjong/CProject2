@@ -1,4 +1,4 @@
-#ifndef SERIAL_RS485_H_
+ï»¿#ifndef SERIAL_RS485_H_
 #define SERIAL_RS485_H_
 
 #ifdef __cplusplus
@@ -16,9 +16,9 @@ extern "C" {
 	typedef struct LZR920
 	{
 		unsigned int header_sync;					// 0xFFFEFDFC
-		unsigned short header_size;				// messageÀÇ Å©±â
-		unsigned short message_cmd;				// ¸Ş½ÃÁö ¾ÆÀÌµğ
-		unsigned char* message_data;			// µ¥ÀÌÅÍ
+		unsigned short header_size;				// messageì˜ í¬ê¸°
+		unsigned short message_cmd;				// ë©”ì‹œì§€ ì•„ì´ë””
+		unsigned char* message_data;			// ë°ì´í„°
 		unsigned short footer_chk;
 	} ST_LZR920;
 
@@ -29,7 +29,7 @@ extern "C" {
 	typedef struct __attribute__((packed)) DataConfig_50004
 #endif
 	{
-		// D0-D3 : status bits (ºñÆ®´ÜÀ§·Î È®ÀÎ ÇÊ¿äÇÑ »óÅÂ¸Ş½ÃÁö)
+		// D0-D3 : status bits (ë¹„íŠ¸ë‹¨ìœ„ë¡œ í™•ì¸ í•„ìš”í•œ ìƒíƒœë©”ì‹œì§€)
 		unsigned char D0_status0;
 		unsigned char D1_status1;
 		unsigned char D2_status2;
@@ -82,7 +82,7 @@ extern "C" {
 		unsigned char D30_led_error_enable;
 		// D31 : Duration of LEDs at boot-up [0-255] [0]managed through input 2 [1-254] unit 1sec [255] always on
 		unsigned char D31_led_boot_duration;
-		// D32~33 : Maximum distance range SW [0~65000] ...ÇöÀç ·¹ÀÌÀú´Â 16000 ÀÌ»óÀ¸·Î´Â ÀÇ¹Ì¾øÀ½
+		// D32~33 : Maximum distance range SW [0~65000] ...í˜„ì¬ ë ˆì´ì €ëŠ” 16000 ì´ìƒìœ¼ë¡œëŠ” ì˜ë¯¸ì—†ìŒ
 		unsigned short D3233_max_distance_range_SW;
 		// D34 : Enable/disable plan number inside the frame [0]disabled [1]enabled
 		unsigned char D34_plane_number_inside_frame_enable;
@@ -97,22 +97,62 @@ extern "C" {
 #pragma pack(pop)
 #endif
 
+#ifdef _WIN32
+#pragma pack(push,1)
+	typedef struct stSETRAWDATACONFIG_50003
+#else
+	typedef struct __attribute__((packed)) stSETRAWDATACONFIG_50003
+#endif
+	{
+		unsigned char  D0_baud_rate;                // 0=57600,1=115200,2=230400,3=460800,4=921600
+		unsigned char  D1_reserved;                 // 0
+		unsigned char  D2_LZR_infos_enable;         // 0=disable,1=enable
+		unsigned char  D3_red_laser_timeout;        // 0~255 (unit=15s)
+		unsigned char  D4_test_frame_enable;        // 0/1
+		unsigned char  D5_plane0_enable;            // 0/1
+		unsigned char  D6_plane1_enable;            // 0/1
+		unsigned char  D7_plane2_enable;            // 0/1
+		unsigned char  D8_plane3_enable;            // 0/1
+		unsigned char  D9_pulse_width_enable;       // 0/1
+		unsigned short D10_11_number_distance_values; // [1â€“274]
+		unsigned short D12_13_starting_spot;          // [0â€“273]
+		unsigned short D14_15_gap_between_spots;      // [0â€“273]
+		unsigned char  D16_apd_distance_range;      // 0=8m,1=12m,2=16m
+		unsigned char  D17_canid_fc_enable;         // 0/1
+		unsigned char  D18_diode_lifetime_enable;   // 0/1
+		unsigned char  D19_polarity_input1;         // 0=high,1=low
+		unsigned char  D20_heartbeat_delay;         // sec [0â€“255]
+		unsigned char  D21_led1_enable;             // 0/1
+		unsigned char  D22_led2_enable;             // 0/1
+		unsigned char  D23_led_blue_enable;         // 0/1
+		unsigned char  D24_led_error_enable;        // 0/1
+		unsigned char  D25_led_boot_duration;       // [0â€“255]
+		unsigned short D26_27_max_distance_range_SW; // [0â€“65000]
+		unsigned char  D28_plane_number_in_frame;   // 0/1
+		unsigned char  D29_immunity_level;          // [1â€“4]
+		unsigned short D30_31_hot_reset_timer;      // sec
+		unsigned char  D32_hot_reset_counter;       // 0/1â€“255
+	} ST_SETRAWDATACONFIG_50003;
+#ifdef _WIN32
+#pragma pack(pop)
+#endif
+
 
 	int openSerialPort(char* portName, int baudRate);
 	void closeSerialPort(void);
-	void initConfigData(ST_DataConfig* p_stData);
+	void initConfigData(ST_SETRAWDATACONFIG_50003* p_stData);
 
-	// ¸Ş½ÃÁö »ı¼ººÎ
+	// ë©”ì‹œì§€ ìƒì„±ë¶€
 	void request_MeasurementMode(void);
 	void request_ConfigMode(void);
-	void request_GetConfig(void);				// ÇöÀç ¼³Á¤°ª Á¶È¸
-	void request_changeSetting(ST_DataConfig stData);
-	void startTimerRequestConfigurationMode(void);			// ¼³Á¤¸ğµå ¿äÃ» Å¸ÀÌ¸Ó
-	void stopTimerRequestConfigurationMode(void);			// ¼³Á¤¸ğµå ¿äÃ» Å¸ÀÌ¸Ó ÁßÁö
-	void request_CurrentMode(void);			// ÇöÀç ¸ğµå Á¶È¸
+	void request_GetConfig(void);				// í˜„ì¬ ì„¤ì •ê°’ ì¡°íšŒ
+	void request_changeSetting(ST_SETRAWDATACONFIG_50003 stData);
+	void startTimerRequestConfigurationMode(void);			// ì„¤ì •ëª¨ë“œ ìš”ì²­ íƒ€ì´ë¨¸
+	void stopTimerRequestConfigurationMode(void);			// ì„¤ì •ëª¨ë“œ ìš”ì²­ íƒ€ì´ë¨¸ ì¤‘ì§€
+	void request_CurrentMode(void);			// í˜„ì¬ ëª¨ë“œ ì¡°íšŒ
 	long long sendPacket(unsigned char* _pPacket, unsigned long long _sizePacket);
 	void request_RestoreSetting(void);
-	void request_saveConfig_EEPROM(void);				// ¼³Á¤°ª ¿µ±¸ÀúÀå
+	void request_saveConfig_EEPROM(void);				// ì„¤ì •ê°’ ì˜êµ¬ì €ì¥
 
 #ifdef __cplusplus
 }
