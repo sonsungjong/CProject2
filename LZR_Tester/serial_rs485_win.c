@@ -46,6 +46,7 @@ static const int g_baudRate = 460800;
 static ST_RingBuffer ring1;
 static HANDLE g_hRecvThread;
 static HANDLE g_hProcessThread;
+static ST_DataConfig g_sensorConfig;
 
 static UINT g_mmTimerID = 0;
 static volatile LONG g_curMode = MODE_MEASURE;      // 1: 측정, 2: 설정, 0: 알수없음 (기본값을 측정모드로 해놓고 모드요청을 해본다)
@@ -169,12 +170,6 @@ DWORD WINAPI processMessageThread(void* lpParam)
 
 							if (stData.message_cmd == 50011)			// MDI
 							{
-								// MDI 수신은 측정모드니깐 측정모드로 전환
-								//if (InterlockedCompareExchange(&g_curMode, 0, 0) != MODE_MEASURE)
-								//{
-								//	InterlockedExchange(&g_curMode, MODE_MEASURE);
-								//}
-
 								if (size_body_msg == 2202)
 								{
 									// ID + Frame counter
@@ -205,55 +200,40 @@ DWORD WINAPI processMessageThread(void* lpParam)
 									// Plane Number + MDI
 									//printf("MDI\n");
 								}
+								else {
+
+								}
 								break;
 							}
 							else if (stData.message_cmd == 50004)			// GETRAWDATACONFIG 응답 (설정값)
 							{
 								// 1) status bits(D0-D3) 복사
-								uint8_t* p = stData.message_data;
-								uint32_t status_bits;
-								memcpy(&status_bits, stData.message_data + 0, sizeof(status_bits));
+								unsigned char* p = stData.message_data;
+								unsigned long long copy_size = 0U;
+								if (size_body_msg > sizeof(ST_DataConfig))
+								{
+									copy_size = sizeof(ST_DataConfig);
+								}
+								else {
+									copy_size = size_body_msg;
+								}
+								memcpy(&g_sensorConfig, stData.message_data, size_body_msg);
 
-								// 2) 통신 부하 D4-D5
-								uint16_t comm_load;
-								memcpy(&comm_load, stData.message_data + 4, sizeof(comm_load));
-
-								// 3) Baud rate 설정 D6
-								uint8_t baud_cfg;
-								memcpy(&baud_cfg, stData.message_data + 6, sizeof(baud_cfg));
 								const char* baud_strs[] = { "57600", "115200", "230400", "460800", "921600" };
-								const char* baud_rate = (baud_cfg < 5 ? baud_strs[baud_cfg] : "Unknown");
-
-								// 4) Number of distance values D10-D11
-								uint16_t num_dist;
-								memcpy(&num_dist, stData.message_data + 10, sizeof(num_dist));
-
-								// 5) Starting spot number D12-D13
-								uint16_t start_spot;
-								memcpy(&start_spot, stData.message_data + 12, sizeof(start_spot));
-
-								// 6) Gap between spots D14-D15
-								uint16_t gap_spot;
-								memcpy(&gap_spot, stData.message_data + 14, sizeof(gap_spot));
-
-								// 7) Plane enable 여부 (status_bits 안에 bit5..bit8)
-								uint8_t plane0 = p[11];
-								uint8_t plane1 = p[12];
-								uint8_t plane2 = p[13];
-								uint8_t plane3 = p[14];
+								const char* baud_rate = (g_sensorConfig.D6_baud_rate < 5 ? baud_strs[g_sensorConfig.D6_baud_rate] : "Unknown");
 
 								// 출력
 								printf("=== 현재 설정값 ===\n");
-								printf("통신부하: %u%%\n", comm_load);
+								printf("통신부하: %u%%\n", g_sensorConfig.D4D5_comm_charge);
 								printf("Baud rate: %s\n", baud_rate);
-								printf("거리값 개수: %u\n", num_dist);
-								printf("시작 Spot: %u\n", start_spot);
-								printf("Spot 간격: %u\n", gap_spot);
+								printf("거리값 개수: %u\n", g_sensorConfig.D1617_number_distance_values);
+								printf("시작 Spot: %u\n", g_sensorConfig.D1819_starting_spot);
+								printf("Spot 간격: %u\n", g_sensorConfig.D2021_gap_between_spots);
 								printf("Plane enable: P0=%s, P1=%s, P2=%s, P3=%s\n",
-									plane0 ? "Y" : "N",
-									plane1 ? "Y" : "N",
-									plane2 ? "Y" : "N",
-									plane3 ? "Y" : "N");
+									g_sensorConfig.D11_plane0_enable ? "Y" : "N",
+									g_sensorConfig.D12_plane1_enable ? "Y" : "N",
+									g_sensorConfig.D13_plane2_enable ? "Y" : "N",
+									g_sensorConfig.D14_plane3_enable ? "Y" : "N");
 								break;
 							}
 							else if (stData.message_cmd == 50002)			// 모드 변경 응답
@@ -363,8 +343,10 @@ int openSerialPort(char* portName, int baudRate)
 				RingBuffer_init(&ring1, max_buffer, ring_id);
 
 				// 처리 및 수신쓰레드 생성
+				initConfigData(&g_sensorConfig);
 				g_hProcessThread = CreateThread(NULL, 0, processMessageThread, NULL, 0, NULL);
 				g_hRecvThread = CreateThread(NULL, 0, recvThreadSerial, NULL, 0, NULL);
+				g_curMode = MODE_MEASURE;				// 처음은 측정모드로 초기화
 				request_GetConfig();
 				nResult = 1;
 			}
@@ -372,6 +354,44 @@ int openSerialPort(char* portName, int baudRate)
 	}
 
 	return nResult;
+}
+
+void initConfigData(ST_DataConfig* p_stData)
+{
+	// 포트번호, 통신부하, 전송 속도, 레이저0번, 레이저1번, 레이저2번, 레이저3번, 측정영역, 시작점, 측정거리
+	p_stData->D0_status0 = 0;
+	p_stData->D1_status1 = 0;
+	p_stData->D2_status2 = 0;
+	p_stData->D3_status3 = 0;
+	p_stData->D4D5_comm_charge = 89;								// 출력
+	p_stData->D6_baud_rate = 3;											// 출력
+	p_stData->D7_nodata0 = 0;
+	p_stData->D8_LZR_information = 0;
+	p_stData->D9_Red_laser_timeout = 1;
+	p_stData->D10_test_frame_enable = 0;
+	p_stData->D11_plane0_enable = 1;									// 출력
+	p_stData->D12_plane1_enable = 1;									// 출력
+	p_stData->D13_plane2_enable = 1;									// 출력
+	p_stData->D14_plane3_enable = 1;									// 출력
+	p_stData->D15_pulse_width_enable = 0;
+	p_stData->D1617_number_distance_values = 274;			// 출력
+	p_stData->D1819_starting_spot = 0;								// 출력
+	p_stData->D2021_gap_between_spots = 1;
+	p_stData->D22_apd_distance_range = 1;							// 출력
+	p_stData->D23_can_id_frame_counter_enable = 1;
+	p_stData->D24_diode_lifetime_management_enable = 1;
+	p_stData->D25_polarity_input1 = 1;
+	p_stData->D26_heartbeat_delay_second = 5;
+	p_stData->D27_led1_enable = 1;
+	p_stData->D28_led2_enable = 1;
+	p_stData->D29_led_blue_enable = 1;
+	p_stData->D30_led_error_enable = 1;
+	p_stData->D31_led_boot_duration = 255;
+	p_stData->D3233_max_distance_range_SW = 65000;
+	p_stData->D34_plane_number_inside_frame_enable = 1;
+	p_stData->D35_immunity_level = 1;
+	p_stData->D3637_hot_reset_timer_second = 1200;
+	p_stData->D38_hot_reset_counter = 3;
 }
 
 void closeSerialPort(void)
@@ -410,9 +430,10 @@ DWORD WINAPI sendMeasurementThread(LPVOID lpParam)
 		memcpy(&packet[9], &chk, 2);            // CHK
 
 		DWORD bytesWritten = 0;
-		EnterCriticalSection(&g_txCS);
-		WriteFile(g_hSerial, packet, sizeof(packet), &bytesWritten, NULL);
-		LeaveCriticalSection(&g_txCS);
+		//EnterCriticalSection(&g_txCS);
+		//WriteFile(g_hSerial, packet, sizeof(packet), &bytesWritten, NULL);
+		//LeaveCriticalSection(&g_txCS);
+		bytesWritten = sendPacket(packet, sizeof(packet));
 
 		if (bytesWritten == sizeof(packet))
 		{
@@ -449,11 +470,11 @@ DWORD WINAPI sendGetModeThread(LPVOID lpParam)
 {
 	// 프레임 구성: SYNC(4) + SIZE(2) + CMD(2) + CHK(2) = 10 bytes
 	for (int i = 0; i < 3; i++) {
-		unsigned char packet[10];
-		uint32_t sync = HEADER_SYNC_VAL;           // 0xFFFEFDFC
-		uint16_t size = sizeof(uint16_t);         // CMD만 있으므로 2
-		uint16_t cmd = 50002;                    // GETRAWDATAMODE
-		uint16_t chk = (cmd & 0xFF) + (cmd >> 8); // 체크섬 = CMD LSB+MSB
+		unsigned char packet[10] = { 0, };
+		unsigned int sync = HEADER_SYNC_VAL;           // 0xFFFEFDFC
+		unsigned short size = sizeof(unsigned short);         // CMD만 있으므로 2
+		unsigned short cmd = 50002;                    // GETRAWDATAMODE
+		unsigned short chk = (cmd & 0xFF) + (cmd >> 8); // 체크섬 = CMD LSB+MSB
 
 		// LSB first
 		memcpy(&packet[0], &sync, 4);
@@ -462,9 +483,10 @@ DWORD WINAPI sendGetModeThread(LPVOID lpParam)
 		memcpy(&packet[8], &chk, 2);
 
 		DWORD bytesWritten = 0;
-		EnterCriticalSection(&g_txCS);
-		WriteFile(g_hSerial, packet, sizeof(packet), &bytesWritten, NULL);
-		LeaveCriticalSection(&g_txCS);
+		//EnterCriticalSection(&g_txCS);
+		//WriteFile(g_hSerial, packet, sizeof(packet), &bytesWritten, NULL);
+		//LeaveCriticalSection(&g_txCS);
+		bytesWritten = sendPacket(packet, sizeof(packet));
 
 		if (bytesWritten == sizeof(packet)) {
 			printf("현재 모드 조회 요청 전송 완료 (CMD=50002)\n");
@@ -472,6 +494,22 @@ DWORD WINAPI sendGetModeThread(LPVOID lpParam)
 	}
 
 	return 0;
+}
+
+long long sendPacket(unsigned char* _pPacket, unsigned long long _sizePacket)
+{
+	DWORD bytesWritten = 0;
+	EnterCriticalSection(&g_txCS);
+	BOOL ok = WriteFile(g_hSerial, _pPacket, _sizePacket, &bytesWritten, NULL);
+	LeaveCriticalSection(&g_txCS);
+
+	if (ok == FALSE) {
+		DWORD err = GetLastError();
+		printf("WriteFile failed: %u, wrote %u/%u\n", err, bytesWritten, _sizePacket);
+		return (long long)-1;
+	}
+
+	return (long long)bytesWritten;
 }
 
 // 호출용 래퍼
@@ -492,7 +530,7 @@ void request_ConfigMode(void)
 	// 타이머를 생성해서 응답을 받기 전까지 계속 보낸다
 
 	// 현재 측정모드면
-	if (InterlockedCompareExchange(&g_curMode, 0, 0) == MODE_MEASURE)
+	//if (InterlockedCompareExchange(&g_curMode, 0, 0) == MODE_MEASURE)
 	{
 		if (g_mmTimerID == 0)
 		{
@@ -503,10 +541,10 @@ void request_ConfigMode(void)
 			printf("타이머 이미 실행 중 입니다.\n");
 		}
 	}
-	else
-	{
-		printf("이미 설정 모드 입니다\n");
-	}
+	//else
+	//{
+	//	printf("이미 설정 모드 입니다\n");
+	//}
 }
 
 // 설정모드 요청 타이머
@@ -520,20 +558,22 @@ static void CALLBACK TimerCallbackProc_REQ_CONFIGUREMODE(UINT uTimerID, UINT uMs
 	}
 	else
 	{
-		if (InterlockedCompareExchange(&g_curMode, 0, 0) == MODE_CONFIG)
-		{
-			// 설정모드다
-			stopTimerRequestConfigurationMode();
-		}
-		else
+		//if (InterlockedCompareExchange(&g_curMode, 0, 0) == MODE_CONFIG)
+		//{
+		//	// 설정모드다
+		//	stopTimerRequestConfigurationMode();
+		//	printf("설정모드 입니다.\n");
+		//}
+		//else
 		{
 			// 현재 측정모드다
 			const unsigned char a5 = 0xA5;
-			DWORD bytesWritten = 0;
 
-			EnterCriticalSection(&g_txCS);
-			WriteFile(g_hSerial, &a5, 1, &bytesWritten, NULL);
-			LeaveCriticalSection(&g_txCS);
+			DWORD bytesWritten = 0;
+			//EnterCriticalSection(&g_txCS);
+			//WriteFile(g_hSerial, &a5, 1, &bytesWritten, NULL);
+			//LeaveCriticalSection(&g_txCS);
+			bytesWritten = sendPacket(&a5, sizeof(unsigned char));
 		}
 	}
 }
@@ -564,11 +604,13 @@ void stopTimerRequestConfigurationMode(void)
 DWORD WINAPI sendGetConfigThread(LPVOID lpParam)
 {
 	// SYNC(4) + SIZE(2) + CMD(2) + CHK(2) = 10 bytes
-	while (g_running_end == 0)
+	if (g_running_end == 0)
 	{
+		// 1초에 한번씩 동작
 		if (InterlockedCompareExchange(&g_curMode, 0, 0) == MODE_CONFIG)
 		{
-			unsigned char packet[10];
+			// 설정 모드일때는 설정값을 요청한다
+			unsigned char packet[10] = { 0, };
 			uint32_t sync = HEADER_SYNC_VAL;      // 0xFFFEFDFC
 			uint16_t size = sizeof(uint16_t);    // CMD만 있으므로 2
 			uint16_t cmd = 50004;               // GETRAWDATACONFIG
@@ -580,21 +622,71 @@ DWORD WINAPI sendGetConfigThread(LPVOID lpParam)
 			memcpy(&packet[8], &chk, 2);
 
 			DWORD bytesWritten = 0;
-			EnterCriticalSection(&g_txCS);
-			WriteFile(g_hSerial, packet, sizeof(packet), &bytesWritten, NULL);
-			LeaveCriticalSection(&g_txCS);
+			//EnterCriticalSection(&g_txCS);
+			//WriteFile(g_hSerial, packet, sizeof(packet), &bytesWritten, NULL);
+			//LeaveCriticalSection(&g_txCS);
+			bytesWritten = sendPacket(packet, sizeof(packet));
 
 			if (bytesWritten == sizeof(packet))
 			{
 				printf("설정값 조회 요청 전송 완료 (CMD=50004)\n");
 			}
-			Sleep(1000);
+			//Sleep(1000);
 		}
 		else {
-			Sleep(1000);
+			// 측정모드에서는 요청하지 않는다
+			//Sleep(1000);
 		}
 	}
 	return 0;
+}
+
+void request_changeSetting(ST_DataConfig stData)
+{
+	unsigned short cmd = 50003;
+	unsigned short data_len = sizeof(stData);
+	unsigned short msg_len = sizeof(cmd) + data_len;
+
+	// SYNC(4) + SIZE(2) + MSG + CHK(2)
+	unsigned long long frame_len = sizeof(unsigned int) + sizeof(unsigned short) + msg_len + sizeof(unsigned short);
+	unsigned char* frame = malloc(frame_len);
+	if (!frame)return;
+
+	unsigned long long copy_idx = 0;
+
+	// SYNC
+	unsigned int sync = HEADER_SYNC_VAL;
+	memcpy(frame + copy_idx, &sync, sizeof(sync));
+	copy_idx += sizeof(sync);
+
+	// MSG_SIZE
+	unsigned short size_len = msg_len;
+	memcpy(frame + copy_idx, &size_len, sizeof(size_len));
+	copy_idx += sizeof(size_len);
+
+	// CMD
+	memcpy(frame + copy_idx, &cmd, sizeof(cmd));
+	copy_idx += sizeof(cmd);
+
+	// DATA
+	memcpy(frame + copy_idx, &stData, data_len);
+	copy_idx += data_len;
+
+	// CHK
+	unsigned short chk = 0;
+	for (int i = 4 + 2; i < 4 + 2 + msg_len; ++i)
+	{
+		chk += frame[i];
+	}
+	memcpy(frame + copy_idx, &chk, sizeof(chk));
+	copy_idx += sizeof(chk);
+
+	long long bw = sendPacket(frame, frame_len);
+	if (bw == (long long)frame_len) {
+		printf("설정 변경 요청 전송 완료 (CMD=50003)\n");
+	}
+
+	free(frame);
 }
 
 // 외부에서 호출할 래퍼
@@ -607,6 +699,48 @@ void request_GetConfig(void)
 		NULL, 0, NULL
 	);
 	CloseHandle(hThread);
+}
+
+void request_RestoreSetting(void)
+{
+	unsigned short cmd = 50007;    // SETRAWDATACONFIGRESTORE
+	unsigned short msg_len = sizeof(cmd);      // CMD만 있으므로 2
+	unsigned short frame_len = 4 + 2 + msg_len + 2; // SYNC(4)+SIZE(2)+MSG+CHK(2)
+
+	unsigned char frame[4 + 2 + 2 + 2] = { 0 };
+	size_t idx = 0;
+
+	// 1) SYNC
+	unsigned int sync = HEADER_SYNC_VAL; // 0xFFFEFDFC
+	memcpy(frame + idx, &sync, 4);
+	idx += 4;
+
+	// 2) SIZE (MSG 길이)
+	memcpy(frame + idx, &msg_len, 2);
+	idx += 2;
+
+	// 3) CMD
+	memcpy(frame + idx, &cmd, 2);
+	idx += 2;
+
+	// 4) CHK (CMD 바이트 합)
+	unsigned short chk = (cmd & 0xFF) + (cmd >> 8);
+	memcpy(frame + idx, &chk, 2);
+	idx += 2;
+
+	// 5) 전송
+	long bw = sendPacket(frame, frame_len);
+	if (bw != frame_len) {
+		printf("공장 초기화 명령 전송 실패: %ld/%u\n", bw, frame_len);
+	}
+	else {
+		printf("공장 초기화 요청 전송 완료 (CMD=50007)\n");
+	}
+}
+
+void request_saveConfig_EEPROM(void)
+{
+	// SETRAWDATACONFIGSTORE
 }
 
 #endif

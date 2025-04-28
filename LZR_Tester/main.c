@@ -9,8 +9,8 @@ int main()
     while (1)
     {
         // 버튼 대용
-        printf("0. 종료\n1. COM번호 입력하고 연결하기\n2. 측정모드 전환(50001)\n3. 설정모드 전환(0xA5)\n4. 설정값보기(50004)\n5. 측정각도변경\n6. 정밀도변경\n");
-        printf("7. 현재 모드 조회(50002)\n8. 레드 레이저 상태 조회(50010)\n");
+        printf("0. 종료\n1. COM번호 입력하고 연결하기\n2. 측정모드 전환(50001)\n3. 설정모드 전환(0xA5)\n4. 설정값보기(50004)\n5. 설정 변경\n6. 변경 설정 저장\n");
+        printf("7. 현재 모드 조회(50002)\n8. 셋팅값 공장 초기화(50007)\n9. 레드 레이저 상태 조회(50010)\n");
         int select_number = -1;
         scanf("%d", &select_number);
 
@@ -48,34 +48,61 @@ int main()
         else if (select_number == 4)
         {
             printf(">>4. 설정값보기<<\n");
-            //request_GetConfig();
+            request_GetConfig();          // 설정모드에서 1초마다 동작하게 자동 셋팅
         }
         else if (select_number == 5)
         {
-            printf(">>5. 측정각도변경<<\n");
-            int start_angle = -48;
-            int end_angle = 48;
-            printf("==> 시작 각도를 설정하세요(최저 -48):");
-            scanf("%d", &start_angle);
-            printf("==> 끝 각도를 설정하세요(최고 48):");
-            scanf("%d", &end_angle);
+            printf(">>5. 설정 변경<<\n");
+            int start_spot = 0; int input_start = 0;            // [0]왼쪽 48도 ~ [273]오른쪽 48도
+            int end_spot = 274; int input_end = 274;            // [1]왼쪽 처음 ~ [274]오른쪽 끝
+            int apd_distance = 2;
+            //printf("==> 시작점을 입력하세요 [0~273]");       // -48
+            //scanf("%d", &input_start);
+            //if (input_start >= 0 && input_start <= 273) {
+            //    start_spot = input_start;           // D18~19
+            //}
+            //printf("==> 끝 점을 입력하세요 [1~274]:");      // 48
+            //scanf("%d", &input_end);
+            //if (input_end >= 1 && input_end <= 274 && input_end > input_start) {
+            //    end_spot = input_end;               // D16~17
+            //}
 
-            int distance_angle = end_angle - start_angle;
-            //request_changeAngle(start_angle, end_angle, distance_angle);
+            //printf("==> 측정 거리를 입력하세요 [0=8m, 1=12m, 2=16m]:");
+            //scanf("%d", &apd_distance);
+            //if (apd_distance < 0 || apd_distance > 2) {
+            //    apd_distance = 1;
+            //}
+
+            int distance_angle = end_spot - start_spot;
+            ST_DataConfig stData;
+            initConfigData(&stData);
+            // 입력값 : plane0123 활성/비활성, 시작점위치[0~273], 끝점위치[1~274], 측정거리[0~2]
+            stData.D1617_number_distance_values = (unsigned short)end_spot;
+            stData.D1819_starting_spot = (unsigned short)start_spot;
+            stData.D22_apd_distance_range = (unsigned char)apd_distance;
+
+            request_changeSetting(stData);
         }
         else if (select_number == 6)
         {
-            printf(">>6. 정밀도변경<<\n");
-            //printf("==> 정밀도를 설정하세요:");
-            //int point_level = 0;
-            //scanf("%d", &point_level);
+            printf(">>6. 변경 설정 저장<<\n");
 
-            //request_changePointLevel(point_level);
+            request_saveConfig_EEPROM();
         }
         else if (select_number == 7)
         {
             printf(">>7. 현재 모드 조회<<\n");
             request_CurrentMode();
+        }
+        else if (select_number == 8)
+        {
+            printf(">>8. 셋팅값 공장 초기화<<\n");
+            request_RestoreSetting();
+        }
+        else if (select_number == 9)
+        {
+            printf(">>9. 레드레이저 조회<<\n");
+            //request_Red_Laser();
         }
         else if (select_number == 0)
         {
