@@ -21,6 +21,8 @@ struct STPacketTCP
 
 void sendTestTCP();
 void recvTCP();
+void recvSerial();
+void sendTestSerial();
 
 int main()
 {
@@ -42,9 +44,9 @@ int main()
     
 
 
-
     return 0;
 }
+
 
 
 void recvTCP()
@@ -53,6 +55,22 @@ void recvTCP()
 }
 
 void sendTestTCP()
+{
+
+}
+
+// 시리얼송신 테스트는 STPacketRS485 를 기반으로 char* 리턴
+// 수신받은 쪽에서 불안정한 시리얼통신을 받는 것처럼 수신링버퍼에 마구 쌓는다
+// 체크링버퍼에서 쌓인만큼 가져와서 헤더와 푸터를 검사한다
+// 정상적인 메시지는 세이프큐에 담는다 (size, id, msg)
+// 세이프큐는 wait_pop으로 출력한다
+
+void recvSerial()
+{
+
+}
+
+void sendTestSerial()
 {
 
 }
