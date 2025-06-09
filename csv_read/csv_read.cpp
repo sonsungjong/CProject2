@@ -82,7 +82,7 @@ void ShowAllData(VD* ap_data, int a_data_count)
 int main()
 {
     // 한글 wprintf 사용
-    _tsetlocale(0, _T("korean"));
+    _tsetlocale(0, _T(""));
 
     FILE* p_file = NULL;                // 파일을 열어서 사용할 포인터
     int data_count = 0;             // 전체 데이터 갯수

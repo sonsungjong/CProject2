@@ -284,7 +284,7 @@ int CsvToMariaDB()
 
 int main()
 {
-    _tsetlocale(0, _T("korean"));                   // 한글 print용
+    _tsetlocale(0, _T(""));                   // 한글 print용
     int result = CsvToMariaDB();
 
     if (result == 1) {

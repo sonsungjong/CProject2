@@ -65,7 +65,7 @@ std::string wstring_to_utf8(const std::wstring& wstr)
 
 int main()
 {
-    _tsetlocale(0, _T("korean"));
+    _tsetlocale(0, _T(""));
     std::wstring filepath = L"C:\\csv\\신궁 군수.xlsx";
     std::wstring sheetname = L"데이터 정제";
 

@@ -74,7 +74,7 @@ void ParsingJson(std::string a_json)
 
 int main()
 {
-    _wsetlocale(0, L"korean");
+    _wsetlocale(0, L"");
 
     // JSON메시지 만들기
     std::string json = CreateJsonMsg();

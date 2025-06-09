@@ -2,7 +2,7 @@
 
 int main()
 {
-    _tsetlocale(0, _T("korean"));
+    _tsetlocale(0, _T(""));
     _tprintf(_T("크로스플랫폼 라이브러리 제작 중\n"));
 
     // 1. 네트워크 (Socket, Serial, HTTP) 라이브러리

@@ -40,7 +40,7 @@ TCHAR* GetNextString(TCHAR* ap_src_str, TCHAR a_delimiter, TCHAR* ap_buffer)
 int main()
 {
     // 유니코드 콘솔 한글 깨짐 방지
-    _tsetlocale(0, _T("korean"));
+    _tsetlocale(0, _T(""));
     TCHAR one_line[128];
     TCHAR str[32];
     TCHAR* p_pos;

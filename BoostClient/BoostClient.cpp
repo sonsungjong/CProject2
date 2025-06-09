@@ -44,7 +44,7 @@ public:
     {
         while (1)
         {
-            char buf[1024];
+            char buf[1024] = { 0 };
             boost::system::error_code err;
             size_t len = m_socket.read_some(boost::asio::buffer(buf), err);
 
@@ -91,7 +91,7 @@ private:
 
 int main()
 {
-    _tsetlocale(0, _T("korean"));
+    _tsetlocale(0, _T(""));
 
     std::string server = "127.0.0.1";
     std::string port = "5000";

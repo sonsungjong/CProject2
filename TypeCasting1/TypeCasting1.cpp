@@ -112,7 +112,7 @@ TSTRING TstreamToTstr(Tstringstream a_ss)
 
 int main()
 {
-    _tsetlocale(0, _T("korean"));               // wchar_t ÇÑ±Û±úÁü¹æÁö
+    _tsetlocale(0, _T(""));               // wchar_t ÇÑ±Û±úÁü¹æÁö
     // Å×½ºÆ®
     CString cs = _T("¾È³ç¹İ°©aa123!@#");
     TCHAR str[128];

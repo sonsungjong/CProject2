@@ -149,7 +149,7 @@ bool Delete(const long long a_empno)
 
 int main()
 {
-    _tsetlocale(LC_ALL, _T("korean"));                  // ÇÑ±Û ±úÁü ¹æÁö
+    _tsetlocale(LC_ALL, _T(""));                  // ÇÑ±Û ±úÁü ¹æÁö
 
     if (DBConnect() == false)
     {

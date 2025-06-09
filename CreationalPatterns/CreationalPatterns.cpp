@@ -7,7 +7,7 @@
 
 int main()
 {
-    _tsetlocale(0, _T("korean"));
+    _tsetlocale(0, _T(""));
 
     // ΩÃ±€≈Ê ∆–≈œ
     Singleton& singleton = Singleton::getInstance();

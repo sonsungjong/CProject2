@@ -296,7 +296,7 @@ private:
 
 int main()
 {
-    _tsetlocale(0, _T("korean"));
+    _tsetlocale(0, _T(""));
     //HWND hWnd = GetConsoleWindow();
     //ShowWindow(hWnd, SW_HIDE); // SW_HIDE는 창을 숨기는 상수입니다.
 

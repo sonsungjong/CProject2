@@ -9,7 +9,7 @@
 
 int main()
 {
-    _tsetlocale(LC_ALL, _T("korean"));                  // 한글 깨짐 방지
+    _tsetlocale(LC_ALL, _T(""));                  // 한글 깨짐 방지
 
     FILE* p_file = NULL;
 

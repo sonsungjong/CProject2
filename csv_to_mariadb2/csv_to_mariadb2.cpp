@@ -411,7 +411,7 @@ int SelectTest()
 
 int main()
 {
-    _tsetlocale(0, _T("korean"));                   // 한글 print용
+    _tsetlocale(0, _T(""));                   // 한글 print용
     //int result = SelectTest();
     //int result = csvFileTest(_T("C:\\csv\\2022년 구미 환경.csv"));
     int result = csvFileTest2(_T("C:\\csv\\신궁 군수.csv"));

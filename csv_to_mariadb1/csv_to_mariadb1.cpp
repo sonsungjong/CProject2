@@ -191,7 +191,7 @@ int SelectTest()
 
 int main()
 {
-    _tsetlocale(0, _T("korean"));                   // 한글 print용
+    _tsetlocale(0, _T(""));                   // 한글 print용
     //int result = SelectTest();                // 읽기 테스트
     int result = CsvToMariaDB();
 

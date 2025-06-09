@@ -10,7 +10,7 @@ using namespace std;
 //PATH=C:\Program Files\MariaDB 10.6\lib;%PATH%;$(LocalDebuggerEnvironment)
 int main()
 {
-    _tsetlocale(LC_ALL, _T("korean"));                  // ÇÑ±Û ±úÁü ¹æÁö
+    _tsetlocale(LC_ALL, _T(""));                  // ÇÑ±Û ±úÁü ¹æÁö
 
     MYSQL* conn;
     MYSQL* conn_result;

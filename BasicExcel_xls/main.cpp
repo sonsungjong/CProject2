@@ -209,7 +209,7 @@ void loadXls()
 
 void main()
 {
-    _tsetlocale(0, _T("korean"));
+    _tsetlocale(0, _T(""));
 
     // 한 시트의 내용을 UTF8로 담는다 [행][열] = UTF8내용
     std::map<unsigned int, std::map<unsigned int, std::string>> excel_data;             // [1][1] : A1

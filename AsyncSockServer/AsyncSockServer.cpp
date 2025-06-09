@@ -307,7 +307,7 @@ private:
 
 int main()
 {
-    _tsetlocale(0, _T("korean"));
+    _tsetlocale(0, _T(""));
     char server_msg[256] = { 0, };
     AsyncServer asyncServer;
 

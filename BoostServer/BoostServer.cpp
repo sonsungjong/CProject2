@@ -42,21 +42,21 @@ class ClientConnection : public std::enable_shared_from_this<ClientConnection>
 {
 public:
     ClientConnection(tcp::socket socket, std::set<ClientConnectionPtr>& clients)
-        : socket_(std::move(socket)), clients_(clients) {}
+        : m_socket(std::move(socket)), m_clients(clients) {}
 
     void start() {
         read();
     }
 
     void deliver(const std::string& msg) {
-        std::cout << "메시지 전송: " << msg << std::endl;
+        std::cout << "메시지 전송: " << msg << "\n";
 
         auto self(shared_from_this());
         boost::asio::async_write(
-            socket_, boost::asio::buffer(msg),
+            m_socket, boost::asio::buffer(msg),
             [this, self](boost::system::error_code ec, std::size_t) {
                 if (ec) {
-                    clients_.erase(shared_from_this());
+                    m_clients.erase(shared_from_this());
                 }
             });
     }
@@ -64,41 +64,40 @@ public:
 private:
     void read() {
         auto self(shared_from_this());
-        memset(buffer_, 0, sizeof(buffer_));
-        socket_.async_read_some(
-            boost::asio::buffer(buffer_),
-            [this, self](boost::system::error_code ec, std::size_t bytes_transferred) {
+        auto buffer = std::make_shared<std::vector<char>>(4096);
+        m_socket.async_read_some(
+            boost::asio::buffer(*buffer),
+            [this, self, buffer](boost::system::error_code ec, std::size_t bytes_transferred) {
                 if (!ec) {
-                    std::string msg(buffer_, bytes_transferred);
+                    std::string msg(buffer->data(), bytes_transferred);
 
                     // 수신 메시지에 대한 후처리는 별도 쓰레드에서 detach 로 진행
                     std::thread([this, msg]() {
                         std::cout << "Received: " << msg << std::endl;
-                        for (auto& client : clients_) {
+                        for (auto& client : m_clients) {
                             if (client != shared_from_this()) {
                                 client->deliver(msg);
                             }
                         }
-                    }).detach();
+                    });
 
                     // 다음 데이터 수신을 위해 read() 재귀적 호출
                     read();
                 }
                 else {
-                    clients_.erase(shared_from_this());
+                    m_clients.erase(shared_from_this());
                 }
             });
     }
 
-    tcp::socket socket_;
-    std::set<ClientConnectionPtr>& clients_;
-    char buffer_[1024] = { 0, };
+    tcp::socket m_socket;
+    std::set<ClientConnectionPtr>& m_clients;
 };
 
 class ChatServer {
 public:
     ChatServer(boost::asio::io_context& io_context, short port)
-        : acceptor_(io_context, tcp::endpoint(tcp::v4(), port))
+        : m_acceptor(io_context, tcp::endpoint(tcp::v4(), port))
     {
         accept();
     }
@@ -106,7 +105,7 @@ public:
     void sendMsgAllClients(std::string msg)
     {
         std::thread([this, msg]() {
-            for (auto& client : clients_)
+            for (auto& client : m_clients)
             {
                 client->deliver(msg);
             }
@@ -115,23 +114,25 @@ public:
 
 private:
     void accept() {
-        acceptor_.async_accept(
+        m_acceptor.async_accept(
             [this](boost::system::error_code ec, tcp::socket socket) {
                 if (!ec) {
-                    auto connection = std::make_shared<ClientConnection>(std::move(socket), clients_);
+                    auto connection = std::make_shared<ClientConnection>(std::move(socket), m_clients);
                     connection->start();
-                    clients_.insert(connection);
+                    m_clients.insert(connection);
                 }
 
                 accept();
             });
     }
 
-    tcp::acceptor acceptor_;
-    std::set<ClientConnectionPtr> clients_;
+    tcp::acceptor m_acceptor;
+    std::set<ClientConnectionPtr> m_clients;
 };
 
 int main() {
+    setlocale(LC_ALL, "");
+
     try {
         boost::asio::io_context io_context;
 

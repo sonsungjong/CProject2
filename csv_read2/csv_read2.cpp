@@ -123,7 +123,7 @@ void ShowTwentyData(VD* ap_data, int a_data_count)
 
 int main()
 {
-    _tsetlocale(0, _T("korean"));
+    _tsetlocale(0, _T(""));
 
     FILE* p_file = NULL;
     VD data[200] = { 0, };          // 한번에 200줄까지 저장
