@@ -155,7 +155,7 @@ template<typename T> struct AndSpecification : public Specification<T>
 	}
 };
 
-int main()
+int main4()
 {
 	Product apple{ "Apple", Color::green, Size::small };
 	Product tree{ "Tree", Color::green, Size::large };

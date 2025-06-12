@@ -141,6 +141,7 @@
   <ItemGroup>
     <ClCompile Include="003_Single_Responsibility_Principle.cpp" />
     <ClCompile Include="004_Open_Closed_Principle.cpp" />
+    <ClCompile Include="005_Liskov_Substitution_Principle.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
