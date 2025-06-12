@@ -54,5 +54,9 @@ int main3()
     // 파일 저장을 위한 것은 Journal 클래스 안에 같이 두지 않고 유지보수성을 위해 분리한다 (일기데이터 관리 / 파일 저장 기능)
     PersistenceManager pm;
     pm.save(journal, "diary.txt");
+
+
+
+    return 0;
 }
 
