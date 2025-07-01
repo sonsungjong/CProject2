@@ -147,7 +147,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="LZR920.cpp" />
+    <ClCompile Include="LzrCenterLogic.cpp" />
+    <ClCompile Include="LzrSerialRS485.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="LzrTCPServer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="LzrCenterLogic.h" />
+    <ClInclude Include="LzrDefine.h" />
+    <ClInclude Include="LzrEnum.h" />
+    <ClInclude Include="LzrSerialRS485.h" />
+    <ClInclude Include="LzrStruct.h" />
+    <ClInclude Include="LzrTCPServer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

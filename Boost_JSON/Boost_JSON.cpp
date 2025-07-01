@@ -1,5 +1,5 @@
 
-// Boost 라이브러리 1.84.0 버전
+// Boost 라이브러리 1.88.0 버전
 /*
 설치
 https://www.boost.org/ -> Download -> boost_1_88_0.zip -> 압축해제
