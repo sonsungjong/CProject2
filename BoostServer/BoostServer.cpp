@@ -41,8 +41,12 @@ using ClientConnectionPtr = std::shared_ptr<ClientConnection>;
 class ClientConnection : public std::enable_shared_from_this<ClientConnection> 
 {
 public:
-    ClientConnection(tcp::socket socket, std::set<ClientConnectionPtr>& clients)
-        : m_socket(std::move(socket)), m_clients(clients) {}
+    ClientConnection(boost::asio::io_context& _io,
+        tcp::socket socket, std::set<ClientConnectionPtr>& clients)
+        : m_io(_io)
+        , m_socket(std::move(socket))
+        , m_clients(clients) 
+    {}
 
     void start() {
         read();
@@ -60,6 +64,7 @@ public:
             , [this, self, write_buf](boost::system::error_code ec, std::size_t) {
                 if (ec) {
                     m_clients.erase(self);
+                    m_socket.close();
                 }
             });
     }
@@ -74,25 +79,27 @@ private:
                 if (!ec) {
                     std::string msg(buffer->data(), bytes_transferred);
 
-                    // 수신 메시지에 대한 후처리는 별도 쓰레드에서 detach 로 진행
-                    std::thread([this, msg]() {
+                    // 수신 메시지에 대한 후처리는 별도 쓰레드에서 진행
+                    boost::asio::post(m_io, [this, self, msg]() {
                         std::cout << "Received: " << msg << std::endl;
                         for (auto& client : m_clients) {
-                            if (client != shared_from_this()) {
+                            if (client != self) {
                                 client->deliver(msg);
                             }
                         }
-                    }).detach();
+                    });
 
                     // 다음 데이터 수신을 위해 read() 재귀적 호출
                     read();
                 }
                 else {
                     m_clients.erase(shared_from_this());
+                    m_socket.close();
                 }
             });
     }
 
+    boost::asio::io_context& m_io;
     tcp::socket m_socket;
     std::set<ClientConnectionPtr>& m_clients;
 };
@@ -106,18 +113,26 @@ public:
         accept();
     }
 
+    virtual ~ChatServer() {
+        closeServer();
+    }
+
     void start() {
         m_io_context.run();
     }
 
     void sendMsgAllClients(std::string msg)
     {
-        std::thread([this, msg]() {
+        boost::asio::post(m_io_context, [this, msg]() {
             for (auto& client : m_clients)
             {
                 client->deliver(msg);
             }
-        }).detach();
+        });
+    }
+
+    void closeServer() {
+        m_io_context.stop();
     }
 
 private:
@@ -125,7 +140,7 @@ private:
         m_acceptor.async_accept(
             [this](boost::system::error_code ec, tcp::socket socket) {
                 if (!ec) {
-                    auto connection = std::make_shared<ClientConnection>(std::move(socket), m_clients);
+                    auto connection = std::make_shared<ClientConnection>(m_io_context, std::move(socket), m_clients);
                     connection->start();
                     m_clients.insert(connection);
                 }
@@ -133,6 +148,8 @@ private:
                 accept();
             });
     }
+
+    
 
     boost::asio::io_context m_io_context;
     tcp::acceptor m_acceptor;
@@ -169,6 +186,8 @@ int main() {
             }
             
         }
+
+        server.closeServer();
     }
     catch (std::exception& e) {
         std::cerr << "Exception: " << e.what() << std::endl;
