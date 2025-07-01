@@ -51,12 +51,15 @@ public:
     void deliver(const std::string& msg) {
         std::cout << "메시지 전송: " << msg << "\n";
 
+        auto write_buf = std::make_shared<std::string>(msg);
         auto self(shared_from_this());
+
         boost::asio::async_write(
-            m_socket, boost::asio::buffer(msg),
-            [this, self](boost::system::error_code ec, std::size_t) {
+            m_socket
+            , boost::asio::buffer(*write_buf)
+            , [this, self, write_buf](boost::system::error_code ec, std::size_t) {
                 if (ec) {
-                    m_clients.erase(shared_from_this());
+                    m_clients.erase(self);
                 }
             });
     }
@@ -79,7 +82,7 @@ private:
                                 client->deliver(msg);
                             }
                         }
-                    });
+                    }).detach();
 
                     // 다음 데이터 수신을 위해 read() 재귀적 호출
                     read();
@@ -96,10 +99,15 @@ private:
 
 class ChatServer {
 public:
-    ChatServer(boost::asio::io_context& io_context, short port)
-        : m_acceptor(io_context, tcp::endpoint(tcp::v4(), port))
+    ChatServer(short port)
+        : m_io_context()
+        , m_acceptor(m_io_context, tcp::endpoint(tcp::v4(), port))
     {
         accept();
+    }
+
+    void start() {
+        m_io_context.run();
     }
 
     void sendMsgAllClients(std::string msg)
@@ -126,6 +134,7 @@ private:
             });
     }
 
+    boost::asio::io_context m_io_context;
     tcp::acceptor m_acceptor;
     std::set<ClientConnectionPtr> m_clients;
 };
@@ -134,17 +143,17 @@ int main() {
     setlocale(LC_ALL, "");
 
     try {
-        boost::asio::io_context io_context;
+        //boost::asio::io_context io_context;
 
         short port = DEFAULT_PORT;
 
-        ChatServer server(io_context, port);
+        ChatServer server(port);
 
-        std::thread server_thread([&io_context]() {
-            io_context.run();
+        std::thread server_thread([&server]() {
+            server.start();
         });
-
         server_thread.detach();
+
 
         while (true) {
             std::string input = "";
