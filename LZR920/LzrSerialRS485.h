@@ -30,6 +30,7 @@ private:
 	boost::asio::serial_port m_serial;
 	std::string m_strPort;
 	//boost::circular_buffer<unsigned char> m_recvRingBuf;
+
 	std::vector<unsigned char> m_vecTempBuf;
 	CSafeQueue<std::vector<unsigned char>> m_queueRecv;
 	std::atomic_bool m_recvFlag;

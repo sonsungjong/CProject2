@@ -56,6 +56,8 @@ boost_1_88_0 폴더 -> 관리자 권한으로 cmd 실행 -> .\bootstrap.bat 입�
 
 int LZRMain()
 {
+    setlocale(LC_ALL, "");
+
     CLzrCenterLogic center;
     CLzrTCPServer tcp_server;
     CLzrSerialRS485 sensor;

@@ -1,13 +1,15 @@
 #include "LzrTCPServer.h"
 #include "LzrCenterLogic.h"
 #include <iostream>
-#include <SafeQueue.h>
 #include <string>
 #include <vector>
+#include <boost/locale.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/ini_parser.hpp>
 
 CLzrTCPServer::CLzrTCPServer()
 	: m_pCenter(nullptr)
-	
+	, m_vecTempBuf(8192)
 {
 }
 

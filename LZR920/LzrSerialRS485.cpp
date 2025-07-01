@@ -8,8 +8,8 @@
 #include <boost/property_tree/ini_parser.hpp>
 
 CLzrSerialRS485::CLzrSerialRS485()
-	: m_serial(m_io)
-	, m_pCenter(nullptr)
+	: m_pCenter(nullptr)
+	, m_serial(m_io)
 	, m_vecTempBuf(8192)
 	//, m_recvRingBuf(4 * 1024 * 1024)				// 4MB
 {
@@ -37,6 +37,7 @@ void CLzrSerialRS485::setCenter(CLzrCenterLogic* _center)
 
 void CLzrSerialRS485::start()
 {
+	// 먼저 시리얼 포트를 열고 그 다음 해당 포트에 대해 수신을 시작한다
 	connSerialPort();
 
 	recvSerialMsg();
