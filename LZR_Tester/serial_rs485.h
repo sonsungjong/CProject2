@@ -114,24 +114,24 @@ extern "C" {
 		unsigned char  D7_plane2_enable;            // 0/1
 		unsigned char  D8_plane3_enable;            // 0/1
 		unsigned char  D9_pulse_width_enable;       // 0/1
-		unsigned short D10_11_number_distance_values; // [1–274]
-		unsigned short D12_13_starting_spot;          // [0–273]
-		unsigned short D14_15_gap_between_spots;      // [0–273]
+		unsigned short D10_11_number_distance_values; // 1~274
+		unsigned short D12_13_starting_spot;          // [0~273]
+		unsigned short D14_15_gap_between_spots;      // [0~273]
 		unsigned char  D16_apd_distance_range;      // 0=8m,1=12m,2=16m
 		unsigned char  D17_canid_fc_enable;         // 0/1
 		unsigned char  D18_diode_lifetime_enable;   // 0/1
 		unsigned char  D19_polarity_input1;         // 0=high,1=low
-		unsigned char  D20_heartbeat_delay;         // sec [0–255]
+		unsigned char  D20_heartbeat_delay;         // sec [0~255]
 		unsigned char  D21_led1_enable;             // 0/1
 		unsigned char  D22_led2_enable;             // 0/1
 		unsigned char  D23_led_blue_enable;         // 0/1
 		unsigned char  D24_led_error_enable;        // 0/1
-		unsigned char  D25_led_boot_duration;       // [0–255]
-		unsigned short D26_27_max_distance_range_SW; // [0–65000]
+		unsigned char  D25_led_boot_duration;       // [0~255]
+		unsigned short D26_27_max_distance_range_SW; // [0~65000]
 		unsigned char  D28_plane_number_in_frame;   // 0/1
-		unsigned char  D29_immunity_level;          // [1–4]
+		unsigned char  D29_immunity_level;          // [1~4]
 		unsigned short D30_31_hot_reset_timer;      // sec
-		unsigned char  D32_hot_reset_counter;       // 0/1–255
+		unsigned char  D32_hot_reset_counter;       // 0/1~255
 	} ST_SETRAWDATACONFIG_50003;
 #ifdef _WIN32
 #pragma pack(pop)

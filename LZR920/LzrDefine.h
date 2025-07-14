@@ -6,7 +6,4 @@
 #endif
 
 
-
-
-
 #endif		LZR_DEFINE_H_

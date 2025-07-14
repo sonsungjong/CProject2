@@ -32,14 +32,20 @@ void CLzrCenterLogic::setLzrSerial(CLzrSerialRS485* _serial)
 
 void CLzrCenterLogic::onRecvTCPMessage(const std::vector<unsigned char>& msg)
 {
-	// TCP로 받은 메시지를 해석해서 적절한 곳으로 보낸다
+	// TCP로 받은 메시지를 해석한 후 처리
 
 }
 
 void CLzrCenterLogic::onRecvSerialMessage(const std::vector<unsigned char>& msg)
 {
-	// 센서에서 받은 메시지를 해석해서 적절한 곳으로 보낸다
-
+	// 센서에서 받은 메시지를 해석한 후 처리
+	if (msg.empty() == false)
+	{
+		
+	}
+	else {
+		printf("RecvSerialMessage is Empty!\n");
+	}
 }
 
 void CLzrCenterLogic::onRecvCMDMessage(std::string input)
