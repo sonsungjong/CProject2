@@ -4,7 +4,7 @@
 #include <boost/asio.hpp>
 
 //#include <boost/circular_buffer.hpp>
-#include <SafeQueue.h>
+//#include <SafeQueue.h>
 
 class CLzrCenterLogic;
 
@@ -21,6 +21,7 @@ public:
 public:
 	void setCenter(CLzrCenterLogic* _center);
 	void start();
+	void stop();
 
 private:
 	boost::asio::io_context m_io;
@@ -29,7 +30,7 @@ private:
 
 	std::vector<unsigned char> m_vecTempBuf;
 	CSafeQueue<std::vector<unsigned char>> m_queueRecv;
-	std::atomic_bool m_recvFlag;
+	std::atomic_bool m_recvTCPFlag;
 	unsigned int m_nPort;
 
 	CLzrCenterLogic* m_pCenter;

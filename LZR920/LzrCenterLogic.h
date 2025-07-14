@@ -4,7 +4,7 @@
 class CLzrTCPServer;
 class CLzrSerialRS485;
 
-#include <vector>
+//#include <vector>
 
 class CLzrCenterLogic
 {
@@ -20,8 +20,9 @@ public:
 	void setAppServer(CLzrTCPServer* _tcp_server);
 	void setLzrSerial(CLzrSerialRS485* _serial);
 
-	void onTCPMessage(const std::vector<unsigned char>& msg);
-	void onSerialMessage(const std::vector<unsigned char>& msg);
+	void onRecvTCPMessage(const std::vector<unsigned char>& msg);
+	void onRecvSerialMessage(const std::vector<unsigned char>& msg);
+	void onRecvCMDMessage(std::string input);
 
 private:
 	CLzrTCPServer* m_pTCPServer;

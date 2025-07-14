@@ -1,3 +1,4 @@
+#include "LzrStruct.h"
 #include "LzrCenterLogic.h"
 #include "LzrTCPServer.h"
 #include "LzrSerialRS485.h"
@@ -29,14 +30,38 @@ void CLzrCenterLogic::setLzrSerial(CLzrSerialRS485* _serial)
 	_serial->setCenter(this);
 }
 
-void CLzrCenterLogic::onTCPMessage(const std::vector<unsigned char>& msg)
+void CLzrCenterLogic::onRecvTCPMessage(const std::vector<unsigned char>& msg)
 {
 	// TCP로 받은 메시지를 해석해서 적절한 곳으로 보낸다
 
 }
 
-void CLzrCenterLogic::onSerialMessage(const std::vector<unsigned char>& msg)
+void CLzrCenterLogic::onRecvSerialMessage(const std::vector<unsigned char>& msg)
 {
 	// 센서에서 받은 메시지를 해석해서 적절한 곳으로 보낸다
 
+}
+
+void CLzrCenterLogic::onRecvCMDMessage(std::string input)
+{
+	// CMD로 입력
+	if (input == "1") {
+
+	}
+	else if (input == "2") {
+
+	}
+	else if (input == "0")
+	{
+		if (m_pTCPServer) {
+			m_pTCPServer->stop();
+		}
+
+		if (m_pSerial) {
+			m_pSerial->stop();
+		}
+	}
+	else {
+		std::cout << "[USER INPUT] Not Defined Input Message\n";
+	}
 }
