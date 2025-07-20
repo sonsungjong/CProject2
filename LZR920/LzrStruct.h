@@ -132,7 +132,7 @@ struct
 		unsigned char  D29_immunity_level;          // [1~4]
 		unsigned short D30_31_hot_reset_timer;      // sec
 		unsigned char  D32_hot_reset_counter;       // 0/1~255
-}
+};
 
 
 

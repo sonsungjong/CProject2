@@ -19,9 +19,7 @@ boost_1_88_0 폴더 -> 관리자 권한으로 cmd 실행 -> .\bootstrap.bat 입�
 라이브러리 입력(디버그32) : libboost_json-vc143-mt-gd-x32-1_88.lib
 */
 
-
 #include "LzrStruct.h"
-
 
 #ifdef _DEBUG
 #pragma comment(lib, "libboost_system-vc143-mt-gd-x64-1_88.lib")
@@ -39,9 +37,7 @@ boost_1_88_0 폴더 -> 관리자 권한으로 cmd 실행 -> .\bootstrap.bat 입�
 #pragma comment(lib, "libboost_coroutine-vc143-mt-x64-1_88.lib")
 #endif
 
-#include "LzrDefine.h"
-#include "LzrEnum.h"
-#include "LzrStruct.h"
+
 #include "LzrSerialRS485.h"
 #include "LzrTCPServer.h"
 #include "LzrCenterLogic.h"

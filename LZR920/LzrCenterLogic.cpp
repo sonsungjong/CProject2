@@ -42,7 +42,7 @@ void CLzrCenterLogic::onRecvSerialMessage(const std::vector<unsigned char>& msg)
 	// 센서에서 받은 메시지를 해석한 후 처리
 	if (msg.empty() == false)
 	{
-		printf("sensor recv : %d bytes\n", msg.size());
+		printf("sensor recv : %zd bytes\n", msg.size());
 		CLogManager::getInstance().log("수신크기 : " + msg.size());
 
 
