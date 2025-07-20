@@ -1,9 +1,10 @@
 #include "LzrStruct.h"
-#include "LzrCenterLogic.h"
 #include "LzrTCPServer.h"
 #include "LzrSerialRS485.h"
 #include <iostream>
 #include <string>
+#include "LogManager.h"
+#include "LzrCenterLogic.h"
 
 CLzrCenterLogic::CLzrCenterLogic()
 	: m_pSerial(nullptr)
@@ -41,7 +42,11 @@ void CLzrCenterLogic::onRecvSerialMessage(const std::vector<unsigned char>& msg)
 	// 센서에서 받은 메시지를 해석한 후 처리
 	if (msg.empty() == false)
 	{
-		
+		printf("sensor recv : %d bytes\n", msg.size());
+		CLogManager::getInstance().log("수신크기 : " + msg.size());
+
+
+
 	}
 	else {
 		printf("RecvSerialMessage is Empty!\n");

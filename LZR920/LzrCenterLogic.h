@@ -4,7 +4,8 @@
 class CLzrTCPServer;
 class CLzrSerialRS485;
 
-//#include <vector>
+#include <vector>
+#include <string>
 
 class CLzrCenterLogic
 {
@@ -31,4 +32,4 @@ private:
 
 };
 
-#endif			LZR_CENTER_LOGIC_H_
+#endif

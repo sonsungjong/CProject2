@@ -147,12 +147,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="LogManager.cpp" />
     <ClCompile Include="LzrCenterLogic.cpp" />
     <ClCompile Include="LzrSerialRS485.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="LzrTCPServer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="LogManager.h" />
     <ClInclude Include="LzrCenterLogic.h" />
     <ClInclude Include="LzrDefine.h" />
     <ClInclude Include="LzrEnum.h" />

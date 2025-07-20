@@ -11,6 +11,7 @@
     <ClCompile Include="LzrTCPServer.cpp" />
     <ClCompile Include="LzrCenterLogic.cpp" />
     <ClCompile Include="LzrSerialRS485.cpp" />
+    <ClCompile Include="LogManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LzrTCPServer.h" />
@@ -19,5 +20,6 @@
     <ClInclude Include="LzrDefine.h" />
     <ClInclude Include="LzrStruct.h" />
     <ClInclude Include="LzrEnum.h" />
+    <ClInclude Include="LogManager.h" />
   </ItemGroup>
 </Project>

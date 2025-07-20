@@ -3,7 +3,6 @@
 
 #include <boost/asio.hpp>
 
-//#include <boost/circular_buffer.hpp>
 //#include <SafeQueue.h>
 
 class CLzrCenterLogic;
