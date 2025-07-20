@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "LogManager.h"
 #include <boost/locale.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
@@ -20,6 +21,9 @@ CLzrSerialRS485::CLzrSerialRS485()
 #else
 	m_strPort = "/dev/ttyS0";			// 또는 /dev/ttyUSB0
 #endif
+
+
+	m_reconnTimeSecond = 5;
 
 	m_recvSerialFlag.store(true);
 	std::thread thRecv(&CLzrSerialRS485::processRecvMsg, this);
@@ -139,7 +143,9 @@ bool CLzrSerialRS485::connSerialPort()
 	}
 	catch (const boost::system::system_error& e)
 	{
-		std::cerr << "[SERIAL ERROR] " << e.what() << std::endl;
+		std::string strLogMsg = "[SERIAL ERROR] " + std::string(e.what());
+		CLogManager::getInstance().log(strLogMsg);
+		std::cerr << strLogMsg << std::endl;
 	}
 
 	return bResult;
@@ -155,20 +161,26 @@ void CLzrSerialRS485::startReconnectTimer()
 
 void CLzrSerialRS485::scheduleReconnect()
 {
-	m_reconnectTimer->expires_after(std::chrono::seconds(3));				// 3초에 한번씩 재연결 시도
+	m_reconnectTimer->expires_after(std::chrono::seconds(m_reconnTimeSecond));				// 3초에 한번씩 재연결 시도
 
 	m_reconnectTimer->async_wait([this](const boost::system::error_code& ec) {
 		if (!ec && !m_serial.is_open()) {
-			std::cerr << "[INFO] Attempting to reconnect serial..." << std::endl;
+			std::string strMsgInfo = "[INFO] Attempting to reconnect serial...";
+			std::cerr << strMsgInfo << std::endl;
+			CLogManager::getInstance().log(strMsgInfo);
 			try {
 				m_serial.open(m_strPort);
-				m_serial.set_option(boost::asio::serial_port_base::baud_rate(m_nSerialBaudRate));
-				std::cout << "[SUCCESS] Serial reconnected." << std::endl;
+				std::string strMsgSucc = "[SUCCESS] Serial reconnected.";
+				std::cout << strMsgSucc << std::endl;
+				CLogManager::getInstance().log(strMsgSucc);
 
 				recvSerialMsg();  // 수신 재시작
 			}
 			catch (const boost::system::system_error& e) {
-				std::cerr << "[RECONNECT ERROR] " << e.what() << std::endl;
+				std::string strMsgErr = std::string("[RECONNECT ERROR] ") + std::string(e.what());
+				std::cerr << strMsgErr << std::endl;
+				CLogManager::getInstance().log(strMsgErr);
+
 				scheduleReconnect();  // 재시도 예약
 			}
 		}

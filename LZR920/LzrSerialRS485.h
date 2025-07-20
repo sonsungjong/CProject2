@@ -37,6 +37,7 @@ private:
 	std::string m_strPort;
 	std::unique_ptr<boost::asio::steady_timer> m_reconnectTimer;
 	//boost::circular_buffer<unsigned char> m_recvRingBuf;
+	long long m_reconnTimeSecond;
 
 	std::vector<unsigned char> m_vecTempBuf;
 	CSafeQueue<std::vector<unsigned char>> m_queueRecv;

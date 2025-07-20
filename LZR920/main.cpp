@@ -46,7 +46,7 @@ boost_1_88_0 폴더 -> 관리자 권한으로 cmd 실행 -> .\bootstrap.bat 입�
 int LZRMain()
 {
     setlocale(LC_ALL, "");
-    CLogManager::getInstance().log("로그 기록 테스트");
+    CLogManager::getInstance().log("프로그램 시작");
 
     CLzrCenterLogic center;
     CLzrTCPServer tcp_server;
@@ -61,7 +61,9 @@ int LZRMain()
                 tcp_server.start();
             }
             catch (const std::exception& e) {
-                std::cerr << "[TCP_SERVER_THREAD ERROR] " << e.what() << std::endl;
+                std::string strErrMsg = "[TCP_SERVER_THREAD ERROR] " + std::string(e.what());
+                CLogManager::getInstance().log(strErrMsg);
+                std::cerr << strErrMsg << std::endl;
             }
         }
     );
@@ -72,7 +74,9 @@ int LZRMain()
                 sensor.start();
             }
             catch (const std::exception& e) {
-                std::cerr << "[SENSOR_THREAD ERROR] " << e.what() << std::endl;
+                std::string strErrMsg = "[SENSOR_THREAD ERROR] " + std::string(e.what());
+                CLogManager::getInstance().log(strErrMsg);
+                std::cerr << strErrMsg << std::endl;
             }
         }
     );
@@ -116,7 +120,9 @@ int main()
         nResult = LZRMain();
     }
     catch (std::exception& e) {
-        printf("%s\n", e.what());
+        std::string strErrMsg = "[MAIN ERROR] " + std::string(e.what());
+        CLogManager::getInstance().log(strErrMsg);
+        std::cerr << strErrMsg << std::endl;
     }
 
     return nResult;
