@@ -19,15 +19,12 @@
 #include <cstddef>
 #include <iterator>
 #include <type_traits>
+
 #include <stddef.h> // ::max_align_t
 
 namespace boost {
 namespace urls {
 namespace grammar {
-namespace implementation_defined {
-template<class R0, class R1>
-struct range_rule_t;
-} // implementation_defined
 
 /** A forward range of parsed elements
 
@@ -99,7 +96,7 @@ class range
 
     template<
         class R0, class R1>
-    friend struct implementation_defined::range_rule_t;
+    friend struct range_rule_t;
 
     any_rule&
     get() noexcept
@@ -208,7 +205,7 @@ public:
     */
     range(range const&) noexcept;
 
-    /** Assignment
+    /** Constructor
 
         After the move, this references the
         same underlying character buffer. Ownership
@@ -220,8 +217,6 @@ public:
 
         @par Exception Safety
         Throws nothing.
-
-        @return `*this`
     */
     range&
     operator=(range&&) noexcept;
@@ -238,27 +233,19 @@ public:
 
         @par Exception Safety
         Throws nothing.
-
-        @return `*this`
     */
     range&
     operator=(range const&) noexcept;
 
     /** Return an iterator to the beginning
-
-        @return An iterator to the first element
     */
     iterator begin() const noexcept;
 
     /** Return an iterator to the end
-
-        @return An iterator to one past the last element
     */
     iterator end() const noexcept;
 
     /** Return true if the range is empty
-
-        @return `true` if the range is empty
     */
     bool
     empty() const noexcept
@@ -267,8 +254,6 @@ public:
     }
 
     /** Return the number of elements in the range
-
-        @return The number of elements
     */
     std::size_t
     size() const noexcept
@@ -277,8 +262,6 @@ public:
     }
 
     /** Return the matching part of the string
-
-        @return A string view representing the range
     */
     core::string_view
     string() const noexcept
@@ -289,44 +272,14 @@ public:
 
 //------------------------------------------------
 
-namespace implementation_defined {
+#ifndef BOOST_URL_DOCS
 template<
     class R0,
     class R1 = void>
 struct range_rule_t;
-}
+#endif
 
 //------------------------------------------------
-
-namespace implementation_defined {
-template<class R>
-struct range_rule_t<R>
-{
-    using value_type =
-        range<typename R::value_type>;
-
-    system::result<value_type>
-    parse(
-        char const*& it,
-        char const* end) const;
-
-    constexpr
-    range_rule_t(
-        R const& next,
-        std::size_t N,
-        std::size_t M) noexcept
-        : next_(next)
-        , N_(N)
-        , M_(M)
-    {
-    }
-
-private:
-    R const next_;
-    std::size_t N_;
-    std::size_t M_;
-};
-} // implementation_defined
 
 /** Match a repeating number of elements
 
@@ -383,8 +336,6 @@ private:
     the range to be valid. If omitted, this
     defaults to unlimited.
 
-    @return A rule that matches the range.
-
     @see
         @ref alpha_chars,
         @ref delim_rule,
@@ -394,11 +345,58 @@ private:
         @ref tuple_rule,
         @ref squelch.
 */
-template<BOOST_URL_CONSTRAINT(Rule) R>
+#ifdef BOOST_URL_DOCS
+template<class Rule>
 constexpr
-implementation_defined::range_rule_t<R>
+__implementation_defined__
 range_rule(
-    R const& next,
+    Rule next,
+    std::size_t N = 0,
+    std::size_t M =
+        std::size_t(-1)) noexcept;
+#else
+template<class R>
+struct range_rule_t<R>
+{
+    using value_type =
+        range<typename R::value_type>;
+
+    system::result<value_type>
+    parse(
+        char const*& it,
+        char const* end) const;
+
+private:
+    constexpr
+    range_rule_t(
+        R const& next,
+        std::size_t N,
+        std::size_t M) noexcept
+        : next_(next)
+        , N_(N)
+        , M_(M)
+    {
+    }
+
+    template<class R_>
+    friend
+    constexpr
+    range_rule_t<R_>
+    range_rule(
+        R_ const& next,
+        std::size_t N,
+        std::size_t M) noexcept;
+
+    R const next_;
+    std::size_t N_;
+    std::size_t M_;
+};
+
+template<class Rule>
+constexpr
+range_rule_t<Rule>
+range_rule(
+    Rule const& next,
     std::size_t N = 0,
     std::size_t M =
         std::size_t(-1)) noexcept
@@ -408,47 +406,15 @@ range_rule(
     // the type requirements. Please check
     // the documentation.
     static_assert(
-        is_rule<R>::value,
+        is_rule<Rule>::value,
         "Rule requirements not met");
 
-    return implementation_defined::range_rule_t<R>{
+    return range_rule_t<Rule>{
         next, N, M};
 }
+#endif
 
 //------------------------------------------------
-
-namespace implementation_defined {
-template<class R0, class R1>
-struct range_rule_t
-{
-    using value_type =
-        range<typename R0::value_type>;
-
-    system::result<value_type>
-    parse(
-        char const*& it,
-        char const* end) const;
-
-    constexpr
-    range_rule_t(
-        R0 const& first,
-        R1 const& next,
-        std::size_t N,
-        std::size_t M) noexcept
-        : first_(first)
-        , next_(next)
-        , N_(N)
-        , M_(M)
-    {
-    }
-
-private:
-    R0 const first_;
-    R1 const next_;
-    std::size_t N_;
-    std::size_t M_;
-};
-} // implementation_defined
 
 /** Match a repeating number of elements
 
@@ -513,8 +479,6 @@ private:
     the range to be valid. If omitted, this
     defaults to unlimited.
 
-    @return A rule that matches the range.
-
     @see
         @ref alpha_chars,
         @ref delim_rule,
@@ -524,23 +488,83 @@ private:
         @ref tuple_rule,
         @ref squelch.
 */
+#ifdef BOOST_URL_DOCS
 template<
-    BOOST_URL_CONSTRAINT(Rule) R1,
-    BOOST_URL_CONSTRAINT(Rule) R2>
+    class Rule1, class Rule2>
+constexpr
+__implementation_defined__
+range_rule(
+    Rule1 first,
+    Rule2 next,
+    std::size_t N = 0,
+    std::size_t M =
+        std::size_t(-1)) noexcept;
+#else
+template<class R0, class R1>
+struct range_rule_t
+{
+    using value_type =
+        range<typename R0::value_type>;
+
+    system::result<value_type>
+    parse(
+        char const*& it,
+        char const* end) const;
+
+private:
+    constexpr
+    range_rule_t(
+        R0 const& first,
+        R1 const& next,
+        std::size_t N,
+        std::size_t M) noexcept
+        : first_(first)
+        , next_(next)
+        , N_(N)
+        , M_(M)
+    {
+    }
+
+    template<
+        class R0_, class R1_>
+    friend
+    constexpr
+    auto
+    range_rule(
+        R0_ const& first,
+        R1_ const& next,
+        std::size_t N,
+        std::size_t M) noexcept ->
+#if 1
+            typename std::enable_if<
+                ! std::is_integral<R1_>::value,
+                range_rule_t<R0_, R1_>>::type;
+#else
+        range_rule_t<R0_, R1_>;
+#endif
+
+    R0 const first_;
+    R1 const next_;
+    std::size_t N_;
+    std::size_t M_;
+};
+
+template<
+    class Rule1, class Rule2>
 constexpr
 auto
 range_rule(
-    R1 const& first,
-    R2 const& next,
+    Rule1 const& first,
+    Rule2 const& next,
     std::size_t N = 0,
     std::size_t M =
         std::size_t(-1)) noexcept ->
 #if 1
     typename std::enable_if<
-        ! std::is_integral<R2>::value,
-        implementation_defined::range_rule_t<R1, R2>>::type
+        ! std::is_integral<Rule2>::value,
+        range_rule_t<Rule1, Rule2>>::type
 #else
-    range_rule_t<R1, R2>
+    range_rule_t<Rule1, Rule2>
 #endif
 {
     // If you get a compile error here it
@@ -548,10 +572,10 @@ range_rule(
     // the type requirements. Please check
     // the documentation.
     static_assert(
-        is_rule<R1>::value,
+        is_rule<Rule1>::value,
         "Rule requirements not met");
     static_assert(
-        is_rule<R2>::value,
+        is_rule<Rule2>::value,
         "Rule requirements not met");
 
     // If you get a compile error here it
@@ -560,13 +584,14 @@ range_rule(
     // check the documentation.
     static_assert(
         std::is_same<
-            typename R1::value_type,
-            typename R2::value_type>::value,
+            typename Rule1::value_type,
+            typename Rule2::value_type>::value,
         "Rule requirements not met");
 
-    return implementation_defined::range_rule_t<R1, R2>{
+    return range_rule_t<Rule1, Rule2>{
         first, next, N, M};
 }
+#endif
 
 } // grammar
 } // urls

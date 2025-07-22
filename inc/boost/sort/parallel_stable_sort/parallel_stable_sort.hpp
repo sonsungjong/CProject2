@@ -150,11 +150,10 @@ parallel_stable_sort <Iter_t, Compare>
          it2 != last and (sw = comp(*it2, *it1)); it1 = it2++);
     if (sw)
     {
-	using std::swap;
         size_t nelem2 = nelem >> 1;
         Iter_t it1 = first, it2 = last - 1;
         for (size_t i = 0; i < nelem2; ++i)
-            swap(*(it1++), *(it2--));
+            std::swap(*(it1++), *(it2--));
         return;
     };
 
@@ -200,11 +199,11 @@ parallel_stable_sort <Iter_t, Compare>
 
 
     
-} // end of constructor
+}; // end of constructor
 
 //
 //****************************************************************************
-}//    End namespace stable_detail
+};//    End namespace stable_detail
 //****************************************************************************
 //
 
@@ -237,7 +236,7 @@ void parallel_stable_sort(Iter_t first, Iter_t last)
 {
     typedef bscu::compare_iter<Iter_t> Compare;
     stable_detail::parallel_stable_sort<Iter_t, Compare>(first, last);
-}
+};
 //
 //-----------------------------------------------------------------------------
 //  function : parallel_stable_sort
@@ -254,7 +253,7 @@ void parallel_stable_sort(Iter_t first, Iter_t last, uint32_t nthread)
 {
     typedef bscu::compare_iter<Iter_t> Compare;
     stable_detail::parallel_stable_sort<Iter_t, Compare>(first, last, nthread);
-}
+};
 //
 //-----------------------------------------------------------------------------
 //  function : parallel_stable_sort
@@ -271,7 +270,7 @@ template <class Iter_t, class Compare,
 void parallel_stable_sort(Iter_t first, Iter_t last, Compare comp)
 {
     stable_detail::parallel_stable_sort<Iter_t, Compare>(first, last, comp);
-}
+};
 
 //
 //-----------------------------------------------------------------------------
@@ -294,8 +293,8 @@ void parallel_stable_sort (Iter_t first, Iter_t last, Compare comp,
 }
 //
 //****************************************************************************
-}//    End namespace sort
-}//    End namespace boost
+};//    End namespace sort
+};//    End namespace boost
 //****************************************************************************
 //
 #endif

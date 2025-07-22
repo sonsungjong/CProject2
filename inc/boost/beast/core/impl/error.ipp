@@ -28,9 +28,10 @@ public:
 
     error_codes() : error_category(0x002f6e94401c6e8bu)  {}
 
+
     BOOST_BEAST_DECL
-    char const*
-    message(int ev, char*, std::size_t) const noexcept override
+    std::string
+    message(int ev) const override
     {
         switch(static_cast<error>(ev))
         {
@@ -38,13 +39,6 @@ public:
         case error::timeout: return
             "The socket was closed due to a timeout";
         }
-    }
-
-    BOOST_BEAST_DECL
-    std::string
-    message(int ev) const override
-    {
-        return message(ev, nullptr, 0);
     }
 
     BOOST_BEAST_DECL
@@ -73,9 +67,10 @@ public:
 
     error_conditions() : error_category(0x3dd0b0ce843c5b10u)  {}
 
+
     BOOST_BEAST_DECL
-    char const*
-    message(int cv, char*, std::size_t) const noexcept override
+    std::string
+    message(int cv) const override
     {
         switch(static_cast<condition>(cv))
         {
@@ -83,13 +78,6 @@ public:
         case condition::timeout:
             return "The operation timed out";
         }
-    }
-
-    BOOST_BEAST_DECL
-    std::string
-    message(int cv) const override
-    {
-        return message(cv, nullptr, 0);
     }
 };
 

@@ -154,16 +154,16 @@ public:
         Calls to allocate may throw.
 
         @param other The segments to assign.
-        @return A reference to this object.
     */
+    /** @{ */
     BOOST_URL_DECL
     segments_encoded_ref&
     operator=(segments_encoded_ref const& other);
 
-    /// @copydoc operator=(segments_encoded_ref const&)
     BOOST_URL_DECL
     segments_encoded_ref&
     operator=(segments_encoded_view const& other);
+    /** @} */
 
     /** Assignment
 
@@ -207,7 +207,6 @@ public:
         The list contains an invalid percent-encoding.
 
         @param init The list of segments to assign.
-        @return A reference to this.
     */
     BOOST_URL_DECL
     segments_encoded_ref&
@@ -218,8 +217,6 @@ public:
 
         @see
             @ref segments_encoded_view.
-
-        @return A view of the segments.
     */
     BOOST_URL_DECL
     operator
@@ -245,8 +242,6 @@ public:
 
         @par Exception Safety
         Throws nothing.
-
-        @return A reference to the url.
     */
     url_base&
     url() const noexcept
@@ -360,8 +355,8 @@ public:
         @throw system_error
         The range contains an invalid percent-encoding.
 
-        @param first The first element in the range.
-        @param last One past the last element in the range.
+        @param first, last The range of segments
+        to assign.
     */
     template<class FwdIt>
     void
@@ -503,8 +498,8 @@ public:
         the range is inserted. This may
         be equal to `end()`.
 
-        @param first The first element in the range to insert.
-        @param last One past the last element in the range to insert.
+        @param first, last The range of segments
+        to insert.
     */
     template<class FwdIt>
     iterator
@@ -553,9 +548,11 @@ public:
         @par Exception Safety
         Throws nothing.
 
-        @param first The first element in the range to erase.
-        @param last One past the last element in the range to erase.
-        @return An iterator to one past the removed range.
+        @return An iterator to one past
+        the removed range.
+
+        @param first, last The range of
+        segments to erase.
     */
     BOOST_URL_DECL
     iterator
@@ -621,8 +618,7 @@ public:
 
         @return An iterator to the new segment.
 
-        @param from The first element in the range of segments to replace.
-        @param to One past the last element in the range of segments to replace.
+        @param from, to The range of segments to replace.
 
         @param s The string to assign.
     */
@@ -667,8 +663,7 @@ public:
         segment inserted, or one past `to` if
         `init.size() == 0`.
 
-        @param from The first element in the range of segments to replace.
-        @param to One past the last element in the range of segments to replace.
+        @param from, to The range of segments to replace.
 
         @param init The list of segments to assign.
     */
@@ -713,10 +708,9 @@ public:
         segment inserted, or one past `to` if
         `init.size() == 0`.
 
-        @param from The first element in the range of segments to replace.
-        @param to One past the last element in the range of segments to replace.
-        @param first The first element in the new range of segments.
-        @param last One past the last element in the new range of segments.
+        @param from, to The range of segments to replace.
+
+        @param first, last The range of segments to assign.
     */
     template<class FwdIt>
     iterator
@@ -769,7 +763,7 @@ public:
 
         @par Preconditions
         @code
-        !this->empty()
+        not this->empty()
         @endcode
 
         @par Exception Safety

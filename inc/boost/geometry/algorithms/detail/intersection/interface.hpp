@@ -2,9 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014-2024.
-// Modifications copyright (c) 2014-2024, Oracle and/or its affiliates.
-// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// This file was modified by Oracle on 2014-2022.
+// Modifications copyright (c) 2014-2022, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -18,6 +17,7 @@
 #include <boost/geometry/algorithms/detail/overlay/intersection_insert.hpp>
 #include <boost/geometry/algorithms/detail/tupled_output.hpp>
 #include <boost/geometry/geometries/adapted/boost_variant.hpp>
+#include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/strategies/relate/services.hpp>
@@ -37,28 +37,29 @@ namespace dispatch
 template
 <
     typename Geometry1, typename Geometry2,
-    typename Tag1 = geometry::tag_t<Geometry1>,
-    typename Tag2 = geometry::tag_t<Geometry2>,
+    typename Tag1 = typename geometry::tag<Geometry1>::type,
+    typename Tag2 = typename geometry::tag<Geometry2>::type,
     bool Reverse = reverse_dispatch<Geometry1, Geometry2>::type::value
 >
 struct intersection
 {
-    template <typename GeometryOut, typename Strategy>
+    template <typename RobustPolicy, typename GeometryOut, typename Strategy>
     static inline bool apply(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
+            RobustPolicy const& robust_policy,
             GeometryOut& geometry_out,
             Strategy const& strategy)
     {
-        using single_out = typename geometry::detail::output_geometry_value
+        typedef typename geometry::detail::output_geometry_value
             <
                 GeometryOut
-            >::type;
+            >::type SingleOut;
 
         intersection_insert
             <
-                Geometry1, Geometry2, single_out,
+                Geometry1, Geometry2, SingleOut,
                 overlay_intersection
-            >::apply(geometry1, geometry2,
+            >::apply(geometry1, geometry2, robust_policy,
                      geometry::detail::output_geometry_back_inserter(geometry_out),
                      strategy);
 
@@ -82,10 +83,11 @@ struct intersection
 >
     : intersection<Geometry2, Geometry1, Tag2, Tag1, false>
 {
-    template <typename GeometryOut, typename Strategy>
+    template <typename RobustPolicy, typename GeometryOut, typename Strategy>
     static inline bool apply(
         Geometry1 const& g1,
         Geometry2 const& g2,
+        RobustPolicy const& robust_policy,
         GeometryOut& out,
         Strategy const& strategy)
     {
@@ -94,7 +96,7 @@ struct intersection
                 Geometry2, Geometry1,
                 Tag2, Tag1,
                 false
-            >::apply(g2, g1, out, strategy);
+            >::apply(g2, g1, robust_policy, out, strategy);
     }
 };
 
@@ -109,9 +111,9 @@ namespace resolve_collection
 template
 <
     typename Geometry1, typename Geometry2, typename GeometryOut,
-    typename Tag1 = geometry::tag_t<Geometry1>,
-    typename Tag2 = geometry::tag_t<Geometry2>,
-    typename TagOut = geometry::tag_t<GeometryOut>
+    typename Tag1 = typename geometry::tag<Geometry1>::type,
+    typename Tag2 = typename geometry::tag<Geometry2>::type,
+    typename TagOut = typename geometry::tag<GeometryOut>::type
 >
 struct intersection
 {
@@ -119,11 +121,22 @@ struct intersection
     static bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2,
                       GeometryOut & geometry_out, Strategy const& strategy)
     {
+        typedef typename geometry::rescale_overlay_policy_type
+            <
+                Geometry1,
+                Geometry2,
+                typename Strategy::cs_tag
+            >::type rescale_policy_type;
+
+        rescale_policy_type robust_policy
+            = geometry::get_rescale_policy<rescale_policy_type>(
+                    geometry1, geometry2, strategy);
+
         return dispatch::intersection
             <
                 Geometry1,
                 Geometry2
-            >::apply(geometry1, geometry2, geometry_out,
+            >::apply(geometry1, geometry2, robust_policy, geometry_out,
                      strategy);
     }
 };
@@ -195,10 +208,10 @@ struct intersection<default_strategy, false>
                              GeometryOut & geometry_out,
                              default_strategy)
     {
-        using strategy_type = typename strategies::relate::services::default_strategy
+        typedef typename strategies::relate::services::default_strategy
             <
                 Geometry1, Geometry2
-            >::type;
+            >::type strategy_type;
 
         return intersection
             <
@@ -216,8 +229,8 @@ namespace resolve_dynamic
 template
 <
     typename Geometry1, typename Geometry2,
-    typename Tag1 = geometry::tag_t<Geometry1>,
-    typename Tag2 = geometry::tag_t<Geometry2>
+    typename Tag1 = typename geometry::tag<Geometry1>::type,
+    typename Tag2 = typename geometry::tag<Geometry2>::type
 >
 struct intersection
 {

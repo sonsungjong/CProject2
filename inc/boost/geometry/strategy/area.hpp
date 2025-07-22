@@ -58,7 +58,7 @@ template
 struct result_type<Geometry, void>
     : select_most_precise
         <
-            coordinate_type_t<Geometry>,
+            typename coordinate_type<Geometry>::type,
             double
         >
 {};

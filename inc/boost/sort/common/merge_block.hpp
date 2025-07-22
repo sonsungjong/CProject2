@@ -14,6 +14,7 @@
 #ifndef __BOOST_SORT_COMMON_MERGE_BLOCK_HPP
 #define __BOOST_SORT_COMMON_MERGE_BLOCK_HPP
 
+#include <ciso646>
 #include <boost/sort/common/range.hpp>
 #include <boost/sort/common/rearrange.hpp>
 #include <boost/sort/common/util/merge.hpp>
@@ -125,7 +126,7 @@ struct merge_block
 
     ~ merge_block()
     {
-        if (ptr_circ != nullptr && owned)
+        if (ptr_circ != nullptr and owned)
         {
             delete ptr_circ;
             ptr_circ = nullptr;
@@ -170,7 +171,7 @@ struct merge_block
     //-------------------------------------------------------------------------
     bool is_tail(size_t pos) const
     {
-        return (pos == (nblock - 1) && ntail != 0);
+        return (pos == (nblock - 1) and ntail != 0);
     };
     //-------------------------------------------------------------------------
     //  function :
@@ -222,10 +223,10 @@ template<class Iter_t, class Compare, uint32_t Power2>
 void merge_block<Iter_t, Compare, Power2>
 ::merge_range_pos(it_index itx_first, it_index itx_mid,it_index itx_last)
 {
-    assert((itx_last - itx_mid) >= 0 && (itx_mid - itx_first) >= 0);
+    assert((itx_last - itx_mid) >= 0 and (itx_mid - itx_first) >= 0);
 
     size_t nelemA = (itx_mid - itx_first), nelemB = (itx_last - itx_mid);
-    if (nelemA == 0 || nelemB == 0) return;
+    if (nelemA == 0 or nelemB == 0) return;
 
     //-------------------------------------------------------------------
     // Create two index with the position of the blocks to merge
@@ -243,17 +244,17 @@ void merge_block<Iter_t, Compare, Power2>
     Iter_t itA = global_range.first, itB = global_range.first;
     bool validA = false, validB = false;
 
-    while (itxA != indexA.end() && itxB != indexB.end())
+    while (itxA != indexA.end() and itxB != indexB.end())
     {   //----------------------------------------------------------------
         // Load valid ranges from the itxA and ItxB positions
         //----------------------------------------------------------------
-        if (! validA)
+        if (not validA)
         {
             rngA = get_range(*itxA);
             itA = rngA.first;
             validA = true;
         };
-        if (! validB)
+        if (not validB)
         {
             rngB = get_range(*itxB);
             itB = rngB.first;
@@ -265,7 +266,7 @@ void merge_block<Iter_t, Compare, Power2>
         //----------------------------------------------------------------
         if (ptr_circ->size() == 0)
         {
-            if (! cmp(*rngB.front(), *rngA.back()))
+            if (not cmp(*rngB.front(), *rngA.back()))
             {
                 *(itx_out++) = *(itxA++);
                 validA = false;
@@ -273,7 +274,7 @@ void merge_block<Iter_t, Compare, Power2>
             };
             if (cmp(*rngB.back(), *rngA.front()))
             {
-                if (! is_tail(*itxB))
+                if (not is_tail(*itxB))
                     *(itx_out++) = *itxB;
                 else ptr_circ->push_move_back(rngB.first, rngB.size());
                 ++itxB;
@@ -294,7 +295,7 @@ void merge_block<Iter_t, Compare, Power2>
         }
         else
         {   // rngB is finished
-            if (! is_tail(*itxB))
+            if (not is_tail(*itxB))
             {
                 ptr_circ->pop_move_front(rngB.first, rngB.size());
                 *(itx_out++) = *itxB;
@@ -314,7 +315,7 @@ void merge_block<Iter_t, Compare, Power2>
     else
     {   // The list B is finished
         rngA = get_range(*itxA);
-        if (ntail != 0 && indexB.back() == (nblock - 1)) // exist tail
+        if (ntail != 0 and indexB.back() == (nblock - 1)) // exist tail
         {   // add the tail block to indexA, and shift the element
             indexA.push_back(indexB.back());
             size_t numA = size_t(itA - rngA.first);
@@ -326,7 +327,7 @@ void merge_block<Iter_t, Compare, Power2>
         while (itxA != indexA.end())
             *(itx_out++) = *(itxA++);
     };
-}
+};
 
 //-------------------------------------------------------------------------
 //  function : move_range_pos_backward
@@ -340,7 +341,7 @@ template<class Iter_t, class Compare, uint32_t Power2>
 void merge_block<Iter_t, Compare, Power2>
 ::move_range_pos_backward(it_index itx_first, it_index itx_last, size_t npos)
 {
-    assert((itx_last - itx_first) >= 0 && npos <= BLOCK_SIZE);
+    assert((itx_last - itx_first) >= 0 and npos <= BLOCK_SIZE);
 
     //--------------------------------------------------------------------
     // Processing the last block. Must be ready fore to accept npos
@@ -365,7 +366,7 @@ void merge_block<Iter_t, Compare, Power2>
         util::move_backward(it_mid2, it_mid1, rng1.last);
         util::move_backward(rng1.last, rng1.first, it_mid1);
     };
-}
+};
 //-------------------------------------------------------------------------
 //  function : rearrange_with_index
 /// @brief rearrange the blocks with the relative positions of the index
@@ -390,7 +391,7 @@ void merge_block<Iter_t, Compare, Power2>
     pos_ini = 0;
     while (pos_ini < nelem)
     {
-        while (pos_ini < nelem && index[pos_ini] == pos_ini)
+        while (pos_ini < nelem and index[pos_ini] == pos_ini)
             ++pos_ini;
         if (pos_ini == nelem) return;
         pos_dest = pos_src = pos_ini;
@@ -408,11 +409,11 @@ void merge_block<Iter_t, Compare, Power2>
         index[pos_dest] = pos_dest;
         ++pos_ini;
     };
-}
+};
 
 //****************************************************************************
-}//    End namespace common
-}//    End namespace sort
-}//    End namespace boost
+};//    End namespace common
+};//    End namespace sort
+};//    End namespace boost
 //****************************************************************************
 #endif

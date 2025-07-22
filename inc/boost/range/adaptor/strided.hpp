@@ -14,7 +14,6 @@
 #include <boost/range/adaptor/argument_fwd.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <boost/iterator/iterator_facade.hpp>
-#include <boost/iterator/enable_if_convertible.hpp>
 #include <iterator>
 
 namespace boost
@@ -67,7 +66,7 @@ namespace boost
             template<class OtherIterator>
             strided_iterator(
                 const strided_iterator<OtherIterator, Category>& other,
-                typename iterators::enable_if_convertible<
+                typename enable_if_convertible<
                     OtherIterator,
                     base_iterator
                 >::type* = 0
@@ -111,7 +110,7 @@ namespace boost
             template<class OtherIterator>
             bool equal(
                 const strided_iterator<OtherIterator, Category>& other,
-                typename iterators::enable_if_convertible<
+                typename enable_if_convertible<
                     OtherIterator,
                     base_iterator
                 >::type* = 0) const
@@ -178,7 +177,7 @@ namespace boost
                     OtherIterator,
                     bidirectional_traversal_tag
                 >& other,
-                typename iterators::enable_if_convertible<
+                typename enable_if_convertible<
                     OtherIterator,
                     base_iterator
                 >::type* = 0
@@ -240,7 +239,7 @@ namespace boost
                     OtherIterator,
                     bidirectional_traversal_tag
                 >& other,
-                typename iterators::enable_if_convertible<
+                typename enable_if_convertible<
                     OtherIterator,
                     base_iterator
                 >::type* = 0) const
@@ -309,7 +308,7 @@ namespace boost
                     OtherIterator,
                     random_access_traversal_tag
                 >& other,
-                typename iterators::enable_if_convertible<
+                typename enable_if_convertible<
                     OtherIterator,
                     base_iterator
                 >::type* = 0
@@ -373,7 +372,7 @@ namespace boost
                     OtherIterator,
                     random_access_traversal_tag
                 >& other,
-                typename iterators::enable_if_convertible<
+                typename enable_if_convertible<
                             OtherIterator, base_iterator>::type* = 0) const
             {
                 BOOST_ASSERT((other.m_index - m_index) % m_stride == difference_type());
@@ -386,7 +385,7 @@ namespace boost
                     OtherIterator,
                     random_access_traversal_tag
                 >& other,
-                typename iterators::enable_if_convertible<
+                typename enable_if_convertible<
                             OtherIterator, base_iterator>::type* = 0) const
             {
                 return m_index == other.m_index;

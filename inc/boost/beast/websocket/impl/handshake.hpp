@@ -80,8 +80,6 @@ public:
             *this, std::move(req)))
     {
         sp->reset(); // VFALCO I don't like this
-        if(res_p)
-            res_p->result(http::status::internal_server_error);
         (*this)({}, 0, false);
     }
 
@@ -190,19 +188,10 @@ template<class NextLayer, bool deflateSupported>
 struct stream<NextLayer, deflateSupported>::
     run_handshake_op
 {
-    boost::shared_ptr<impl_type> const& self;
-
-    using executor_type = typename stream::executor_type;
-
-    executor_type
-    get_executor() const noexcept
-    {
-        return self->stream().get_executor();
-    }
-
     template<class HandshakeHandler>
     void operator()(
         HandshakeHandler&& h,
+        boost::shared_ptr<impl_type> const& sp,
         request_type&& req,
         detail::sec_ws_key_type key,
         response_type* res_p)
@@ -219,7 +208,7 @@ struct stream<NextLayer, deflateSupported>::
         handshake_op<
             typename std::decay<HandshakeHandler>::type>(
                 std::forward<HandshakeHandler>(h),
-                    self, std::move(req), key, res_p);
+                    sp, std::move(req), key, res_p);
     }
 };
 
@@ -322,8 +311,9 @@ async_handshake(
     return net::async_initiate<
         HandshakeHandler,
         void(error_code)>(
-            run_handshake_op{impl_},
+            run_handshake_op{},
             handler,
+            impl_,
             std::move(req),
             key,
             nullptr);
@@ -344,11 +334,13 @@ async_handshake(
     detail::sec_ws_key_type key;
     auto req = impl_->build_request(
         key, host, target, &default_decorate_req);
+    res.result(http::status::internal_server_error);
     return net::async_initiate<
         HandshakeHandler,
         void(error_code)>(
-            run_handshake_op{impl_},
+            run_handshake_op{},
             handler,
+            impl_,
             std::move(req),
             key,
             &res);

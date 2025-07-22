@@ -9,10 +9,10 @@ boost_1_83_0 폴더 -> 관리자 권한으로 cmd 실행 -> .\bootstrap.bat 입력하여 실행
 라이브러리 디렉토리 : C:\boost_1_83_0\stage\lib
 필요한 라이브러리를 입력에 넣어야함
 
-라이브러리 입력(릴리즈64) : libboost_system-vc143-mt-x64-1_83.lib
-라이브러리 입력(디버그64) : libboost_system-vc143-mt-gd-x64-1_83.lib
-라이브러리 입력(릴리즈32) : libboost_system-vc143-mt-x32-1_83.lib
-라이브러리 입력(디버그32) : libboost_system-vc143-mt-gd-x32-1_83.lib
+라이브러리 입력(릴리즈64) : libboost_system-vc142-mt-x64-1_83.lib
+라이브러리 입력(디버그64) : libboost_system-vc142-mt-gd-x64-1_83.lib
+라이브러리 입력(릴리즈32) : libboost_system-vc142-mt-x32-1_83.lib
+라이브러리 입력(디버그32) : libboost_system-vc142-mt-gd-x32-1_83.lib
 */
 #include <cstdio>
 #include <iostream>
@@ -22,11 +22,11 @@ boost_1_83_0 폴더 -> 관리자 권한으로 cmd 실행 -> .\bootstrap.bat 입력하여 실행
 #include <boost/locale.hpp>
 
 #ifdef _DEBUG
-#pragma comment(lib, "libboost_system-vc143-mt-gd-x64-1_88.lib")
-#pragma comment(lib, "libboost_locale-vc143-mt-gd-x64-1_88.lib")
+#pragma comment(lib, "libboost_system-vc142-mt-gd-x64-1_83.lib")
+#pragma comment(lib, "libboost_locale-vc142-mt-gd-x64-1_83.lib")
 #else
-#pragma comment(lib, "libboost_system-vc143-mt-x64-1_88.lib")
-#pragma comment(lib, "libboost_locale-vc143-mt-x64-1_88.lib")
+#pragma comment(lib, "libboost_system-vc142-mt-x64-1_83.lib")
+#pragma comment(lib, "libboost_locale-vc142-mt-x64-1_83.lib")
 #endif
 
 using boost::asio::ip::tcp;

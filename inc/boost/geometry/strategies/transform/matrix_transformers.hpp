@@ -36,7 +36,6 @@
 #include <boost/geometry/core/coordinate_promotion.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/util/math.hpp>
-#include <boost/geometry/util/numeric_cast.hpp>
 #include <boost/geometry/util/select_coordinate_type.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 
@@ -61,8 +60,8 @@ struct set_point_from_vec
     template <typename Vector>
     static inline void apply(Point & p, Vector const& v)
     {
-        using coord_t = geometry::coordinate_type_t<Point>;
-        set<Dimension>(p, util::numeric_cast<coord_t>(qvm::A<Dimension>(v)));
+        typedef typename geometry::coordinate_type<Point>::type coord_t;
+        set<Dimension>(p, boost::numeric_cast<coord_t>(qvm::A<Dimension>(v)));
         set_point_from_vec<Point, Dimension + 1, DimensionCount>::apply(p, v);
     }
 };
@@ -197,9 +196,9 @@ public :
         ct const& c1 = get<0>(p1);
         ct const& c2 = get<1>(p1);
 
-        using ct2 = geometry::coordinate_type_t<P2>;
-        set<0>(p2, util::numeric_cast<ct2>(c1 * qvm::A<0,0>(this->m_matrix) + c2 * qvm::A<0,1>(this->m_matrix) + qvm::A<0,2>(this->m_matrix)));
-        set<1>(p2, util::numeric_cast<ct2>(c1 * qvm::A<1,0>(this->m_matrix) + c2 * qvm::A<1,1>(this->m_matrix) + qvm::A<1,2>(this->m_matrix)));
+        typedef typename geometry::coordinate_type<P2>::type ct2;
+        set<0>(p2, boost::numeric_cast<ct2>(c1 * qvm::A<0,0>(this->m_matrix) + c2 * qvm::A<0,1>(this->m_matrix) + qvm::A<0,2>(this->m_matrix)));
+        set<1>(p2, boost::numeric_cast<ct2>(c1 * qvm::A<1,0>(this->m_matrix) + c2 * qvm::A<1,1>(this->m_matrix) + qvm::A<1,2>(this->m_matrix)));
 
         return true;
     }
@@ -240,11 +239,11 @@ public :
         ct const& c2 = get<1>(p1);
         ct const& c3 = get<2>(p1);
 
-        using ct2 = geometry::coordinate_type_t<P2>;
+        typedef typename geometry::coordinate_type<P2>::type ct2;
 
-        set<0>(p2, util::numeric_cast<ct2>(
+        set<0>(p2, boost::numeric_cast<ct2>(
             c1 * qvm::A<0,0>(this->m_matrix) + c2 * qvm::A<0,1>(this->m_matrix) + c3 * qvm::A<0,2>(this->m_matrix) + qvm::A<0,3>(this->m_matrix)));
-        set<1>(p2, util::numeric_cast<ct2>(
+        set<1>(p2, boost::numeric_cast<ct2>(
             c1 * qvm::A<1,0>(this->m_matrix) + c2 * qvm::A<1,1>(this->m_matrix) + c3 * qvm::A<1,2>(this->m_matrix) + qvm::A<1,3>(this->m_matrix)));
 
         return true;
@@ -289,13 +288,13 @@ public :
         ct const& c2 = get<1>(p1);
         ct const& c3 = get<2>(p1);
 
-        using ct2 = geometry::coordinate_type_t<P2>;
+        typedef typename geometry::coordinate_type<P2>::type ct2;
 
-        set<0>(p2, util::numeric_cast<ct2>(
+        set<0>(p2, boost::numeric_cast<ct2>(
             c1 * qvm::A<0,0>(this->m_matrix) + c2 * qvm::A<0,1>(this->m_matrix) + c3 * qvm::A<0,2>(this->m_matrix) + qvm::A<0,3>(this->m_matrix)));
-        set<1>(p2, util::numeric_cast<ct2>(
+        set<1>(p2, boost::numeric_cast<ct2>(
             c1 * qvm::A<1,0>(this->m_matrix) + c2 * qvm::A<1,1>(this->m_matrix) + c3 * qvm::A<1,2>(this->m_matrix) + qvm::A<1,3>(this->m_matrix)));
-        set<2>(p2, util::numeric_cast<ct2>(
+        set<2>(p2, boost::numeric_cast<ct2>(
             c1 * qvm::A<2,0>(this->m_matrix) + c2 * qvm::A<2,1>(this->m_matrix) + c3 * qvm::A<2,2>(this->m_matrix) + qvm::A<2,3>(this->m_matrix)));
 
         return true;

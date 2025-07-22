@@ -4,9 +4,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2017-2024.
-// Modifications copyright (c) 2017-2024 Oracle and/or its affiliates.
-// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// This file was modified by Oracle on 2017-2022.
+// Modifications copyright (c) 2017-2022 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -76,7 +75,14 @@ struct buffer_all<Input, Output, TagIn, multi_polygon_tag>
                              PointStrategy const& point_strategy,
                              Strategies const& strategies)
     {
-        using polygon_type = typename boost::range_value<Output>::type;
+        typedef typename boost::range_value<Output>::type polygon_type;
+
+        typedef typename point_type<Input>::type point_type;
+        typedef typename rescale_policy_type
+            <
+                point_type,
+                typename geometry::cs_tag<point_type>::type
+            >::type rescale_policy_type;
 
         if (geometry::is_empty(geometry_in))
         {
@@ -84,9 +90,13 @@ struct buffer_all<Input, Output, TagIn, multi_polygon_tag>
             return;
         }
 
-        model::box<point_type_t<Input>> box;
+        model::box<point_type> box;
         geometry::envelope(geometry_in, box);
         geometry::buffer(box, box, distance_strategy.max_distance(join_strategy, end_strategy));
+
+        rescale_policy_type rescale_policy
+                = boost::geometry::get_rescale_policy<rescale_policy_type>(
+                    box, strategies);
 
         detail::buffer::buffer_inserter<polygon_type>(geometry_in,
                     range::back_inserter(geometry_out),
@@ -95,7 +105,8 @@ struct buffer_all<Input, Output, TagIn, multi_polygon_tag>
                     join_strategy,
                     end_strategy,
                     point_strategy,
-                    strategies);
+                    strategies,
+                    rescale_policy);
     }
 };
 

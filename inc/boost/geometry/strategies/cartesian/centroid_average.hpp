@@ -3,7 +3,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
-// Copyright (c) 2017-2023 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2015-2021.
 // Modifications copyright (c) 2015-2021 Oracle and/or its affiliates.
@@ -89,8 +89,7 @@ public :
         centroid = state.centroid;
         if ( state.count > 0 )
         {
-            using coord_t = coordinate_type_t<ResultPoint>;
-            divide_value(centroid, static_cast<coord_t>(state.count));
+            divide_value(centroid, state.count);
             return true;
         }
         return false;
@@ -118,7 +117,7 @@ struct default_strategy
     typedef average
         <
             Point,
-            point_type_t<Geometry>
+            typename point_type<Geometry>::type
         > type;
 };
 

@@ -111,8 +111,16 @@ class value
     }
 
 public:
-    /// Associated [Allocator](https://en.cppreference.com/w/cpp/named_req/Allocator)
-    using allocator_type = container::pmr::polymorphic_allocator<value>;
+    /** The type of _Allocator_ returned by @ref get_allocator
+
+        This type is a @ref polymorphic_allocator.
+    */
+#ifdef BOOST_JSON_DOCS
+    // VFALCO doc toolchain renders this incorrectly
+    using allocator_type = __see_below__;
+#else
+    using allocator_type = polymorphic_allocator<value>;
+#endif
 
     /** Destructor.
 
@@ -149,8 +157,8 @@ public:
 
     /** Constructor.
 
-        The constructed value is null, using the
-        specified `boost::container::pmr::memory_resource`.
+        The constructed value is null,
+        using the specified @ref memory_resource.
 
         @par Complexity
         Constant.
@@ -158,9 +166,9 @@ public:
         @par Exception Safety
         No-throw guarantee.
 
-        @param sp A pointer to the `boost::container::pmr::memory_resource` to
-        use. The container will acquire shared ownership of the memory
-        resource.
+        @param sp A pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
     */
     explicit
     value(storage_ptr sp) noexcept
@@ -231,9 +239,9 @@ public:
 
         @param other The value to copy.
 
-        @param sp A pointer to the `boost::container::pmr::memory_resource` to
-        use. The container will acquire shared ownership of the memory
-        resource.
+        @param sp A pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
     */
     BOOST_JSON_DECL
     value(
@@ -289,9 +297,9 @@ public:
 
         @param other The value to move.
 
-        @param sp A pointer to the `boost::container::pmr::memory_resource` to
-        use. The container will acquire shared ownership of the memory
-        resource.
+        @param sp A pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
     */
     BOOST_JSON_DECL
     value(
@@ -314,9 +322,9 @@ public:
         @par Exception Safety
         No-throw guarantee.
 
-        @param sp A pointer to the `boost::container::pmr::memory_resource` to
-        use. The container will acquire shared ownership of the memory
-        resource.
+        @param sp A pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
     */
     value(
         std::nullptr_t,
@@ -338,9 +346,9 @@ public:
 
         @param b The initial value.
 
-        @param sp A pointer to the `boost::container::pmr::memory_resource` to
-        use. The container will acquire shared ownership of the memory
-        resource.
+        @param sp A pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
     */
 #ifdef BOOST_JSON_DOCS
     value(
@@ -369,9 +377,9 @@ public:
 
         @param i The initial value.
 
-        @param sp A pointer to the `boost::container::pmr::memory_resource` to
-        use. The container will acquire shared ownership of the memory
-        resource.
+        @param sp A pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
     */
     value(
         signed char i,
@@ -391,9 +399,9 @@ public:
 
         @param i The initial value.
 
-        @param sp A pointer to the `boost::container::pmr::memory_resource` to
-        use. The container will acquire shared ownership of the memory
-        resource.
+        @param sp A pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
     */
     value(
         short i,
@@ -413,9 +421,9 @@ public:
 
         @param i The initial value.
 
-        @param sp A pointer to the `boost::container::pmr::memory_resource` to
-        use. The container will acquire shared ownership of the memory
-        resource.
+        @param sp A pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
     */
     value(
         int i,
@@ -435,9 +443,9 @@ public:
 
         @param i The initial value.
 
-        @param sp A pointer to the `boost::container::pmr::memory_resource` to
-        use. The container will acquire shared ownership of the memory
-        resource.
+        @param sp A pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
     */
     value(
         long i,
@@ -457,9 +465,9 @@ public:
 
         @param i The initial value.
 
-        @param sp A pointer to the `boost::container::pmr::memory_resource` to
-        use. The container will acquire shared ownership of the memory
-        resource.
+        @param sp A pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
     */
     value(
         long long i,
@@ -479,9 +487,9 @@ public:
 
         @param u The initial value.
 
-        @param sp A pointer to the `boost::container::pmr::memory_resource` to
-        use. The container will acquire shared ownership of the memory
-        resource.
+        @param sp A pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
     */
     value(
         unsigned char u,
@@ -501,9 +509,9 @@ public:
 
         @param u The initial value.
 
-        @param sp A pointer to the `boost::container::pmr::memory_resource` to
-        use. The container will acquire shared ownership of the memory
-        resource.
+        @param sp A pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
     */
     value(
         unsigned short u,
@@ -523,9 +531,9 @@ public:
 
         @param u The initial value.
 
-        @param sp A pointer to the `boost::container::pmr::memory_resource` to
-        use. The container will acquire shared ownership of the memory
-        resource.
+        @param sp A pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
     */
     value(
         unsigned int u,
@@ -545,9 +553,9 @@ public:
 
         @param u The initial value.
 
-        @param sp A pointer to the `boost::container::pmr::memory_resource` to
-        use. The container will acquire shared ownership of the memory
-        resource.
+        @param sp A pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
     */
     value(
         unsigned long u,
@@ -567,9 +575,9 @@ public:
 
         @param u The initial value.
 
-        @param sp A pointer to the `boost::container::pmr::memory_resource` to
-        use. The container will acquire shared ownership of the memory
-        resource.
+        @param sp A pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
     */
     value(
         unsigned long long u,
@@ -589,9 +597,9 @@ public:
 
         @param d The initial value.
 
-        @param sp A pointer to the `boost::container::pmr::memory_resource` to
-        use. The container will acquire shared ownership of the memory
-        resource.
+        @param sp A pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
     */
     value(
         double d,
@@ -614,9 +622,9 @@ public:
 
         @param s The string view to construct with.
 
-        @param sp A pointer to the `boost::container::pmr::memory_resource` to
-        use. The container will acquire shared ownership of the memory
-        resource.
+        @param sp A pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
     */
     value(
         string_view s,
@@ -641,9 +649,9 @@ public:
         @param s The null-terminated string to construct
         with.
 
-        @param sp A pointer to the `boost::container::pmr::memory_resource` to
-        use. The container will acquire shared ownership of the memory
-        resource.
+        @param sp A pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
     */
     value(
         char const* s,
@@ -696,9 +704,9 @@ public:
 
         @param other The string to construct with.
 
-        @param sp A pointer to the `boost::container::pmr::memory_resource` to
-        use. The container will acquire shared ownership of the memory
-        resource.
+        @param sp A pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
     */
     value(
         string const& other,
@@ -723,9 +731,9 @@ public:
 
         @param other The string to construct with.
 
-        @param sp A pointer to the `boost::container::pmr::memory_resource` to
-        use. The container will acquire shared ownership of the memory
-        resource.
+        @param sp A pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
     */
     value(
         string&& other,
@@ -757,9 +765,9 @@ public:
         @par Exception Safety
         No-throw guarantee.
 
-        @param sp A pointer to the `boost::container::pmr::memory_resource` to
-        use. The container will acquire shared ownership of the memory
-        resource.
+        @param sp A pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
 
         @see @ref string_kind
     */
@@ -813,9 +821,9 @@ public:
 
         @param other The array to construct with.
 
-        @param sp A pointer to the `boost::container::pmr::memory_resource` to
-        use. The container will acquire shared ownership of the memory
-        resource.
+        @param sp A pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
     */
     value(
         array const& other,
@@ -840,9 +848,9 @@ public:
 
         @param other The array to construct with.
 
-        @param sp A pointer to the `boost::container::pmr::memory_resource` to
-        use. The container will acquire shared ownership of the memory
-        resource.
+        @param sp A pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
     */
     value(
         array&& other,
@@ -874,9 +882,9 @@ public:
         @par Exception Safety
         No-throw guarantee.
 
-        @param sp A pointer to the `boost::container::pmr::memory_resource` to
-        use. The container will acquire shared ownership of the memory
-        resource.
+        @param sp A pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
 
         @see @ref array_kind
     */
@@ -930,9 +938,9 @@ public:
 
         @param other The object to construct with.
 
-        @param sp A pointer to the `boost::container::pmr::memory_resource` to
-        use. The container will acquire shared ownership of the memory
-        resource.
+        @param sp A pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
     */
     value(
         object const& other,
@@ -957,9 +965,9 @@ public:
 
         @param other The object to construct with.
 
-        @param sp A pointer to the `boost::container::pmr::memory_resource` to
-        use. The container will acquire shared ownership of the memory
-        resource.
+        @param sp A pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
     */
     value(
         object&& other,
@@ -991,9 +999,9 @@ public:
         @par Exception Safety
         No-throw guarantee.
 
-        @param sp A pointer to the `boost::container::pmr::memory_resource` to
-        use. The container will acquire shared ownership of the memory
-        resource.
+        @param sp A pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
 
         @see @ref object_kind
     */
@@ -1006,16 +1014,11 @@ public:
 
     /** Construct from an initializer-list
 
-        @li If the initializer list consists of key/value
-        pairs, an @ref object is created; otherwise,
-
-        @li if the size of the initializer list is exactly 1, the object is
-        constructed directly from that sole element; otherwise,
-
-        @li an @ref array is created.
-
-        The contents of the initializer list are copied to the newly
-        constructed value using the specified memory resource.
+        If the initializer list consists of key/value
+        pairs, an @ref object is created. Otherwise
+        an @ref array is created. The contents of the
+        initializer list are copied to the newly constructed
+        value using the specified memory resource.
 
         @par Complexity
         Linear in `init.size()`.
@@ -1026,9 +1029,9 @@ public:
 
         @param init The initializer list to construct from.
 
-        @param sp A pointer to the `boost::container::pmr::memory_resource` to
-        use. The container will acquire shared ownership of the memory
-        resource.
+        @param sp A pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
     */
     BOOST_JSON_DECL
     value(
@@ -1570,9 +1573,10 @@ public:
 
     /** Return a reference to an @ref object, changing the kind and replacing the contents.
 
-        The contents are replaced with an empty @ref object using the current
-        `boost::container::pmr::memory_resource`. All previously obtained
-        iterators and references obtained beforehand are invalidated.
+        The contents are replaced with an empty @ref object
+        using the current @ref memory_resource. All
+        previously obtained iterators and references
+        obtained beforehand are invalidated.
 
         @par Complexity
         Linear in the size of `*this`.
@@ -1586,9 +1590,9 @@ public:
 
     /** Swap the given values.
 
-        Exchanges the contents of this value with another value. Ownership of
-        the respective `boost::container::pmr::memory_resource` objects is not
-        transferred:
+        Exchanges the contents of this value with another
+        value. Ownership of the respective @ref memory_resource
+        objects is not transferred:
 
         @li If `*other.storage() == *this->storage()`,
         ownership of the underlying memory is swapped in
@@ -1617,9 +1621,9 @@ public:
 
     /** Swap the given values.
 
-        Exchanges the contents of value `lhs` with another value `rhs`.
-        Ownership of the respective `boost::container::pmr::memory_resource`
-        objects is not transferred.
+        Exchanges the contents of value `lhs` with
+        another value `rhs`. Ownership of the respective
+        @ref memory_resource objects is not transferred.
 
         @li If `*lhs.storage() == *rhs.storage()`,
         ownership of the underlying memory is swapped in
@@ -2363,7 +2367,7 @@ public:
         ! std::is_same<T, bool>::value,
             T>::type
 #endif
-    to_number(system::error_code& ec) const noexcept
+    to_number(error_code& ec) const noexcept
     {
         error e;
         auto result = to_number<T>(e);
@@ -2382,67 +2386,12 @@ public:
 #endif
     to_number(std::error_code& ec) const noexcept
     {
-        system::error_code jec;
+        error_code jec;
         auto result = to_number<T>(jec);
         ec = jec;
         return result;
     }
 /** @} */
-
-    /** Return the stored number as `boost::system::result<T>`.
-
-        This function attempts to return the stored value converted to the
-        arithmetic type `T` which may not be `bool`:
-
-        @li If `T` is an integral type and the stored value is a number which
-            can be losslessly converted, the conversion is performed without
-            error and `result<T>` containing the converted number is returned.
-
-        @li If `T` is an integral type and the stored value is a number which
-            cannot be losslessly converted, then `result<T>` containing the
-            corresponding `error_code` is returned.
-
-        @li If `T` is a floating point type and the stored value is a number,
-            the conversion is performed without error. `result<T>` containing
-            the converted number, with a possible loss of precision, is
-            returned.
-
-        @li Otherwise, if the stored value is not a number; that is, if
-            `this->is_number()` returns `false`, then `result<T>` containing
-            the corresponding `error_code` is returned.
-
-        @par Constraints
-        @code
-        std::is_arithmetic< T >::value && ! std::is_same< T, bool >::value
-        @endcode
-
-        @par Complexity
-        Constant.
-
-        @par Exception Safety
-        No-throw guarantee.
-
-        @return `boost::system::result<T>` with either the converted number or
-            an `error_code`.
-    */
-    template<class T>
-#ifdef BOOST_JSON_DOCS
-    system::result<T>
-#else
-    typename std::enable_if<
-        std::is_arithmetic<T>::value && ! std::is_same<T, bool>::value,
-        system::result<T>
-    >::type
-#endif
-    try_to_number() const noexcept
-    {
-        system::error_code ec;
-        T result = to_number<T>(ec);
-        if( ec )
-            return {system::in_place_error, ec};
-
-        return {system::in_place_value, result};
-    }
 
     /** Return the stored number cast to an arithmetic type.
 
@@ -2478,7 +2427,7 @@ public:
 
         @return The converted number.
 
-        @throw `boost::system::system_error` Thrown on error.
+        @throw system_error on error.
     */
     template<class T>
 #ifdef BOOST_JSON_DOCS
@@ -2491,7 +2440,14 @@ public:
 #endif
     to_number() const
     {
-        return try_to_number<T>().value();
+        error e;
+        auto result = to_number<T>(e);
+        if( e != error() )
+        {
+            BOOST_STATIC_CONSTEXPR source_location loc = BOOST_CURRENT_LOCATION;
+            detail::throw_system_error( e, &loc );
+        }
+        return result;
     }
 
     //------------------------------------------------------
@@ -2500,10 +2456,10 @@ public:
     //
     //------------------------------------------------------
 
-    /** Return the associated memory resource.
+    /** Return the memory resource associated with the value.
 
-        This function returns the `boost::container::pmr::memory_resource` used
-        by the container.
+        This returns a pointer to the memory resource
+        that was used to construct the value.
 
         @par Complexity
         Constant.
@@ -2517,10 +2473,11 @@ public:
         return sp_;
     }
 
-    /** Return the associated allocator.
+    /** Return the associated @ref memory_resource
 
-        This function returns an instance of @ref allocator_type constructed
-        from the associated `boost::container::pmr::memory_resource`.
+        This function returns an instance of
+        @ref polymorphic_allocator constructed from the
+        associated @ref memory_resource.
 
         @par Complexity
         Constant.
@@ -2536,397 +2493,43 @@ public:
 
     //------------------------------------------------------
 
-    /** Return `result` with a reference to the underlying @ref array
-
-        If @ref is_array() is `true`, the result contains a reference to the
-        underlying @ref array, otherwise it contains an `error_code`.
-
-        @par Example
-        The return value can be used in both a boolean context and
-        to assign a variable:
-        @code
-        if( auto r = jv.try_as_array() )
-            return *r;
-        @endcode
-
-        But can also be used to throw an exception on error:
-        @code
-        return jv.try_as_array().value();
-        @endcode
-
-        @par Complexity
-        Constant.
-
-        @par Exception Safety
-        No-throw guarantee.
-    */
-    /** @{ */
-    BOOST_JSON_DECL
-    system::result<array&>
-    try_as_array() noexcept;
-
-    BOOST_JSON_DECL
-    system::result<array const&>
-    try_as_array() const noexcept;
-    /** @} */
-
-    /** Return `result` with a reference to the underlying @ref object
-
-        If @ref is_object() is `true`, the result contains a reference to the
-        underlying @ref object, otherwise it contains an `error_code`.
-
-        @par Example
-        The return value can be used in both a boolean context and
-        to assign a variable:
-        @code
-        if( auto r = jv.try_as_object() )
-            return *r;
-        @endcode
-
-        But can also be used to throw an exception on error:
-        @code
-        return jv.try_as_object().value();
-        @endcode
-
-        @par Complexity
-        Constant.
-
-        @par Exception Safety
-        No-throw guarantee.
-    */
-    /** @{ */
-    BOOST_JSON_DECL
-    system::result<object&>
-    try_as_object() noexcept;
-
-    BOOST_JSON_DECL
-    system::result<object const&>
-    try_as_object() const noexcept;
-    /** @} */
-
-    /** Return `result` with a reference to the underlying @ref string
-
-        If @ref is_string() is `true`, the result contains a reference to the
-        underlying @ref string, otherwise it contains an `error_code`.
-
-        @par Example
-        The return value can be used in both a boolean context and
-        to assign a variable:
-        @code
-        if( auto r = jv.try_as_string() )
-            return *r;
-        @endcode
-
-        But can also be used to throw an exception on error:
-        @code
-        return jv.try_as_string().value();
-        @endcode
-
-        @par Complexity
-        Constant.
-
-        @par Exception Safety
-        No-throw guarantee.
-    */
-    /** @{ */
-    BOOST_JSON_DECL
-    system::result<string&>
-    try_as_string() noexcept;
-
-    BOOST_JSON_DECL
-    system::result<string const&>
-    try_as_string() const noexcept;
-    /** @} */
-
-    /** Return `result` with a reference to the underlying `std::int64_t`
-
-        If @ref is_int64() is `true`, the result contains a reference to the
-        underlying `std::int64_t`, otherwise it contains an `error_code`.
-
-        @par Example
-        The return value can be used in both a boolean context and
-        to assign a variable:
-        @code
-        if( auto r = jv.try_as_int64() )
-            return *r;
-        @endcode
-
-        But can also be used to throw an exception on error:
-        @code
-        return jv.try_as_int64().value();
-        @endcode
-
-        @par Complexity
-        Constant.
-
-        @par Exception Safety
-        No-throw guarantee.
-    */
-    BOOST_JSON_DECL
-    system::result<std::int64_t&>
-    try_as_int64() noexcept;
-
-    /** Return `result` with the underlying `std::int64_t`
-
-        If @ref is_int64() is `true`, the result contains a copy of the
-        underlying `std::int64_t`, otherwise it contains an `error_code`.
-
-        @par Example
-        The return value can be used in both a boolean context and
-        to assign a variable:
-        @code
-        if( auto r = jv.try_as_int64() )
-            return *r;
-        @endcode
-
-        But can also be used to throw an exception on error:
-        @code
-        return jv.try_as_int64().value();
-        @endcode
-
-        @par Complexity
-        Constant.
-
-        @par Exception Safety
-        No-throw guarantee.
-    */
-    BOOST_JSON_DECL
-    system::result<std::int64_t>
-    try_as_int64() const noexcept;
-
-    /** Return `result` with a reference to the underlying `std::uint64_t`
-
-        If @ref is_uint64() is `true`, the result contains a reference to the
-        underlying `std::uint64_t`, otherwise it contains an `error_code`.
-
-        @par Example
-        The return value can be used in both a boolean context and
-        to assign a variable:
-        @code
-        if( auto r = jv.try_as_uint64() )
-            return *r;
-        @endcode
-
-        But can also be used to throw an exception on error:
-        @code
-        return jv.try_as_uint64().value();
-        @endcode
-
-        @par Complexity
-        Constant.
-
-        @par Exception Safety
-        No-throw guarantee.
-    */
-    BOOST_JSON_DECL
-    system::result<std::uint64_t&>
-    try_as_uint64() noexcept;
-
-    /** Return `result` with the underlying `std::uint64_t`
-
-        If @ref is_uint64() is `true`, the result contains a copy of the
-        underlying `std::uint64_t`, otherwise it contains an `error_code`.
-
-        @par Example
-        The return value can be used in both a boolean context and
-        to assign a variable:
-        @code
-        if( auto r = jv.try_as_uint64() )
-            return *r;
-        @endcode
-
-        But can also be used to throw an exception on error:
-        @code
-        return jv.try_as_uint64().value();
-        @endcode
-
-        @par Complexity
-        Constant.
-
-        @par Exception Safety
-        No-throw guarantee.
-    */
-    BOOST_JSON_DECL
-    system::result<std::uint64_t>
-    try_as_uint64() const noexcept;
-
-    /** Return `result` with a reference to the underlying `double`
-
-        If @ref is_double() is `true`, the result contains a reference to the
-        underlying `double`, otherwise it contains an `error_code`.
-
-        @par Example
-        The return value can be used in both a boolean context and
-        to assign a variable:
-        @code
-        if( auto r = jv.try_as_double() )
-            return *r;
-        @endcode
-
-        But can also be used to throw an exception on error:
-        @code
-        return jv.try_as_double().value();
-        @endcode
-
-        @par Complexity
-        Constant.
-
-        @par Exception Safety
-        No-throw guarantee.
-    */
-    BOOST_JSON_DECL
-    system::result<double&>
-    try_as_double() noexcept;
-
-    /** Return `result` with the underlying `double`
-
-        If @ref is_double() is `true`, the result contains a copy of the
-        underlying `double`, otherwise it contains an `error_code`.
-
-        @par Example
-        The return value can be used in both a boolean context and
-        to assign a variable:
-        @code
-        if( auto r = jv.try_as_double() )
-            return *r;
-        @endcode
-
-        But can also be used to throw an exception on error:
-        @code
-        return jv.try_as_double().value();
-        @endcode
-
-        @par Complexity
-        Constant.
-
-        @par Exception Safety
-        No-throw guarantee.
-    */
-    BOOST_JSON_DECL
-    system::result<double>
-    try_as_double() const noexcept;
-
-    /** Return `result` with a reference to the underlying `bool`
-
-        If @ref is_bool() is `true`, the result contains a reference to the
-        underlying `bool`, otherwise it contains an `error_code`.
-
-        @par Example
-        The return value can be used in both a boolean context and
-        to assign a variable:
-        @code
-        if( auto r = jv.try_as_bool() )
-            return *r;
-        @endcode
-
-        But can also be used to throw an exception on error:
-        @code
-        return jv.try_as_bool().value();
-        @endcode
-
-        @par Complexity
-        Constant.
-
-        @par Exception Safety
-        No-throw guarantee.
-    */
-    BOOST_JSON_DECL
-    system::result<bool&>
-    try_as_bool() noexcept;
-
-    /** Return `result` with the underlying `bool`
-
-        If @ref is_bool() is `true`, the result contains a copy of the
-        underlying `bool`, otherwise it contains an `error_code`.
-
-        @par Example
-        The return value can be used in both a boolean context and
-        to assign a variable:
-        @code
-        if( auto r = jv.try_as_bool() )
-            return *r;
-        @endcode
-
-        But can also be used to throw an exception on error:
-        @code
-        return jv.try_as_bool().value();
-        @endcode
-
-        @par Complexity
-        Constant.
-
-        @par Exception Safety
-        No-throw guarantee.
-    */
-    BOOST_JSON_DECL
-    system::result<bool>
-    try_as_bool() const noexcept;
-
-    /** Return engaged `result` if the `value` is null
-
-        If @ref is_null() is `true`, the result is engaged, otherwise it
-        contains an `error_code`.
-
-        @par Example
-        The return value can be used in both a boolean context and
-        to assign a variable:
-        @code
-        if( auto r = jv.try_as_null() )
-            return *r;
-        @endcode
-
-        But can also be used to throw an exception on error:
-        @code
-        return jv.try_as_null().value();
-        @endcode
-
-        @par Complexity
-        Constant.
-
-        @par Exception Safety
-        No-throw guarantee.
-    */
-    BOOST_JSON_DECL
-    system::result<std::nullptr_t>
-    try_as_null() const noexcept;
-
-    //------------------------------------------------------
-
     /** Return a reference to the underlying `object`, or throw an exception.
 
         If @ref is_object() is `true`, returns
         a reference to the underlying @ref object,
         otherwise throws an exception.
 
+        @par Complexity
+        Constant.
+
         @par Exception Safety
         Strong guarantee.
 
-        @throw `boost::system::system_error` `! this->is_object()`.
-
-        @param loc `source_location` to use in thrown exception; the source
-            location of the call site by default.
-
-        @par Complexity
-        Constant.
+        @throw system_error `! this->is_object()`
     */
-    /** @{ */
+    /* @{ */
     object&
-    as_object(source_location const& loc = BOOST_CURRENT_LOCATION) &
+    as_object() &
     {
-        auto& self = const_cast<value const&>(*this);
-        return const_cast<object&>( self.as_object(loc) );
+        auto const& self = *this;
+        return const_cast<object&>( self.as_object() );
     }
 
     object&&
-    as_object(source_location const& loc = BOOST_CURRENT_LOCATION) &&
+    as_object() &&
     {
-        return std::move( as_object(loc) );
+        return std::move( as_object() );
     }
 
-    BOOST_JSON_DECL
     object const&
-    as_object(source_location const& loc = BOOST_CURRENT_LOCATION) const&;
-    /** @} */
+    as_object() const&
+    {
+        if( is_object() )
+            return obj_;
+        BOOST_STATIC_CONSTEXPR source_location loc = BOOST_CURRENT_LOCATION;
+        detail::throw_system_error( error::not_object, &loc );
+    }
+    /* @} */
 
     /** Return a reference to the underlying @ref array, or throw an exception.
 
@@ -2934,35 +2537,37 @@ public:
         a reference to the underlying @ref array,
         otherwise throws an exception.
 
+        @par Complexity
+        Constant.
+
         @par Exception Safety
         Strong guarantee.
 
-        @throw `boost::system::system_error` `! this->is_array()`.
-
-        @param loc `source_location` to use in thrown exception; the source
-            location of the call site by default.
-
-        @par Complexity
-        Constant.
+        @throw system_error `! this->is_array()`
     */
-    /** @{ */
+    /* @{ */
     array&
-    as_array(source_location const& loc = BOOST_CURRENT_LOCATION) &
+    as_array() &
     {
-        auto& self = const_cast<value const&>(*this);
-        return const_cast<array&>( self.as_array(loc) );
+        auto const& self = *this;
+        return const_cast<array&>( self.as_array() );
     }
 
     array&&
-    as_array(source_location const& loc = BOOST_CURRENT_LOCATION) &&
+    as_array() &&
     {
-        return std::move( as_array(loc) );
+        return std::move( as_array() );
     }
 
-    BOOST_JSON_DECL
     array const&
-    as_array(source_location const& loc = BOOST_CURRENT_LOCATION) const&;
-    /** @} */
+    as_array() const&
+    {
+        if( is_array() )
+            return arr_;
+        BOOST_STATIC_CONSTEXPR source_location loc = BOOST_CURRENT_LOCATION;
+        detail::throw_system_error( error::not_array, &loc );
+    }
+    /* @} */
 
     /** Return a reference to the underlying `string`, or throw an exception.
 
@@ -2970,56 +2575,60 @@ public:
         a reference to the underlying @ref string,
         otherwise throws an exception.
 
+        @par Complexity
+        Constant.
+
         @par Exception Safety
         Strong guarantee.
 
-        @throw `boost::system::system_error` `! this->is_string()`.
-
-        @param loc `source_location` to use in thrown exception; the source
-            location of the call site by default.
-
-        @par Complexity
-        Constant.
+        @throw system_error `! this->is_string()`
     */
+    /* @{ */
     string&
-    as_string(source_location const& loc = BOOST_CURRENT_LOCATION) &
+    as_string() &
     {
-        auto& self = const_cast<value const&>(*this);
-        return const_cast<string&>( self.as_string(loc) );
+        auto const& self = *this;
+        return const_cast<string&>( self.as_string() );
     }
 
-    /** Return a reference to the underlying `string`, or throw an exception.
+    string&&
+    as_string() &&
+    {
+        return std::move( as_string() );
+    }
 
-        If @ref is_string() is `true`, returns
-        a reference to the underlying @ref string,
+    string const&
+    as_string() const&
+    {
+        if( is_string() )
+            return str_;
+        BOOST_STATIC_CONSTEXPR source_location loc = BOOST_CURRENT_LOCATION;
+        detail::throw_system_error( error::not_string, &loc );
+    }
+    /* @} */
+
+    /** Return a reference to the underlying `std::int64_t`, or throw an exception.
+
+        If @ref is_int64() is `true`, returns
+        a reference to the underlying `std::int64_t`,
         otherwise throws an exception.
+
+        @par Complexity
+        Constant.
 
         @par Exception Safety
         Strong guarantee.
 
-        @throw `boost::system::system_error` `! this->is_string()`.
-
-        @param loc `source_location` to use in thrown exception; the source
-            location of the call site by default.
-
-        @par Complexity
-        Constant.
+        @throw system_error `! this->is_int64()`
     */
-    /** @{ */
-    string&&
-    as_string(source_location const& loc = BOOST_CURRENT_LOCATION) &&
-    {
-        return std::move( as_string(loc) );
-    }
-
-    BOOST_JSON_DECL
-    string const&
-    as_string(source_location const& loc = BOOST_CURRENT_LOCATION) const&;
-
-    BOOST_JSON_DECL
     std::int64_t&
-    as_int64(source_location const& loc = BOOST_CURRENT_LOCATION);
-    /** @} */
+    as_int64()
+    {
+        if( is_int64() )
+            return sca_.i;
+        BOOST_STATIC_CONSTEXPR source_location loc = BOOST_CURRENT_LOCATION;
+        detail::throw_system_error( error::not_int64, &loc );
+    }
 
     /** Return the underlying `std::int64_t`, or throw an exception.
 
@@ -3027,28 +2636,22 @@ public:
         the underlying `std::int64_t`,
         otherwise throws an exception.
 
-        @par Exception Safety
-        Strong guarantee.
-
-        @throw `boost::system::system_error` `! this->is_int64()`.
-
-        @param loc `source_location` to use in thrown exception; the source
-            location of the call site by default.
-
         @par Complexity
         Constant.
 
-        @par Note
-        This function is the const-qualified overload of @ref as_int64, which
-        is intended for direct access to the underlying object, __if__ it has
-        the type `std::int64_t`. It does not convert the underlying object to
-        type `std::int64_t` even if a lossless conversion is possible. If you
-        are not sure which kind your `value` has, and you only care about
-        getting a `std::int64_t` number, consider using @ref to_number instead.
+        @par Exception Safety
+        Strong guarantee.
+
+        @throw system_error `! this->is_int64()`
     */
-    BOOST_JSON_DECL
     std::int64_t
-    as_int64(source_location const& loc = BOOST_CURRENT_LOCATION) const;
+    as_int64() const
+    {
+        if( is_int64() )
+            return sca_.i;
+        BOOST_STATIC_CONSTEXPR source_location loc = BOOST_CURRENT_LOCATION;
+        detail::throw_system_error( error::not_int64, &loc );
+    }
 
     /** Return a reference to the underlying `std::uint64_t`, or throw an exception.
 
@@ -3056,28 +2659,22 @@ public:
         a reference to the underlying `std::uint64_t`,
         otherwise throws an exception.
 
-        @par Exception Safety
-        Strong guarantee.
-
-        @throw `boost::system::system_error` `! this->is_uint64()`.
-
-        @param loc `source_location` to use in thrown exception; the source
-            location of the call site by default.
-
         @par Complexity
         Constant.
 
-        @par Note
-        This function is intended for direct access to the underlying object,
-        __if__ it has the type `std::uint64_t`. It does not convert the
-        underlying object to type `std::uint64_t` even if a lossless conversion
-        is possible. If you are not sure which kind your `value` has, and you
-        only care about getting a `std::uint64_t` number, consider using
-        @ref to_number instead.
+        @par Exception Safety
+        Strong guarantee.
+
+        @throw system_error `! this->is_uint64()`
     */
-    BOOST_JSON_DECL
     std::uint64_t&
-    as_uint64(source_location const& loc = BOOST_CURRENT_LOCATION);
+    as_uint64()
+    {
+        if( is_uint64() )
+            return sca_.u;
+        BOOST_STATIC_CONSTEXPR source_location loc = BOOST_CURRENT_LOCATION;
+        detail::throw_system_error( error::not_uint64, &loc );
+    }
 
     /** Return the underlying `std::uint64_t`, or throw an exception.
 
@@ -3085,29 +2682,22 @@ public:
         the underlying `std::uint64_t`,
         otherwise throws an exception.
 
-        @par Exception Safety
-        Strong guarantee.
-
-        @throw `boost::system::system_error` `! this->is_uint64()`.
-
-        @param loc `source_location` to use in thrown exception; the source
-            location of the call site by default.
-
         @par Complexity
         Constant.
 
-        @par Note
-        This function is the const-qualified overload of @ref as_uint64, which
-        is intended for direct access to the underlying object, __if__ it has
-        the type `std::uint64_t`. It does not convert the underlying object to
-        type `std::uint64_t` even if a lossless conversion is possible. If you
-        are not sure which kind your `value` has, and you only care about
-        getting a `std::uint64_t` number, consider using
-        @ref to_number instead.
+        @par Exception Safety
+        Strong guarantee.
+
+        @throw system_error `! this->is_uint64()`
     */
-    BOOST_JSON_DECL
     std::uint64_t
-    as_uint64(source_location const& loc = BOOST_CURRENT_LOCATION) const;
+    as_uint64() const
+    {
+        if( is_uint64() )
+            return sca_.u;
+        BOOST_STATIC_CONSTEXPR source_location loc = BOOST_CURRENT_LOCATION;
+        detail::throw_system_error( error::not_uint64, &loc );
+    }
 
     /** Return a reference to the underlying `double`, or throw an exception.
 
@@ -3115,27 +2705,22 @@ public:
         a reference to the underlying `double`,
         otherwise throws an exception.
 
-        @par Exception Safety
-        Strong guarantee.
-
-        @throw `boost::system::system_error` `! this->is_double()`.
-
-        @param loc `source_location` to use in thrown exception; the source
-            location of the call site by default.
-
         @par Complexity
         Constant.
 
-        @par Note
-        This function is intended for direct access to the underlying object,
-        __if__ it has the type `double`. It does not convert the underlying
-        object to type `double` even if a lossless conversion is possible. If
-        you are not sure which kind your `value` has, and you only care about
-        getting a `double` number, consider using @ref to_number instead.
+        @par Exception Safety
+        Strong guarantee.
+
+        @throw system_error `! this->is_double()`
     */
-    BOOST_JSON_DECL
     double&
-    as_double(source_location const& loc = BOOST_CURRENT_LOCATION);
+    as_double()
+    {
+        if( is_double() )
+            return sca_.d;
+        BOOST_STATIC_CONSTEXPR source_location loc = BOOST_CURRENT_LOCATION;
+        detail::throw_system_error( error::not_double, &loc );
+    }
 
     /** Return the underlying `double`, or throw an exception.
 
@@ -3143,28 +2728,22 @@ public:
         the underlying `double`,
         otherwise throws an exception.
 
-        @par Exception Safety
-        Strong guarantee.
-
-        @throw `boost::system::system_error` `! this->is_double()`.
-
-        @param loc `source_location` to use in thrown exception; the source
-            location of the call site by default.
-
         @par Complexity
         Constant.
 
-        @par Note
-        This function is the const-qualified overload of @ref as_double, which
-        is intended for direct access to the underlying object, __if__ it has
-        the type `double`. It does not convert the underlying object to type
-        `double` even if a lossless conversion is possible. If you are not sure
-        which kind your `value` has, and you only care about getting a `double`
-        number, consider using @ref to_number instead.
+        @par Exception Safety
+        Strong guarantee.
+
+        @throw system_error `! this->is_double()`
     */
-    BOOST_JSON_DECL
     double
-    as_double(source_location const& loc = BOOST_CURRENT_LOCATION) const;
+    as_double() const
+    {
+        if( is_double() )
+            return sca_.d;
+        BOOST_STATIC_CONSTEXPR source_location loc = BOOST_CURRENT_LOCATION;
+        detail::throw_system_error( error::not_double, &loc );
+    }
 
     /** Return a reference to the underlying `bool`, or throw an exception.
 
@@ -3172,20 +2751,22 @@ public:
         a reference to the underlying `bool`,
         otherwise throws an exception.
 
+        @par Complexity
+        Constant.
+
         @par Exception Safety
         Strong guarantee.
 
-        @throw `boost::system::system_error` `! this->is_bool()`.
-
-        @param loc `source_location` to use in thrown exception; the source
-            location of the call site by default.
-
-        @par Complexity
-        Constant.
+        @throw system_error `! this->is_bool()`
     */
-    BOOST_JSON_DECL
     bool&
-    as_bool(source_location const& loc = BOOST_CURRENT_LOCATION);
+    as_bool()
+    {
+        if( is_bool() )
+            return sca_.b;
+        BOOST_STATIC_CONSTEXPR source_location loc = BOOST_CURRENT_LOCATION;
+        detail::throw_system_error( error::not_bool, &loc );
+    }
 
     /** Return the underlying `bool`, or throw an exception.
 
@@ -3193,20 +2774,22 @@ public:
         the underlying `bool`,
         otherwise throws an exception.
 
+        @par Complexity
+        Constant.
+
         @par Exception Safety
         Strong guarantee.
 
-        @throw `boost::system::system_error` `! this->is_bool()`.
-
-        @param loc `source_location` to use in thrown exception; the source
-            location of the call site by default.
-
-        @par Complexity
-        Constant.
+        @throw system_error `! this->is_bool()`
     */
-    BOOST_JSON_DECL
     bool
-    as_bool(source_location const& loc = BOOST_CURRENT_LOCATION) const;
+    as_bool() const
+    {
+        if( is_bool() )
+            return sca_.b;
+        BOOST_STATIC_CONSTEXPR source_location loc = BOOST_CURRENT_LOCATION;
+        detail::throw_system_error( error::not_bool, &loc );
+    }
 
     //------------------------------------------------------
 
@@ -3227,7 +2810,7 @@ public:
         @par Exception Safety
         No-throw guarantee.
     */
-    /** @{ */
+    /* @{ */
     object&
     get_object() & noexcept
     {
@@ -3248,7 +2831,7 @@ public:
         BOOST_ASSERT(is_object());
         return obj_;
     }
-    /** @} */
+    /* @} */
 
     /** Return a reference to the underlying `array`, without checking.
 
@@ -3267,7 +2850,7 @@ public:
         @par Exception Safety
         No-throw guarantee.
     */
-    /** @{ */
+    /* @{ */
     array&
     get_array() & noexcept
     {
@@ -3288,7 +2871,7 @@ public:
         BOOST_ASSERT(is_array());
         return arr_;
     }
-    /** @} */
+    /* @} */
 
     /** Return a reference to the underlying `string`, without checking.
 
@@ -3307,7 +2890,7 @@ public:
         @par Exception Safety
         No-throw guarantee.
     */
-    /** @{ */
+    /* @{ */
     string&
     get_string() & noexcept
     {
@@ -3328,7 +2911,7 @@ public:
         BOOST_ASSERT(is_string());
         return str_;
     }
-    /** @} */
+    /* @} */
 
     /** Return a reference to the underlying `std::int64_t`, without checking.
 
@@ -3526,31 +3109,6 @@ public:
 
     /** Access an element, with bounds checking.
 
-        Returns `boost::system::result` containing a reference to the element
-        of the underlying object, if `pos` is within its range. If `pos` is
-        outside of that range, or the underlying value is not an object the
-        result contains an `error_code`.
-
-        @par Exception Safety
-        No-throw guarantee.
-
-        @param key The key of the element to find.
-
-        @par Complexity
-        Constant.
-    */
-    /** @{ */
-    BOOST_JSON_DECL
-    boost::system::result<value&>
-    try_at(string_view key) noexcept;
-
-    BOOST_JSON_DECL
-    boost::system::result<value const&>
-    try_at(string_view key) const noexcept;
-    /** @} */
-
-    /** Access an element, with bounds checking.
-
         This function is used to access elements of
         the underlying object, or throw an exception
         if the value is not an object.
@@ -3563,57 +3121,27 @@ public:
 
         @param key The key of the element to find.
 
-        @param loc `source_location` to use in thrown exception; the source
-            location of the call site by default.
-
-        @return `this->as_object(loc).at( key, loc )`.
+        @return `this->as_object().at( key )`.
     */
-    /** @{ */
+/** @{ */
     value&
-    at(string_view key, source_location const& loc = BOOST_CURRENT_LOCATION) &
+    at(string_view key) &
     {
-        return as_object(loc).at(key, loc);
+        return as_object().at(key);
     }
 
     value&&
-    at(string_view key, source_location const& loc = BOOST_CURRENT_LOCATION) &&
+    at(string_view key) &&
     {
-        return std::move( as_object(loc) ).at(key, loc);
+        return std::move( as_object() ).at(key);
     }
 
     value const&
-    at(
-        string_view key,
-        source_location const& loc = BOOST_CURRENT_LOCATION) const&
+    at(string_view key) const&
     {
-        return as_object(loc).at(key, loc);
+        return as_object().at(key);
     }
-    /** @} */
-
-    /** Access an element, with bounds checking.
-
-        Returns `boost::system::result` containing a reference to the element
-        of the underlying array, if `pos` is within its range. If `pos` is
-        outside of that range, or the underlying value is not an array the
-        result contains an `error_code`.
-
-        @par Exception Safety
-        No-throw guarantee.
-
-        @param pos A zero-based array index.
-
-        @par Complexity
-        Constant.
-    */
-    /** @{ */
-    BOOST_JSON_DECL
-    boost::system::result<value&>
-    try_at(std::size_t pos) noexcept;
-
-    BOOST_JSON_DECL
-    boost::system::result<value const&>
-    try_at(std::size_t pos) const noexcept;
-    /** @} */
+/** @} */
 
     /** Access an element, with bounds checking.
 
@@ -3629,79 +3157,27 @@ public:
 
         @param pos A zero-based array index.
 
-        @param loc `source_location` to use in thrown exception; the source
-            location of the call site by default.
-
-        @return `this->as_array(loc).at( pos, loc )`.
+        @return `this->as_array().at( pos )`.
     */
-    /** @{ */
+/** @{ */
     value &
-    at(std::size_t pos, source_location const& loc = BOOST_CURRENT_LOCATION) &
+    at(std::size_t pos) &
     {
-        return as_array(loc).at(pos, loc);
+        return as_array().at(pos);
     }
 
     value&&
-    at(std::size_t pos, source_location const& loc = BOOST_CURRENT_LOCATION) &&
+    at(std::size_t pos) &&
     {
-        return std::move( as_array(loc) ).at(pos, loc);
+        return std::move( as_array() ).at(pos);
     }
 
     value const&
-    at(
-        std::size_t pos,
-        source_location const& loc = BOOST_CURRENT_LOCATION) const&
+    at(std::size_t pos) const&
     {
-        return as_array(loc).at(pos, loc);
+        return as_array().at(pos);
     }
-    /** @} */
-
-    /** Access an element via JSON Pointer.
-
-        This function is used to access a (potentially nested) element of the
-        value using a JSON Pointer string.
-
-        @par Complexity
-        Linear in the sizes of `ptr` and underlying array, object, or string.
-
-        @par Exception Safety
-        No-throw guarantee.
-
-        @param ptr JSON Pointer string.
-
-        @return `boost::system::result<value&>` containing either a reference
-            to the element identified by `ptr` or a corresponding `error_code`.
-
-        @see
-            [RFC 6901 - JavaScript Object Notation (JSON) Pointer](https://datatracker.ietf.org/doc/html/rfc6901).
-    */
-    BOOST_JSON_DECL
-    system::result<value const&>
-    try_at_pointer(string_view ptr) const noexcept;
-
-    /** Access an element via JSON Pointer.
-
-        This function is used to access a (potentially nested) element of the
-        value using a JSON Pointer string.
-
-        @par Complexity
-        Linear in the sizes of `ptr` and underlying array, object, or string.
-
-        @par Exception Safety
-        No-throw guarantee.
-
-        @param ptr JSON Pointer string.
-
-        @return `boost::system::result<value const&>` containing either a
-            reference to the element identified by `ptr` or a corresponding
-            `error_code`.
-
-        @see
-            [RFC 6901 - JavaScript Object Notation (JSON) Pointer](https://datatracker.ietf.org/doc/html/rfc6901).
-    */
-    BOOST_JSON_DECL
-    system::result<value&>
-    try_at_pointer(string_view ptr) noexcept;
+/** @} */
 
     /** Access an element via JSON Pointer.
 
@@ -3716,36 +3192,27 @@ public:
 
         @param ptr JSON Pointer string.
 
-        @param loc `source_location` to use in thrown exception; the source
-            location of the call site by default.
-
         @return reference to the element identified by `ptr`.
 
-        @throw `boost::system::system_error` if an error occurs.
+        @throw system_error if an error occurs.
 
         @see
         <a href="https://datatracker.ietf.org/doc/html/rfc6901">
             RFC 6901 - JavaScript Object Notation (JSON) Pointer</a>
     */
-    /** @{ */
+/** @{ */
     BOOST_JSON_DECL
     value const&
-    at_pointer(
-        string_view ptr,
-        source_location const& loc = BOOST_CURRENT_LOCATION) const&;
+    at_pointer(string_view ptr) const&;
 
     inline
     value&&
-    at_pointer(
-        string_view ptr,
-        source_location const& loc = BOOST_CURRENT_LOCATION) &&;
+    at_pointer(string_view ptr) &&;
 
     inline
     value&
-    at_pointer(
-        string_view ptr,
-        source_location const& loc = BOOST_CURRENT_LOCATION) &;
-    /** @} */
+    at_pointer(string_view ptr) &;
+/** @} */
 
     /** Access an element via JSON Pointer.
 
@@ -3768,14 +3235,14 @@ public:
         <a href="https://datatracker.ietf.org/doc/html/rfc6901">
             RFC 6901 - JavaScript Object Notation (JSON) Pointer</a>
     */
-    /** @{ */
+/** @{ */
     BOOST_JSON_DECL
     value const*
-    find_pointer(string_view ptr, system::error_code& ec) const noexcept;
+    find_pointer(string_view ptr, error_code& ec) const noexcept;
 
     BOOST_JSON_DECL
     value*
-    find_pointer(string_view ptr, system::error_code& ec) noexcept;
+    find_pointer(string_view ptr, error_code& ec) noexcept;
 
     BOOST_JSON_DECL
     value const*
@@ -3784,75 +3251,9 @@ public:
     BOOST_JSON_DECL
     value*
     find_pointer(string_view ptr, std::error_code& ec) noexcept;
-    /** @} */
+/** @} */
 
     //------------------------------------------------------
-
-    /** Set an element via JSON Pointer.
-
-        This function is used to insert or assign to a potentially nested
-        element of the value using a JSON Pointer string. The function may
-        create intermediate elements corresponding to pointer segments.
-        <br/>
-
-        The particular conditions when and what kind of intermediate element
-        is created is governed by the `ptr` parameter.
-
-        Each pointer token is considered in sequence. For each token
-
-        - if the containing value is an @ref object, then a new `null`
-          element is created with key equal to unescaped token string;
-          otherwise
-
-        - if the containing value is an @ref array, and the token represents a
-          past-the-end marker, then a `null` element is appended to the array;
-          otherwise
-
-        - if the containing value is an @ref array, and the token represents a
-          number, then if the difference between the number and array's size
-          is smaller than `opts.max_created_elements`, then the size of the
-          array is increased, so that the number can reference an element in the
-          array; otherwise
-
-        - if the containing value is of different @ref kind and
-          `opts.replace_any_scalar` is `true`, or the value is `null`, then
-
-           - if `opts.create_arrays` is `true` and the token either represents
-             past-the-end marker or a number, then the value is replaced with
-             an empty array and the token is considered again; otherwise
-
-           - if `opts.create_objects` is `true`, then the value is replaced
-             with an empty object and the token is considered again; otherwise
-
-        - an error is produced.
-
-        @par Complexity
-        Linear in the sum of size of `ptr`, size of underlying array, object,
-        or string and `opts.max_created_elements`.
-
-        @par Exception Safety
-        Basic guarantee.
-        Calls to `memory_resource::allocate` may throw.
-
-        @param sv JSON Pointer string.
-
-        @param ref The value to assign to pointed element.
-
-        @param opts The options for the algorithm.
-
-        @return `boost::json::result<value&>` containing either a reference to
-            the element identified by `ptr` or a corresponding `error_code`.
-
-        @see
-            @ref set_pointer_options,
-            [RFC 6901 - JavaScript Object Notation (JSON) Pointer](https://datatracker.ietf.org/doc/html/rfc6901).
-    */
-    BOOST_JSON_DECL
-    system::result<value&>
-    try_set_at_pointer(
-        string_view sv,
-        value_ref ref,
-        set_pointer_options const& opts = {} );
 
     /** Set an element via JSON Pointer.
 
@@ -3978,13 +3379,13 @@ public:
         <a href="https://datatracker.ietf.org/doc/html/rfc6901">
             RFC 6901 - JavaScript Object Notation (JSON) Pointer</a>.
     */
-    /** @{ */
+/** @{ */
     BOOST_JSON_DECL
     value*
     set_at_pointer(
         string_view sv,
         value_ref ref,
-        system::error_code& ec,
+        error_code& ec,
         set_pointer_options const& opts = {} );
 
     BOOST_JSON_DECL
@@ -3994,7 +3395,7 @@ public:
         value_ref ref,
         std::error_code& ec,
         set_pointer_options const& opts = {} );
-    /** @} */
+/** @} */
 
     //------------------------------------------------------
 
@@ -4077,8 +3478,8 @@ public:
         parsing fails, `std::ios_base::failbit` will be set for `is` and
         `jv` will be left unchanged. Regardless of whether `skipws` flag is set
         on `is`, consumes whitespace before and after JSON, because whitespace
-        is considered a part of JSON. Behaves as
-        [_FormattedInputFunction_](https://en.cppreference.com/w/cpp/named_req/FormattedInputFunction).
+        is considered a part of JSON. Behaves as [_FormattedInputFunction_]
+        (https://en.cppreference.com/w/cpp/named_req/FormattedInputFunction).<br>
 
         Note: this operator cannot assume that the stream only contains a
         single JSON document, which may result in **very underwhelming
@@ -4372,8 +3773,9 @@ public:
 
         @param other The key/value pair to copy.
 
-        @param sp A pointer to the `boost::container::pmr::memory_resource` to
-        use. The element will acquire shared ownership of the memory resource.
+        @param sp A pointer to the @ref memory_resource
+        to use. The element will acquire shared
+        ownership of the memory resource.
     */
     BOOST_JSON_DECL
     key_value_pair(
@@ -4490,8 +3892,9 @@ public:
         @param p A `std::pair` with the key
             string and @ref value to construct with.
 
-        @param sp A pointer to the `boost::container::pmr::memory_resource` to
-        use. The element will acquire shared ownership of the memory resource.
+        @param sp A pointer to the @ref memory_resource
+        to use. The element will acquire shared
+        ownership of the memory resource.
     */
     explicit
     key_value_pair(
@@ -4519,8 +3922,9 @@ public:
         @param p A `std::pair` with the key
             string and @ref value to construct with.
 
-        @param sp A pointer to the `boost::container::pmr::memory_resource` to
-        use. The element will acquire shared ownership of the memory resource.
+        @param sp A pointer to the @ref memory_resource
+        to use. The element will acquire shared
+        ownership of the memory resource.
     */
     explicit
     key_value_pair(
@@ -4591,7 +3995,7 @@ public:
         @par Exception Safety
         No-throw guarantee.
     */
-    /** @{ */
+    /* @{ */
     json::value const&
     value() const& noexcept
     {
@@ -4609,7 +4013,7 @@ public:
     {
         return value_;
     }
-    /** @} */
+    /* @} */
 
 private:
     json::value value_;

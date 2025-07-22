@@ -113,6 +113,7 @@ selector::operator()(suite_info const& s)
 
     case all:
     default:
+        // fall through
         break;
     };
 

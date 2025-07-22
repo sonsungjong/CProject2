@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019-2025 Ruben Perez Hidalgo (rubenperez038 at gmail dot com)
+// Copyright (c) 2019-2023 Ruben Perez Hidalgo (rubenperez038 at gmail dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -18,13 +18,7 @@ namespace mysql {
 
 #if defined(BOOST_ASIO_HAS_LOCAL_SOCKETS) || defined(BOOST_MYSQL_DOXYGEN)
 
-/**
- * \brief (Legacy) A connection to MySQL over a UNIX domain socket over TLS.
- *
- * \par Legacy
- * New code should not use this class. When using UNIX sockets, we recommend
- * using plaintext connections.
- */
+/// A connection to MySQL over a UNIX domain socket over TLS.
 using unix_ssl_connection = connection<boost::asio::ssl::stream<boost::asio::local::stream_protocol::socket>>;
 
 #endif

@@ -6,11 +6,7 @@
 #ifndef BOOST_MATH_DISTRIBUTIONS_DETAIL_INV_DISCRETE_QUANTILE
 #define BOOST_MATH_DISTRIBUTIONS_DETAIL_INV_DISCRETE_QUANTILE
 
-#include <boost/math/tools/config.hpp>
-#include <boost/math/tools/cstdint.hpp>
-#include <boost/math/tools/precision.hpp>
-#include <boost/math/tools/toms748_solve.hpp>
-#include <boost/math/tools/tuple.hpp>
+#include <algorithm>
 
 namespace boost{ namespace math{ namespace detail{
 
@@ -23,10 +19,10 @@ struct distribution_quantile_finder
    typedef typename Dist::value_type value_type;
    typedef typename Dist::policy_type policy_type;
 
-   BOOST_MATH_GPU_ENABLED distribution_quantile_finder(const Dist d, value_type p, bool c)
+   distribution_quantile_finder(const Dist d, value_type p, bool c)
       : dist(d), target(p), comp(c) {}
 
-   BOOST_MATH_GPU_ENABLED value_type operator()(value_type const& x)
+   value_type operator()(value_type const& x)
    {
       return comp ? value_type(target - cdf(complement(dist, x))) : value_type(cdf(dist, x) - target);
    }
@@ -46,24 +42,24 @@ private:
 // in the root no longer being bracketed.
 //
 template <class Real, class Tol>
-BOOST_MATH_GPU_ENABLED void adjust_bounds(Real& /* a */, Real& /* b */, Tol const& /* tol */){}
+void adjust_bounds(Real& /* a */, Real& /* b */, Tol const& /* tol */){}
 
 template <class Real>
-BOOST_MATH_GPU_ENABLED void adjust_bounds(Real& /* a */, Real& b, tools::equal_floor const& /* tol */)
+void adjust_bounds(Real& /* a */, Real& b, tools::equal_floor const& /* tol */)
 {
    BOOST_MATH_STD_USING
    b -= tools::epsilon<Real>() * b;
 }
 
 template <class Real>
-BOOST_MATH_GPU_ENABLED void adjust_bounds(Real& a, Real& /* b */, tools::equal_ceil const& /* tol */)
+void adjust_bounds(Real& a, Real& /* b */, tools::equal_ceil const& /* tol */)
 {
    BOOST_MATH_STD_USING
    a += tools::epsilon<Real>() * a;
 }
 
 template <class Real>
-BOOST_MATH_GPU_ENABLED void adjust_bounds(Real& a, Real& b, tools::equal_nearest_integer const& /* tol */)
+void adjust_bounds(Real& a, Real& b, tools::equal_nearest_integer const& /* tol */)
 {
    BOOST_MATH_STD_USING
    a += tools::epsilon<Real>() * a;
@@ -73,7 +69,7 @@ BOOST_MATH_GPU_ENABLED void adjust_bounds(Real& a, Real& b, tools::equal_nearest
 // This is where all the work is done:
 //
 template <class Dist, class Tolerance>
-BOOST_MATH_GPU_ENABLED typename Dist::value_type 
+typename Dist::value_type 
    do_inverse_discrete_quantile(
       const Dist& dist,
       const typename Dist::value_type& p,
@@ -82,12 +78,12 @@ BOOST_MATH_GPU_ENABLED typename Dist::value_type
       const typename Dist::value_type& multiplier,
       typename Dist::value_type adder,
       const Tolerance& tol,
-      boost::math::uintmax_t& max_iter)
+      std::uintmax_t& max_iter)
 {
    typedef typename Dist::value_type value_type;
    typedef typename Dist::policy_type policy_type;
 
-   constexpr auto function = "boost::math::do_inverse_discrete_quantile<%1%>";
+   static const char* function = "boost::math::do_inverse_discrete_quantile<%1%>";
 
    BOOST_MATH_STD_USING
 
@@ -104,7 +100,7 @@ BOOST_MATH_GPU_ENABLED typename Dist::value_type
       guess = min_bound;
 
    value_type fa = f(guess);
-   boost::math::uintmax_t count = max_iter - 1;
+   std::uintmax_t count = max_iter - 1;
    value_type fb(fa), a(guess), b =0; // Compiler warning C4701: potentially uninitialized local variable 'b' used
 
    if(fa == 0)
@@ -134,7 +130,7 @@ BOOST_MATH_GPU_ENABLED typename Dist::value_type
          else
          {
             b = a;
-            a = BOOST_MATH_GPU_SAFE_MAX(value_type(b - 1), value_type(0));
+            a = (std::max)(value_type(b - 1), value_type(0));
             if(a < min_bound)
                a = min_bound;
             fa = f(a);
@@ -151,13 +147,13 @@ BOOST_MATH_GPU_ENABLED typename Dist::value_type
    // we're assuming that "guess" is likely to be accurate
    // to the nearest int or so:
    //
-   else if((adder != 0) && (a + adder != a))
+   else if(adder != 0)
    {
       //
       // If we're looking for a large result, then bump "adder" up
       // by a bit to increase our chances of bracketing the root:
       //
-      //adder = BOOST_MATH_GPU_SAFE_MAX(adder, 0.001f * guess);
+      //adder = (std::max)(adder, 0.001f * guess);
       if(fa < 0)
       {
          b = a + adder;
@@ -166,7 +162,7 @@ BOOST_MATH_GPU_ENABLED typename Dist::value_type
       }
       else
       {
-         b = BOOST_MATH_GPU_SAFE_MAX(value_type(a - adder), value_type(0));
+         b = (std::max)(value_type(a - adder), value_type(0));
          if(b < min_bound)
             b = min_bound;
       }
@@ -190,7 +186,7 @@ BOOST_MATH_GPU_ENABLED typename Dist::value_type
          }
          else
          {
-            b = BOOST_MATH_GPU_SAFE_MAX(value_type(a - adder), value_type(0));
+            b = (std::max)(value_type(a - adder), value_type(0));
             if(b < min_bound)
                b = min_bound;
          }
@@ -199,8 +195,9 @@ BOOST_MATH_GPU_ENABLED typename Dist::value_type
       }
       if(a > b)
       {
-         BOOST_MATH_GPU_SAFE_SWAP(a, b);
-         BOOST_MATH_GPU_SAFE_SWAP(fa, fb);
+         using std::swap;
+         swap(a, b);
+         swap(fa, fb);
       }
    }
    //
@@ -218,7 +215,7 @@ BOOST_MATH_GPU_ENABLED typename Dist::value_type
          while(((boost::math::sign)(fb) == (boost::math::sign)(fa)) && (a != b))
          {
             if(count == 0)
-               return policies::raise_evaluation_error(function, "Unable to bracket root, last nearest value was %1%", b, policy_type()); // LCOV_EXCL_LINE
+               return policies::raise_evaluation_error(function, "Unable to bracket root, last nearest value was %1%", b, policy_type());
             a = b;
             fa = fb;
             b *= multiplier;
@@ -245,7 +242,7 @@ BOOST_MATH_GPU_ENABLED typename Dist::value_type
                return 0;
             }
             if(count == 0)
-               return policies::raise_evaluation_error(function, "Unable to bracket root, last nearest value was %1%", a, policy_type()); // LCOV_EXCL_LINE
+               return policies::raise_evaluation_error(function, "Unable to bracket root, last nearest value was %1%", a, policy_type());
             b = a;
             fb = fa;
             a /= multiplier;
@@ -277,13 +274,8 @@ BOOST_MATH_GPU_ENABLED typename Dist::value_type
    //
    // Go ahead and find the root:
    //
-   boost::math::pair<value_type, value_type> r = toms748_solve(f, a, b, fa, fb, tol, count, policy_type());
+   std::pair<value_type, value_type> r = toms748_solve(f, a, b, fa, fb, tol, count, policy_type());
    max_iter += count;
-   if (max_iter >= policies::get_max_root_iterations<policy_type>())
-   {
-      return policies::raise_evaluation_error<value_type>(function, "Unable to locate solution in a reasonable time:" // LCOV_EXCL_LINE
-         " either there is no answer to quantile or the answer is infinite.  Current best guess is %1%", r.first, policy_type()); // LCOV_EXCL_LINE
-   }
    BOOST_MATH_INSTRUMENT_CODE("max_iter = " << max_iter << " count = " << count);
    return (r.first + r.second) / 2;
 }
@@ -296,7 +288,7 @@ BOOST_MATH_GPU_ENABLED typename Dist::value_type
 // is very close 1.
 //
 template <class Dist>
-BOOST_MATH_GPU_ENABLED inline typename Dist::value_type round_to_floor(const Dist& d, typename Dist::value_type result, typename Dist::value_type p, bool c)
+inline typename Dist::value_type round_to_floor(const Dist& d, typename Dist::value_type result, typename Dist::value_type p, bool c)
 {
    BOOST_MATH_STD_USING
    typename Dist::value_type cc = ceil(result);
@@ -310,17 +302,15 @@ BOOST_MATH_GPU_ENABLED inline typename Dist::value_type round_to_floor(const Dis
    //
    while(result != 0)
    {
-      #ifdef BOOST_MATH_HAS_GPU_SUPPORT
-      cc = floor(::nextafter(result, -tools::max_value<typename Dist::value_type>()));
-      #else
-      cc = floor(float_prior(result));
-      #endif
+      cc = result - 1;
       if(cc < support(d).first)
          break;
       pp = c ? cdf(complement(d, cc)) : cdf(d, cc);
-      if(c ? pp > p : pp < p)
+      if(pp == p)
+         result = cc;
+      else if(c ? pp > p : pp < p)
          break;
-      result = cc;
+      result -= 1;
    }
 
    return result;
@@ -332,7 +322,7 @@ BOOST_MATH_GPU_ENABLED inline typename Dist::value_type round_to_floor(const Dis
 #endif
 
 template <class Dist>
-BOOST_MATH_GPU_ENABLED inline typename Dist::value_type round_to_ceil(const Dist& d, typename Dist::value_type result, typename Dist::value_type p, bool c)
+inline typename Dist::value_type round_to_ceil(const Dist& d, typename Dist::value_type result, typename Dist::value_type p, bool c)
 {
    BOOST_MATH_STD_USING
    typename Dist::value_type cc = floor(result);
@@ -346,17 +336,15 @@ BOOST_MATH_GPU_ENABLED inline typename Dist::value_type round_to_ceil(const Dist
    //
    while(true)
    {
-      #ifdef BOOST_MATH_HAS_GPU_SUPPORT
-      cc = ceil(::nextafter(result, tools::max_value<typename Dist::value_type>()));
-      #else
-      cc = ceil(float_next(result));
-      #endif
+      cc = result + 1;
       if(cc > support(d).second)
          break;
       pp = c ? cdf(complement(d, cc)) : cdf(d, cc);
-      if(c ? pp < p : pp > p)
+      if(pp == p)
+         result = cc;
+      else if(c ? pp < p : pp > p)
          break;
-      result = cc;
+      result += 1;
    }
 
    return result;
@@ -373,7 +361,7 @@ BOOST_MATH_GPU_ENABLED inline typename Dist::value_type round_to_ceil(const Dist
 // to an int where required.
 //
 template <class Dist>
-BOOST_MATH_GPU_ENABLED inline typename Dist::value_type 
+inline typename Dist::value_type 
    inverse_discrete_quantile(
       const Dist& dist,
       typename Dist::value_type p,
@@ -382,7 +370,7 @@ BOOST_MATH_GPU_ENABLED inline typename Dist::value_type
       const typename Dist::value_type& multiplier,
       const typename Dist::value_type& adder,
       const policies::discrete_quantile<policies::real>&,
-      boost::math::uintmax_t& max_iter)
+      std::uintmax_t& max_iter)
 {
    if(p > 0.5)
    {
@@ -404,7 +392,7 @@ BOOST_MATH_GPU_ENABLED inline typename Dist::value_type
 }
 
 template <class Dist>
-BOOST_MATH_GPU_ENABLED inline typename Dist::value_type 
+inline typename Dist::value_type 
    inverse_discrete_quantile(
       const Dist& dist,
       const typename Dist::value_type& p,
@@ -413,7 +401,7 @@ BOOST_MATH_GPU_ENABLED inline typename Dist::value_type
       const typename Dist::value_type& multiplier,
       const typename Dist::value_type& adder,
       const policies::discrete_quantile<policies::integer_round_outwards>&,
-      boost::math::uintmax_t& max_iter)
+      std::uintmax_t& max_iter)
 {
    typedef typename Dist::value_type value_type;
    BOOST_MATH_STD_USING
@@ -447,7 +435,7 @@ BOOST_MATH_GPU_ENABLED inline typename Dist::value_type
 }
 
 template <class Dist>
-BOOST_MATH_GPU_ENABLED inline typename Dist::value_type 
+inline typename Dist::value_type 
    inverse_discrete_quantile(
       const Dist& dist,
       const typename Dist::value_type& p,
@@ -456,7 +444,7 @@ BOOST_MATH_GPU_ENABLED inline typename Dist::value_type
       const typename Dist::value_type& multiplier,
       const typename Dist::value_type& adder,
       const policies::discrete_quantile<policies::integer_round_inwards>&,
-      boost::math::uintmax_t& max_iter)
+      std::uintmax_t& max_iter)
 {
    typedef typename Dist::value_type value_type;
    BOOST_MATH_STD_USING
@@ -490,7 +478,7 @@ BOOST_MATH_GPU_ENABLED inline typename Dist::value_type
 }
 
 template <class Dist>
-BOOST_MATH_GPU_ENABLED inline typename Dist::value_type 
+inline typename Dist::value_type 
    inverse_discrete_quantile(
       const Dist& dist,
       const typename Dist::value_type& p,
@@ -499,7 +487,7 @@ BOOST_MATH_GPU_ENABLED inline typename Dist::value_type
       const typename Dist::value_type& multiplier,
       const typename Dist::value_type& adder,
       const policies::discrete_quantile<policies::integer_round_down>&,
-      boost::math::uintmax_t& max_iter)
+      std::uintmax_t& max_iter)
 {
    typedef typename Dist::value_type value_type;
    BOOST_MATH_STD_USING
@@ -518,7 +506,7 @@ BOOST_MATH_GPU_ENABLED inline typename Dist::value_type
 }
 
 template <class Dist>
-BOOST_MATH_GPU_ENABLED inline typename Dist::value_type 
+inline typename Dist::value_type 
    inverse_discrete_quantile(
       const Dist& dist,
       const typename Dist::value_type& p,
@@ -527,7 +515,7 @@ BOOST_MATH_GPU_ENABLED inline typename Dist::value_type
       const typename Dist::value_type& multiplier,
       const typename Dist::value_type& adder,
       const policies::discrete_quantile<policies::integer_round_up>&,
-      boost::math::uintmax_t& max_iter)
+      std::uintmax_t& max_iter)
 {
    BOOST_MATH_STD_USING
    typename Dist::value_type pp = c ? 1 - p : p;
@@ -545,7 +533,7 @@ BOOST_MATH_GPU_ENABLED inline typename Dist::value_type
 }
 
 template <class Dist>
-BOOST_MATH_GPU_ENABLED inline typename Dist::value_type 
+inline typename Dist::value_type 
    inverse_discrete_quantile(
       const Dist& dist,
       const typename Dist::value_type& p,
@@ -554,7 +542,7 @@ BOOST_MATH_GPU_ENABLED inline typename Dist::value_type
       const typename Dist::value_type& multiplier,
       const typename Dist::value_type& adder,
       const policies::discrete_quantile<policies::integer_round_nearest>&,
-      boost::math::uintmax_t& max_iter)
+      std::uintmax_t& max_iter)
 {
    typedef typename Dist::value_type value_type;
    BOOST_MATH_STD_USING

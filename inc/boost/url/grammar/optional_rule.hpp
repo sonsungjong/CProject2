@@ -13,37 +13,12 @@
 #include <boost/url/detail/config.hpp>
 #include <boost/url/optional.hpp>
 #include <boost/url/error_types.hpp>
-#include <boost/url/grammar/type_traits.hpp>
 #include <boost/core/empty_value.hpp>
 #include <boost/assert.hpp>
 
 namespace boost {
 namespace urls {
 namespace grammar {
-
-namespace implementation_defined {
-template<class Rule>
-struct optional_rule_t
-    : private empty_value<Rule>
-{
-    using value_type = boost::optional<
-        typename Rule::value_type>;
-
-    system::result<value_type>
-    parse(
-        char const*& it,
-        char const* end) const;
-
-    constexpr
-    optional_rule_t(
-        Rule const& r) noexcept
-        : empty_value<Rule>(
-            empty_init,
-            r)
-    {
-    }
-};
-} // implementation_defined
 
 /** Match a rule, or the empty string
 
@@ -73,7 +48,6 @@ struct optional_rule_t
         >3.8.  Optional Sequence (rfc5234)</a>
 
     @param r The rule to match
-    @return The adapted rule
 
     @see
         @ref alpha_chars,
@@ -81,16 +55,53 @@ struct optional_rule_t
         @ref optional,
         @ref token_rule.
 */
-template<BOOST_URL_CONSTRAINT(Rule) R>
+#ifdef BOOST_URL_DOCS
+template<class Rule>
+constexpr
+__implementation_defined__
+optional_rule( Rule r ) noexcept;
+#else
+template<class Rule>
+struct optional_rule_t
+    : private empty_value<Rule>
+{
+    using value_type = boost::optional<
+        typename Rule::value_type>;
+
+    system::result<value_type>
+    parse(
+        char const*& it,
+        char const* end) const;
+
+    template<class R_>
+    friend
+    constexpr
+    auto
+    optional_rule(
+        R_ const& r) ->
+            optional_rule_t<R_>;
+
+private:
+    constexpr
+    optional_rule_t(
+        Rule const& r) noexcept
+        : empty_value<Rule>(
+            empty_init,
+            r)
+    {
+    }
+};
+
+template<class Rule>
 auto
 constexpr
 optional_rule(
-    R const& r) ->
-        implementation_defined::optional_rule_t<R>
+    Rule const& r) ->
+        optional_rule_t<Rule>
 {
-    BOOST_STATIC_ASSERT(grammar::is_rule<R>::value);
     return { r };
 }
+#endif
 
 } // grammar
 } // urls

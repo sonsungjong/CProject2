@@ -128,7 +128,7 @@ private :
     template <typename Turns, typename Clusters>
     static inline
     bool is_self_cluster(signed_size_type cluster_id,
-            Turns const& turns, Clusters const& clusters)
+            const Turns& turns, Clusters const& clusters)
     {
         auto cit = clusters.find(cluster_id);
         if (cit == clusters.end())

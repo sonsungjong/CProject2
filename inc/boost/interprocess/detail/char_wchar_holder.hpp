@@ -57,7 +57,6 @@ class char_wchar_holder
       this->delete_mem();
       m_str.n = tmp;
       std::strcpy(m_str.n, nstr);
-      m_is_wide = false;
       return *this;
    }
 
@@ -67,16 +66,15 @@ class char_wchar_holder
       this->delete_mem();
       m_str.w = tmp;
       std::wcscpy(m_str.w, wstr);
-      m_is_wide = true;
       return *this;
    }
 
    char_wchar_holder& operator=(const char_wchar_holder &other)
    {
       if (other.m_is_wide)
-         *this = other.getw();
-      else
          *this = other.getn();
+      else
+         *this = other.getw();
       return *this;
    }
 

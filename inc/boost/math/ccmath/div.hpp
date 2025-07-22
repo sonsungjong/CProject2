@@ -6,12 +6,18 @@
 #ifndef BOOST_MATH_CCMATH_DIV_HPP
 #define BOOST_MATH_CCMATH_DIV_HPP
 
+#include <cmath>
+#include <cstdlib>
 #include <cinttypes>
 #include <cstdint>
-#include <boost/math/ccmath/detail/config.hpp>
+#include <type_traits>
 
-#ifdef BOOST_MATH_NO_CCMATH
-#error "The header <boost/math/div.hpp> can only be used in C++17 and later."
+#include <boost/math/tools/is_standalone.hpp>
+#ifndef BOOST_MATH_STANDALONE
+#include <boost/config.hpp>
+#ifdef BOOST_NO_CXX17_IF_CONSTEXPR
+#error "The header <boost/math/norms.hpp> can only be used in C++17 and later."
+#endif
 #endif
 
 namespace boost::math::ccmath {

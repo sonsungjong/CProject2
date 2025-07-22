@@ -51,7 +51,7 @@ namespace detail { namespace relate
 template
 <
     typename Geometry,
-    typename Tag = tag_t<Geometry>
+    typename Tag = typename tag<Geometry>::type
 >
 struct multi_point_geometry_eb
 {
@@ -182,7 +182,8 @@ struct multi_point_single_geometry
                              Result & result,
                              Strategy const& strategy)
     {
-        using box2_type = model::box<point_type_t<SingleGeometry>> ;
+        typedef typename point_type<SingleGeometry>::type point2_type;
+        typedef model::box<point2_type> box2_type;
 
         box2_type box2;
         geometry::envelope(single_geometry, box2, strategy);
@@ -401,9 +402,11 @@ class multi_point_multi_geometry_ii_ib
     };
 
 public:
-    using box1_type = model::box<point_type_t<MultiPoint>>;
-    using box2_type = model::box<point_type_t<MultiGeometry>>;
-    using box_pair_type = std::pair<box2_type, std::size_t>;
+    typedef typename point_type<MultiPoint>::type point1_type;
+    typedef typename point_type<MultiGeometry>::type point2_type;
+    typedef model::box<point1_type> box1_type;
+    typedef model::box<point2_type> box2_type;
+    typedef std::pair<box2_type, std::size_t> box_pair_type;
 
     template <typename Result, typename Strategy>
     static inline void apply(MultiPoint const& multi_point,
@@ -436,10 +439,12 @@ public:
 template <typename MultiPoint, typename MultiGeometry, bool Transpose>
 struct multi_point_multi_geometry_ii_ib_ie
 {
-    using box1_type = model::box<point_type_t<MultiPoint>>;
-    using box2_type = model::box<point_type_t<MultiGeometry>>;
-    using box_pair_type = std::pair<box2_type, std::size_t>;
-    using boxes_type = std::vector<box_pair_type>;
+    typedef typename point_type<MultiPoint>::type point1_type;
+    typedef typename point_type<MultiGeometry>::type point2_type;
+    typedef model::box<point1_type> box1_type;
+    typedef model::box<point2_type> box2_type;
+    typedef std::pair<box2_type, std::size_t> box_pair_type;
+    typedef std::vector<box_pair_type> boxes_type;
 
     template <typename Result, typename Strategy>
     static inline void apply(MultiPoint const& multi_point,
@@ -527,7 +532,9 @@ struct multi_point_multi_geometry
                              Result & result,
                              Strategy const& strategy)
     {
-        using box_pair_type = std::pair<model::box<point_type_t<MultiGeometry>>, std::size_t>;
+        typedef typename point_type<MultiGeometry>::type point2_type;
+        typedef model::box<point2_type> box2_type;
+        typedef std::pair<box2_type, std::size_t> box_pair_type;
 
         std::size_t count2 = boost::size(multi_geometry);
         std::vector<box_pair_type> boxes(count2);

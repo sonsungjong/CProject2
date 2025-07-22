@@ -18,7 +18,7 @@
 #include <boost/beast/core/stream_traits.hpp>
 #include <boost/beast/core/detail/bind_continuation.hpp>
 #include <boost/asio/coroutine.hpp>
-#include <boost/asio/dispatch.hpp>
+#include <boost/asio/post.hpp>
 #include <boost/throw_exception.hpp>
 #include <memory>
 
@@ -106,8 +106,7 @@ public:
                         __FILE__, __LINE__,
                         "websocket::async_close"));
 
-                    const auto ex = this->get_immediate_executor();
-                    net::dispatch(ex, std::move(*this));
+                    net::post(sp->stream().get_executor(), std::move(*this));
                 }
                 BOOST_ASSERT(impl.wr_block.is_locked(this));
             }
@@ -168,8 +167,7 @@ public:
                         __FILE__, __LINE__,
                         "websocket::async_close"));
 
-                    const auto ex = this->get_immediate_executor();
-                    net::dispatch(ex, std::move(*this));
+                    net::post(sp->stream().get_executor(), std::move(*this));
                 }
                 BOOST_ASSERT(impl.rd_block.is_locked(this));
                 if(impl.check_stop_now(ec))
@@ -178,6 +176,7 @@ public:
             }
 
             // Read until a receiving a close frame
+            // TODO There should be a timeout on this
             if(impl.rd_remain > 0)
                 goto read_payload;
             for(;;)
@@ -301,20 +300,11 @@ template<class NextLayer, bool deflateSupported>
 struct stream<NextLayer, deflateSupported>::
     run_close_op
 {
-    boost::shared_ptr<impl_type> const& self;
-
-    using executor_type = typename stream::executor_type;
-
-    executor_type
-    get_executor() const noexcept
-    {
-        return self->stream().get_executor();
-    }
-
     template<class CloseHandler>
     void
     operator()(
         CloseHandler&& h,
+        boost::shared_ptr<impl_type> const& sp,
         close_reason const& cr)
     {
         // If you get an error on the following line it means
@@ -329,7 +319,7 @@ struct stream<NextLayer, deflateSupported>::
         close_op<
             typename std::decay<CloseHandler>::type>(
                 std::forward<CloseHandler>(h),
-                self,
+                sp,
                 cr);
     }
 };
@@ -466,8 +456,9 @@ async_close(close_reason const& cr, CloseHandler&& handler)
     return net::async_initiate<
         CloseHandler,
         void(error_code)>(
-            run_close_op{impl_},
+            run_close_op{},
             handler,
+            impl_,
             cr);
 }
 

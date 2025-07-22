@@ -23,7 +23,8 @@ BOOST_PROCESS_V2_DECL std::size_t convert_to_wide(const  char   * in, std::size_
 
 template<typename CharOut, typename Traits = std::char_traits<CharOut>, 
          typename Allocator = std::allocator<CharOut>, typename CharIn,
-         typename = typename std::enable_if<std::is_same<CharOut, CharIn>::value>::type> 
+         typename = typename std::enable_if<std::is_same<CharOut, CharIn>::value>::type>
+BOOST_PROCESS_V2_DECL 
 std::basic_string<CharOut, Traits, Allocator> conv_string(
     const CharIn * data, std::size_t size, 
     const Allocator allocator = Allocator{})
@@ -34,7 +35,8 @@ std::basic_string<CharOut, Traits, Allocator> conv_string(
 
 template<typename CharOut, typename Traits = std::char_traits<CharOut>, 
          typename Allocator = std::allocator<CharOut>,
-         typename = typename std::enable_if<std::is_same<CharOut, char>::value>::type> 
+         typename = typename std::enable_if<std::is_same<CharOut, char>::value>::type>
+BOOST_PROCESS_V2_DECL 
 std::basic_string<CharOut, Traits, Allocator> conv_string(
     const wchar_t * data, std::size_t size, 
     const Allocator allocator = Allocator{})
@@ -57,7 +59,8 @@ std::basic_string<CharOut, Traits, Allocator> conv_string(
 
 template<typename CharOut, typename Traits = std::char_traits<CharOut>, 
          typename Allocator = std::allocator<CharOut>,
-         typename = typename std::enable_if<std::is_same<CharOut, wchar_t>::value>::type> 
+         typename = typename std::enable_if<std::is_same<CharOut, wchar_t>::value>::type>
+BOOST_PROCESS_V2_DECL 
 std::basic_string<CharOut, Traits, Allocator> conv_string(
     const char * data, std::size_t size, 
     const Allocator allocator = Allocator{})
@@ -81,6 +84,12 @@ std::basic_string<CharOut, Traits, Allocator> conv_string(
 }
 
 BOOST_PROCESS_V2_END_NAMESPACE
+
+#if defined(BOOST_PROCESS_V2_HEADER_ONLY)
+
+#include <boost/process/v2/detail/impl/utf8.ipp>
+
+#endif
 
 
 #endif //BOOST_PROCESS_V2_DETAIL_UTF8_HPP

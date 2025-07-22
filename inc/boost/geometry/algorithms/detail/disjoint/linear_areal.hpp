@@ -61,8 +61,8 @@ namespace detail { namespace disjoint
 {
 
 template <typename Geometry1, typename Geometry2,
-          typename Tag1 = tag_t<Geometry1>,
-          typename Tag1OrMulti = tag_cast_t<Tag1, multi_tag>>
+          typename Tag1 = typename tag<Geometry1>::type,
+          typename Tag1OrMulti = typename tag_cast<Tag1, multi_tag>::type>
 struct disjoint_no_intersections_policy
 {
     /*!
@@ -71,7 +71,8 @@ struct disjoint_no_intersections_policy
     template <typename Strategy>
     static inline bool apply(Geometry1 const& g1, Geometry2 const& g2, Strategy const& strategy)
     {
-        typename helper_geometry<point_type_t<Geometry1>>::type p;
+        using point_type = typename point_type<Geometry1>::type;
+        typename helper_geometry<point_type>::type p;
         geometry::point_on_border(p, g1);
 
         return ! geometry::covered_by(p, g2, strategy);
@@ -130,7 +131,7 @@ template
 <
     typename Segment,
     typename Areal,
-    typename Tag = tag_t<Areal>
+    typename Tag = typename tag<Areal>::type
 >
 struct disjoint_segment_areal
     : not_implemented<Segment, Areal>
@@ -170,7 +171,7 @@ public:
     {
         if (! disjoint_range_segment_or_box
                 <
-                    geometry::ring_type_t<Polygon>,
+                    typename geometry::ring_type<Polygon>::type,
                     Segment
                 >::apply(geometry::exterior_ring(polygon), segment, strategy))
         {
@@ -182,7 +183,7 @@ public:
             return false;
         }
 
-        point_type_t<Segment> p;
+        typename point_type<Segment>::type p;
         detail::assign_point_from_index<0>(segment, p);
 
         return ! geometry::covered_by(p, polygon, strategy);
@@ -218,7 +219,7 @@ struct disjoint_segment_areal<Segment, Ring, ring_tag>
             return false;
         }
 
-        point_type_t<Segment> p;
+        typename point_type<Segment>::type p;
         detail::assign_point_from_index<0>(segment, p);
 
         return ! geometry::covered_by(p, ring, strategy);

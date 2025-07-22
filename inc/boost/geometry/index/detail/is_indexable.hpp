@@ -17,7 +17,7 @@ namespace boost { namespace geometry { namespace index { namespace detail {
 template
 <
     typename Geometry,
-    typename Tag = geometry::tag_t<Geometry>
+    typename Tag = typename geometry::tag<Geometry>::type
 >
 struct is_indexable
 {

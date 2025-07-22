@@ -50,7 +50,7 @@ namespace urls {
 
     @par Example 2
     The parsing function @ref parse_authority returns
-    a `boost::system::result` containing either a valid
+    a @ref result containing either a valid
     @ref authority_view upon succcess, otherwise it
     contain an error. The error can be converted to
     an exception by the caller if desired:
@@ -134,8 +134,6 @@ public:
         that the lifetime of the buffer
         extends until the view is destroyed.
 
-        @param s The string to parse
-
         @par BNF
         @code
         authority     = [ userinfo "@" ] host [ ":" port ]
@@ -166,19 +164,10 @@ public:
         authority_view const&) noexcept;
 
     /** Assignment
-
-        This function assigns the contents of
-        `other` to this object.
-
-        @param other The object to assign
-        @return A reference to this object
-
-        @par Exception Safety
-        Throws nothing.
     */
     authority_view&
     operator=(
-        authority_view const& other) noexcept;
+        authority_view const&) noexcept;
 
     //--------------------------------------------
     //
@@ -190,8 +179,6 @@ public:
 
         This function returns the number of
         characters in the authority.
-
-        @return The number of characters in the authority
 
         @par Example
         @code
@@ -211,8 +198,6 @@ public:
 
         An empty authority has an empty host,
         no userinfo, and no port.
-
-        @return `true` if the authority is empty
 
         @par Example
         @code
@@ -234,8 +219,6 @@ public:
         beginning of the view, which is not
         guaranteed to be null-terminated.
 
-        @return A pointer to the first character
-
         @par Exception Safety
         Throws nothing.
     */
@@ -249,8 +232,6 @@ public:
 
         This function returns the authority
         as a percent-encoded string.
-
-        @return The complete authority
 
         @par Example
         @code
@@ -285,8 +266,6 @@ public:
 
         This function returns true if this
         contains a userinfo.
-
-        @return `true` if a userinfo is present
 
         @par Example
         @code
@@ -331,9 +310,6 @@ public:
         Otherwise it returns an empty string.
         Any percent-escapes in the string are
         decoded first.
-
-        @param token A string token to receive the result.
-        @return The userinfo
 
         @par Example
         @code
@@ -386,8 +362,6 @@ public:
         The returned string may contain
         percent escapes.
 
-        @return The userinfo
-
         @par Example
         @code
         assert( url_view( "http://jane%2Ddoe:pass@example.com" ).encoded_userinfo() == "jane%2Ddoe:pass" );
@@ -432,9 +406,6 @@ public:
         Otherwise it returns an empty string.
         Any percent-escapes in the string are
         decoded first.
-
-        @param token A string token to receive the result.
-        @return The user
 
         @par Example
         @code
@@ -488,8 +459,6 @@ public:
         The returned string may contain
         percent escapes.
 
-        @return The user
-
         @par Example
         @code
         assert( url_view( "http://jane%2Ddoe:pass@example.com" ).encoded_user() == "jane%2Ddoe" );
@@ -530,8 +499,6 @@ public:
         This function returns true if the
         userinfo is present and contains
         a password.
-
-        @return `true` if a password is present
 
         @par Example
         @code
@@ -576,9 +543,6 @@ public:
         Otherwise it returns an empty string.
         Any percent-escapes in the string are
         decoded first.
-
-        @param token A string token to receive the result.
-        @return The password
 
         @par Example
         @code
@@ -627,8 +591,6 @@ public:
 
         This function returns the password portion
         of the userinfo as a percent-encoded string.
-
-        @return The password
 
         @par Example
         @code
@@ -682,8 +644,6 @@ public:
         @li @ref host_type::ipvfuture
         @li @ref host_type::name
 
-        @return The host type
-
         @par Example
         @code
         assert( url_view( "https://192.168.0.1/local.htm" ).host_type() == host_type::ipv4 );
@@ -712,9 +672,6 @@ public:
         empty string if there is no authority.
         Any percent-escapes in the string are
         decoded first.
-
-        @param token A string token to receive the result.
-        @return The host
 
         @par Example
         @code
@@ -758,8 +715,6 @@ public:
         empty string if there is no authority.
         The returned string may contain
         percent escapes.
-
-        @return The host
 
         @par Example
         @code
@@ -812,9 +767,6 @@ public:
 
         @li If the type is @ref host_type::none,
         then an empty string is returned.
-
-        @param token A string token to receive the result.
-        @return The host address
 
         @par Example
         @code
@@ -878,8 +830,6 @@ public:
         The returned string may contain
         percent escapes.
 
-        @return The host address
-
         @par Example
         @code
         assert( url_view( "https://www%2droot.example.com/" ).encoded_host_address() == "www%2droot.example.com" );
@@ -916,8 +866,6 @@ public:
         address, it returns a default-constructed
         value which is equal to the unspecified
         address "0.0.0.0".
-
-        @return The host IPv4 address
 
         @par Example
         @code
@@ -957,8 +905,6 @@ public:
         address, it returns a default-constructed
         value which is equal to the unspecified
         address "0:0:0:0:0:0:0:0".
-
-        @return The host IPv6 address
 
         @par Example
         @code
@@ -1006,8 +952,6 @@ public:
         IPvFuture address, it returns an
         empty string.
 
-        @return The host IPvFuture address
-
         @par Example
         @code
         assert( url_view( "http://[v1fe.d:9]/index.htm" ).host_ipvfuture() == "v1fe.d:9" );
@@ -1040,9 +984,6 @@ public:
         name, it returns an empty string.
         Any percent-escapes in the string are
         decoded first.
-
-        @param token A string token to receive the result
-        @return The host name
 
         @par Example
         @code
@@ -1089,8 +1030,6 @@ public:
         The returned string may contain
         percent escapes.
 
-        @return The host name
-
         @par Example
         @code
         assert( url_view( "https://www%2droot.example.com/" ).encoded_host_name() == "www%2droot.example.com" );
@@ -1129,8 +1068,6 @@ public:
         This function returns true if an
         authority is present and contains a port.
 
-        @return `true` if a port is present, otherwise `false`
-
         @par Example
         @code
         assert( url_view( "wss://www.example.com:443" ).has_port() );
@@ -1168,8 +1105,6 @@ public:
         may be empty).
         Otherwise it returns an empty string.
 
-        @return The port as a string
-
         @par Example
         @code
         assert( url_view( "http://localhost.com:8080" ).port() == "8080" );
@@ -1204,8 +1139,6 @@ public:
         value is representable, it is returned
         as an unsigned integer. Otherwise, the
         number zero is returned.
-
-        @return The port number
 
         @par Example
         @code
@@ -1270,8 +1203,6 @@ public:
             @ref has_port,
             @ref port,
             @ref port_number.
-
-        @return The host and port
     */
     pct_string_view
     encoded_host_and_port() const noexcept;
@@ -1291,9 +1222,7 @@ public:
         @par Exception Safety
         Throws nothing.
 
-        @param other The authority to compare
-
-        @return `-1` if `*this < other`, `0` if
+        @return -1 if `*this < other`, 0 if
         `this == other`, and 1 if `this > other`.
 
         @par Specification
@@ -1313,10 +1242,6 @@ public:
 
         @par Exception Safety
         Throws nothing
-
-        @param a0 The first authority to compare
-        @param a1 The second authority to compare
-        @return `true` if `a0 == a1`, otherwise `false`
     */
     friend
     bool
@@ -1337,10 +1262,6 @@ public:
 
         @par Exception Safety
         Throws nothing
-
-        @param a0 The first authority to compare
-        @param a1 The second authority to compare
-        @return `true` if `a0 != a1`, otherwise `false`
     */
     friend
     bool
@@ -1361,10 +1282,6 @@ public:
 
         @par Exception Safety
         Throws nothing
-
-        @param a0 The first authority to compare
-        @param a1 The second authority to compare
-        @return `true` if `a0 < a1`, otherwise `false`
     */
     friend
     bool
@@ -1385,10 +1302,6 @@ public:
 
         @par Exception Safety
         Throws nothing
-
-        @param a0 The first authority to compare
-        @param a1 The second authority to compare
-        @return `true` if `a0 <= a1`, otherwise `false`
     */
     friend
     bool
@@ -1409,10 +1322,6 @@ public:
 
         @par Exception Safety
         Throws nothing
-
-        @param a0 The first authority to compare
-        @param a1 The second authority to compare
-        @return `true` if `a0 > a1`, otherwise `false`
     */
     friend
     bool
@@ -1433,10 +1342,6 @@ public:
 
         @par Exception Safety
         Throws nothing
-
-        @param a0 The first authority to compare
-        @param a1 The second authority to compare
-        @return `true` if `a0 >= a1`, otherwise `false`
     */
     friend
     bool
@@ -1449,24 +1354,7 @@ public:
 
     //--------------------------------------------
 
-    /** Format the encoded authority to the output stream
-
-        This hidden friend function serializes the encoded URL
-        to the output stream.
-
-        @par Example
-        @code
-        authority_view a( "www.example.com" );
-
-        std::cout << a << std::endl;
-        @endcode
-
-        @return A reference to the output stream, for chaining
-
-        @param os The output stream to write to
-
-        @param a The URL to write
-    */
+    // hidden friend
     friend
     std::ostream&
     operator<<(

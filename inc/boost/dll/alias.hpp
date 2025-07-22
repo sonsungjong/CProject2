@@ -1,5 +1,5 @@
 // Copyright 2014 Renato Tegon Forti, Antony Polukhin.
-// Copyright Antony Polukhin, 2015-2025.
+// Copyright Antony Polukhin, 2015-2023.
 //
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt
@@ -9,6 +9,7 @@
 #define BOOST_DLL_ALIAS_HPP
 
 #include <boost/dll/config.hpp>
+#include <boost/static_assert.hpp>
 #include <boost/predef/compiler.h>
 #include <boost/predef/os.h>
 #include <boost/dll/detail/aggressive_ptr_cast.hpp>
@@ -44,7 +45,7 @@ namespace boost { namespace dll {
 #define BOOST_DLL_SELECTANY __declspec(selectany)
 
 #define BOOST_DLL_SECTION(SectionName, Permissions)                                             \
-    static_assert(                                                                              \
+    BOOST_STATIC_ASSERT_MSG(                                                                    \
         sizeof(#SectionName) < 10,                                                              \
         "Some platforms require section names to be at most 8 bytes"                            \
     );                                                                                          \
@@ -83,7 +84,7 @@ namespace boost { namespace dll {
 * \param Permissions Can be "read" or "write" (without quotes!).
 */
 #define BOOST_DLL_SECTION(SectionName, Permissions)                                             \
-    static_assert(                                                                              \
+    BOOST_STATIC_ASSERT_MSG(                                                                    \
         sizeof(#SectionName) < 10,                                                              \
         "Some platforms require section names to be at most 8 bytes"                            \
     );                                                                                          \
@@ -92,7 +93,7 @@ namespace boost { namespace dll {
 #else // #if !BOOST_OS_MACOS && !BOOST_OS_IOS
 
 #define BOOST_DLL_SECTION(SectionName, Permissions)                                             \
-    static_assert(                                                                              \
+    BOOST_STATIC_ASSERT_MSG(                                                                    \
         sizeof(#SectionName) < 10,                                                              \
         "Some platforms require section names to be at most 8 bytes"                            \
     );                                                                                          \
@@ -184,7 +185,7 @@ namespace boost { namespace dll {
 #else    
 // Note: we can not use `aggressive_ptr_cast` here, because in that case GCC applies
 // different permissions to the section and it causes Segmentation fault.
-// Note: we can not use `std::addressof()` here, because in that case GCC 
+// Note: we can not use `boost::addressof()` here, because in that case GCC 
 // may optimize away the FunctionOrVar instance and we'll get a pointer to unexisting symbol.
 /*!
 * \brief Same as \forcedmacrolink{BOOST_DLL_ALIAS} but puts alias name into the user specified section.

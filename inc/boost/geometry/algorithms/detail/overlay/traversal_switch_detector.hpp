@@ -1,11 +1,10 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2015-2016 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2018-2024.
-// Modifications copyright (c) 2018-2024 Oracle and/or its affiliates.
-// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// This file was modified by Oracle on 2018-2020.
+// Modifications copyright (c) 2018-2020 Oracle and/or its affiliates.
+
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -22,12 +21,8 @@
 #include <boost/geometry/algorithms/detail/overlay/cluster_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/is_self_turn.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
-
-#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
 #include <boost/geometry/core/access.hpp>
-#endif
-
-#include <boost/geometry/util/constexpr.hpp>
+#include <boost/geometry/util/condition.hpp>
 
 #include <cstddef>
 #include <map>
@@ -84,6 +79,7 @@ template
     typename Geometry2,
     typename Turns,
     typename Clusters,
+    typename RobustPolicy,
     typename Visitor
 >
 struct traversal_switch_detector
@@ -138,11 +134,12 @@ struct traversal_switch_detector
     inline traversal_switch_detector(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             Turns& turns, Clusters const& clusters,
-            Visitor& visitor)
+            RobustPolicy const& robust_policy, Visitor& visitor)
         : m_geometry1(geometry1)
         , m_geometry2(geometry2)
         , m_turns(turns)
         , m_clusters(clusters)
+        , m_robust_policy(robust_policy)
         , m_visitor(visitor)
     {
     }
@@ -390,19 +387,11 @@ struct traversal_switch_detector
     {
         for (turn_type& turn : m_turns)
         {
-            constexpr auto order1 = geometry::point_order<Geometry1>::value;
-            constexpr bool reverse1 = (order1 == boost::geometry::counterclockwise)
-                ? ! Reverse1 : Reverse1;
-
-            constexpr auto order2 = geometry::point_order<Geometry2>::value;
-            constexpr bool reverse2 = (order2 == boost::geometry::counterclockwise)
-                ? ! Reverse2 : Reverse2;
-
             // For difference, for the input walked through in reverse,
             // the meaning is reversed: what is isolated is actually not,
             // and vice versa.
             bool const reverseMeaningInTurn
-                    = (reverse1 || reverse2)
+                    = (Reverse1 || Reverse2)
                       && ! turn.is_self()
                       && ! turn.is_clustered()
                       && uu_or_ii(turn)
@@ -416,8 +405,8 @@ struct traversal_switch_detector
                 {
                     bool const reverseMeaningInOp
                         = reverseMeaningInTurn
-                          && ((op.seg_id.source_index == 0 && reverse1)
-                               || (op.seg_id.source_index == 1 && reverse2));
+                          && ((op.seg_id.source_index == 0 && Reverse1)
+                               || (op.seg_id.source_index == 1 && Reverse2));
 
                     // It is assigned to isolated if it's property is "Yes",
                     // (one connected interior, or chained).
@@ -532,21 +521,19 @@ struct traversal_switch_detector
             return ! uu_or_ii(turn);
         }
 
-        if BOOST_GEOMETRY_CONSTEXPR (target_operation == operation_union)
+        if (BOOST_GEOMETRY_CONDITION(target_operation == operation_union))
         {
             // It is a cluster, check zones
             // (assigned by sort_by_side/handle colocations) of both operations
             return turn.operations[0].enriched.zone
                     == turn.operations[1].enriched.zone;
         }
-        else // else prevents unreachable code warning
-        {
-            // For an intersection, two regions connect if they are not ii
-            // (ii-regions are isolated) or, in some cases, not iu (for example
-            // when a multi-polygon is inside an interior ring and connecting it)
-            return ! (turn.both(operation_intersection)
-                      || turn.combination(operation_intersection, operation_union));
-        }
+
+        // For an intersection, two regions connect if they are not ii
+        // (ii-regions are isolated) or, in some cases, not iu (for example
+        // when a multi-polygon is inside an interior ring and connecting it)
+        return ! (turn.both(operation_intersection)
+                  || turn.combination(operation_intersection, operation_union));
     }
 
     void create_region(signed_size_type& new_region_id, ring_identifier const& ring_id,
@@ -691,13 +678,11 @@ struct traversal_switch_detector
         {
             turn_type const& turn = m_turns[turn_index];
 
-            if BOOST_GEOMETRY_CONSTEXPR (target_operation == operation_intersection)
+            if (turn.discarded
+                && BOOST_GEOMETRY_CONDITION(target_operation == operation_intersection))
             {
-                if (turn.discarded)
-                {
-                    // Discarded turn (union currently still needs it to determine regions)
-                    continue;
-                }
+                // Discarded turn (union currently still needs it to determine regions)
+                continue;
             }
 
             for (auto const& op : turn.operations)
@@ -735,6 +720,7 @@ private:
     Clusters const& m_clusters;
     merge_map m_turns_per_ring;
     region_connection_map m_connected_regions;
+    RobustPolicy const& m_robust_policy;
     Visitor& m_visitor;
 };
 

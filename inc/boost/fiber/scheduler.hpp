@@ -109,7 +109,7 @@ private:
     void sleep2ready_() noexcept;
 
 public:
-    scheduler(algo::algorithm::ptr_t algo) noexcept;
+    scheduler() noexcept;
 
     scheduler( scheduler const&) = delete;
     scheduler & operator=( scheduler const&) = delete;

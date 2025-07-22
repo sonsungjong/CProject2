@@ -15,9 +15,11 @@
 namespace boost {
 namespace urls {
 
-namespace implementation_defined {
-struct ignore_case_t {};
-}
+#ifndef BOOST_URL_DOCS
+struct ignore_case_t
+{
+};
+#endif
 
 /** Ignore case when comparing
 
@@ -26,8 +28,12 @@ struct ignore_case_t {};
     @ref ignore_case_param to indicate that
     comparisons should be case-insensitive.
 */
-BOOST_INLINE_CONSTEXPR
-implementation_defined::ignore_case_t
+constexpr
+#ifdef BOOST_URL_DOCS
+__implementation_defined__
+#else
+ignore_case_t
+#endif
 ignore_case{};
 
 /** An optional parameter to determine case-sensitivity
@@ -36,9 +42,6 @@ ignore_case{};
     to allow the user to optionally indicate
     that comparisons should be case-insensitive
     when the value @ref ignore_case is passed.
-
-    @see
-        @ref params_ref
 */
 class ignore_case_param
 {
@@ -74,21 +77,22 @@ public:
         indicates that comparisons should
         be case-insensitive.
 
-        The first parameter to this function
-        should be the variable
-        @ref ignore_case.
-
         @par Example
         When @ref ignore_case is passed as
         an argument, this function ignores
         case when performing comparisons:
         @code
-        void f( ignore_case_param(ignore_case) );
+        void f( ignore_case_param = {} );
         @endcode
     */
     constexpr
     ignore_case_param(
-        implementation_defined::ignore_case_t) noexcept
+    #ifdef BOOST_URL_DOCS
+        __implementation_defined__
+    #else
+        ignore_case_t
+    #endif
+        ) noexcept
         : value_(true)
     {
     }
@@ -100,8 +104,6 @@ public:
         with the constant @ref ignore_case.
         Otherwise, they are default-constructed
         and evaluate to `false`.
-
-        @return `true` if case should be ignored
     */
     operator
     bool() const noexcept

@@ -32,8 +32,8 @@ struct value_type
     typedef std::conditional_t
         <
             ! std::is_const<Geometry>::value,
-            geometry::point_type_t<Geometry>,
-            geometry::point_type_t<Geometry> const
+            typename geometry::point_type<Geometry>::type,
+            typename geometry::point_type<Geometry>::type const
         > type;
 };
 

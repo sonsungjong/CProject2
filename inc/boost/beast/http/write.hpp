@@ -156,9 +156,8 @@ write_some(
         std::size_t bytes_transferred   // the number of bytes written to the stream
     );
     @endcode
-    If the handler has an associated immediate executor,
-    an immediate completion will be dispatched to it.
-    Otherwise, the handler will not be invoked from within
+    Regardless of whether the asynchronous operation completes
+    immediately or not, the handler will not be invoked from within
     this function. Invocation of the handler will be performed in a
     manner equivalent to using `net::post`.
 
@@ -169,9 +168,10 @@ write_some(
 
     @li @c net::cancellation_type::terminal
 
-    if the `stream` also supports terminal cancellation, `terminal`
-    cancellation leaves the stream in an undefined state, so that only
-    closing it is guaranteed to succeed.
+    if the `stream` also supports terminal cancellation.
+
+    `terminal` cancellation leaves the stream in an undefined state,
+    so that only closing it is guaranteed to succeed.
 
     @see serializer
 */
@@ -295,9 +295,8 @@ write_header(
         std::size_t bytes_transferred   // the number of bytes written to the stream
     );
     @endcode
-    If the handler has an associated immediate executor,
-    an immediate completion will be dispatched to it.
-    Otherwise, the handler will not be invoked from within
+    Regardless of whether the asynchronous operation completes
+    immediately or not, the handler will not be invoked from within
     this function. Invocation of the handler will be performed in a
     manner equivalent to using `net::post`.
 
@@ -311,9 +310,10 @@ write_header(
 
     @li @c net::cancellation_type::terminal
 
-    if the `stream` also supports terminal cancellation, `terminal`
-    cancellation leaves the stream in an undefined state, so that only
-    closing it is guaranteed to succeed.
+    if the `stream` also supports terminal cancellation.
+
+    `terminal` cancellation leaves the stream in an undefined state,
+    so that only closing it is guaranteed to succeed.
 
     @see serializer
 */
@@ -431,9 +431,8 @@ write(
         std::size_t bytes_transferred   // the number of bytes written to the stream
     );
     @endcode
-    If the handler has an associated immediate executor,
-    an immediate completion will be dispatched to it.
-    Otherwise, the handler will not be invoked from within
+    Regardless of whether the asynchronous operation completes
+    immediately or not, the handler will not be invoked from within
     this function. Invocation of the handler will be performed in a
     manner equivalent to using `net::post`.
 
@@ -444,9 +443,10 @@ write(
 
     @li @c net::cancellation_type::terminal
 
-    if the `stream` also supports terminal cancellation, `terminal`
-    cancellation leaves the stream in an undefined state, so that only
-    closing it is guaranteed to succeed.
+    if the `stream` also supports terminal cancellation.
+
+    `terminal` cancellation leaves the stream in an undefined state,
+    so that only closing it is guaranteed to succeed.
 
     @see serializer
 */
@@ -668,9 +668,8 @@ write(
         std::size_t bytes_transferred   // the number of bytes written to the stream
     );
     @endcode
-    If the handler has an associated immediate executor,
-    an immediate completion will be dispatched to it.
-    Otherwise, the handler will not be invoked from within
+    Regardless of whether the asynchronous operation completes
+    immediately or not, the handler will not be invoked from within
     this function. Invocation of the handler will be performed in a
     manner equivalent to using `net::post`.
 
@@ -681,9 +680,10 @@ write(
 
     @li @c net::cancellation_type::terminal
 
-    if the `stream` also supports terminal cancellation, `terminal`
-    cancellation leaves the stream in an undefined state, so that only
-    closing it is guaranteed to succeed.
+    if the `stream` also supports terminal cancellation.
+
+    `terminal` cancellation leaves the stream in an undefined state,
+    so that only closing it is guaranteed to succeed.
 
     @see message
 */
@@ -742,9 +742,8 @@ async_write(
         std::size_t bytes_transferred   // the number of bytes written to the stream
     );
     @endcode
-    If the handler has an associated immediate executor,
-    an immediate completion will be dispatched to it.
-    Otherwise, the handler will not be invoked from within
+    Regardless of whether the asynchronous operation completes
+    immediately or not, the handler will not be invoked from within
     this function. Invocation of the handler will be performed in a
     manner equivalent to using `net::post`.
 
@@ -755,9 +754,10 @@ async_write(
 
     @li @c net::cancellation_type::terminal
 
-    if the `stream` also supports terminal cancellation, `terminal`
-    cancellation leaves the stream in an undefined state, so that only
-    closing it is guaranteed to succeed.
+    if the `stream` also supports terminal cancellation.
+
+    `terminal` cancellation leaves the stream in an undefined state,
+    so that only closing it is guaranteed to succeed.
 
     @see message
 */

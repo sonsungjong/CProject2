@@ -49,10 +49,10 @@ struct promote_floating_point
 template <typename Geometry>
 struct fp_coordinate_type
 {
-    using type = typename promote_floating_point
+    typedef typename promote_floating_point
         <
-            coordinate_type_t<Geometry>
-        >::type;
+            typename coordinate_type<Geometry>::type
+        >::type type;
 };
 
 namespace detail

@@ -10,9 +10,8 @@
 #ifndef BOOST_JSON_STATIC_RESOURCE_HPP
 #define BOOST_JSON_STATIC_RESOURCE_HPP
 
-#include <boost/container/pmr/memory_resource.hpp>
 #include <boost/json/detail/config.hpp>
-#include <boost/json/is_deallocate_trivial.hpp>
+#include <boost/json/memory_resource.hpp>
 #include <cstddef>
 
 namespace boost {
@@ -64,11 +63,9 @@ namespace json {
     @see
         https://en.wikipedia.org/wiki/Region-based_memory_management
 */
-class
-    BOOST_JSON_DECL
-    BOOST_SYMBOL_VISIBLE
-static_resource final
-    : public container::pmr::memory_resource
+class BOOST_JSON_CLASS_DECL
+    static_resource final
+    : public memory_resource
 {
     void* p_;
     std::size_t n_;
@@ -82,6 +79,16 @@ public:
     /// Copy assignment (deleted)
     static_resource& operator=(
         static_resource const&) = delete;
+
+    /** Destructor
+
+        @par Complexity
+        Constant.
+
+        @par Exception Safety
+        No-throw guarantee.
+    */
+    ~static_resource() noexcept;
 
     /** Constructor
 

@@ -54,7 +54,8 @@ struct envelope_polygon
     template <typename Polygon, typename Box, typename Strategy>
     static inline void apply(Polygon const& polygon, Box& mbr, Strategy const& strategy)
     {
-        ring_return_type_t<Polygon const> ext_ring = exterior_ring(polygon);
+        typename ring_return_type<Polygon const>::type ext_ring
+            = exterior_ring(polygon);
 
         if (geometry::is_empty(ext_ring))
         {

@@ -41,7 +41,7 @@ struct corner_by_epsilon
 {
     static inline void apply(Point & point)
     {
-        using coord_type = coordinate_type_t<Point>;
+        typedef typename coordinate_type<Point>::type coord_type;
         coord_type const coord = get<I>(point);
         coord_type const seps = math::scaled_epsilon(coord);
 
@@ -51,9 +51,9 @@ struct corner_by_epsilon
     }
 
     static inline void apply(Point & point,
-                             coordinate_type_t<Point> const& eps)
+                             typename coordinate_type<Point>::type const& eps)
     {
-        using coord_type = coordinate_type_t<Point>;
+        typedef typename coordinate_type<Point>::type coord_type;
         coord_type const coord = get<I>(point);
         coord_type const seps = math::scaled_epsilon(coord, eps);
 
@@ -72,13 +72,13 @@ template
 struct corner_by_epsilon<Point, PlusOrMinus, D, D>
 {
     static inline void apply(Point const&) {}
-    static inline void apply(Point const&, coordinate_type_t<Point> const&) {}
+    static inline void apply(Point const&, typename coordinate_type<Point>::type const&) {}
 };
 
 template
 <
     typename Box,
-    bool Enable = ! std::is_integral<coordinate_type_t<Box>>::value
+    bool Enable = ! std::is_integral<typename coordinate_type<Box>::type>::value
 >
 struct expand_by_epsilon
 {
@@ -94,7 +94,7 @@ struct expand_by_epsilon
     }
 
     static inline void apply(Box & box,
-                             coordinate_type_t<Box> const& eps)
+                             typename coordinate_type<Box>::type const& eps)
     {
         typedef detail::indexed_point_view<Box, min_corner> min_type;
         min_type min_point(box);
@@ -110,7 +110,7 @@ template <typename Box>
 struct expand_by_epsilon<Box, false>
 {
     static inline void apply(Box &) {}
-    static inline void apply(Box &, coordinate_type_t<Box> const&) {}
+    static inline void apply(Box &, typename coordinate_type<Box>::type const&) {}
 };
 
 } // namespace expand
@@ -122,7 +122,8 @@ inline void expand_by_epsilon(Box & box)
 }
 
 template <typename Box>
-inline void expand_by_epsilon(Box & box, coordinate_type_t<Box> const& eps)
+inline void expand_by_epsilon(Box & box,
+                              typename coordinate_type<Box>::type const& eps)
 {
     expand::expand_by_epsilon<Box>::apply(box, eps);
 }

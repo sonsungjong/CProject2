@@ -3,7 +3,6 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
-// Copyright (c) 2024 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2020-2021.
 // Modifications copyright (c) 2020-2021 Oracle and/or its affiliates.
@@ -66,10 +65,10 @@ template <typename Tag, typename Geometry>
 struct point_type
 {
     // Default: call traits to get point type
-    using type = std::remove_const_t
+    typedef typename std::remove_const
         <
             typename traits::point_type<Geometry>::type
-        >;
+        >::type type;
 };
 
 
@@ -77,7 +76,7 @@ struct point_type
 template <typename Point>
 struct point_type<point_tag, Point>
 {
-    using type = Point;
+    typedef Point type;
 };
 
 
@@ -85,14 +84,14 @@ struct point_type<point_tag, Point>
 template <typename Linestring>
 struct point_type<linestring_tag, Linestring>
 {
-    using type = typename boost::range_value<Linestring>::type;
+    typedef typename boost::range_value<Linestring>::type type;
 };
 
 
 template <typename Ring>
 struct point_type<ring_tag, Ring>
 {
-    using type = typename boost::range_value<Ring>::type;
+    typedef typename boost::range_value<Ring>::type type;
 };
 
 
@@ -100,43 +99,43 @@ struct point_type<ring_tag, Ring>
 template <typename Polygon>
 struct point_type<polygon_tag, Polygon>
 {
-    using type = typename point_type
+    typedef typename point_type
         <
             ring_tag,
             typename ring_type<polygon_tag, Polygon>::type
-        >::type;
+        >::type type;
 };
 
 
 template <typename MultiPoint>
 struct point_type<multi_point_tag, MultiPoint>
 {
-    using type = typename boost::range_value
+    typedef typename boost::range_value
         <
             MultiPoint
-        >::type;
+        >::type type;
 };
 
 
 template <typename MultiLinestring>
 struct point_type<multi_linestring_tag, MultiLinestring>
 {
-    using type = typename point_type
+    typedef typename point_type
         <
             linestring_tag,
             typename boost::range_value<MultiLinestring>::type
-        >::type;
+        >::type type;
 };
 
 
 template <typename MultiPolygon>
 struct point_type<multi_polygon_tag, MultiPolygon>
 {
-    using type = typename point_type
+    typedef typename point_type
         <
             polygon_tag,
             typename boost::range_value<MultiPolygon>::type
-        >::type;
+        >::type type;
 };
 
 
@@ -149,8 +148,8 @@ struct point_type<dynamic_geometry_tag, DynamicGeometry>
         >::type;
     using type = typename point_type
         <
-            tag_t<geometry_t>,
-            util::remove_cptrref_t<geometry_t>
+            typename tag<geometry_t>::type,
+            typename util::remove_cptrref<geometry_t>::type
         >::type;
 };
 
@@ -164,8 +163,8 @@ struct point_type<geometry_collection_tag, GeometryCollection>
         >::type;
     using type = typename point_type
         <
-            tag_t<geometry_t>,
-            util::remove_cptrref_t<geometry_t>
+            typename tag<geometry_t>::type,
+            typename util::remove_cptrref<geometry_t>::type
         >::type;
 };
 
@@ -184,16 +183,12 @@ struct point_type<geometry_collection_tag, GeometryCollection>
 template <typename Geometry>
 struct point_type
 {
-    using type = typename core_dispatch::point_type
+    typedef typename core_dispatch::point_type
         <
-            tag_t<Geometry>,
-            util::remove_cptrref_t<Geometry>
-        >::type;
+            typename tag<Geometry>::type,
+            typename util::remove_cptrref<Geometry>::type
+        >::type type;
 };
-
-
-template <typename Geometry>
-using point_type_t = typename point_type<Geometry>::type;
 
 
 }} // namespace boost::geometry

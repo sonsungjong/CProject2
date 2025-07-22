@@ -73,9 +73,7 @@ class BOOST_URL_DECL
     friend class segments_ref;
     friend class segments_encoded_ref;
     friend class params_encoded_ref;
-#ifndef BOOST_URL_DOCS
     friend struct detail::pattern;
-#endif
 
     struct op_t
     {
@@ -116,8 +114,6 @@ public:
         terminated string representing the url,
         which may contain percent escapes.
 
-        @return A pointer to a null-terminated string containing the URL.
-
         @par Example
         @code
         assert( std::strlen( url( "http://www.example.com" ).c_str() ) == 22 );
@@ -139,8 +135,6 @@ public:
 
         This does not include the null terminator,
         which is always present.
-
-        @return `*this`
 
         @par Complexity
         Constant.
@@ -233,8 +227,6 @@ public:
 
         @param s The scheme to set.
 
-        @return `*this`
-
         @par BNF
         @code
         scheme        = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
@@ -250,7 +242,6 @@ public:
     url_base&
     set_scheme(core::string_view s);
 
-#ifndef BOOST_URL_DOCS
     /** Set the scheme
 
         This function sets the scheme to the specified
@@ -277,47 +268,15 @@ public:
         The scheme is invalid.
 
         @param id The scheme to set.
-        @return `*this`
 
         @par Specification
         @li <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.1">
             3.1. Scheme (rfc3986)</a>
     */
     url_base&
+#ifndef BOOST_URL_DOCS
     set_scheme_id(urls::scheme id);
 #else
-    /** Set the scheme
-
-        This function sets the scheme to the specified
-        known @ref urls::scheme id, which may not be
-        @ref scheme::unknown or else an exception is
-        thrown. If the id is @ref scheme::none, this
-        function behaves as if @ref remove_scheme
-        were called.
-
-        @par Example
-        @code
-        assert( url( "http://example.com/echo.cgi" ).set_scheme_id( scheme::wss ).buffer() == "wss://example.com/echo.cgi" );
-        @endcode
-
-        @par Complexity
-        Linear in `this->size()`.
-
-        @par Exception Safety
-        Strong guarantee.
-        Calls to allocate may throw.
-        Exceptions thrown on invalid input.
-
-        @throw system_error
-        The scheme is invalid.
-
-        @param id The scheme to set.
-
-        @par Specification
-        @li <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.1">
-            3.1. Scheme (rfc3986)</a>
-    */
-    url_base&
     set_scheme_id(scheme id);
 #endif
 
@@ -341,8 +300,6 @@ public:
 
         @par Exception Safety
         Throws nothing.
-
-        @return `*this`
 
         @par BNF
         @code
@@ -385,7 +342,6 @@ public:
         The string contains an invalid percent-encoding.
 
         @param s The authority string to set.
-        @return `*this`
 
         @par BNF
         @code
@@ -427,8 +383,6 @@ public:
 
         @par Exception Safety
         Throws nothing.
-
-        @return `*this`
 
         @par BNF
         @code
@@ -495,7 +449,6 @@ public:
         Calls to allocate may throw.
 
         @param s The string to set.
-        @return `*this`
 
         @par BNF
         @code
@@ -562,7 +515,6 @@ public:
         `s` contains an invalid percent-encoding.
 
         @param s The string to set.
-        @return `*this`
 
         @par BNF
         @code
@@ -604,8 +556,6 @@ public:
 
         @par Exception Safety
         Throws nothing.
-
-        @return `*this`
 
         @par BNF
         @code
@@ -653,7 +603,6 @@ public:
         Calls to allocate may throw.
 
         @param s The string to set.
-        @return `*this`
 
         @par BNF
         @code
@@ -708,10 +657,6 @@ public:
 
         @param s The string to set.
 
-        @return `*this`
-
-        @return `*this`
-
         @par BNF
         @code
         userinfo      = [ [ user ] [ ':' password ] ]
@@ -763,8 +708,6 @@ public:
 
         @param s The string to set. This string may
         contain any characters, including nulls.
-
-        @return `*this`
 
         @par BNF
         @code
@@ -822,7 +765,6 @@ public:
 
         @param s The string to set. This string may
         contain any characters, including nulls.
-        @return `*this`
 
         @par BNF
         @code
@@ -882,8 +824,6 @@ public:
         user          = *( unreserved / pct-encoded / sub-delims )
         password      = *( unreserved / pct-encoded / sub-delims / ":" )
         @endcode
-
-        @return `*this`
 
         @par Specification
         @li <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.2.1">
@@ -949,6 +889,8 @@ public:
         Strong guarantee.
         Calls to allocate may throw.
 
+        @param s The string to set.
+
         @par BNF
         @code
         host        = IP-literal / IPv4address / reg-name
@@ -957,9 +899,6 @@ public:
 
         reg-name    = *( unreserved / pct-encoded / "-" / ".")
         @endcode
-
-        @param s The string to set.
-        @return `*this`
 
         @par Specification
         @li <a href="https://en.wikipedia.org/wiki/IPv4"
@@ -1036,8 +975,6 @@ public:
 
         @param s The string to set.
 
-        @return `*this`
-
         @par BNF
         @code
         host        = IP-literal / IPv4address / reg-name
@@ -1111,6 +1048,8 @@ public:
         Strong guarantee.
         Calls to allocate may throw.
 
+        @param s The string to set.
+
         @par BNF
         @code
         IPv4address = dec-octet "." dec-octet "." dec-octet "." dec-octet
@@ -1141,9 +1080,6 @@ public:
 
         reg-name    = *( unreserved / pct-encoded / "-" / ".")
         @endcode
-
-        @param s The string to set.
-        @return `*this`
 
         @par Specification
         @li <a href="https://en.wikipedia.org/wiki/IPv4"
@@ -1216,6 +1152,8 @@ public:
         @throw system_error
         `s` contains an invalid percent-encoding.
 
+        @param s The string to set.
+
         @par BNF
         @code
         IPv4address = dec-octet "." dec-octet "." dec-octet "." dec-octet
@@ -1246,9 +1184,6 @@ public:
 
         reg-name    = *( unreserved / pct-encoded / "-" / ".")
         @endcode
-
-        @param s The string to set.
-        @return `*this`
 
         @par Specification
         @li <a href="https://en.wikipedia.org/wiki/IPv4"
@@ -1296,7 +1231,6 @@ public:
         Calls to allocate may throw.
 
         @param addr The address to set.
-        @return `*this`
 
         @par BNF
         @code
@@ -1353,8 +1287,6 @@ public:
         Calls to allocate may throw.
 
         @param addr The address to set.
-
-        @return `*this`
 
         @par BNF
         @code
@@ -1424,8 +1356,6 @@ public:
 
         @param s The string to set.
 
-        @return `*this`
-
         @par BNF
         @code
         IPvFuture     = "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" )
@@ -1472,7 +1402,6 @@ public:
         Calls to allocate may throw.
 
         @param s The string to set.
-        @return `*this`
 
         @par BNF
         @code
@@ -1526,7 +1455,6 @@ public:
         `s` contains an invalid percent-encoding.
 
         @param s The string to set.
-        @return `*this`
 
         @par BNF
         @code
@@ -1576,8 +1504,6 @@ public:
 
         @param n The port number to set.
 
-        @return `*this`
-
         @par BNF
         @code
         authority     = [ userinfo "@" ] host [ ":" port ]
@@ -1622,7 +1548,6 @@ public:
         `s` does not contain a valid port.
 
         @param s The port string to set.
-        @return `*this`
 
         @par BNF
         @code
@@ -1644,8 +1569,6 @@ public:
 
         If a port exists, it is removed. The rest
         of the authority is unchanged.
-
-        @return `*this`
 
         @par Example
         @code
@@ -1708,8 +1631,6 @@ public:
         @code
         this->is_path_absolute() == true && this->encoded_path().front() == '/'
         @endcode
-
-        @param absolute If `true`, the path is made absolute.
 
         @return true on success.
 
@@ -1781,7 +1702,6 @@ public:
         Calls to allocate may throw.
 
         @param s The string to set.
-        @return `*this`
 
         @par BNF
         @code
@@ -1848,8 +1768,6 @@ public:
 
         @param s The string to set.
 
-        @return `*this`
-
         @par BNF
         @code
         path          = path-abempty    ; begins with "/" or is empty
@@ -1891,8 +1809,6 @@ public:
         The container is modifiable; changes
         to the container are reflected in the
         underlying URL.
-
-        @return `*this`
 
         @par Example
         @code
@@ -1954,8 +1870,6 @@ public:
         The container is modifiable; changes
         to the container are reflected in the
         underlying URL.
-
-        @return `*this`
 
         @par Example
         @code
@@ -2035,7 +1949,6 @@ public:
         Calls to allocate may throw.
 
         @param s The string to set.
-        @return `*this`
 
         @par BNF
         @code
@@ -2088,7 +2001,6 @@ public:
         Exceptions thrown on invalid input.
 
         @param s The string to set.
-        @return `*this`
 
         @throws system_error
         `s` contains an invalid percent-encoding.
@@ -2129,8 +2041,6 @@ public:
         The container is modifiable; changes
         to the container are reflected in the
         underlying URL.
-
-        @return `*this`
 
         @par Example
         @code
@@ -2203,8 +2113,6 @@ public:
         this parameter is omitted, the `space_as_plus`
         is used.
 
-        @return A range of references to the parameters.
-
         @par BNF
         @code
         query           = *( pchar / "/" / "?" )
@@ -2247,8 +2155,6 @@ public:
         The container is modifiable; changes
         to the container are reflected in the
         underlying URL.
-
-        @return `*this`
 
         @par Example
         @code
@@ -2313,8 +2219,6 @@ public:
         Linear.
 
         @param ps The params to set.
-        @param opts The options for encoding.
-        @return `*this`
 
         @par BNF
         @code
@@ -2337,9 +2241,7 @@ public:
             @ref set_query.
     */
     url_base&
-    set_params(
-        std::initializer_list<param_view> ps,
-        encoding_opts opts = {}) noexcept;
+    set_params( std::initializer_list<param_view> ps ) noexcept;
 
     /** Set the query params
 
@@ -2374,8 +2276,6 @@ public:
 
         @param ps The params to set.
 
-        @return `*this`
-
         @throws system_error
         some element in `ps` contains an invalid percent-encoding.
 
@@ -2408,8 +2308,6 @@ public:
         If a query is present, it is removed.
         An empty query is distinct from having
         no query.
-
-        @return `*this`
 
         @par Example
         @code
@@ -2458,8 +2356,6 @@ public:
         This function removes the fragment.
         An empty fragment is distinct from
         having no fragment.
-
-        @return `*this`
 
         @par Example
         @code
@@ -2522,8 +2418,6 @@ public:
 
         @param s The string to set.
 
-        @return `*this`
-
         @par BNF
         @code
         fragment    = *( pchar / "/" / "?" )
@@ -2552,8 +2446,6 @@ public:
         and reserved characters in the string
         are percent-escaped in the result.
 
-        @return `*this`
-
         @par Example
         @code
         assert( url("?first=john&last=doe" ).set_encoded_fragment( "john%2Ddoe" ).fragment() == "john-doe" );
@@ -2576,8 +2468,6 @@ public:
         `s` contains an invalid percent-encoding.
 
         @param s The string to set.
-
-        @return `*this`
 
         @par BNF
         @code
@@ -2606,8 +2496,6 @@ public:
 
         This function removes the origin, which
         consists of the scheme and authority.
-
-        @return `*this`
 
         @par Example
         @code
@@ -2639,8 +2527,6 @@ public:
         Applies Syntax-based normalization to
         all components of the URL.
 
-        @return `*this`
-
         @par Exception Safety
         Strong guarantee.
         Calls to allocate may throw.
@@ -2659,8 +2545,6 @@ public:
         URL scheme.
 
         The scheme is normalized to lowercase.
-
-        @return `*this`
 
         @par Exception Safety
         Strong guarantee.
@@ -2683,8 +2567,6 @@ public:
         to uppercase letters. Percent-encoded
         octets that correspond to unreserved
         characters are decoded.
-
-        @return `*this`
 
         @par Exception Safety
         Strong guarantee.
@@ -2709,8 +2591,6 @@ public:
         characters are decoded. Redundant
         path-segments are removed.
 
-        @return `*this`
-
         @par Exception Safety
         Strong guarantee.
         Calls to allocate may throw.
@@ -2733,8 +2613,6 @@ public:
         octets that correspond to unreserved
         characters are decoded.
 
-        @return `*this`
-
         @par Exception Safety
         Strong guarantee.
         Calls to allocate may throw.
@@ -2756,8 +2634,6 @@ public:
         to uppercase letters. Percent-encoded
         octets that correspond to unreserved
         characters are decoded.
-
-        @return `*this`
 
         @par Exception Safety
         Strong guarantee.
@@ -2817,15 +2693,8 @@ public:
         resolution into this URL in place.
 
         If an error occurs, the contents of
-        this URL are unspecified and a `boost::system::result`
+        this URL are unspecified and a @ref result
         with an `system::error_code` is returned.
-
-        @note Abnormal hrefs where the number of ".."
-        segments exceeds the number of segments in
-        the base path are handled by including the
-        unmatched ".." segments in the result, as described
-        in <a href="https://www.rfc-editor.org/errata/eid4547"
-        >Errata 4547</a>.
 
         @par Example
         @code
@@ -2855,7 +2724,7 @@ public:
         Basic guarantee.
         Calls to allocate may throw.
 
-        @return An empty `boost::system::result` upon success,
+        @return An empty @ref result upon success,
         otherwise an error code if `!base.has_scheme()`.
 
         @param ref The URL reference to resolve.
@@ -2918,6 +2787,11 @@ private:
         detail::any_params_iter&&) ->
             detail::params_iter_impl;
 
+    system::result<void>
+    resolve_impl(
+        url_view_base const& base,
+        url_view_base const& ref);
+
     template<class CharSet>
     void normalize_octets_impl(int,
         CharSet const& allowed, op_t&) noexcept;
@@ -2966,13 +2840,6 @@ private:
     If an error occurs, the contents of
     `dest` is unspecified and `ec` is set.
 
-    @note Abnormal hrefs where the number of ".."
-    segments exceeds the number of segments in
-    the base path are handled by including the
-    unmatched ".." segments in the result, as described
-    in <a href="https://www.rfc-editor.org/errata/eid4547"
-    >Errata 4547</a>.
-
     @par Example
     @code
     url dest;
@@ -3000,7 +2867,7 @@ private:
     Basic guarantee.
     Calls to allocate may throw.
 
-    @return An empty `boost::system::result` upon success,
+    @return An empty @ref result upon success,
     otherwise an error code if `!base.has_scheme()`.
 
     @param base The base URL to resolve against.

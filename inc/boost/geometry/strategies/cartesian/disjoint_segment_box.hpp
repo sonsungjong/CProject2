@@ -23,6 +23,11 @@
 #include <cstddef>
 #include <utility>
 
+#include <boost/numeric/conversion/cast.hpp>
+
+#include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/calculation_type.hpp>
+
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
@@ -33,9 +38,6 @@
 #include <boost/geometry/strategies/cartesian/point_in_box.hpp>
 #include <boost/geometry/strategies/disjoint.hpp>
 
-#include <boost/geometry/util/math.hpp>
-#include <boost/geometry/util/numeric_cast.hpp>
-#include <boost/geometry/util/calculation_type.hpp>
 
 namespace boost { namespace geometry { namespace strategy { namespace disjoint
 {
@@ -54,25 +56,28 @@ struct compute_tmin_tmax_per_dim
                              RelativeDistance& ti_max,
                              RelativeDistance& diff)
     {
-        using box_coordinate_type = coordinate_type_t<Box>;
-        using point_coordinate_type = coordinate_type_t<SegmentPoint>;
+        typedef typename coordinate_type<Box>::type box_coordinate_type;
+        typedef typename coordinate_type
+            <
+                SegmentPoint
+            >::type point_coordinate_type;
 
-        RelativeDistance c_p0 = util::numeric_cast
+        RelativeDistance c_p0 = boost::numeric_cast
             <
                 point_coordinate_type
             >( geometry::get<I>(p0) );
 
-        RelativeDistance c_p1 = util::numeric_cast
+        RelativeDistance c_p1 = boost::numeric_cast
             <
                 point_coordinate_type
             >( geometry::get<I>(p1) );
 
-        RelativeDistance c_b_min = util::numeric_cast
+        RelativeDistance c_b_min = boost::numeric_cast
             <
                 box_coordinate_type
             >( geometry::get<geometry::min_corner, I>(box) );
 
-        RelativeDistance c_b_max = util::numeric_cast
+        RelativeDistance c_b_max = boost::numeric_cast
             <
                 box_coordinate_type
             >( geometry::get<geometry::max_corner, I>(box) );
@@ -254,12 +259,12 @@ struct segment_box
     {
         assert_dimension_equal<Segment, Box>();
 
-        using relative_distance_type = typename util::calculation_type::geometric::binary
+        typedef typename util::calculation_type::geometric::binary
             <
                 Segment, Box, void
-            >::type;
+            >::type relative_distance_type;
 
-        using segment_point_type = point_type_t<Segment>;
+        typedef typename point_type<Segment>::type segment_point_type;
         segment_point_type p0, p1;
         geometry::detail::assign_point_from_index<0>(segment, p0);
         geometry::detail::assign_point_from_index<1>(segment, p1);

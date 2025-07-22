@@ -36,72 +36,28 @@
 #ifndef BOOST_CRC_HPP
 #define BOOST_CRC_HPP
 
-#include <array>        // for std::array
-#include <climits>      // for CHAR_BIT, etc.
-#include <cstddef>      // for std::size_t
-#include <cstdint>      // for UINTMAX_C, std::uintmax_t
-#include <limits>       // for std::numeric_limits
-#include <type_traits>  // for std::conditional, std::integral_constant
+#include <boost/array.hpp>           // for boost::array
+#include <boost/config.hpp>          // for BOOST_STATIC_CONSTANT, etc.
+#include <boost/cstdint.hpp>         // for UINTMAX_C, boost::uintmax_t
+#include <boost/integer.hpp>         // for boost::uint_t
+#include <boost/type_traits/conditional.hpp>
+#include <boost/type_traits/integral_constant.hpp>
 
-// Local reimplementation of boost::uint_t, to avoid dependency on Integer
+#include <climits>  // for CHAR_BIT, etc.
+#include <cstddef>  // for std::size_t
 
-namespace boost {
-namespace crc_detail {
+#include <boost/limits.hpp>  // for std::numeric_limits
 
-struct uint_t_8
-{
-    typedef std::uint_least8_t fast; // matches boost::uint_t<8>::fast
-};
-
-struct uint_t_16
-{
-    typedef std::uint_least16_t fast; // matches boost::uint_t<16>::fast
-};
-
-struct uint_t_32
-{
-    typedef std::uint_least32_t fast; // matches boost::uint_t<32>::fast
-};
-
-template<class T> struct remap_long_long
-{
-    typedef T type;
-};
-
-#if ULONG_MAX == ULLONG_MAX
-
-template<> struct remap_long_long<unsigned long long>
-{
-    typedef unsigned long type;
-};
-
-#endif
-
-struct uint_t_64
-{
-    typedef remap_long_long<std::uint_least64_t>::type fast; // matches boost::uint_t<64>::fast
-};
-
-struct uint_t_none
-{
-};
-
-template<int Bits> struct uint_t:
-    std::conditional< (Bits <=  8), uint_t_8,
-    typename std::conditional< (Bits <= 16), uint_t_16,
-    typename std::conditional< (Bits <= 32), uint_t_32,
-    typename std::conditional< (Bits <= 64), uint_t_64,
-    uint_t_none>::type>::type>::type>::type
-{
-};
-
-} // namespace crc_detail
-} // namespace boost
 
 // The type of CRC parameters that can go in a template should be related
 // on the CRC's bit count.  This macro expresses that type in a compact
-// form.
-#define BOOST_CRC_PARM_TYPE  typename ::boost::crc_detail::uint_t<Bits>::fast
+// form, but also allows an alternate type for compilers that don't support
+// dependent types (in template value-parameters).
+#if !(defined(BOOST_NO_DEPENDENT_TYPES_IN_TEMPLATE_VALUE_PARAMETERS))
+#define BOOST_CRC_PARM_TYPE  typename ::boost::uint_t<Bits>::fast
+#else
+#define BOOST_CRC_PARM_TYPE  unsigned long
+#endif
 
 namespace boost
 {
@@ -124,14 +80,14 @@ template < std::size_t Bits, BOOST_CRC_PARM_TYPE TruncPoly = 0u,
 template < std::size_t Bits, BOOST_CRC_PARM_TYPE TruncPoly,
            BOOST_CRC_PARM_TYPE InitRem, BOOST_CRC_PARM_TYPE FinalXor,
            bool ReflectIn, bool ReflectRem >
-    typename crc_detail::uint_t<Bits>::fast  crc( void const *buffer,
+    typename uint_t<Bits>::fast  crc( void const *buffer,
      std::size_t byte_count);
 
 //! Compute the CRC of a memory block, with any augmentation provided by user
 template < std::size_t Bits, BOOST_CRC_PARM_TYPE TruncPoly >
-    typename crc_detail::uint_t<Bits>::fast  augmented_crc( void const *buffer,
+    typename uint_t<Bits>::fast  augmented_crc( void const *buffer,
      std::size_t byte_count,
-     typename crc_detail::uint_t<Bits>::fast initial_remainder = 0u);
+     typename uint_t<Bits>::fast initial_remainder = 0u);
 
 //! Computation type for ARC|CRC-16|CRC-IBM|CRC-16/ARC|CRC-16/LHA standard
 typedef crc_optimal<16, 0x8005, 0, 0, true, true>         crc_16_type;
@@ -164,7 +120,7 @@ namespace detail
         class possible_reflector;
 
     //! Mix-in class for byte-fed, table-driven CRC algorithms
-    template < int Order, std::uintmax_t TruncatedPolynomial, bool Reflect,
+    template < int Order, boost::uintmax_t TruncatedPolynomial, bool Reflect,
      int Id = 0 >
     class crc_driver;
 
@@ -196,11 +152,11 @@ public:
         checksums and returned or submitted remainders, (truncated) divisors, or
         XOR masks.  It is a built-in unsigned integer type.
      */
-    typedef typename boost::crc_detail::uint_t<Bits>::fast  value_type;
+    typedef typename boost::uint_t<Bits>::fast  value_type;
 
     // Constant for the template parameter
     //! A copy of \a Bits provided for meta-programming purposes
-    static const std::size_t bit_count = Bits;
+    BOOST_STATIC_CONSTANT( std::size_t, bit_count = Bits );
 
     // Constructor (use the automatic copy-ctr, move-ctr, and dtr)
     //! Create a computer, separately listing each needed parameter
@@ -290,21 +246,21 @@ class crc_optimal
 public:
     // Type
     //! \copydoc  boost::crc_basic::value_type
-    typedef typename boost::crc_detail::uint_t<Bits>::fast  value_type;
+    typedef typename boost::uint_t<Bits>::fast  value_type;
 
     // Constants for the template parameters
     //! \copydoc  boost::crc_basic::bit_count
-    static const std::size_t bit_count = Bits;
+    BOOST_STATIC_CONSTANT( std::size_t, bit_count = Bits );
     //! A copy of \a TruncPoly provided for meta-programming purposes
-    static const value_type truncated_polynominal = TruncPoly;
+    BOOST_STATIC_CONSTANT( value_type, truncated_polynominal = TruncPoly );
     //! A copy of \a InitRem provided for meta-programming purposes
-    static const value_type initial_remainder = InitRem;
+    BOOST_STATIC_CONSTANT( value_type, initial_remainder = InitRem );
     //! A copy of \a FinalXor provided for meta-programming purposes
-    static const value_type final_xor_value = FinalXor;
+    BOOST_STATIC_CONSTANT( value_type, final_xor_value = FinalXor );
     //! A copy of \a ReflectIn provided for meta-programming purposes
-    static const bool reflect_input = ReflectIn;
+    BOOST_STATIC_CONSTANT( bool, reflect_input = ReflectIn );
     //! A copy of \a ReflectRem provided for meta-programming purposes
-    static const bool reflect_remainder = ReflectRem;
+    BOOST_STATIC_CONSTANT( bool, reflect_remainder = ReflectRem );
 
     // Constructor (use the automatic copy-ctr, move-ctr, and dtr)
     //! Create a computer, giving an initial remainder if desired
@@ -379,7 +335,7 @@ namespace detail
      */
     template < int BitIndex >
     struct high_bit_mask_c
-        : std::integral_constant<typename boost::crc_detail::uint_t< BitIndex + 1 >::fast,
+        : boost::integral_constant<typename boost::uint_t< BitIndex + 1 >::fast,
            ( UINTMAX_C(1) << BitIndex )>
     {};
 
@@ -398,7 +354,7 @@ namespace detail
      */
     template < int BitCount >
     struct low_bits_mask_c
-        : std::integral_constant<typename boost::crc_detail::uint_t< BitCount >::fast, (
+        : boost::integral_constant<typename boost::uint_t< BitCount >::fast, (
            BitCount ? (( (( UINTMAX_C(1) << (BitCount - 1) ) - 1u) << 1 ) |
            UINTMAX_C( 1 )) : 0u )>
     {};
@@ -428,7 +384,7 @@ namespace detail
     Unsigned  reflect_unsigned( Unsigned x, int word_length
      = std::numeric_limits<Unsigned>::digits )
     {
-        for ( Unsigned  l = 1u, h = static_cast<Unsigned>(l << (word_length - 1)) ; h > l ; h >>= 1, l
+        for ( Unsigned  l = 1u, h = l << (word_length - 1) ; h > l ; h >>= 1, l
          <<= 1 )
         {
             Unsigned const  m = h | l, t = x & m;
@@ -449,10 +405,10 @@ namespace detail
           <var>i</var>, <code><var>a</var>[ <var>i</var> ]</code> resolves to
           the reflected value of <var>i</var>.
      */
-    std::array< unsigned char, (UINTMAX_C( 1 ) << CHAR_BIT) >
+    boost::array< unsigned char, (UINTMAX_C( 1 ) << CHAR_BIT) >
     inline make_byte_reflection_table()
     {
-        std::array<unsigned char, ( UINTMAX_C(1) << CHAR_BIT )>  result;
+        boost::array<unsigned char, ( UINTMAX_C(1) << CHAR_BIT )>  result;
         unsigned char                                              i = 0u;
 
         do
@@ -478,7 +434,7 @@ namespace detail
      */
     inline unsigned char  reflect_byte( unsigned char x )
     {
-        static  std::array<unsigned char, ( UINTMAX_C(1) << CHAR_BIT )> const
+        static  boost::array<unsigned char, ( UINTMAX_C(1) << CHAR_BIT )> const
           table = make_byte_reflection_table();
 
         return table[ x ];
@@ -617,9 +573,6 @@ namespace detail
 
             // The quotient isn't used for anything, so don't keep it.
         }
-
-        // Clear overflowed bits
-        remainder &= (std::numeric_limits<Register>::max)() >> (std::numeric_limits<Register>::digits - register_length);
     }
 
     /** \brief  Update a CRC remainder by a single bit, assuming a non-augmented
@@ -722,7 +675,7 @@ namespace detail
         // The natural reading order for division is highest digit/bit first.
         // The "reflect" parameter switches this.  However, building a bit mask
         // for the lowest bit is the easiest....
-        new_dividend_bits = reflect_optionally( new_dividend_bits, !reflect,
+        new_dividend_bits = reflect_optionally( new_dividend_bits, not reflect,
          word_length );
 
         // Perform modulo-2 division for each new dividend input bit
@@ -799,19 +752,19 @@ namespace detail
             This is a Boost integral constant indicating that this class
             does not reflect its input values.
          */
-        typedef std::false_type                 is_reflecting_type;
+        typedef boost::false_type                 is_reflecting_type;
         /** \brief  The type to check for register bit length
 
             This is a Boost integral constant indicating how many
             significant bits won't actually be reflected.
          */
-        typedef std::integral_constant< int, BitLength >      width_c;
+        typedef boost::integral_constant< int, BitLength >      width_c;
         /** \brief  The type of (not-)reflected values
 
             This type is the input and output type for the (possible-)
             reflection function, which does nothing here.
          */
-        typedef typename boost::crc_detail::uint_t< BitLength >::fast  value_type;
+        typedef typename boost::uint_t< BitLength >::fast  value_type;
 
         /** \brief  Does nothing
 
@@ -846,18 +799,18 @@ namespace detail
             This is a Boost integral constant indicating that this class
             does reflect its input values.
          */
-        typedef std::true_type                  is_reflecting_type;
+        typedef boost::true_type                  is_reflecting_type;
         /** \brief  The type to check for register bit length
 
             This is a Boost integral constant indicating how many
             significant bits will be reflected.
          */
-        typedef std::integral_constant< int, BitLength >      width_c;
+        typedef boost::integral_constant< int, BitLength >      width_c;
         /** \brief  The type of reflected values
 
             This is both the input and output type for the reflection function.
          */
-        typedef typename boost::crc_detail::uint_t< BitLength >::fast  value_type;
+        typedef typename boost::uint_t< BitLength >::fast  value_type;
 
         /** \brief  Reflect (part of) the given value
 
@@ -895,13 +848,13 @@ namespace detail
             This is a Boost integral constant indicating that this class
             does reflect its input values.
          */
-        typedef std::true_type              is_reflecting_type;
+        typedef boost::true_type              is_reflecting_type;
         /** \brief  The type to check for register bit length
 
             This is a Boost integral constant indicating how many
             significant bits will be reflected.
          */
-        typedef std::integral_constant< int, BitLength >  width_c;
+        typedef boost::integral_constant< int, BitLength >  width_c;
         /** \brief  The type of reflected values
 
             This is both the input and output type for the reflection function.
@@ -937,7 +890,7 @@ namespace detail
      */
     template < int BitLength >
     class reflector
-        : public std::conditional< (BitLength > CHAR_BIT),
+        : public boost::conditional< (BitLength > CHAR_BIT),
           super_byte_reflector<BitLength>, sub_type_reflector<BitLength> >::type
     { };
 
@@ -956,7 +909,7 @@ namespace detail
      */
     template < int BitLength, bool DoIt, int Id >
     class possible_reflector
-        : public std::conditional< DoIt, reflector<BitLength>,
+        : public boost::conditional< DoIt, reflector<BitLength>,
           non_reflector<BitLength> >::type
     {
     public:
@@ -965,7 +918,7 @@ namespace detail
             This is a Boost integral constant indicating what ID number this
             instantiation used.
          */
-        typedef std::integral_constant<int, Id>  id_type;
+        typedef boost::integral_constant<int, Id>  id_type;
     };
 
     /** \brief  Find the composite remainder update effect from a fixed bit
@@ -1011,14 +964,14 @@ namespace detail
           same composite mask table as using augmented-CRC routines.
      */
     template < int SubOrder, typename Register >
-    std::array< Register, (UINTMAX_C( 1 ) << SubOrder) >
+    boost::array< Register, (UINTMAX_C( 1 ) << SubOrder) >
     make_partial_xor_products_table( int register_length, Register
      truncated_divisor, bool reflect )
     {
-        std::array<Register, ( UINTMAX_C(1) << SubOrder )>  result = { 0 };
+        boost::array<Register, ( UINTMAX_C(1) << SubOrder )>  result;
 
         // Loop over every possible dividend value
-        for ( typename boost::crc_detail::uint_t<SubOrder + 1>::fast  dividend = 0u;
+        for ( typename boost::uint_t<SubOrder + 1>::fast  dividend = 0u;
          dividend < result.size() ; ++dividend )
         {
             Register  remainder = 0u;
@@ -1051,7 +1004,7 @@ namespace detail
           bit from a new dividend's bits and go down, as normal.  Otherwise,
           proceed from the lowest-order bit and go up.
      */
-    template < int Order, int SubOrder, std::uintmax_t TruncatedPolynomial,
+    template < int Order, int SubOrder, boost::uintmax_t TruncatedPolynomial,
      bool Reflect >
     class crc_table_t
     {
@@ -1061,31 +1014,31 @@ namespace detail
             This is a Boost integral constant indicating how many
             significant bits are in the remainder and (truncated) divisor.
          */
-        typedef std::integral_constant< int, Order >              width_c;
+        typedef boost::integral_constant< int, Order >              width_c;
         /** \brief  The type to check for index-unit bit length
 
             This is a Boost integral constant indicating how many
             significant bits are in the trial new dividends.
          */
-        typedef std::integral_constant< int, SubOrder >      unit_width_c;
+        typedef boost::integral_constant< int, SubOrder >      unit_width_c;
         /** \brief  The type of registers
 
             This is the output type for the partial-product map.
          */
-        typedef typename boost::crc_detail::uint_t< Order >::fast          value_type;
+        typedef typename boost::uint_t< Order >::fast          value_type;
         /** \brief  The type to check the divisor
 
             This is a Boost integral constant representing the (truncated)
             divisor.
          */
-        typedef std::integral_constant< value_type, TruncatedPolynomial >
+        typedef boost::integral_constant< value_type, TruncatedPolynomial >
           poly_c;
         /** \brief  The type to check for reflection
 
             This is a Boost integral constant representing whether input
             units should be read in reverse order.
          */
-        typedef std::integral_constant< bool, Reflect >           refin_c;
+        typedef boost::integral_constant< bool, Reflect >           refin_c;
         /** \brief  The type to check for map size
 
             This is a Boost integral constant representing the number of
@@ -1097,7 +1050,7 @@ namespace detail
             This is the array type that takes units as the index and said unit's
             composite partial-product mask as the element.
          */
-        typedef std::array<value_type, table_size_c::value>  array_type;
+        typedef boost::array<value_type, table_size_c::value>  array_type;
         /** \brief  Create a global array for the mapping table
 
             Creates an instance of a partial-product array with this class's
@@ -1132,7 +1085,7 @@ namespace detail
           polynomial.  The highest-order coefficient is omitted and always
           assumed to be 1.
      */
-    template < int Order, std::uintmax_t TruncatedPolynomial >
+    template < int Order, boost::uintmax_t TruncatedPolynomial >
     class direct_byte_table_driven_crcs
         : public crc_table_t<Order, CHAR_BIT, TruncatedPolynomial, false>
     {
@@ -1168,7 +1121,7 @@ namespace detail
                 // Complete the multi-bit modulo-2 polynomial division
                 remainder <<= CHAR_BIT;
                 remainder |= *new_dividend_bytes++;
-                remainder ^= table[ index ];
+                remainder ^= table.elems[ index ];
             }
 
             return remainder;
@@ -1199,7 +1152,7 @@ namespace detail
 
                 // Complete the multi-bit altered modulo-2 polynomial division
                 remainder <<= CHAR_BIT;
-                remainder ^= table[ index ];
+                remainder ^= table.elems[ index ];
             }
 
             return remainder;
@@ -1222,7 +1175,7 @@ namespace detail
           polynomial.  The highest-order coefficient is omitted and always
           assumed to be 1.
      */
-    template < int Order, std::uintmax_t TruncatedPolynomial >
+    template < int Order, boost::uintmax_t TruncatedPolynomial >
     class reflected_byte_table_driven_crcs
         : public crc_table_t<Order, CHAR_BIT, TruncatedPolynomial, true>
     {
@@ -1260,7 +1213,7 @@ namespace detail
                 remainder >>= CHAR_BIT;
                 remainder |= static_cast<value_type>( *new_dividend_bytes++ )
                  << ( Order - CHAR_BIT );
-                remainder ^= table[ index ];
+                remainder ^= table.elems[ index ];
             }
 
             return remainder;
@@ -1293,7 +1246,7 @@ namespace detail
                 // Complete the multi-bit reflected altered modulo-2 polynomial
                 // division
                 remainder >>= CHAR_BIT;
-                remainder ^= table[ index ];
+                remainder ^= table.elems[ index ];
             }
 
             return remainder;
@@ -1319,9 +1272,9 @@ namespace detail
           input byte and go down, as normal.  Otherwise, proceed from the
           lowest-order bit and go up.
      */
-    template < int Order, std::uintmax_t TruncatedPolynomial, bool Reflect >
+    template < int Order, boost::uintmax_t TruncatedPolynomial, bool Reflect >
     class byte_table_driven_crcs
-        : public std::conditional< Reflect,
+        : public boost::conditional< Reflect,
           reflected_byte_table_driven_crcs<Order, TruncatedPolynomial>,
           direct_byte_table_driven_crcs<Order, TruncatedPolynomial> >::type
     { };
@@ -1341,7 +1294,7 @@ namespace detail
           polynomial.  The highest-order coefficient is omitted and always
           assumed to be 1.
      */
-    template < int Order, std::uintmax_t TruncatedPolynomial >
+    template < int Order, boost::uintmax_t TruncatedPolynomial >
     class direct_sub_byte_crcs
         : public crc_table_t<Order, Order, TruncatedPolynomial, false>
     {
@@ -1424,7 +1377,7 @@ namespace detail
           polynomial.  The highest-order coefficient is omitted and always
           assumed to be 1.
      */
-    template < int Order, std::uintmax_t TruncatedPolynomial >
+    template < int Order, boost::uintmax_t TruncatedPolynomial >
     class reflected_sub_byte_crcs
         : public crc_table_t<Order, Order, TruncatedPolynomial, true>
     {
@@ -1516,9 +1469,9 @@ namespace detail
           input byte and go down, as normal.  Otherwise, proceed from the
           lowest-order bit and go up.
      */
-    template < int Order, std::uintmax_t TruncatedPolynomial, bool Reflect >
+    template < int Order, boost::uintmax_t TruncatedPolynomial, bool Reflect >
     class sub_byte_crcs
-        : public std::conditional< Reflect,
+        : public boost::conditional< Reflect,
           reflected_sub_byte_crcs<Order, TruncatedPolynomial>,
           direct_sub_byte_crcs<Order, TruncatedPolynomial> >::type
     { };
@@ -1540,10 +1493,10 @@ namespace detail
         \tparam Id  An extra differentiator if multiple copies of this class
           template are mixed-in as base classes.  Defaults to 0 if omitted.
      */
-    template < int Order, std::uintmax_t TruncatedPolynomial, bool Reflect,
+    template < int Order, boost::uintmax_t TruncatedPolynomial, bool Reflect,
      int Id >
     class crc_driver
-        : public std::conditional< (Order < CHAR_BIT), sub_byte_crcs<Order,
+        : public boost::conditional< (Order < CHAR_BIT), sub_byte_crcs<Order,
           TruncatedPolynomial, Reflect>, byte_table_driven_crcs<Order,
           TruncatedPolynomial, Reflect> >::type
     {
@@ -1553,7 +1506,7 @@ namespace detail
             This is a Boost integral constant indicating what ID number this
             instantiation used.
          */
-        typedef std::integral_constant<int, Id>  id_type;
+        typedef boost::integral_constant<int, Id>  id_type;
     };
 
 
@@ -2264,7 +2217,7 @@ template < std::size_t Bits, BOOST_CRC_PARM_TYPE TruncPoly,
            BOOST_CRC_PARM_TYPE InitRem, BOOST_CRC_PARM_TYPE FinalXor,
            bool ReflectIn, bool ReflectRem >
 inline
-typename crc_detail::uint_t<Bits>::fast
+typename uint_t<Bits>::fast
 crc
 (
     void const *  buffer,
@@ -2326,12 +2279,12 @@ crc
       be used only if \c CHAR_BIT divides \a Bits evenly!
  */
 template < std::size_t Bits, BOOST_CRC_PARM_TYPE TruncPoly >
-typename crc_detail::uint_t<Bits>::fast
+typename uint_t<Bits>::fast
 augmented_crc
 (
     void const *                 buffer,
     std::size_t                  byte_count,
-    typename crc_detail::uint_t<Bits>::fast  initial_remainder  // = 0u
+    typename uint_t<Bits>::fast  initial_remainder  // = 0u
 )
 {
     return detail::low_bits_mask_c<Bits>::value &

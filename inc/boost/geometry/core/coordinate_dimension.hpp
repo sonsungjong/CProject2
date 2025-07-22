@@ -3,7 +3,6 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
-// Copyright (c) 2024 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2020.
 // Modifications copyright (c) 2020, Oracle and/or its affiliates.
@@ -89,17 +88,10 @@ template <typename Geometry>
 struct dimension
     : core_dispatch::dimension
         <
-            tag_t<Geometry>,
-            util::remove_cptrref_t<Geometry>
+            typename tag<Geometry>::type,
+            typename util::remove_cptrref<Geometry>::type
         >
 {};
-
-
-#ifndef BOOST_NO_CXX17_INLINE_VARIABLES
-template <typename Geometry>
-inline constexpr std::size_t dimension_v = dimension<Geometry>::value;
-#endif
-
 
 /*!
 \brief assert_dimension, enables compile-time checking if coordinate dimensions are as expected

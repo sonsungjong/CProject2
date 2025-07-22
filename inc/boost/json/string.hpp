@@ -19,10 +19,12 @@
 #include <boost/json/detail/except.hpp>
 #include <boost/json/detail/string_impl.hpp>
 #include <boost/json/detail/value.hpp>
-#include <boost/system/result.hpp>
+#include <algorithm>
 #include <cstring>
+#include <initializer_list>
 #include <iosfwd>
 #include <iterator>
+#include <limits>
 #include <new>
 #include <type_traits>
 #include <utility>
@@ -82,8 +84,16 @@ class string
         storage_ptr sp);
 
 public:
-    /// Associated [Allocator](https://en.cppreference.com/w/cpp/named_req/Allocator)
-    using allocator_type = container::pmr::polymorphic_allocator<value>;
+    /** The type of _Allocator_ returned by @ref get_allocator
+
+        This type is a @ref polymorphic_allocator.
+    */
+#ifdef BOOST_JSON_DOCS
+    // VFALCO doc toolchain renders this incorrectly
+    using allocator_type = __see_below__;
+#else
+    using allocator_type = polymorphic_allocator<value>;
+#endif
 
     /// The type of a character
     using value_type        = char;
@@ -128,7 +138,7 @@ private:
     template<class T>
     using is_inputit = typename std::enable_if<
         std::is_convertible<typename
-            std::iterator_traits<T>::reference,
+            std::iterator_traits<T>::value_type,
             char>::value>::type;
 
     storage_ptr sp_; // must come first
@@ -209,9 +219,9 @@ public:
 
         Constant.
 
-        @param sp A pointer to the `boost::container::pmr::memory_resource` to
-        use. The container will acquire shared ownership of the memory
-        resource.
+        @param sp A pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
     */
     explicit
     string(storage_ptr sp)
@@ -238,12 +248,12 @@ public:
         @param ch The value to initialize characters
         of the string with.
 
-        @param sp An optional pointer to the
-        `boost::container::pmr::memory_resource` to use. The container will
-        acquire shared ownership of the memory resource. The default argument
-        for this parameter is `{}`.
+        @param sp An optional pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
+        The default argument for this parameter is `{}`.
 
-        @throw `boost::system::system_error` `count > max_size()`.
+        @throw system_error `count > max_size()`.
     */
     BOOST_JSON_DECL
     explicit
@@ -271,12 +281,12 @@ public:
         @param s A pointer to a character string used to
         copy from.
 
-        @param sp An optional pointer to the
-        `boost::container::pmr::memory_resource` to use. The container will
-        acquire shared ownership of the memory resource. The default argument
-        for this parameter is `{}`.
+        @param sp An optional pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
+        The default argument for this parameter is `{}`.
 
-        @throw `boost::system::system_error` `strlen(s) > max_size()`.
+        @throw system_error `strlen(s) > max_size()`.
     */
     BOOST_JSON_DECL
     string(
@@ -303,12 +313,12 @@ public:
         @param s A pointer to a character string used to
         copy from.
 
-        @param sp An optional pointer to the
-        `boost::container::pmr::memory_resource` to use. The container will
-        acquire shared ownership of the memory resource. The default argument
-        for this parameter is `{}`.
+        @param sp An optional pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
+        The default argument for this parameter is `{}`.
 
-        @throw `boost::system::system_error` `count > max_size()`.
+        @throw system_error `count > max_size()`.
     */
     BOOST_JSON_DECL
     explicit
@@ -344,12 +354,12 @@ public:
         @param last An input iterator pointing to the end
         of the range.
 
-        @param sp An optional pointer to the
-        `boost::container::pmr::memory_resource` to use. The container will
-        acquire shared ownership of the memory resource. The default argument
-        for this parameter is `{}`.
+        @param sp An optional pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
+        The default argument for this parameter is `{}`.
 
-        @throw `boost::system::system_error` `std::distance(first, last) > max_size()`.
+        @throw system_error `std::distance(first, last) > max_size()`.
     */
     template<class InputIt
     #ifndef BOOST_JSON_DOCS
@@ -397,10 +407,10 @@ public:
         @param other The string to use as a source
         to copy from.
 
-        @param sp An optional pointer to the
-        `boost::container::pmr::memory_resource` to use. The container will
-        acquire shared ownership of the memory resource. The default argument
-        for this parameter is `{}`.
+        @param sp An optional pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
+        The default argument for this parameter is `{}`.
     */
     BOOST_JSON_DECL
     explicit
@@ -410,12 +420,13 @@ public:
 
     /** Move constructor.
 
-        Constructs the string with the contents of `other` using move
-        semantics. Ownership of the underlying memory is transferred. The
-        container acquires shared ownership of the
-        `boost::container::pmr::memory_resource` used by `other`. After
-        construction, the moved-from string behaves as if newly constructed
-        with its current memory resource.
+        Constructs the string with the contents of `other`
+        using move semantics. Ownership of the underlying
+        memory is transferred.
+        The container acquires shared ownership of the
+        @ref memory_resource used by `other`. After construction,
+        the moved-from string behaves as if newly
+        constructed with its current memory resource.
 
         @par Complexity
 
@@ -435,10 +446,12 @@ public:
         Construct the contents with those of `other`
         using move semantics.
 
-        @li If `*other.storage() == *sp`, ownership of the underlying memory is
-        transferred in constant time, with no possibility of exceptions. After
-        construction, the moved-from string behaves as if newly constructed
-        with its current `boost::container::pmr::memory_resource`. Otherwise,
+        @li If `*other.storage() == *sp`,
+        ownership of the underlying memory is transferred
+        in constant time, with no possibility
+        of exceptions. After construction, the moved-from
+        string behaves as if newly constructed with
+        its current @ref memory_resource. Otherwise,
 
         @li If `*other.storage() != *sp`,
         a copy of the characters in `other` is made. In
@@ -455,10 +468,10 @@ public:
 
         @param other The string to assign from.
 
-        @param sp An optional pointer to the
-        `boost::container::pmr::memory_resource` to use. The container will
-        acquire shared ownership of the memory resource. The default argument
-        for this parameter is `{}`.
+        @param sp An optional pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
+        The default argument for this parameter is `{}`.
     */
     BOOST_JSON_DECL
     explicit
@@ -483,12 +496,12 @@ public:
 
         @param s The string view to copy from.
 
-        @param sp An optional pointer to the
-        `boost::container::pmr::memory_resource` to use. The container will
-        acquire shared ownership of the memory resource. The default argument
-        for this parameter is `{}`.
+        @param sp An optional pointer to the @ref memory_resource
+        to use. The container will acquire shared
+        ownership of the memory resource.
+        The default argument for this parameter is `{}`.
 
-        @throw `boost::system::system_error` `std::distance(first, last) > max_size()`.
+        @throw system_error `s.size() > max_size()`.
     */
     BOOST_JSON_DECL
     string(
@@ -530,11 +543,12 @@ public:
 
         @li If `&other == this`, do nothing. Otherwise,
 
-        @li If `*other.storage() == *this->storage()`, ownership of the
-        underlying memory is transferred in constant time, with no possibility
-        of exceptions. After construction, the moved-from string behaves as if
-        newly constructed with its current
-        `boost::container::pmr::memory_resource`. Otherwise,
+        @li If `*other.storage() == *this->storage()`,
+        ownership of the underlying memory is transferred
+        in constant time, with no possibility
+        of exceptions. After construction, the moved-from
+        string behaves as if newly constructed with its
+        current @ref memory_resource. Otherwise,
 
         @li a copy of the characters in `other` is made. In
         this case, the moved-from container is not changed.
@@ -577,7 +591,7 @@ public:
 
         @param s The null-terminated character string.
 
-        @throw `boost::system::system_error` `std::strlen(s) > max_size()`.
+        @throw system_error `std::strlen(s) > max_size()`.
     */
     BOOST_JSON_DECL
     string&
@@ -602,7 +616,7 @@ public:
 
         @param s The string view to copy from.
 
-        @throw `boost::system::system_error` `s.size() > max_size()`.
+        @throw system_error `s.size() > max_size()`.
     */
     BOOST_JSON_DECL
     string&
@@ -631,7 +645,7 @@ public:
         @param ch The value to initialize characters
         of the string with.
 
-        @throw `boost::system::system_error` `count > max_size()`.
+        @throw system_error `count > max_size()`.
     */
     BOOST_JSON_DECL
     string&
@@ -669,11 +683,12 @@ public:
 
         @li If `&other == this`, do nothing. Otherwise,
 
-        @li If `*other.storage() == *this->storage()`, ownership of the
-        underlying memory is transferred in constant time, with no possibility
-        of exceptions. After construction, the moved-from string behaves as if
-        newly constructed with its current
-        `boost::container::pmr::memory_resource`, otherwise
+        @li If `*other.storage() == *this->storage()`,
+        ownership of the underlying memory is transferred
+        in constant time, with no possibility of
+        exceptions. After construction, the moved-from
+        string behaves as if newly constructed with
+        its current  @ref memory_resource, otherwise
 
         @li If `*other.storage() != *this->storage()`,
         a copy of the characters in `other` is made.
@@ -719,7 +734,7 @@ public:
         @param s A pointer to a character string used to
         copy from.
 
-        @throw `boost::system::system_error` `count > max_size()`.
+        @throw system_error `count > max_size()`.
     */
     BOOST_JSON_DECL
     string&
@@ -751,7 +766,7 @@ public:
         @param s A pointer to a character string used to
         copy from.
 
-        @throw `boost::system::system_error` `strlen(s) > max_size()`.
+        @throw system_error `strlen(s) > max_size()`.
     */
     BOOST_JSON_DECL
     string&
@@ -787,7 +802,7 @@ public:
         @param last An input iterator pointing to the end
         of the range.
 
-        @throw `boost::system::system_error` `std::distance(first, last) > max_size()`.
+        @throw system_error `std::distance(first, last) > max_size()`.
     */
     template<class InputIt
     #ifndef BOOST_JSON_DOCS
@@ -818,7 +833,7 @@ public:
 
         @param s The string view to copy from.
 
-        @throw `boost::system::system_error` `s.size() > max_size()`.
+        @throw system_error `s.size() > max_size()`.
     */
     string&
     assign(string_view s)
@@ -828,9 +843,9 @@ public:
 
     //------------------------------------------------------
 
-    /** Return the associated memory resource.
+    /** Return the associated @ref memory_resource
 
-        This returns the `boost::container::pmr::memory_resource` used by
+        This returns the @ref memory_resource used by
         the container.
 
         @par Complexity
@@ -847,10 +862,11 @@ public:
         return sp_;
     }
 
-    /** Return the associated allocator.
+    /** Return the associated @ref memory_resource
 
-        This function returns an instance of @ref allocator_type constructed
-        from the associated `boost::container::pmr::memory_resource`.
+        This function returns an instance of
+        @ref polymorphic_allocator constructed from the
+        associated @ref memory_resource.
 
         @par Complexity
 
@@ -874,30 +890,6 @@ public:
 
     /** Return a character with bounds checking.
 
-        Returns `boost::system::result` containing a reference to the character
-        specified at location `pos`, if `pos` is within the range of the
-        string. Otherwise the result contains an `error_code`.
-
-        @par Exception Safety
-        Strong guarantee.
-
-        @param pos A zero-based index to access.
-
-        @par Complexity
-        Constant.
-    */
-    /** @{ */
-    BOOST_JSON_DECL
-    system::result<char&>
-    try_at(std::size_t pos) noexcept;
-
-    BOOST_JSON_DECL
-    system::result<char const&>
-    try_at(std::size_t pos) const noexcept;
-    /** @} */
-
-    /** Return a character with bounds checking.
-
         Returns a reference to the character specified at
         location `pos`.
 
@@ -911,23 +903,27 @@ public:
 
         @param pos A zero-based index to access.
 
-        @param loc `source_location` to use in thrown exception; the source
-            location of the call site by default.
-
-        @throw `boost::system::system_error` `pos >= size()`.
+        @throw system_error `pos >= size()`
     */
     /** @{ */
-    inline
     char&
-    at(
-        std::size_t pos,
-        source_location const& loc = BOOST_CURRENT_LOCATION);
+    at(std::size_t pos)
+    {
 
-    BOOST_JSON_DECL
+        auto const& self = *this;
+        return const_cast< char& >( self.at(pos) );
+    }
+
     char const&
-    at(
-        std::size_t pos,
-        source_location const& loc = BOOST_CURRENT_LOCATION) const;
+    at(std::size_t pos) const
+    {
+        if(pos >= size())
+        {
+            BOOST_STATIC_CONSTEXPR source_location loc = BOOST_CURRENT_LOCATION;
+            detail::throw_system_error( error::out_of_range, &loc );
+        }
+        return impl_.data()[pos];
+    }
     /** @} */
 
     /** Return a character without bounds checking.
@@ -1117,7 +1113,7 @@ public:
         return impl_.data();
     }
 
-    /** Convert to a @ref string_view referring to the string.
+    /** Convert to a `string_view` referring to the string.
 
         Returns a string view to the
         underlying character string. The size of the view
@@ -1478,7 +1474,7 @@ public:
 
         @param new_capacity The new capacity of the array.
 
-        @throw `boost::system::system_error` `new_capacity > max_size()`.
+        @throw system_error `new_capacity > max_size()`
     */
     void
     reserve(std::size_t new_capacity)
@@ -1552,8 +1548,9 @@ public:
 
         @param sv The `string_view` to insert.
 
-        @throw `boost::system::system_error` `size() + s.size() > max_size()`.
-        @throw `boost::system::system_error` `pos > size()`.
+        @throw system_error `size() + s.size() > max_size()`
+
+        @throw system_error `pos > size()`
     */
     BOOST_JSON_DECL
     string&
@@ -1581,8 +1578,9 @@ public:
 
         @param ch The character to insert.
 
-        @throw `boost::system::system_error` `size() + count > max_size()`.
-        @throw `boost::system::system_error` `pos > size()`.
+        @throw system_error `size() + count > max_size()`
+
+        @throw system_error `pos > size()`
     */
     BOOST_JSON_DECL
     string&
@@ -1610,8 +1608,9 @@ public:
 
         @param ch The character to insert.
 
-        @throw `boost::system::system_error` `size() + 1 > max_size()`.
-        @throw `boost::system::system_error` `pos > size()`.
+        @throw system_error `size() + 1 > max_size()`
+
+        @throw system_error `pos > size()`
     */
     string&
     insert(
@@ -1652,8 +1651,9 @@ public:
 
         @param last The end of the character range.
 
-        @throw `boost::system::system_error` `size() + insert_count > max_size()`.
-        @throw `boost::system::system_error` `pos > size()`.
+        @throw system_error `size() + insert_count > max_size()`
+
+        @throw system_error `pos > size()`
     */
     template<class InputIt
     #ifndef BOOST_JSON_DOCS
@@ -1691,7 +1691,7 @@ public:
         The default argument for this parameter
         is @ref npos.
 
-        @throw `boost::system::system_error` `pos > size()`.
+        @throw system_error `pos > size()`
     */
     BOOST_JSON_DECL
     string&
@@ -1775,7 +1775,7 @@ public:
 
         @param ch The character to append.
 
-        @throw `boost::system::system_error` `size() + 1 > max_size()`.
+        @throw system_error `size() + 1 > max_size()`
     */
     BOOST_JSON_DECL
     void
@@ -1812,7 +1812,7 @@ public:
 
         @param ch The character to append.
 
-        @throw `boost::system::system_error` `size() + count > max_size()`.
+        @throw system_error `size() + count > max_size()`
     */
     BOOST_JSON_DECL
     string&
@@ -1832,7 +1832,7 @@ public:
 
         @param sv The `string_view` to append.
 
-        @throw `boost::system::system_error` `size() + s.size() > max_size()`.
+        @throw system_error `size() + s.size() > max_size()`
     */
     BOOST_JSON_DECL
     string&
@@ -1865,7 +1865,7 @@ public:
         @param last An iterator one past the
         last character to append.
 
-        @throw `boost::system::system_error` `size() + insert_count > max_size()`.
+        @throw system_error `size() + insert_count > max_size()`
     */
     template<class InputIt
     #ifndef BOOST_JSON_DOCS
@@ -1890,7 +1890,7 @@ public:
 
         @param sv The `string_view` to append.
 
-        @throw `boost::system::system_error` `size() + sv.size() > max_size()`.
+        @throw system_error `size() + sv.size() > max_size()`
     */
     string&
     operator+=(string_view sv)
@@ -1908,7 +1908,7 @@ public:
 
         @param ch The character to append.
 
-        @throw `boost::system::system_error` `size() + 1 > max_size()`.
+        @throw system_error `size() + 1 > max_size()`
     */
     string&
     operator+=(char ch)
@@ -2037,8 +2037,9 @@ public:
 
         @param sv The `string_view` to replace with.
 
-        @throw `boost::system::system_error` `size() + (sv.size() - rcount) > max_size()`.
-        @throw `boost::system::system_error` `pos > size()`.
+        @throw system_error `size() + (sv.size() - rcount) > max_size()`
+
+        @throw system_error `pos > size()`
     */
     BOOST_JSON_DECL
     string&
@@ -2074,7 +2075,7 @@ public:
 
         @param sv The `string_view` to replace with.
 
-        @throw `boost::system::system_error` `size() + (sv.size() - std::distance(first, last)) > max_size()`.
+        @throw system_error `size() + (sv.size() - std::distance(first, last)) > max_size()`
     */
     string&
     replace(
@@ -2124,7 +2125,7 @@ public:
         @param last2 An iterator one past the end of
         the last character to replace with.
 
-        @throw `boost::system::system_error` `size() + (inserted - std::distance(first, last)) > max_size()`.
+        @throw system_error `size() + (inserted - std::distance(first, last)) > max_size()`
     */
     template<class InputIt
     #ifndef BOOST_JSON_DOCS
@@ -2163,8 +2164,9 @@ public:
 
         @param ch The character to replace with.
 
-        @throw `boost::system::system_error` `size() + (count2 - rcount) > max_size()`.
-        @throw `boost::system::system_error` `pos > size()`.
+        @throw system_error `size() + (count2 - rcount) > max_size()`
+
+        @throw system_error `pos > size()`
     */
     BOOST_JSON_DECL
     string&
@@ -2204,7 +2206,7 @@ public:
 
         @param ch The character to replace with.
 
-        @throw `boost::system::system_error` `size() + (count - std::distance(first, last)) > max_size()`.
+        @throw system_error `size() + (count - std::distance(first, last)) > max_size()`
     */
     string&
     replace(
@@ -2235,7 +2237,7 @@ public:
         The default argument for this parameter
         is @ref npos.
 
-        @throw `boost::system::system_error` `pos > size()`.
+        @throw system_error `pos > size()`
     */
     string_view
     subview(
@@ -2250,7 +2252,8 @@ public:
         Returns a view of the whole string.
 
         @par Exception Safety
-        No-throw guarantee.
+
+        `noexcept`
 
         @return `string_view(this->data(), this->size())`.
     */
@@ -2279,7 +2282,7 @@ public:
         @param pos The index to begin copying from. The
         default argument for this parameter is `0`.
 
-        @throw `boost::system::system_error` `pos > max_size()`.
+        @throw system_error `pos > max_size()`
     */
     std::size_t
     copy(
@@ -2301,7 +2304,7 @@ public:
 
         @param count The size to resize the string to.
 
-        @throw `boost::system::system_error` `count > max_size()`.
+        @throw system_error `count > max_size()`
     */
     void
     resize(std::size_t count)
@@ -2321,7 +2324,7 @@ public:
         @param ch The characters to append if the size
         increases.
 
-        @throw `boost::system::system_error` `count > max_size()`.
+        @throw system_error `count > max_size()`
     */
     BOOST_JSON_DECL
     void
@@ -2357,9 +2360,9 @@ public:
 
     /** Swap the contents.
 
-        Exchanges the contents of this string with another string. Ownership of
-        the respective `boost::container::pmr::memory_resource` objects is not
-        transferred.
+        Exchanges the contents of this string with another
+        string. Ownership of the respective @ref memory_resource
+        objects is not transferred.
 
         @li If `&other == this`, do nothing. Otherwise,
 
@@ -2388,9 +2391,9 @@ public:
 
     /** Exchange the given values.
 
-        Exchanges the contents of the string `lhs` with another string `rhs`.
-        Ownership of the respective `boost::container::pmr::memory_resource`
-        objects is not transferred.
+        Exchanges the contents of the string `lhs` with
+        another string `rhs`. Ownership of the respective
+        @ref memory_resource objects is not transferred.
 
         @li If `&lhs == &rhs`, do nothing. Otherwise,
 

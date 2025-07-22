@@ -5,8 +5,6 @@
 #ifndef BOOST_UNORDERED_DETAIL_FOA_FLAT_SET_TYPES_HPP
 #define BOOST_UNORDERED_DETAIL_FOA_FLAT_SET_TYPES_HPP
 
-#include <boost/unordered/detail/foa/types_constructibility.hpp>
-
 #include <boost/core/allocator_access.hpp>
 
 namespace boost {
@@ -23,9 +21,6 @@ namespace boost {
 
           using element_type = value_type;
 
-          using types = flat_set_types<Key>;
-          using constructibility_checker = set_types_constructibility<types>;
-
           static Key& value_from(element_type& x) { return x; }
 
           static element_type&& move(element_type& x) { return std::move(x); }
@@ -33,7 +28,6 @@ namespace boost {
           template <class A, class... Args>
           static void construct(A& al, value_type* p, Args&&... args)
           {
-            constructibility_checker::check(al, p, std::forward<Args>(args)...);
             boost::allocator_construct(al, p, std::forward<Args>(args)...);
           }
 
@@ -43,8 +37,8 @@ namespace boost {
           }
         };
       } // namespace foa
-    } // namespace detail
-  } // namespace unordered
+    }   // namespace detail
+  }     // namespace unordered
 } // namespace boost
 
 #endif // BOOST_UNORDERED_DETAIL_FOA_FLAT_SET_TYPES_HPP

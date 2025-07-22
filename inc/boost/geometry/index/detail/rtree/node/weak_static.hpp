@@ -15,10 +15,6 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_WEAK_STATIC_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_WEAK_STATIC_HPP
 
-#include <utility>
-#include <boost/container/allocator_traits.hpp>
-#include <boost/core/invoke_swap.hpp>
-
 #include <boost/geometry/index/detail/rtree/node/weak_dynamic.hpp>
 #include <boost/geometry/index/detail/varray.hpp>
 
@@ -159,8 +155,8 @@ public:
 
     void swap(allocators & a)
     {
-        boost::core::invoke_swap(internal_node_allocator(), a.internal_node_allocator());
-        boost::core::invoke_swap(leaf_allocator(), a.leaf_allocator());
+        boost::swap(internal_node_allocator(), a.internal_node_allocator());
+        boost::swap(leaf_allocator(), a.leaf_allocator());
     }
 
     bool operator==(allocators const& a) const { return leaf_allocator() == a.leaf_allocator(); }

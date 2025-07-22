@@ -3,10 +3,10 @@
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
-// Copyright (c) 2024 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2014-2020.
 // Modifications copyright (c) 2014-2020, Oracle and/or its affiliates.
+
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -194,33 +194,33 @@ struct cs_tag
 template<typename DegreeOrRadian>
 struct cs_tag<cs::geographic<DegreeOrRadian> >
 {
-    using type = geographic_tag;
+    typedef geographic_tag type;
 };
 
 template<typename DegreeOrRadian>
 struct cs_tag<cs::spherical<DegreeOrRadian> >
 {
-    using type = spherical_polar_tag;
+    typedef spherical_polar_tag type;
 };
 
 template<typename DegreeOrRadian>
 struct cs_tag<cs::spherical_equatorial<DegreeOrRadian> >
 {
-    using type = spherical_equatorial_tag;
+    typedef spherical_equatorial_tag type;
 };
 
 
 template<>
 struct cs_tag<cs::cartesian>
 {
-    using type = cartesian_tag;
+    typedef cartesian_tag type;
 };
 
 
 template <>
 struct cs_tag<cs::undefined>
 {
-    using type = cs_undefined_tag;
+    typedef cs_undefined_tag type;
 };
 
 #endif // DOXYGEN_NO_TRAITS_SPECIALIZATIONS
@@ -237,15 +237,11 @@ struct cs_tag<cs::undefined>
 template <typename Geometry>
 struct cs_tag
 {
-    using type = typename traits::cs_tag
+    typedef typename traits::cs_tag
         <
-            geometry::coordinate_system_t<Geometry>
-        >::type;
+            typename geometry::coordinate_system<Geometry>::type
+        >::type type;
 };
-
-
-template <typename Geometry>
-using cs_tag_t = typename cs_tag<Geometry>::type;
 
 
 namespace traits
@@ -255,7 +251,7 @@ namespace traits
 template <typename CoordinateSystem>
 struct cs_angular_units
 {
-    using type = geometry::radian;
+    typedef geometry::radian type;
 };
 
 #ifndef DOXYGEN_NO_TRAITS_SPECIALIZATIONS
@@ -263,19 +259,19 @@ struct cs_angular_units
 template<typename DegreeOrRadian>
 struct cs_angular_units<cs::geographic<DegreeOrRadian> >
 {
-    using type = DegreeOrRadian;
+    typedef DegreeOrRadian type;
 };
 
 template<typename DegreeOrRadian>
 struct cs_angular_units<cs::spherical<DegreeOrRadian> >
 {
-    using type = DegreeOrRadian;
+    typedef DegreeOrRadian type;
 };
 
 template<typename DegreeOrRadian>
 struct cs_angular_units<cs::spherical_equatorial<DegreeOrRadian> >
 {
-    using type = DegreeOrRadian;
+    typedef DegreeOrRadian type;
 };
 
 #endif // DOXYGEN_NO_TRAITS_SPECIALIZATIONS
@@ -291,15 +287,11 @@ namespace detail
 template <typename Geometry>
 struct cs_angular_units
 {
-    using type = typename traits::cs_angular_units
+    typedef typename traits::cs_angular_units
         <
-            geometry::coordinate_system_t<Geometry>
-        >::type;
+            typename geometry::coordinate_system<Geometry>::type
+        >::type type;
 };
-
-
-template <typename Geometry>
-using cs_angular_units_t = typename cs_angular_units<Geometry>::type;
 
 
 template <typename Units, typename CsTag>
@@ -313,37 +305,32 @@ struct cs_tag_to_coordinate_system
 template <typename Units>
 struct cs_tag_to_coordinate_system<Units, cs_undefined_tag>
 {
-    using type = cs::undefined;
+    typedef cs::undefined type;
 };
 
 template <typename Units>
 struct cs_tag_to_coordinate_system<Units, cartesian_tag>
 {
-    using type = cs::cartesian;
+    typedef cs::cartesian type;
 };
 
 template <typename Units>
 struct cs_tag_to_coordinate_system<Units, spherical_equatorial_tag>
 {
-    using type = cs::spherical_equatorial<Units>;
+    typedef cs::spherical_equatorial<Units> type;
 };
 
 template <typename Units>
 struct cs_tag_to_coordinate_system<Units, spherical_polar_tag>
 {
-    using type = cs::spherical<Units>;
+    typedef cs::spherical<Units> type;
 };
 
 template <typename Units>
 struct cs_tag_to_coordinate_system<Units, geographic_tag>
 {
-    using type = cs::geographic<Units>;
+    typedef cs::geographic<Units> type;
 };
-
-
-template <typename Units, typename CsTag>
-using cs_tag_to_coordinate_system_t = typename cs_tag_to_coordinate_system<Units, CsTag>::type;
-
 
 } // namespace detail
 #endif // DOXYGEN_NO_DETAIL

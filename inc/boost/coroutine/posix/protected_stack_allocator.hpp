@@ -65,7 +65,12 @@ struct basic_protected_stack_allocator
         if ( MAP_FAILED == limit) throw std::bad_alloc();
 
         // conforming to POSIX.1-2001
-        BOOST_VERIFY( 0 == ::mprotect( limit, traits_type::page_size(), PROT_NONE));
+#if defined(BOOST_DISABLE_ASSERTS)
+        ::mprotect( limit, traits_type::page_size(), PROT_NONE);
+#else
+        const int result( ::mprotect( limit, traits_type::page_size(), PROT_NONE) );
+        BOOST_ASSERT( 0 == result);
+#endif
 
         ctx.size = size_;
         ctx.sp = static_cast< char * >( limit) + ctx.size;

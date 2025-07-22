@@ -3,8 +3,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
-// Copyright (c) 2024 Adam Wulkiewicz, Lodz, Poland.
-// 
+
 // This file was modified by Oracle on 2014-2021.
 // Modifications copyright (c) 2014-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -188,33 +187,25 @@ struct closure<multi_polygon_tag, MultiPolygon>
 */
 template <typename Geometry>
 struct closure
-    : std::integral_constant
+{
+    static const closure_selector value = core_dispatch::closure
         <
-            closure_selector,
-            core_dispatch::closure
-                <
-                    tag_t<Geometry>,
-                    util::remove_cptrref_t<Geometry>
-                >::value
-        >
-{};
-
-#ifndef BOOST_NO_CXX17_INLINE_VARIABLES
-template <typename Geometry>
-inline constexpr closure_selector closure_v = closure<Geometry>::value;
-#endif
+            typename tag<Geometry>::type,
+            typename util::remove_cptrref<Geometry>::type
+        >::value;
+};
 
 
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail
 {
 
-template <typename Geometry>
-using minimum_ring_size = core_detail::closure::minimum_ring_size
-                            <
-                                geometry::closure<Geometry>::value
-                            >;
-
+template
+<
+    typename Geometry,
+    closure_selector Closure = geometry::closure<Geometry>::value
+>
+using minimum_ring_size = core_detail::closure::minimum_ring_size<Closure>;
 
 } // namespace detail
 #endif // DOXYGEN_NO_DETAIL

@@ -122,14 +122,15 @@ protected:
                                  VisitPolicy& visitor,
                                  Strategy const& strategy)
         {
-            using debug_phase = debug_validity_phase<Polygon>;
+            typedef debug_validity_phase<Polygon> debug_phase;
+            typedef typename ring_type<Polygon>::type ring_type;
 
             // check validity of exterior ring
             debug_phase::apply(1);
 
             if (! detail::is_valid::is_valid_ring
                      <
-                         ring_type_t<Polygon>,
+                         ring_type,
                          false // do not check self intersections
                      >::apply(exterior_ring(polygon), visitor, strategy))
             {
@@ -304,8 +305,8 @@ protected:
             ring_indices.insert(tit->operations[1].seg_id.ring_index);
         }
 
-        using box_type = geometry::model::box<point_type_t<Polygon>>;
-        using item_type = partition_item<RingIterator, box_type>;
+        typedef geometry::model::box<typename point_type<Polygon>::type> box_type;
+        typedef partition_item<RingIterator, box_type> item_type;
 
         // put iterators for interior rings without turns in a vector
         std::vector<item_type> ring_iterators;
@@ -449,44 +450,42 @@ public:
         {
             return true;
         }
-        else // else prevents unreachable code warning
+
+        // compute turns and check if all are acceptable
+        typedef debug_validity_phase<Polygon> debug_phase;
+        debug_phase::apply(3);
+
+        typedef has_valid_self_turns<Polygon, typename Strategy::cs_tag> has_valid_turns;
+
+        std::deque<typename has_valid_turns::turn_type> turns;
+        bool has_invalid_turns
+            = ! has_valid_turns::apply(polygon, turns, visitor, strategy);
+        debug_print_turns(turns.begin(), turns.end());
+
+        if (has_invalid_turns)
         {
-            // compute turns and check if all are acceptable
-            using debug_phase = debug_validity_phase<Polygon>;
-            debug_phase::apply(3);
-
-            using has_valid_turns = has_valid_self_turns<Polygon, typename Strategy::cs_tag>;
-
-            std::deque<typename has_valid_turns::turn_type> turns;
-            bool has_invalid_turns
-                = ! has_valid_turns::apply(polygon, turns, visitor, strategy);
-            debug_print_turns(turns.begin(), turns.end());
-
-            if (has_invalid_turns)
-            {
-                return false;
-            }
-
-            // check if all interior rings are inside the exterior ring
-            debug_phase::apply(4);
-
-            if (! has_holes_inside::apply(polygon,
-                                          turns.begin(), turns.end(),
-                                          visitor,
-                                          strategy))
-            {
-                return false;
-            }
-
-            // check whether the interior of the polygon is a connected set
-            debug_phase::apply(5);
-
-            return has_connected_interior::apply(polygon,
-                                                 turns.begin(),
-                                                 turns.end(),
-                                                 visitor,
-                                                 strategy);
+            return false;
         }
+
+        // check if all interior rings are inside the exterior ring
+        debug_phase::apply(4);
+
+        if (! has_holes_inside::apply(polygon,
+                                      turns.begin(), turns.end(),
+                                      visitor,
+                                      strategy))
+        {
+            return false;
+        }
+
+        // check whether the interior of the polygon is a connected set
+        debug_phase::apply(5);
+
+        return has_connected_interior::apply(polygon,
+                                             turns.begin(),
+                                             turns.end(),
+                                             visitor,
+                                             strategy);
     }
 };
 

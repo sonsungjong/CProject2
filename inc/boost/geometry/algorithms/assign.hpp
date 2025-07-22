@@ -4,7 +4,6 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2014 Samuel Debionne, Grenoble, France.
-// Copyright (c) 2024 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2020-2023.
 // Modifications copyright (c) 2020-2023 Oracle and/or its affiliates.
@@ -92,7 +91,7 @@ inline void assign_inverse(Geometry& geometry)
 
     dispatch::assign_inverse
         <
-            tag_t<Geometry>,
+            typename tag<Geometry>::type,
             Geometry
         >::apply(geometry);
 }
@@ -112,7 +111,7 @@ inline void assign_zero(Geometry& geometry)
 
     dispatch::assign_zero
         <
-            tag_t<Geometry>,
+            typename tag<Geometry>::type,
             Geometry
         >::apply(geometry);
 }
@@ -142,9 +141,9 @@ inline void assign_values(Geometry& geometry, Type const& c1, Type const& c2)
 
     dispatch::assign
         <
-            tag_t<Geometry>,
+            typename tag<Geometry>::type,
             Geometry,
-            geometry::dimension<Geometry>::value
+            geometry::dimension<Geometry>::type::value
         >::apply(geometry, c1, c2);
 }
 
@@ -175,9 +174,9 @@ inline void assign_values(Geometry& geometry,
 
     dispatch::assign
         <
-            tag_t<Geometry>,
+            typename tag<Geometry>::type,
             Geometry,
-            geometry::dimension<Geometry>::value
+            geometry::dimension<Geometry>::type::value
         >::apply(geometry, c1, c2, c3);
 }
 
@@ -202,9 +201,9 @@ inline void assign_values(Geometry& geometry,
 
     dispatch::assign
         <
-            tag_t<Geometry>,
+            typename tag<Geometry>::type,
             Geometry,
-            geometry::dimension<Geometry>::value
+            geometry::dimension<Geometry>::type::value
         >::apply(geometry, c1, c2, c3, c4);
 }
 
@@ -217,7 +216,7 @@ template <typename Geometry1, typename Geometry2>
 struct assign
 {
     static inline void
-    apply(Geometry1& geometry1, Geometry2 const& geometry2)
+    apply(Geometry1& geometry1, const Geometry2& geometry2)
     {
         concepts::check<Geometry1>();
         concepts::check<Geometry2 const>();

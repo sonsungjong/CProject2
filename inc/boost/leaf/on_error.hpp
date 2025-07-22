@@ -1,7 +1,8 @@
 #ifndef BOOST_LEAF_ON_ERROR_HPP_INCLUDED
 #define BOOST_LEAF_ON_ERROR_HPP_INCLUDED
 
-// Copyright 2018-2024 Emil Dotchevski and Reverge Studios, Inc.
+// Copyright 2018-2022 Emil Dotchevski and Reverge Studios, Inc.
+
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -23,13 +24,13 @@ public:
 #if !defined(BOOST_LEAF_NO_EXCEPTIONS) && BOOST_LEAF_STD_UNCAUGHT_EXCEPTIONS
         uncaught_exceptions_(std::uncaught_exceptions()),
 #endif
-        err_id_(detail::current_id())
+        err_id_(leaf_detail::current_id())
     {
     }
 
     int check_id() const noexcept
     {
-        int err_id = detail::current_id();
+        int err_id = leaf_detail::current_id();
         if( err_id != err_id_ )
             return err_id;
         else
@@ -40,7 +41,7 @@ public:
 #   else
             if( std::uncaught_exception() )
 #   endif
-                return detail::new_id();
+                return leaf_detail::new_id();
 #endif
             return 0;
         }
@@ -48,97 +49,112 @@ public:
 
     int get_id() const noexcept
     {
-        int err_id = detail::current_id();
+        int err_id = leaf_detail::current_id();
         if( err_id != err_id_ )
             return err_id;
         else
-            return detail::new_id();
+            return leaf_detail::new_id();
     }
 
     error_id check() const noexcept
     {
-        return detail::make_error_id(check_id());
+        return leaf_detail::make_error_id(check_id());
     }
 
     error_id assigned_error_id() const noexcept
     {
-        return detail::make_error_id(get_id());
+        return leaf_detail::make_error_id(get_id());
     }
 };
 
-////////////////////////////////////////
+////////////////////////////////////////////
 
-namespace detail
+namespace leaf_detail
 {
-    template <int I, class Tup>
+    template <int I, class Tuple>
     struct tuple_for_each_preload
     {
-        BOOST_LEAF_CONSTEXPR static void trigger( Tup & tup, int err_id ) noexcept
+        BOOST_LEAF_CONSTEXPR static void trigger( Tuple & tup, int err_id ) noexcept
         {
-            BOOST_LEAF_ASSERT((err_id&3) == 1);
-            tuple_for_each_preload<I-1,Tup>::trigger(tup,err_id);
+            BOOST_LEAF_ASSERT((err_id&3)==1);
+            tuple_for_each_preload<I-1,Tuple>::trigger(tup,err_id);
             std::get<I-1>(tup).trigger(err_id);
         }
     };
 
-    template <class Tup>
-    struct tuple_for_each_preload<0, Tup>
+    template <class Tuple>
+    struct tuple_for_each_preload<0, Tuple>
     {
-        BOOST_LEAF_CONSTEXPR static void trigger( Tup const &, int ) noexcept { }
+        BOOST_LEAF_CONSTEXPR static void trigger( Tuple const &, int ) noexcept { }
     };
 
     template <class E>
     class preloaded_item
     {
         using decay_E = typename std::decay<E>::type;
+        slot<decay_E> * s_;
         decay_E e_;
 
     public:
 
         BOOST_LEAF_CONSTEXPR preloaded_item( E && e ):
+            s_(tls::read_ptr<slot<decay_E>>()),
             e_(std::forward<E>(e))
         {
         }
 
         BOOST_LEAF_CONSTEXPR void trigger( int err_id ) noexcept
         {
-            (void) load_slot<true>(err_id, std::move(e_));
+            BOOST_LEAF_ASSERT((err_id&3)==1);
+            if( s_ )
+            {
+                if( !s_->has_value(err_id) )
+                    s_->put(err_id, std::move(e_));
+            }
+#if BOOST_LEAF_CFG_DIAGNOSTICS
+            else
+            {
+                int c = int(tls::read_uint<tls_tag_unexpected_enabled_counter>());
+                BOOST_LEAF_ASSERT(c>=0);
+                if( c )
+                    load_unexpected(err_id, std::move(e_));
+            }
+#endif
         }
     };
 
-    template <class F, class ReturnType = typename function_traits<F>::return_type>
+    template <class F>
     class deferred_item
     {
+        using E = decltype(std::declval<F>()());
+        slot<E> * s_;
         F f_;
 
     public:
 
         BOOST_LEAF_CONSTEXPR deferred_item( F && f ) noexcept:
+            s_(tls::read_ptr<slot<E>>()),
             f_(std::forward<F>(f))
         {
         }
 
         BOOST_LEAF_CONSTEXPR void trigger( int err_id ) noexcept
         {
-            (void) load_slot_deferred<true>(err_id, f_);
-        }
-    };
-
-    template <class F>
-    class deferred_item<F, void>
-    {
-        F f_;
-
-    public:
-
-        BOOST_LEAF_CONSTEXPR deferred_item( F && f ) noexcept:
-            f_(std::forward<F>(f))
-        {
-        }
-
-        BOOST_LEAF_CONSTEXPR void trigger( int ) noexcept
-        {
-            f_();
+            BOOST_LEAF_ASSERT((err_id&3)==1);
+            if( s_ )
+            {
+                if( !s_->has_value(err_id) )
+                    s_->put(err_id, f_());
+            }
+#if BOOST_LEAF_CFG_DIAGNOSTICS
+            else
+            {
+                int c = int(tls::read_uint<tls_tag_unexpected_enabled_counter>());
+                BOOST_LEAF_ASSERT(c>=0);
+                if( c )
+                    load_unexpected(err_id, std::forward<E>(f_()));
+            }
+#endif
         }
     };
 
@@ -148,18 +164,28 @@ namespace detail
     template <class F, class A0>
     class accumulating_item<F, A0 &, 1>
     {
+        using E = A0;
+        slot<E> * s_;
         F f_;
 
     public:
 
         BOOST_LEAF_CONSTEXPR accumulating_item( F && f ) noexcept:
+            s_(tls::read_ptr<slot<E>>()),
             f_(std::forward<F>(f))
         {
         }
 
         BOOST_LEAF_CONSTEXPR void trigger( int err_id ) noexcept
         {
-            load_slot_accumulate<true>(err_id, std::move(f_));
+            BOOST_LEAF_ASSERT((err_id&3)==1);
+            if( s_ )
+            {
+                if( E * e = s_->has_value(err_id) )
+                    (void) f_(*e);
+                else
+                    (void) f_(s_->put(err_id, E()));
+            }
         }
     };
 
@@ -220,13 +246,13 @@ namespace detail
 }
 
 template <class... Item>
-BOOST_LEAF_ATTRIBUTE_NODISCARD BOOST_LEAF_CONSTEXPR inline
-detail::preloaded<typename detail::deduce_item_type<Item>::type...>
+BOOST_LEAF_NODISCARD BOOST_LEAF_CONSTEXPR inline
+leaf_detail::preloaded<typename leaf_detail::deduce_item_type<Item>::type...>
 on_error( Item && ... i )
 {
-    return detail::preloaded<typename detail::deduce_item_type<Item>::type...>(std::forward<Item>(i)...);
+    return leaf_detail::preloaded<typename leaf_detail::deduce_item_type<Item>::type...>(std::forward<Item>(i)...);
 }
 
 } }
 
-#endif // BOOST_LEAF_ON_ERROR_HPP_INCLUDED
+#endif

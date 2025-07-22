@@ -360,19 +360,35 @@ reserve(std::size_t new_capacity)
 //
 //----------------------------------------------------------
 
-value&
+auto
 object::
-at(string_view key, source_location const& loc) &
+at(string_view key) & ->
+    value&
 {
     auto const& self = *this;
-    return const_cast< value& >( self.at(key, loc) );
+    return const_cast< value& >( self.at(key) );
 }
 
-value&&
+auto
 object::
-at(string_view key, source_location const& loc) &&
+at(string_view key) && ->
+    value&&
 {
-    return std::move( at(key, loc) );
+    return std::move( at(key) );
+}
+
+auto
+object::
+at(string_view key) const& ->
+    value const&
+{
+    auto it = find(key);
+    if(it == end())
+    {
+        BOOST_STATIC_CONSTEXPR source_location loc = BOOST_CURRENT_LOCATION;
+        detail::throw_system_error( error::out_of_range, &loc );
+    }
+    return it->value();
 }
 
 //----------------------------------------------------------

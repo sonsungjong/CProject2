@@ -117,7 +117,7 @@ struct fe_point_type
     typedef util::transcribe_const_t
         <
             Range,
-            point_type_t<Range>
+            typename point_type<Range>::type
         > type;
 };
 
@@ -369,7 +369,7 @@ namespace dispatch
 template
 <
     typename Geometry,
-    typename Tag = tag_cast_t<tag_t<Geometry>, multi_tag>
+    typename Tag = typename tag_cast<typename tag<Geometry>::type, multi_tag>::type
 >
 struct for_each_point: not_implemented<Tag>
 {};
@@ -427,7 +427,7 @@ struct for_each_point<MultiGeometry, multi_tag>
 template
 <
     typename Geometry,
-    typename Tag = tag_t<Geometry>
+    typename Tag = typename tag<Geometry>::type
 >
 struct for_each_segment: not_implemented<Tag>
 {};

@@ -45,7 +45,8 @@ struct is_valid_box<Box, 1>
     }
 };
 
-template <typename Indexable, typename Tag = geometry::tag_t<Indexable>>
+template <typename Indexable,
+          typename Tag = typename geometry::tag<Indexable>::type>
 struct is_valid
 {
     BOOST_GEOMETRY_STATIC_ASSERT_FALSE(

@@ -12,10 +12,6 @@
 #endif
 
 #include <boost/math/tools/config.hpp>
-
-#ifndef BOOST_MATH_HAS_NVRTC
-
-#include <boost/math/ccmath/detail/config.hpp>
 #include <boost/math/policies/error_handling.hpp>
 #include <boost/math/special_functions/math_fwd.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
@@ -23,9 +19,11 @@
 #include <limits>
 #include <cmath>
 
-#if !defined(BOOST_MATH_NO_CCMATH) && !defined(BOOST_MATH_NO_CONSTEXPR_DETECTION)
+#ifndef BOOST_NO_CXX17_IF_CONSTEXPR
 #include <boost/math/ccmath/ldexp.hpp>
+#  if !defined(BOOST_MATH_NO_CONSTEXPR_DETECTION)
 #    define BOOST_MATH_HAS_CONSTEXPR_LDEXP
+#  endif
 #endif
 
 namespace boost{ namespace math{
@@ -33,7 +31,7 @@ namespace boost{ namespace math{
 namespace detail{
 
 template <class T, class Policy>
-BOOST_MATH_GPU_ENABLED inline tools::promote_args_t<T> round(const T& v, const Policy& pol, const std::false_type&)
+inline tools::promote_args_t<T> round(const T& v, const Policy& pol, const std::false_type&)
 {
    BOOST_MATH_STD_USING
    using result_type = tools::promote_args_t<T>;
@@ -68,7 +66,7 @@ BOOST_MATH_GPU_ENABLED inline tools::promote_args_t<T> round(const T& v, const P
    }
 }
 template <class T, class Policy>
-BOOST_MATH_GPU_ENABLED inline tools::promote_args_t<T> round(const T& v, const Policy&, const std::true_type&)
+inline tools::promote_args_t<T> round(const T& v, const Policy&, const std::true_type&)
 {
    return v;
 }
@@ -76,12 +74,12 @@ BOOST_MATH_GPU_ENABLED inline tools::promote_args_t<T> round(const T& v, const P
 } // namespace detail
 
 template <class T, class Policy>
-BOOST_MATH_GPU_ENABLED inline tools::promote_args_t<T> round(const T& v, const Policy& pol)
+inline tools::promote_args_t<T> round(const T& v, const Policy& pol)
 {
    return detail::round(v, pol, std::integral_constant<bool, detail::is_integer_for_rounding<T>::value>());
 }
 template <class T>
-BOOST_MATH_GPU_ENABLED inline tools::promote_args_t<T> round(const T& v)
+inline tools::promote_args_t<T> round(const T& v)
 {
    return round(v, policies::policy<>());
 }
@@ -106,7 +104,7 @@ inline int iround(const T& v, const Policy& pol)
 
    result_type r = boost::math::round(v, pol);
 
-   #if defined(BOOST_MATH_HAS_CONSTEXPR_LDEXP) && !defined(BOOST_MATH_HAS_GPU_SUPPORT)
+   #ifdef BOOST_MATH_HAS_CONSTEXPR_LDEXP
    if constexpr (std::is_arithmetic_v<result_type>
                  #ifdef BOOST_MATH_FLOAT128_TYPE
                  && !std::is_same_v<BOOST_MATH_FLOAT128_TYPE, result_type>
@@ -130,7 +128,7 @@ inline int iround(const T& v, const Policy& pol)
       }
    }
    #else
-   BOOST_MATH_STATIC_LOCAL_VARIABLE const result_type max_val = ldexp(static_cast<result_type>(1), std::numeric_limits<int>::digits);
+   static const result_type max_val = ldexp(static_cast<result_type>(1), std::numeric_limits<int>::digits);
 
    if (r >= max_val || r < -max_val)
    {
@@ -141,20 +139,20 @@ inline int iround(const T& v, const Policy& pol)
    return static_cast<int>(r);
 }
 template <class T>
-BOOST_MATH_GPU_ENABLED inline int iround(const T& v)
+inline int iround(const T& v)
 {
    return iround(v, policies::policy<>());
 }
 
 template <class T, class Policy>
-BOOST_MATH_GPU_ENABLED inline long lround(const T& v, const Policy& pol)
+inline long lround(const T& v, const Policy& pol)
 {
    BOOST_MATH_STD_USING
    using result_type = tools::promote_args_t<T>;
 
    result_type r = boost::math::round(v, pol);
    
-   #if defined(BOOST_MATH_HAS_CONSTEXPR_LDEXP) && !defined(BOOST_MATH_HAS_GPU_SUPPORT)
+   #ifdef BOOST_MATH_HAS_CONSTEXPR_LDEXP
    if constexpr (std::is_arithmetic_v<result_type>
                  #ifdef BOOST_MATH_FLOAT128_TYPE
                  && !std::is_same_v<BOOST_MATH_FLOAT128_TYPE, result_type>
@@ -178,7 +176,7 @@ BOOST_MATH_GPU_ENABLED inline long lround(const T& v, const Policy& pol)
       }
    }
    #else
-   BOOST_MATH_STATIC_LOCAL_VARIABLE const result_type max_val = ldexp(static_cast<result_type>(1), std::numeric_limits<long>::digits);
+   static const result_type max_val = ldexp(static_cast<result_type>(1), std::numeric_limits<long>::digits);
 
    if (r >= max_val || r < -max_val)
    {
@@ -189,20 +187,20 @@ BOOST_MATH_GPU_ENABLED inline long lround(const T& v, const Policy& pol)
    return static_cast<long>(r);
 }
 template <class T>
-BOOST_MATH_GPU_ENABLED inline long lround(const T& v)
+inline long lround(const T& v)
 {
    return lround(v, policies::policy<>());
 }
 
 template <class T, class Policy>
-BOOST_MATH_GPU_ENABLED inline long long llround(const T& v, const Policy& pol)
+inline long long llround(const T& v, const Policy& pol)
 {
    BOOST_MATH_STD_USING
    using result_type = boost::math::tools::promote_args_t<T>;
 
    result_type r = boost::math::round(v, pol);
 
-   #if defined(BOOST_MATH_HAS_CONSTEXPR_LDEXP) && !defined(BOOST_MATH_HAS_GPU_SUPPORT)
+   #ifdef BOOST_MATH_HAS_CONSTEXPR_LDEXP
    if constexpr (std::is_arithmetic_v<result_type>
                  #ifdef BOOST_MATH_FLOAT128_TYPE
                  && !std::is_same_v<BOOST_MATH_FLOAT128_TYPE, result_type>
@@ -226,7 +224,7 @@ BOOST_MATH_GPU_ENABLED inline long long llround(const T& v, const Policy& pol)
       }
    }
    #else
-   BOOST_MATH_STATIC_LOCAL_VARIABLE const result_type max_val = ldexp(static_cast<result_type>(1), std::numeric_limits<long long>::digits);
+   static const result_type max_val = ldexp(static_cast<result_type>(1), std::numeric_limits<long long>::digits);
 
    if (r >= max_val || r < -max_val)
    {
@@ -237,117 +235,11 @@ BOOST_MATH_GPU_ENABLED inline long long llround(const T& v, const Policy& pol)
    return static_cast<long long>(r);
 }
 template <class T>
-BOOST_MATH_GPU_ENABLED inline long long llround(const T& v)
+inline long long llround(const T& v)
 {
    return llround(v, policies::policy<>());
 }
 
 }} // namespaces
-
-#else // Specialized NVRTC overloads
-
-namespace boost {
-namespace math {
-
-template <typename T>
-BOOST_MATH_GPU_ENABLED T round(T x)
-{
-   return ::round(x);
-}
-
-template <>
-BOOST_MATH_GPU_ENABLED float round(float x)
-{
-   return ::roundf(x);
-}
-
-template <typename T, typename Policy>
-BOOST_MATH_GPU_ENABLED T round(T x, const Policy&)
-{
-   return ::round(x);
-}
-
-template <typename Policy>
-BOOST_MATH_GPU_ENABLED float round(float x, const Policy&)
-{
-   return ::roundf(x);
-}
-
-template <typename T>
-BOOST_MATH_GPU_ENABLED int iround(T x)
-{
-   return static_cast<int>(::lround(x));
-}
-
-template <>
-BOOST_MATH_GPU_ENABLED int iround(float x)
-{
-   return static_cast<int>(::lroundf(x));
-}
-
-template <typename T, typename Policy>
-BOOST_MATH_GPU_ENABLED int iround(T x, const Policy&)
-{
-   return static_cast<int>(::lround(x));
-}
-
-template <typename Policy>
-BOOST_MATH_GPU_ENABLED int iround(float x, const Policy&)
-{
-   return static_cast<int>(::lroundf(x));
-}
-
-template <typename T>
-BOOST_MATH_GPU_ENABLED long lround(T x)
-{
-   return ::lround(x);
-}
-
-template <>
-BOOST_MATH_GPU_ENABLED long lround(float x)
-{
-   return ::lroundf(x);
-}
-
-template <typename T, typename Policy>
-BOOST_MATH_GPU_ENABLED long lround(T x, const Policy&)
-{
-   return ::lround(x);
-}
-
-template <typename Policy>
-BOOST_MATH_GPU_ENABLED long lround(float x, const Policy&)
-{
-   return ::lroundf(x);
-}
-
-template <typename T>
-BOOST_MATH_GPU_ENABLED long long llround(T x)
-{
-   return ::llround(x);
-}
-
-template <>
-BOOST_MATH_GPU_ENABLED long long llround(float x)
-{
-   return ::llroundf(x);
-}
-
-template <typename T, typename Policy>
-BOOST_MATH_GPU_ENABLED long long llround(T x, const Policy&)
-{
-   return ::llround(x);
-}
-
-template <typename Policy>
-BOOST_MATH_GPU_ENABLED long long llround(float x, const Policy&)
-{
-   return ::llroundf(x);
-}
-
-} // Namespace math
-} // Namespace boost
-
-#endif // BOOST_MATH_HAS_NVRTC
 
 #endif // BOOST_MATH_ROUND_HPP

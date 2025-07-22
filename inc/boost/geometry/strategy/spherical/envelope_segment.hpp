@@ -16,6 +16,7 @@
 #include <utility>
 
 #include <boost/core/ignore_unused.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 
 #include <boost/geometry/algorithms/detail/envelope/transform_units.hpp>
 
@@ -39,7 +40,6 @@
 #include <boost/geometry/strategy/spherical/expand_box.hpp>
 
 #include <boost/geometry/util/math.hpp>
-#include <boost/geometry/util/numeric_cast.hpp>
 
 namespace boost { namespace geometry { namespace strategy { namespace envelope
 {
@@ -276,34 +276,34 @@ private:
                                   CalculationType lat2,
                                   Box& mbr)
     {
-        using box_coordinate_type = coordinate_type_t<Box>;
+        typedef typename coordinate_type<Box>::type box_coordinate_type;
 
-        using helper_box_type = typename helper_geometry
+        typedef typename helper_geometry
             <
                 Box, box_coordinate_type, Units
-            >::type;
+            >::type helper_box_type;
 
         helper_box_type helper_mbr;
 
         geometry::set
             <
                 min_corner, 0
-            >(helper_mbr, util::numeric_cast<box_coordinate_type>(lon1));
+            >(helper_mbr, boost::numeric_cast<box_coordinate_type>(lon1));
 
         geometry::set
             <
                 min_corner, 1
-            >(helper_mbr, util::numeric_cast<box_coordinate_type>(lat1));
+            >(helper_mbr, boost::numeric_cast<box_coordinate_type>(lat1));
 
         geometry::set
             <
                 max_corner, 0
-            >(helper_mbr, util::numeric_cast<box_coordinate_type>(lon2));
+            >(helper_mbr, boost::numeric_cast<box_coordinate_type>(lon2));
 
         geometry::set
             <
                 max_corner, 1
-            >(helper_mbr, util::numeric_cast<box_coordinate_type>(lat2));
+            >(helper_mbr, boost::numeric_cast<box_coordinate_type>(lat2));
 
         geometry::detail::envelope::transform_units(helper_mbr, mbr);
     }
@@ -343,7 +343,7 @@ public:
                              Box& mbr,
                              Strategy const& strategy)
     {
-        using convert_polar = envelope_segment_convert_polar<Units, cs_tag_t<Box>>;
+        typedef envelope_segment_convert_polar<Units, typename cs_tag<Box>::type> convert_polar;
 
         convert_polar::pre(lat1, lat2);
 

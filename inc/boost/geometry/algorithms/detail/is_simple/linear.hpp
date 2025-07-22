@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2024, Oracle and/or its affiliates.
+// Copyright (c) 2014-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -31,6 +31,7 @@
 #include <boost/geometry/util/range.hpp>
 
 #include <boost/geometry/policies/predicate_based_interrupt_policy.hpp>
+#include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
 #include <boost/geometry/policies/robustness/segment_ratio.hpp>
 
 #include <boost/geometry/algorithms/intersects.hpp>
@@ -68,11 +69,12 @@ template <typename Turn>
 inline bool check_segment_indices(Turn const& turn,
                                   signed_size_type last_index)
 {
-    return (turn.operations[0].seg_id.segment_index == 0
+    return
+        (turn.operations[0].seg_id.segment_index == 0
          && turn.operations[1].seg_id.segment_index == last_index)
         ||
-        (turn.operations[1].seg_id.segment_index == 0
-         && turn.operations[0].seg_id.segment_index == last_index);
+        (turn.operations[0].seg_id.segment_index == 0
+         && turn.operations[1].seg_id.segment_index == last_index);
 }
 
 
@@ -80,7 +82,7 @@ template
 <
     typename Geometry,
     typename Strategy,
-    typename Tag = tag_t<Geometry>
+    typename Tag = typename tag<Geometry>::type
 >
 class is_acceptable_turn
     : not_implemented<Geometry>
@@ -187,19 +189,22 @@ private:
 template <typename Linear, typename Strategy>
 inline bool has_self_intersections(Linear const& linear, Strategy const& strategy)
 {
-    using point_type = point_type_t<Linear>;
-    using turn_info = detail::overlay::turn_info<point_type>;
-    using turn_policy = detail::overlay::get_turn_info
+    typedef typename point_type<Linear>::type point_type;
+
+    // compute self turns
+    typedef detail::overlay::turn_info<point_type> turn_info;
+
+    std::deque<turn_info> turns;
+
+    typedef detail::overlay::get_turn_info
         <
             detail::disjoint::assign_disjoint_policy
-        >;
-    using is_acceptable_turn_type = is_acceptable_turn
+        > turn_policy;
+
+    typedef is_acceptable_turn
         <
             Linear, Strategy
-        >;
-
-    // Compute self turns
-    std::deque<turn_info> turns;
+        > is_acceptable_turn_type;
 
     is_acceptable_turn_type predicate(linear, strategy);
     detail::overlay::predicate_based_interrupt_policy
@@ -213,6 +218,7 @@ inline bool has_self_intersections(Linear const& linear, Strategy const& strateg
             false, turn_policy
         >::apply(linear,
                  strategy,
+                 detail::no_rescale_policy(),
                  turns,
                  interrupt_policy, 0, true);
 

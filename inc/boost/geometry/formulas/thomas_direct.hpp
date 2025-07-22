@@ -1,8 +1,7 @@
 // Boost.Geometry
 
-// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
-
 // Copyright (c) 2016-2020 Oracle and/or its affiliates.
+
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -19,7 +18,7 @@
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/radius.hpp>
 
-#include <boost/geometry/util/constexpr.hpp>
+#include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
 
@@ -109,7 +108,7 @@ public:
         CT const C2 = f * (c1 - math::sqr(M)) / c4; // lower-case c2 in the technical report
         CT D = 0;
         CT P = 0;
-        if BOOST_GEOMETRY_CONSTEXPR (SecondOrder)
+        if ( BOOST_GEOMETRY_CONDITION(SecondOrder) )
         {
             D = (c1 - C2) * (c1 - C2 - C1 * M);
             P = C2 * (c1 + C1 * M / c2) / D;
@@ -143,7 +142,7 @@ public:
         CT const Y = c2 * P * V * W * sin_d;
         CT X = 0;
         CT d_sigma = d - Y;
-        if BOOST_GEOMETRY_CONSTEXPR (SecondOrder)
+        if ( BOOST_GEOMETRY_CONDITION(SecondOrder) )
         {
             X = math::sqr(C2) * sin_d * cos_d * (2 * math::sqr(V) - c1);
             d_sigma += X;
@@ -151,7 +150,7 @@ public:
         CT const sin_d_sigma = sin(d_sigma);
         CT const cos_d_sigma = cos(d_sigma);
 
-        if BOOST_GEOMETRY_CONSTEXPR (CalcRevAzimuth)
+        if (BOOST_GEOMETRY_CONDITION(CalcRevAzimuth))
         {
             result.reverse_azimuth = atan2(M, N * cos_d_sigma - sin_theta1 * sin_d_sigma);
 
@@ -161,12 +160,12 @@ public:
             }
         }
 
-        if BOOST_GEOMETRY_CONSTEXPR (CalcCoordinates)
+        if (BOOST_GEOMETRY_CONDITION(CalcCoordinates))
         {
             CT const S_sigma = c2 * sigma1 - d_sigma;
             CT cos_S_sigma = 0;
             CT H = C1 * d_sigma;
-            if BOOST_GEOMETRY_CONSTEXPR (SecondOrder)
+            if ( BOOST_GEOMETRY_CONDITION(SecondOrder) )
             {
                 cos_S_sigma = cos(S_sigma);
                 H = H * (c1 - C2) - C1 * C2 * sin_d_sigma * cos_S_sigma;
@@ -197,7 +196,7 @@ public:
             }
         }
 
-        if BOOST_GEOMETRY_CONSTEXPR (CalcQuantities)
+        if (BOOST_GEOMETRY_CONDITION(CalcQuantities))
         {
             typedef differential_quantities<CT, EnableReducedLength, EnableGeodesicScale, 2> quantities;
             quantities::apply(lon1, lat1, result.lon2, result.lat2,
@@ -206,7 +205,7 @@ public:
                               result.reduced_length, result.geodesic_scale);
         }
 
-        if BOOST_GEOMETRY_CONSTEXPR (CalcCoordinates)
+        if (BOOST_GEOMETRY_CONDITION(CalcCoordinates))
         {
             // For longitudes close to the antimeridian the result can be out
             // of range. Therefore normalize.

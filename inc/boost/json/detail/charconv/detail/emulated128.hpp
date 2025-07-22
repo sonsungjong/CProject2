@@ -58,15 +58,11 @@ struct uint128
 
 static inline std::uint64_t umul64(std::uint32_t x, std::uint32_t y) noexcept
 {
-    #if defined(BOOST_JSON_HAS_MSVC_32BIT_INTRINSICS) && !defined(_M_ARM)
-
+#if defined(BOOST_JSON_HAS_MSVC_32BIT_INTRINSICS)
     return __emulu(x, y);
-
-    #else
-
+#else
     return x * static_cast<std::uint64_t>(y);
-    
-    #endif
+#endif
 }
 
 // Get 128-bit result of multiplication of two 64-bit unsigned integers.
@@ -77,7 +73,7 @@ BOOST_JSON_SAFEBUFFERS inline uint128 umul128(std::uint64_t x, std::uint64_t y) 
     auto result = static_cast<boost::uint128_type>(x) * static_cast<boost::uint128_type>(y);
     return {static_cast<std::uint64_t>(result >> 64), static_cast<std::uint64_t>(result)};
 
-    #elif defined(BOOST_JSON_HAS_MSVC_64BIT_INTRINSICS) && !defined(_M_ARM64)
+    #elif defined(BOOST_JSON_HAS_MSVC_64BIT_INTRINSICS)
 
     std::uint64_t high;
     std::uint64_t low = _umul128(x, y, &high);

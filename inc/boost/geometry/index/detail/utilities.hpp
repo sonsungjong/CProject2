@@ -12,7 +12,7 @@
 
 #include <type_traits>
 
-#include <boost/core/invoke_swap.hpp>
+#include <boost/core/swap.hpp>
 
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_UTILITIES_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_UTILITIES_HPP
@@ -40,7 +40,7 @@ static inline void move_cond(T &, T &, std::false_type) {}
 template <typename T> inline
 void swap_cond(T & l, T & r, std::true_type)
 {
-    ::boost::core::invoke_swap(l, r);
+    ::boost::swap(l, r);
 }
 
 template <typename T> inline

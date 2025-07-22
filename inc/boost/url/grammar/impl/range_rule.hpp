@@ -600,7 +600,7 @@ end() const noexcept ->
 
 template<class R>
 auto
-implementation_defined::range_rule_t<R>::
+range_rule_t<R>::
 parse(
     char const*& it,
     char const* end) const ->
@@ -669,7 +669,7 @@ parse(
 
 template<class R0, class R1>
 auto
-implementation_defined::range_rule_t<R0, R1>::
+range_rule_t<R0, R1>::
 parse(
     char const*& it,
     char const* end) const ->

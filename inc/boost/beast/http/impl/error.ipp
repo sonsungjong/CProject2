@@ -29,9 +29,8 @@ public:
 
     http_error_category() : error_category(0x964627da815bf210u)  {}
 
-    BOOST_BEAST_DECL
-    char const*
-    message(int ev, char*, std::size_t) const noexcept override
+    std::string
+    message(int ev) const override
     {
         switch(static_cast<error>(ev))
         {
@@ -61,18 +60,10 @@ public:
         case error::multiple_content_length: return "multiple Content-Length";
         case error::stale_parser: return "stale parser";
         case error::short_read: return "unexpected eof in body";
-        case error::header_field_name_too_large: return "header field name too large";
-        case error::header_field_value_too_large: return "header field value too large";
 
         default:
             return "beast.http error";
         }
-    }
-
-    std::string
-    message(int ev) const override
-    {
-        return message(ev, nullptr, 0);
     }
 
     error_condition

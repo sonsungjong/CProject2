@@ -96,7 +96,7 @@ struct side_robust
 
 public:
 
-    using cs_tag = cartesian_tag;
+    typedef cartesian_tag cs_tag;
 
     //! \brief Computes the sign of the CCW triangle p1, p2, p
     template

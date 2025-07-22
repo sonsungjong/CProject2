@@ -14,8 +14,6 @@
 
 #include <vector>
 
-#include <boost/range/size.hpp>
-
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/radian_access.hpp>
@@ -345,10 +343,10 @@ inline geometry::order_selector calculate_point_order(Ring const& ring, Strategy
 template <typename Ring>
 inline geometry::order_selector calculate_point_order(Ring const& ring)
 {
-    using strategy_type = typename strategy::point_order::services::default_strategy
+    typedef typename strategy::point_order::services::default_strategy
         <
-            geometry::cs_tag_t<Ring>
-        >::type;
+            typename geometry::cs_tag<Ring>::type
+        >::type strategy_type;
 
     concepts::check<Ring const>();
 

@@ -72,11 +72,11 @@ template <typename Curr, typename Next>
 struct more_precise_coordinate_type
     : std::is_same
         <
-            geometry::coordinate_type_t<Curr>,
+            typename geometry::coordinate_type<Curr>::type,
             typename geometry::select_most_precise
                 <
-                    geometry::coordinate_type_t<Curr>,
-                    geometry::coordinate_type_t<Next>
+                    typename geometry::coordinate_type<Curr>::type,
+                    typename geometry::coordinate_type<Next>::type
                 >::type
         >
 {};

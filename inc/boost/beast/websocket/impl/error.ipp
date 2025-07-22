@@ -29,9 +29,8 @@ public:
         return "boost.beast.websocket";
     }
 
-    BOOST_BEAST_DECL
-    char const*
-    message(int ev, char*, std::size_t) const noexcept override
+    std::string
+    message(int ev) const override
     {
         switch(static_cast<error>(ev))
         {
@@ -70,12 +69,6 @@ public:
         case error::bad_close_size:         return "The WebSocket close frame payload size was invalid";
         case error::bad_close_payload:      return "The WebSocket close frame payload was not valid utf8";
         }
-    }
-
-    std::string
-    message(int ev) const override
-    {
-        return message(ev, nullptr, 0);
     }
 
     error_condition
@@ -135,9 +128,9 @@ public:
 
     error_conditions() : error_category(0x7a8de5d61799ce9eu)  {}
 
-    BOOST_BEAST_DECL
-    char const*
-    message(int cv, char*, std::size_t) const noexcept override
+
+    std::string
+    message(int cv) const override
     {
         switch(static_cast<condition>(cv))
         {
@@ -145,12 +138,6 @@ public:
         case condition::handshake_failed: return "The WebSocket handshake failed";
         case condition::protocol_violation: return "A WebSocket protocol violation occurred";
         }
-    }
-
-    std::string
-    message(int cv) const override
-    {
-        return message(cv, nullptr, 0);
     }
 };
 

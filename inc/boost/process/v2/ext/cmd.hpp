@@ -8,7 +8,6 @@
 
 #include <string>
 #include <vector>
-#include <memory>
 
 #include <boost/process/v2/detail/config.hpp>
 #include <boost/process/v2/detail/throw_error.hpp>
@@ -37,7 +36,7 @@ BOOST_PROCESS_V2_DECL shell cmd(HANDLE handle);
 #endif
 
 template<typename Executor>
-inline shell cmd(basic_process_handle<Executor> & handle, error_code & ec)
+BOOST_PROCESS_V2_DECL shell cmd(basic_process_handle<Executor> & handle, error_code & ec)
 {
 #if defined(BOOST_PROCESS_V2_WINDOWS)
     return cmd(handle.native_handle(), ec);
@@ -47,7 +46,7 @@ inline shell cmd(basic_process_handle<Executor> & handle, error_code & ec)
 }
 
 template<typename Executor>
-inline shell cmd(basic_process_handle<Executor> & handle)
+BOOST_PROCESS_V2_DECL shell cmd(basic_process_handle<Executor> & handle)
 {
 #if defined(BOOST_PROCESS_V2_WINDOWS)
     return cmd(handle.native_handle());
@@ -61,6 +60,12 @@ inline shell cmd(basic_process_handle<Executor> & handle)
 } // namespace ext
 
 BOOST_PROCESS_V2_END_NAMESPACE
+
+#if defined(BOOST_PROCESS_V2_HEADER_ONLY)
+
+#include <boost/process/v2/ext/impl/cmd.ipp>
+
+#endif
 
 
 #endif // BOOST_PROCESS_V2_CMD_HPP

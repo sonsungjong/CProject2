@@ -14,7 +14,6 @@
 #include <algorithm>
 #include <stdexcept>
 #include <cstddef>
-#include <cstdint>
 
 
 namespace boost { namespace stl_interfaces { namespace detail {

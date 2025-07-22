@@ -1,7 +1,6 @@
 // Boost.Geometry
 
 // Copyright (c) 2017 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2024 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2020-2023.
 // Modifications copyright (c) 2020-2023 Oracle and/or its affiliates.
@@ -27,7 +26,6 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/util/range.hpp>
-#include <boost/range/size.hpp>
 
 namespace boost { namespace geometry
 {
@@ -103,7 +101,7 @@ struct close_or_open_polygon
 namespace dispatch
 {
 
-template <typename Geometry, typename Tag = tag_t<Geometry>>
+template <typename Geometry, typename Tag = typename tag<Geometry>::type>
 struct correct_closure: not_implemented<Tag>
 {};
 
@@ -167,7 +165,7 @@ struct correct_closure<Geometry, multi_polygon_tag>
 namespace resolve_variant
 {
 
-template <typename Geometry, typename Tag = tag_t<Geometry>>
+template <typename Geometry, typename Tag = typename tag<Geometry>::type>
 struct correct_closure
 {
     static inline void apply(Geometry& geometry)

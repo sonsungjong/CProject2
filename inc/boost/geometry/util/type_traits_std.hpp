@@ -1,8 +1,7 @@
 // Boost.Geometry
 
-// Copyright (c) 2024 Adam Wulkiewicz, Lodz, Poland.
-
 // Copyright (c) 2020, Oracle and/or its affiliates.
+
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
@@ -55,7 +54,6 @@ struct conjunction<Trait, Traits...>
     : std::conditional_t<Trait::value, conjunction<Traits...>, Trait>
 {};
 
-
 // C++17
 template <typename ...>
 struct disjunction
@@ -69,7 +67,6 @@ template <typename Trait, typename ...Traits>
 struct disjunction<Trait, Traits...>
     : std::conditional_t<Trait::value, Trait, disjunction<Traits...>>
 {};
-
 
 // C++17
 template <typename Trait>
@@ -198,21 +195,22 @@ using transcribe_cref_t = typename transcribe_cref<From, To>::type;
     \endcode
 */
 template <bool IsConst, typename Type>
-struct [[deprecated("Use util::transcribe_const<> instead.")]] add_const_if_c
-    : std::conditional
+struct add_const_if_c
+{
+    typedef std::conditional_t
         <
             IsConst,
             Type const,
             Type
-        >
-{};
+        > type;
+};
 
 
 namespace util
 {
 
 template <typename T>
-using bare_type [[deprecated("Use util::remove_cptrref<> instead.")]] = remove_cptrref<T>;
+using bare_type = remove_cptrref<T>;
 
 } // namespace util
 

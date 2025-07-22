@@ -41,8 +41,6 @@ protected:
     core::string_view s_;
 
     /** Constructor
-
-        @param s The string view
     */
     constexpr
     string_view_base(
@@ -52,9 +50,6 @@ protected:
     }
 
     /** Constructor
-
-        @param data The character buffer
-        @param size The number of characters
     */
     constexpr
     string_view_base(
@@ -65,13 +60,9 @@ protected:
     }
 
     /** Swap
-
-        @param s The object to swap with
     */
     // VFALCO No idea why this fails in msvc
-    /*BOOST_CXX14_CONSTEXPR*/
-    void
-    swap(
+    /*BOOST_CXX14_CONSTEXPR*/ void swap(
         string_view_base& s ) noexcept
     {
         std::swap(s_, s.s_);
@@ -87,12 +78,9 @@ protected:
         string_view_base const&) = default;
 
     /** Assignment
-
-        @param other The object to assign
-        @return A reference to this object
     */
     string_view_base& operator=(
-        string_view_base const& other) = default;
+        string_view_base const&) = default;
 
 public:
     /// The character traits
@@ -127,9 +115,7 @@ public:
     //--------------------------------------------
 
     /** Conversion
-
-        @return A string view with the same contents
-     */
+    */
     operator
     core::string_view() const noexcept
     {
@@ -137,9 +123,7 @@ public:
     }
 
     /** Conversion
-
-        @return A string view with the same contents
-     */
+    */
 #if !defined(BOOST_NO_CXX17_HDR_STRING_VIEW)
     operator
     std::string_view() const noexcept
@@ -154,8 +138,6 @@ public:
         because assigning to string using an
         implicit constructor does not preserve
         capacity.
-
-        @return A string with the same contents
     */
     explicit
     operator
@@ -171,8 +153,6 @@ public:
     /** Return an iterator to the beginning
 
         See `core::string_view::begin`
-
-        @return An iterator to the beginning
     */
     BOOST_CONSTEXPR const_iterator begin() const noexcept
     {
@@ -182,8 +162,6 @@ public:
     /** Return an iterator to the end
 
         See `core::string_view::end`
-
-        @return An iterator to the end
     */
     BOOST_CONSTEXPR const_iterator end() const noexcept
     {
@@ -193,8 +171,6 @@ public:
     /** Return an iterator to the beginning
 
         See `core::string_view::cbegin`
-
-        @return An iterator to the beginning
     */
     BOOST_CONSTEXPR const_iterator cbegin() const noexcept
     {
@@ -204,8 +180,6 @@ public:
     /** Return an iterator to the end
 
         See `core::string_view::cend`
-
-        @return An iterator to the end
     */
     BOOST_CONSTEXPR const_iterator cend() const noexcept
     {
@@ -215,10 +189,10 @@ public:
     /** Return a reverse iterator to the end
 
         See `core::string_view::rbegin`
-
-        @return A reverse iterator to the end
     */
-    BOOST_URL_LIB_ARRAY_CONSTEXPR
+#ifdef __cpp_lib_array_constexpr
+    constexpr
+#endif
     const_reverse_iterator rbegin() const noexcept
     {
         return s_.rbegin();
@@ -227,10 +201,10 @@ public:
     /** Return a reverse iterator to the beginning
 
         See `core::string_view::rend`
-
-        @return A reverse iterator to the beginning
     */
-    BOOST_URL_LIB_ARRAY_CONSTEXPR
+#ifdef __cpp_lib_array_constexpr
+    constexpr
+#endif
     const_reverse_iterator rend() const noexcept
     {
         return s_.rend();
@@ -239,10 +213,10 @@ public:
     /** Return a reverse iterator to the end
 
         See `core::string_view::crbegin`
-
-        @return A reverse iterator to the end
     */
-    BOOST_URL_LIB_ARRAY_CONSTEXPR
+#ifdef __cpp_lib_array_constexpr
+    constexpr
+#endif
     const_reverse_iterator crbegin() const noexcept
     {
         return s_.crbegin();
@@ -251,10 +225,10 @@ public:
     /** Return a reverse iterator to the beginning
 
         See `core::string_view::crend`
-
-        @return A reverse iterator to the beginning
     */
-    BOOST_URL_LIB_ARRAY_CONSTEXPR
+#ifdef __cpp_lib_array_constexpr
+    constexpr
+#endif
     const_reverse_iterator crend() const noexcept
     {
         return s_.crend();
@@ -265,8 +239,6 @@ public:
     /** Return the size
 
         See `core::string_view::size`
-
-        @return The size
     */
     BOOST_CONSTEXPR size_type size() const noexcept
     {
@@ -276,8 +248,6 @@ public:
     /** Return the size
 
         See `core::string_view::length`
-
-        @return The size
     */
     BOOST_CONSTEXPR size_type length() const noexcept
     {
@@ -287,8 +257,6 @@ public:
     /** Return the maximum allowed size
 
         See `core::string_view::max_size`
-
-        @return The maximum allowed size
     */
     BOOST_CONSTEXPR size_type max_size() const noexcept
     {
@@ -298,8 +266,6 @@ public:
     /** Return true if the string is empty
 
         See `core::string_view::size`
-
-        @return `true` if the string is empty
     */
     BOOST_CONSTEXPR bool empty() const noexcept
     {
@@ -311,9 +277,6 @@ public:
     /** Access a character
 
         See `core::string_view::operator[]`
-
-        @param pos The position to access
-        @return The character at the position
     */
     BOOST_CXX14_CONSTEXPR const_reference
         operator[]( size_type pos ) const noexcept
@@ -324,9 +287,6 @@ public:
     /** Access a character
 
         See `core::string_view::at`
-
-        @param pos The position to access
-        @return The character at the position
     */
     BOOST_CXX14_CONSTEXPR const_reference
         at( size_type pos ) const
@@ -337,8 +297,6 @@ public:
     /** Return the first character
 
         See `core::string_view::front`
-
-        @return The first character
     */
     BOOST_CXX14_CONSTEXPR const_reference
         front() const noexcept
@@ -349,8 +307,6 @@ public:
     /** Return the last character
 
         See `core::string_view::back`
-
-        @return The last character
     */
     BOOST_CXX14_CONSTEXPR const_reference
         back() const noexcept
@@ -361,8 +317,6 @@ public:
     /** Return a pointer to the character buffer
 
         See `core::string_view::data`
-
-        @return A pointer to the character buffer
     */
     BOOST_CONSTEXPR const_pointer
         data() const noexcept
@@ -375,11 +329,6 @@ public:
     /** Copy the characters to another buffer
 
         See `core::string_view::copy`
-
-        @param s The destination buffer
-        @param n The number of characters to copy
-        @param pos The position to start from
-        @return The number of characters copied
     */
     BOOST_CXX14_CONSTEXPR size_type copy(
         char* s, size_type n, size_type pos = 0 ) const
@@ -390,10 +339,6 @@ public:
     /** Return a view to part of the string
 
         See `core::string_view::substr`
-
-        @param pos The position to start from
-        @param n The number of characters
-        @return A view to the substring
     */
     BOOST_CXX14_CONSTEXPR core::string_view substr(
         size_type pos = 0, size_type n = core::string_view::npos ) const
@@ -406,9 +351,6 @@ public:
     /** Return the result of comparing to another string
 
         See `core::string_view::compare`
-
-        @param str The string to compare
-        @return The result of the comparison
     */
     BOOST_CXX14_CONSTEXPR int
         compare( core::string_view str ) const noexcept
@@ -419,11 +361,6 @@ public:
     /** Return the result of comparing to another string
 
         See `core::string_view::compare`
-
-        @param pos1 The position to start comparing from
-        @param n1 The number of characters to compare
-        @param str The string to compare
-        @return The result of the comparison
     */
     BOOST_CONSTEXPR int compare(
         size_type pos1, size_type n1, core::string_view str ) const
@@ -434,13 +371,6 @@ public:
     /** Return the result of comparing to another string
 
         See `core::string_view::compare`
-
-        @param pos1 The position to start comparing from
-        @param n1 The number of characters to compare
-        @param str The string to compare
-        @param pos2 The position to start comparing from
-        @param n2 The number of characters to compare
-        @return The result of the comparison
     */
     BOOST_CONSTEXPR int compare(
         size_type pos1, size_type n1, core::string_view str,
@@ -452,9 +382,6 @@ public:
     /** Return the result of comparing to another string
 
         See `core::string_view::compare`
-
-        @param s The string to compare
-        @return The result of the comparison
     */
     BOOST_CONSTEXPR int compare(
         char const* s ) const noexcept
@@ -465,11 +392,6 @@ public:
     /** Return the result of comparing to another string
 
         See `core::string_view::compare`
-
-        @param pos1 The position to start comparing from
-        @param n1 The number of characters to compare
-        @param s The string to compare
-        @return The result of the comparison
     */
     BOOST_CONSTEXPR int compare(
         size_type pos1, size_type n1, char const* s ) const
@@ -480,12 +402,6 @@ public:
     /** Return the result of comparing to another string
 
         See `core::string_view::compare`
-
-        @param pos1 The position to start comparing from
-        @param n1 The number of characters to compare
-        @param s The string to compare
-        @param n2 The number of characters to compare
-        @return The result of the comparison
     */
     BOOST_CONSTEXPR int compare(
         size_type pos1, size_type n1,
@@ -499,9 +415,6 @@ public:
     /** Return true if a matching prefix exists
 
         See `core::string_view::starts_with`
-
-        @param x The string to search for
-        @return `true` if the prefix matches
     */
     BOOST_CONSTEXPR bool starts_with(
         core::string_view x ) const noexcept
@@ -512,9 +425,6 @@ public:
     /** Return true if a matching prefix exists
 
         See `core::string_view::starts_with`
-
-        @param x The character to search for
-        @return `true` if the prefix matches
     */
     BOOST_CONSTEXPR bool starts_with(
         char x ) const noexcept
@@ -525,9 +435,6 @@ public:
     /** Return true if a matching prefix exists
 
         See `core::string_view::starts_with`
-
-        @param x The string to search for
-        @return `true` if the prefix matches
     */
     BOOST_CONSTEXPR bool starts_with(
         char const* x ) const noexcept
@@ -540,9 +447,6 @@ public:
     /** Return true if a matching suffix exists
 
         See `core::string_view::ends_with`
-
-        @param x The string to search for
-        @return `true` if the suffix matches
     */
     BOOST_CONSTEXPR bool ends_with(
         core::string_view x ) const noexcept
@@ -553,9 +457,6 @@ public:
     /** Return true if a matching suffix exists
 
         See `core::string_view::ends_with`
-
-        @param x The character to search for
-        @return `true` if the suffix matches
     */
     BOOST_CONSTEXPR bool ends_with(
         char x ) const noexcept
@@ -566,9 +467,6 @@ public:
     /** Return true if a matching suffix exists
 
         See `core::string_view::ends_with`
-
-        @param x The string to search for
-        @return `true` if the suffix matches
     */
     BOOST_CONSTEXPR bool ends_with(
         char const* x ) const noexcept
@@ -581,10 +479,6 @@ public:
     /** Return the position of matching characters
 
         See `core::string_view::find`
-
-        @param str The characters to search for
-        @param pos The position to start searching from
-        @return The position of the first match
     */
     BOOST_CONSTEXPR size_type find(
         core::string_view str, size_type pos = 0 ) const noexcept
@@ -595,10 +489,6 @@ public:
     /** Return the position of matching characters
 
         See `core::string_view::find`
-
-        @param c The character to search for
-        @param pos The position to start searching from
-        @return The position of the first match
     */
     BOOST_CXX14_CONSTEXPR size_type find(
         char c, size_type pos = 0 ) const noexcept
@@ -609,11 +499,6 @@ public:
     /** Return the position of matching characters
 
         See `core::string_view::find`
-
-        @param s The characters to search for
-        @param pos The position to start searching from
-        @param n The number of characters to search for
-        @return The position of the first match
     */
     BOOST_CXX14_CONSTEXPR size_type find(
         char const* s, size_type pos, size_type n ) const noexcept
@@ -624,10 +509,6 @@ public:
     /** Return the position of matching characters
 
         See `core::string_view::find`
-
-        @param s The characters to search for
-        @param pos The position to start searching from
-        @return The position of the first match
     */
     BOOST_CONSTEXPR size_type find(
         char const* s, size_type pos = 0 ) const noexcept
@@ -640,10 +521,6 @@ public:
     /** Return the position of matching characters
 
         See `core::string_view::rfind`
-
-        @param str The characters to search for
-        @param pos The position to start searching from
-        @return The position of the first match
     */
     BOOST_CONSTEXPR size_type rfind(
         core::string_view str, size_type pos = core::string_view::npos ) const noexcept
@@ -654,10 +531,6 @@ public:
     /** Return the position of matching characters
 
         See `core::string_view::rfind`
-
-        @param c The character to search for
-        @param pos The position to start searching from
-        @return The position of the first match
     */
     BOOST_CXX14_CONSTEXPR size_type rfind(
         char c, size_type pos = core::string_view::npos ) const noexcept
@@ -668,11 +541,6 @@ public:
     /** Return the position of matching characters
 
         See `core::string_view::rfind`
-
-        @param s The characters to search for
-        @param pos The position to start searching from
-        @param n The number of characters to search for
-        @return The position of the first match
     */
     BOOST_CXX14_CONSTEXPR size_type rfind(
         char const* s, size_type pos, size_type n ) const noexcept
@@ -683,10 +551,6 @@ public:
     /** Return the position of matching characters
 
         See `core::string_view::rfind`
-
-        @param s The characters to search for
-        @param pos The position to start searching from
-        @return The position of the first match
     */
     BOOST_CONSTEXPR size_type rfind(
         char const* s, size_type pos = core::string_view::npos ) const noexcept
@@ -699,10 +563,6 @@ public:
     /** Return the position of the first match
 
         See `core::string_view::find_first_of`
-
-        @param str The characters to search for
-        @param pos The position to start searching from
-        @return The position of the first match
     */
     BOOST_CXX14_CONSTEXPR size_type find_first_of(
         core::string_view str, size_type pos = 0 ) const noexcept
@@ -713,10 +573,6 @@ public:
     /** Return the position of the first match
 
         See `core::string_view::find_first_of`
-
-        @param c The character to search for
-        @param pos The position to start searching from
-        @return The position of the first match
     */
     BOOST_CONSTEXPR size_type find_first_of(
         char c, size_type pos = 0 ) const noexcept
@@ -727,11 +583,6 @@ public:
     /** Return the position of the first match
 
         See `core::string_view::find_first_of`
-
-        @param s The characters to search for
-        @param pos The position to start searching from
-        @param n The number of characters to search for
-        @return The position of the first match
     */
     BOOST_CXX14_CONSTEXPR size_type find_first_of(
         char const* s, size_type pos, size_type n ) const noexcept
@@ -742,10 +593,6 @@ public:
     /** Return the position of the first match
 
         See `core::string_view::find_first_of`
-
-        @param s The characters to search for
-        @param pos The position to start searching from
-        @return The position of the first match
     */
     BOOST_CXX14_CONSTEXPR size_type find_first_of(
         char const* s, size_type pos = 0 ) const noexcept
@@ -758,10 +605,6 @@ public:
     /** Return the position of the last match
 
         See `core::string_view::find_last_of`
-
-        @param str The characters to search for
-        @param pos The position to start searching from
-        @return The position of the last match
     */
     BOOST_CXX14_CONSTEXPR size_type find_last_of(
         core::string_view str, size_type pos = core::string_view::npos ) const noexcept
@@ -772,10 +615,6 @@ public:
     /** Return the position of the last match
 
         See `core::string_view::find_last_of`
-
-        @param c The character to search for
-        @param pos The position to start searching from
-        @return The position of the last match
     */
     BOOST_CONSTEXPR size_type find_last_of(
         char c, size_type pos = core::string_view::npos ) const noexcept
@@ -786,11 +625,6 @@ public:
     /** Return the position of the last match
 
         See `core::string_view::find_last_of`
-
-        @param s The characters to search for
-        @param pos The position to start searching from
-        @param n The number of characters to search for
-        @return The position of the last match
     */
     BOOST_CXX14_CONSTEXPR size_type find_last_of(
         char const* s, size_type pos, size_type n ) const noexcept
@@ -801,10 +635,6 @@ public:
     /** Return the position of the last match
 
         See `core::string_view::find_last_of`
-
-        @param s The characters to search for
-        @param pos The position to start searching from
-        @return The position of the last match
     */
     BOOST_CXX14_CONSTEXPR size_type find_last_of(
         char const* s, size_type pos = core::string_view::npos ) const noexcept
@@ -817,10 +647,6 @@ public:
     /** Return the position of the first non-match
 
         See `core::string_view::find_first_not_of`
-
-        @param str The characters to search for
-        @param pos The position to start searching from
-        @return The position of the first non-match
     */
     BOOST_CXX14_CONSTEXPR size_type find_first_not_of(
         core::string_view str, size_type pos = 0 ) const noexcept
@@ -831,10 +657,6 @@ public:
     /** Return the position of the first non-match
 
         See `core::string_view::find_first_not_of`
-
-        @param c The character to search for
-        @param pos The position to start searching from
-        @return The position of the first non-match
     */
     BOOST_CXX14_CONSTEXPR size_type find_first_not_of(
         char c, size_type pos = 0 ) const noexcept
@@ -845,11 +667,6 @@ public:
     /** Return the position of the first non-match
 
         See `core::string_view::find_first_not_of`
-
-        @param s The characters to search for
-        @param pos The position to start searching from
-        @param n The number of characters to search for
-        @return The position of the first non-match
     */
     BOOST_CXX14_CONSTEXPR size_type find_first_not_of(
         char const* s, size_type pos, size_type n ) const noexcept
@@ -860,10 +677,6 @@ public:
     /** Return the position of the first non-match
 
         See `core::string_view::find_first_not_of`
-
-        @param s The characters to search for
-        @param pos The position to start searching from
-        @return The position of the first non-match
     */
     BOOST_CXX14_CONSTEXPR size_type find_first_not_of(
         char const* s, size_type pos = 0 ) const noexcept
@@ -876,10 +689,6 @@ public:
     /** Return the position of the last non-match
 
         See `core::string_view::find_last_not_of`
-
-        @param str The characters to search for
-        @param pos The position to start searching from
-        @return The position of the last non-match
     */
     BOOST_CXX14_CONSTEXPR size_type find_last_not_of(
         core::string_view str, size_type pos = core::string_view::npos ) const noexcept
@@ -890,10 +699,6 @@ public:
     /** Return the position of the last non-match
 
         See `core::string_view::find_last_not_of`
-
-        @param c The character to search for
-        @param pos The position to start searching from
-        @return The position of the last non-match
     */
     BOOST_CXX14_CONSTEXPR size_type find_last_not_of(
         char c, size_type pos = core::string_view::npos ) const noexcept
@@ -904,11 +709,6 @@ public:
     /** Return the position of the last non-match
 
         See `core::string_view::find_last_not_of`
-
-        @param s The characters to search for
-        @param pos The position to start searching from
-        @param n The number of characters to search for
-        @return The position of the last non-match
     */
     BOOST_CXX14_CONSTEXPR size_type find_last_not_of(
         char const* s, size_type pos, size_type n ) const noexcept
@@ -919,10 +719,6 @@ public:
     /** Return the position of the last non-match
 
         See `core::string_view::find_last_not_of`
-
-        @param s The characters to search for
-        @param pos The position to start searching from
-        @return The position of the last non-match
     */
     BOOST_CXX14_CONSTEXPR size_type find_last_not_of(
         char const* s, size_type pos = core::string_view::npos ) const noexcept
@@ -935,9 +731,6 @@ public:
     /** Return true if matching characters are found
 
         See `core::string_view::contains`
-
-        @param sv The string to search for
-        @return `true` if the string contains the characters, otherwise `false`
     */
     BOOST_CONSTEXPR bool contains( core::string_view sv ) const noexcept
     {
@@ -947,9 +740,6 @@ public:
     /** Return true if matching characters are found
 
         See `core::string_view::contains`
-
-        @param c The character to search for
-        @return `true` if the string contains the character, otherwise `false`
     */
     BOOST_CXX14_CONSTEXPR bool contains( char c ) const noexcept
     {
@@ -959,9 +749,6 @@ public:
     /** Return true if matching characters are found
 
         See `core::string_view::contains`
-
-        @param s The string to search for
-        @return `true` if the string contains the characters, otherwise `false`
     */
     BOOST_CONSTEXPR bool contains( char const* s ) const noexcept
     {
@@ -985,16 +772,6 @@ private:
                 string_view_base const volatile*>::value))>;
 public:
 
-    /** Compare two string views for equality
-
-        This function is only enabled if both arguments
-        are convertible to `core::string_view` and at least
-        one of the arguments is derived from `string_view_base`.
-
-        @param s0 The first string
-        @param s1 The second string
-        @return `true` if the strings are equal, otherwise `false`
-     */
     template<class S0, class S1>
     BOOST_CXX14_CONSTEXPR friend auto operator==(
         S0 const& s0, S1 const& s1) noexcept ->
@@ -1004,16 +781,6 @@ public:
         return urls::detail::to_sv(s0) == urls::detail::to_sv(s1);
     }
 
-    /** Compare two string views for inequality
-
-        This function is only enabled if both arguments
-        are convertible to `core::string_view` and at least
-        one of the arguments is derived from `string_view_base`.
-
-        @param s0 The first string
-        @param s1 The second string
-        @return `true` if the strings are not equal, otherwise `false`
-     */
     template<class S0, class S1>
     BOOST_CXX14_CONSTEXPR friend auto operator!=(
         S0 const& s0, S1 const& s1) noexcept ->
@@ -1023,16 +790,6 @@ public:
         return urls::detail::to_sv(s0) != urls::detail::to_sv(s1);
     }
 
-    /** Compare two string views for less than
-
-        This function is only enabled if both arguments
-        are convertible to `core::string_view` and at least
-        one of the arguments is derived from `string_view_base`.
-
-        @param s0 The first string
-        @param s1 The second string
-        @return `true` if the first string is less than the second, otherwise `false`
-     */
     template<class S0, class S1>
     BOOST_CXX14_CONSTEXPR friend auto operator<(
         S0 const& s0, S1 const& s1) noexcept ->
@@ -1042,16 +799,6 @@ public:
         return urls::detail::to_sv(s0) < urls::detail::to_sv(s1);
     }
 
-    /** Compare two string views for less than or equal
-
-        This function is only enabled if both arguments
-        are convertible to `core::string_view` and at least
-        one of the arguments is derived from `string_view_base`.
-
-        @param s0 The first string
-        @param s1 The second string
-        @return `true` if the first string is less than or equal to the second, otherwise `false`
-     */
     template<class S0, class S1>
     BOOST_CXX14_CONSTEXPR friend auto operator<=(
         S0 const& s0, S1 const& s1) noexcept ->
@@ -1061,16 +808,6 @@ public:
         return urls::detail::to_sv(s0) <= urls::detail::to_sv(s1);
     }
 
-    /** Compare two string views for greater than
-
-        This function is only enabled if both arguments
-        are convertible to `core::string_view` and at least
-        one of the arguments is derived from `string_view_base`.
-
-        @param s0 The first string
-        @param s1 The second string
-        @return `true` if the first string is greater than the second, otherwise `false`
-     */
     template<class S0, class S1>
     BOOST_CXX14_CONSTEXPR friend auto operator>(
         S0 const& s0, S1 const& s1) noexcept ->
@@ -1080,16 +817,6 @@ public:
         return urls::detail::to_sv(s0) > urls::detail::to_sv(s1);
     }
 
-    /** Compare two string views for greater than or equal
-
-        This function is only enabled if both arguments
-        are convertible to `core::string_view` and at least
-        one of the arguments is derived from `string_view_base`.
-
-        @param s0 The first string
-        @param s1 The second string
-        @return `true` if the first string is greater than or equal to the second, otherwise `false`
-     */
     template<class S0, class S1>
     BOOST_CXX14_CONSTEXPR friend auto operator>=(
         S0 const& s0, S1 const& s1) noexcept ->
@@ -1102,12 +829,16 @@ public:
 
     //--------------------------------------------
 
-    /** Format a string to an output stream
+    /** Return the hash of this value
+    */
+    friend
+    std::size_t
+    hash_value(
+        string_view_base const& s) noexcept
+    {
+        return hash_value(s.s_);
+    }
 
-        @param os The output stream to write to
-        @param s The string to write
-        @return A reference to the output stream, for chaining
-     */
     BOOST_URL_DECL
     friend
     std::ostream&

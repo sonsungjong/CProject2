@@ -15,7 +15,7 @@
 # pragma once
 #endif
 
-#if defined(_MSC_VER) && !defined(__clang__)
+#ifdef _MSC_VER
 // inline aggressively
 # pragma inline_recursion(on) // turn on inline recursion
 # pragma inline_depth(255)    // max inline depth

@@ -40,8 +40,6 @@ namespace grammar {
 #ifdef BOOST_URL_DOCS
 constexpr __implementation_defined__ all_chars;
 #else
-namespace implementation_defined
-{
 struct all_chars_t
 {
     constexpr
@@ -74,29 +72,13 @@ struct all_chars_t
     }
 #endif
 };
-} // implementation_defined
 
-/** The set of all characters
-
-    @par Example
-    Character sets are used with rules and the
-    functions @ref find_if and @ref find_if_not.
-    @code
-    system::result< core::string_view > rv = parse( "JohnDoe", token_rule( all_chars ) );
-    @endcode
-
-    @par BNF
-    @code
-    ALL       = %x00-FF
-    @endcode
+/** A character set containing all characters.
 
     @see
-        @ref find_if,
-        @ref find_if_not,
-        @ref parse,
-        @ref token_rule.
+        @ref all_chars_t
 */
-BOOST_INLINE_VARIABLE constexpr implementation_defined::all_chars_t all_chars{};
+constexpr all_chars_t all_chars{};
 #endif
 
 } // grammar

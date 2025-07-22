@@ -66,12 +66,12 @@ public :
                 DistanceStrategy const& distance,
                 OutputRange& output_range)
     {
-        using coordinate_type = coordinate_type_t<Point>;
-        using promoted_type = typename geometry::select_most_precise
+        typedef typename coordinate_type<Point>::type coordinate_type;
+        typedef typename geometry::select_most_precise
         <
             coordinate_type,
             double
-        >::type;
+        >::type promoted_type;
 
         // Generate a block along (left or right of) the segment
 

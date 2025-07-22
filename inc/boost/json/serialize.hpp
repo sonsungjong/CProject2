@@ -55,10 +55,6 @@ BOOST_JSON_DECL
 std::string
 serialize(string const& t, serialize_options const& opts = {});
 
-template<class T>
-std::string
-serialize(T const& t, serialize_options const& opts = {});
-
 BOOST_JSON_DECL
 std::string
 serialize(string_view t, serialize_options const& opts = {});
@@ -66,7 +62,5 @@ serialize(string_view t, serialize_options const& opts = {});
 
 } // namespace json
 } // namespace boost
-
-#include <boost/json/impl/serialize.hpp>
 
 #endif

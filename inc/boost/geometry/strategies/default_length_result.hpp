@@ -53,7 +53,7 @@ struct default_length_result_impl<util::type_sequence<Geometries...>>
 {
     using type = typename select_most_precise
         <
-            coordinate_type_t<Geometries>...,
+            typename coordinate_type<Geometries>::type...,
             long double
         >::type;
 };

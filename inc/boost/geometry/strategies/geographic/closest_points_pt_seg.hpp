@@ -84,7 +84,7 @@ public :
                 <
                     typename calculation_type<Point, PointOfSegment>::type,
                     dimension<PointOfSegment>::value,
-                    coordinate_system_t<PointOfSegment>
+                    typename coordinate_system<PointOfSegment>::type
                 > cp;
 
             geometry::set_from_radian<0>(cp, result.lon);

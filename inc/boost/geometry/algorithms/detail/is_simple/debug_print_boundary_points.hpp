@@ -43,7 +43,7 @@ namespace detail { namespace is_simple
 
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
-template <typename Linear, typename Tag = tag_t<Linear>>
+template <typename Linear, typename Tag = typename tag<Linear>::type>
 struct debug_boundary_points_printer
     : not_implemented<Linear>
 {};
@@ -65,7 +65,10 @@ struct debug_boundary_points_printer<MultiLinestring, multi_linestring_tag>
 {
     static inline void apply(MultiLinestring const& multilinestring)
     {
-        std::vector<point_type_t<MultiLinestring>> boundary_points;
+        typedef typename point_type<MultiLinestring>::type point_type;
+        typedef std::vector<point_type> point_vector;
+
+        point_vector boundary_points;
         for (auto it = boost::begin(multilinestring); it != boost::end(multilinestring); ++it)
         {
             if ( boost::size(*it) > 1

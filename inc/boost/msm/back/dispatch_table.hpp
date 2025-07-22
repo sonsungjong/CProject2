@@ -11,7 +11,6 @@
 #ifndef BOOST_MSM_BACK_DISPATCH_TABLE_H
 #define BOOST_MSM_BACK_DISPATCH_TABLE_H
 
-#include <cstdint>
 #include <utility>
 
 #include <boost/mpl/reverse_fold.hpp>
@@ -58,7 +57,7 @@ struct dispatch_table
             template <class Sequence>
             static
             HandledEnum
-            execute(Fsm& , int, int, Event& , ::boost::mpl::true_ const & )
+            execute(Fsm& , int, int, Event const& , ::boost::mpl::true_ const & )
             {
                 // if at least one guard rejected, this will be ignored, otherwise will generate an error
                 return HANDLED_FALSE;
@@ -67,7 +66,7 @@ struct dispatch_table
             template <class Sequence>
             static
             HandledEnum
-            execute(Fsm& fsm, int region_index , int state, Event& evt,
+            execute(Fsm& fsm, int region_index , int state, Event const& evt,
                     ::boost::mpl::false_ const & )
             {
                  // try the first guard
@@ -90,7 +89,7 @@ struct dispatch_table
             }
         };
         // Take the transition action and return the next state.
-        static HandledEnum execute(Fsm& fsm, int region_index, int state, Event& evt)
+        static HandledEnum execute(Fsm& fsm, int region_index, int state, Event const& evt)
         {
             // forward to helper
             return execute_helper::template execute<Seq>(fsm,region_index,state,evt,
@@ -177,9 +176,7 @@ struct dispatch_table
             typedef typename create_stt<Fsm>::type stt; 
             BOOST_STATIC_CONSTANT(int, state_id = 
                 (get_state_id<stt,typename Transition::current_state_type>::value));
-            // reinterpret_cast to uintptr_t to suppress gcc-11 warning
-            self->entries[state_id + 1] = reinterpret_cast<cell>(
-                reinterpret_cast<std::uintptr_t>(&Transition::execute));
+            self->entries[state_id+1] = reinterpret_cast<cell>(&Transition::execute);
         }
         template <class Transition>
         typename ::boost::enable_if<
@@ -423,10 +420,7 @@ struct dispatch_table
     }
 
     // The singleton instance.
-    static const dispatch_table& instance() {
-        static dispatch_table table;
-        return table;
-    }
+    static const dispatch_table instance;
 
  public: // data members
      // +1 => 0 is reserved for this fsm (internal transitions)

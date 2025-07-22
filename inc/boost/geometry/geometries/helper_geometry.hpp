@@ -40,7 +40,7 @@ template
     typename Point,
     typename NewCoordinateType,
     typename NewUnits,
-    typename CS_Tag = cs_tag_t<Point>
+    typename CS_Tag = typename cs_tag<Point>::type
 >
 struct helper_point
 {
@@ -48,7 +48,7 @@ struct helper_point
         <
             NewCoordinateType,
             dimension<Point>::value,
-            cs_tag_to_coordinate_system_t<NewUnits, CS_Tag>
+            typename cs_tag_to_coordinate_system<NewUnits, CS_Tag>::type
         > type;
 };
 
@@ -65,8 +65,7 @@ template
     typename Geometry,
     typename NewCoordinateType,
     typename NewUnits,
-    typename Tag = tag_t<Geometry>
->
+    typename Tag = typename tag<Geometry>::type>
 struct helper_geometry : not_implemented<Geometry>
 {};
 
@@ -88,7 +87,7 @@ struct helper_geometry<Box, NewCoordinateType, NewUnits, box_tag>
         <
             typename helper_geometry
                 <
-                    point_type_t<Box>, NewCoordinateType, NewUnits
+                    typename point_type<Box>::type, NewCoordinateType, NewUnits
                 >::type
         >;
 };
@@ -101,7 +100,7 @@ struct helper_geometry<Linestring, NewCoordinateType, NewUnits, linestring_tag>
         <
             typename helper_geometry
                 <
-                    point_type_t<Linestring>, NewCoordinateType, NewUnits
+                    typename point_type<Linestring>::type, NewCoordinateType, NewUnits
                 >::type
         >;
 };
@@ -113,7 +112,7 @@ struct helper_geometry<Ring, NewCoordinateType, NewUnits, ring_tag>
         <
             typename helper_geometry
                 <
-                    point_type_t<Ring>, NewCoordinateType, NewUnits
+                    typename point_type<Ring>::type, NewCoordinateType, NewUnits
                 >::type,
             point_order<Ring>::value != counterclockwise,
             closure<Ring>::value != open
@@ -130,7 +129,7 @@ struct helper_geometry<Ring, NewCoordinateType, NewUnits, ring_tag>
 template
 <
     typename Geometry,
-    typename NewCoordinateType = coordinate_type_t<Geometry>,
+    typename NewCoordinateType = typename coordinate_type<Geometry>::type,
     typename NewUnits = typename detail::cs_angular_units<Geometry>::type
 >
 struct helper_geometry

@@ -514,8 +514,8 @@ inline double real_cast<double, boost::math::ntl::RR>(boost::math::ntl::RR t)
 
 namespace detail{
 
-template<class Integer>
-void convert_to_long_result(NTL::RR const& r, Integer& result)
+template<class I>
+void convert_to_long_result(NTL::RR const& r, I& result)
 {
    result = 0;
    I last_result(0);

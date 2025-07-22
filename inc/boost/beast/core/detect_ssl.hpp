@@ -308,9 +308,8 @@ detect_ssl(
         bool result                 // The result of the detector
     );
     @endcode
-    If the handler has an associated immediate executor,
-    an immediate completion will be dispatched to it.
-    Otherwise, the handler will not be invoked from within
+    Regardless of whether the asynchronous operation completes
+    immediately or not, the handler will not be invoked from within
     this function. Invocation of the handler will be performed in a
     manner equivalent to using `net::post`.
 */
@@ -320,12 +319,19 @@ template<
     class CompletionToken =
         net::default_completion_token_t<beast::executor_type<AsyncReadStream>>
 >
-BOOST_ASIO_INITFN_AUTO_RESULT_TYPE(CompletionToken, void(error_code, bool))
+#if BOOST_BEAST_DOXYGEN
+BOOST_ASIO_INITFN_RESULT_TYPE(CompletionToken, void(error_code, bool))
+#else
+auto
+#endif
 async_detect_ssl(
     AsyncReadStream& stream,
     DynamicBuffer& buffer,
     CompletionToken&& token = net::default_completion_token_t<
-            beast::executor_type<AsyncReadStream>>{});
+            beast::executor_type<AsyncReadStream>>{}) ->
+        typename net::async_result<
+            typename std::decay<CompletionToken>::type, /*< `async_result` customizes the return value based on the completion token >*/
+            void(error_code, bool)>::return_type; /*< This is the signature for the completion handler >*/
 //]
 
 //[example_core_detect_ssl_5
@@ -348,7 +354,6 @@ class detect_ssl_op;
 // authors of composed operations need to write it this way to get the
 // very best performance, for example when using Coroutines TS (`co_await`).
 
-template <typename AsyncReadStream>
 struct run_detect_ssl_op
 {
     // The implementation of `net::async_initiate` captures the
@@ -362,29 +367,20 @@ struct run_detect_ssl_op
     // token into the "real handler" which must have the correct
     // signature, in this case `void(error_code, boost::tri_bool)`.
 
-    AsyncReadStream* stream;
-
-    using executor_type = typename AsyncReadStream::executor_type;
-
-    executor_type
-    get_executor() const noexcept
-    {
-        return stream->get_executor();
-    }
-
     template<
         class DetectHandler,
+        class AsyncReadStream,
         class DynamicBuffer>
-    void
-    operator()(
+    void operator()(
         DetectHandler&& h,
+        AsyncReadStream* s, // references are passed as pointers
         DynamicBuffer* b)
     {
         detect_ssl_op<
             typename std::decay<DetectHandler>::type,
             AsyncReadStream,
             DynamicBuffer>(
-                std::forward<DetectHandler>(h), *stream, *b);
+                std::forward<DetectHandler>(h), *s, *b);
     }
 };
 
@@ -399,11 +395,18 @@ template<
     class AsyncReadStream,
     class DynamicBuffer,
     class CompletionToken>
-BOOST_ASIO_INITFN_AUTO_RESULT_TYPE(CompletionToken, void(error_code, bool))
+#if BOOST_BEAST_DOXYGEN
+BOOST_ASIO_INITFN_RESULT_TYPE(CompletionToken, void(error_code, bool))
+#else
+auto
+#endif
 async_detect_ssl(
     AsyncReadStream& stream,
     DynamicBuffer& buffer,
     CompletionToken&& token)
+        -> typename net::async_result<
+            typename std::decay<CompletionToken>::type,
+            void(error_code, bool)>::return_type
 {
     // Make sure arguments meet the type requirements
 
@@ -433,8 +436,9 @@ async_detect_ssl(
     return net::async_initiate<
         CompletionToken,
         void(error_code, bool)>(
-            detail::run_detect_ssl_op<AsyncReadStream>{&stream},
+            detail::run_detect_ssl_op{},
             token,
+            &stream, // pass the reference by pointer
             &buffer);
 }
 

@@ -10,12 +10,10 @@
 #pragma once
 #endif
 
-#include <iosfwd>
 #include <iterator>
 #include <string>
 #include <boost/spirit/home/karma/generate.hpp>
 #include <boost/spirit/home/support/iterators/ostream_iterator.hpp>
-#include <boost/core/scoped_enum.hpp>
 #include <boost/mpl/bool.hpp>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -150,7 +148,7 @@ namespace boost { namespace spirit { namespace karma { namespace detail
         karma::ostream_iterator<Char, Char, Traits> sink(os);
         if (!karma::generate (sink, fm.expr))
         {
-            os.setstate(std::basic_ostream<Char, Traits>::failbit);
+            os.setstate(std::ios_base::failbit);
         }
         return os;
     }
@@ -165,7 +163,7 @@ namespace boost { namespace spirit { namespace karma { namespace detail
         karma::ostream_iterator<Char, Char, Traits> sink(os);
         if (!karma::generate(sink, fm.expr, fm.attr))
         {
-            os.setstate(std::basic_ostream<Char, Traits>::failbit);
+            os.setstate(std::ios_base::failbit);
         }
         return os;
     }
@@ -179,7 +177,7 @@ namespace boost { namespace spirit { namespace karma { namespace detail
         karma::ostream_iterator<Char, Char, Traits> sink(os);
         if (!karma::generate_delimited(sink, fm.expr, fm.delim, fm.pre))
         {
-            os.setstate(std::basic_ostream<Char, Traits>::failbit);
+            os.setstate(std::ios_base::failbit);
         }
         return os;
     }
@@ -195,7 +193,7 @@ namespace boost { namespace spirit { namespace karma { namespace detail
         karma::ostream_iterator<Char, Char, Traits> sink(os);
         if (!karma::generate_delimited(sink, fm.expr, fm.delim, fm.pre, fm.attr))
         {
-            os.setstate(std::basic_ostream<Char, Traits>::failbit);
+            os.setstate(std::ios_base::failbit);
         }
         return os;
     }

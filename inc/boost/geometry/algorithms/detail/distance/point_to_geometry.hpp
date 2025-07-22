@@ -100,7 +100,7 @@ struct point_to_segment
     static inline auto apply(Point const& point, Segment const& segment,
                              Strategies const& strategies)
     {
-        point_type_t<Segment> p[2];
+        typename point_type<Segment>::type p[2];
         geometry::detail::assign_point_from_index<0>(segment, p[0]);
         geometry::detail::assign_point_from_index<1>(segment, p[1]);
 
@@ -117,7 +117,7 @@ struct point_to_segment<Point, Segment, Strategy, false>
     static inline auto apply(Point const& point, Segment const& segment,
                              Strategy const& strategy)
     {
-        point_type_t<Segment> p[2];
+        typename point_type<Segment>::type p[2];
         geometry::detail::assign_point_from_index<0>(segment, p[0]);
         geometry::detail::assign_point_from_index<1>(segment, p[1]);
 
@@ -253,7 +253,7 @@ public:
 private:
     typedef point_to_range
         <
-            Point, ring_type_t<Polygon>, Closure, Strategies
+            Point, typename ring_type<Polygon>::type, Closure, Strategies
         > per_ring;
 
     struct distance_to_interior_rings
@@ -315,7 +315,10 @@ template
     typename Point,
     typename MultiGeometry,
     typename Strategies,
-    bool CheckCoveredBy = std::is_same<tag_t<MultiGeometry>, multi_polygon_tag>::value
+    bool CheckCoveredBy = std::is_same
+        <
+            typename tag<MultiGeometry>::type, multi_polygon_tag
+        >::value
 >
 class point_to_multigeometry
 {
@@ -506,7 +509,7 @@ struct distance
     > : distance
         <
             Point, Linear, Strategy,
-            point_tag, tag_t<Linear>,
+            point_tag, typename tag<Linear>::type,
             strategy_tag_distance_point_segment, false
         >
 {};
@@ -520,7 +523,7 @@ struct distance
     > : distance
         <
             Point, Areal, Strategy,
-            point_tag, tag_t<Areal>,
+            point_tag, typename tag<Areal>::type,
             strategy_tag_distance_point_segment, false
         >
 {};

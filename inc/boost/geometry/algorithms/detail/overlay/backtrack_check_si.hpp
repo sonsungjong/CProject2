@@ -2,9 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017-2024.
-// Modifications copyright (c) 2017-2024, Oracle and/or its affiliates.
-// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// This file was modified by Oracle on 2017-2020.
+// Modifications copyright (c) 2017-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -21,6 +20,7 @@
 #include <boost/range/end.hpp>
 #include <boost/range/value_type.hpp>
 
+#include <boost/geometry/core/access.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/has_self_intersections.hpp>
 #if defined(BOOST_GEOMETRY_DEBUG_INTERSECTION) || defined(BOOST_GEOMETRY_OVERLAY_REPORT_WKT)
@@ -100,13 +100,14 @@ class backtrack_check_self_intersections
         {}
     };
 public :
-    using state_type = state;
+    typedef state state_type;
 
     template
     <
         typename Operation,
         typename Rings, typename Ring, typename Turns,
         typename Strategy,
+        typename RobustPolicy,
         typename Visitor
     >
     static inline void apply(std::size_t size_at_start,
@@ -119,6 +120,7 @@ public :
                              Geometry1 const& geometry1,
                              Geometry2 const& geometry2,
                              Strategy const& strategy,
+                             RobustPolicy const& robust_policy,
                              state_type& state,
                              Visitor& visitor)
     {
@@ -130,8 +132,8 @@ public :
         if (! state.m_checked)
         {
             state.m_checked = true;
-            has_self_intersections(geometry1, strategy);
-            has_self_intersections(geometry2, strategy);
+            has_self_intersections(geometry1, strategy, robust_policy);
+            has_self_intersections(geometry2, strategy, robust_policy);
         }
 
         // Make bad output clean
@@ -155,7 +157,7 @@ template
 class backtrack_debug
 {
 public :
-    using state_type = backtrack_state;
+    typedef backtrack_state state_type;
 
     template <typename Operation, typename Rings, typename Turns>
     static inline void apply(std::size_t size_at_start,

@@ -11,7 +11,7 @@
 #define BOOST_JSON_DEFAULT_RESOURCE_HPP
 
 #include <boost/json/detail/config.hpp>
-#include <boost/container/pmr/memory_resource.hpp>
+#include <new>
 
 namespace boost {
 namespace json {
@@ -26,9 +26,9 @@ namespace detail {
 // A simple memory resource that uses operator new and delete.
 class
     BOOST_SYMBOL_VISIBLE
-    BOOST_JSON_DECL
-default_resource final
-    : public container::pmr::memory_resource
+    BOOST_JSON_CLASS_DECL
+    default_resource final
+    : public memory_resource
 {
     union holder;
 
@@ -43,7 +43,7 @@ default_resource final
 
 public:
     static
-    container::pmr::memory_resource*
+    memory_resource*
     get() noexcept
     {
     #ifdef BOOST_JSON_WEAK_CONSTINIT

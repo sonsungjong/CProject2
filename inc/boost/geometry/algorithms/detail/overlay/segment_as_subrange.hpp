@@ -34,7 +34,7 @@ struct segment_as_subrange
         geometry::set<1>(m_p2, geometry::get<1, 1>(m_segment));
     }
 
-    using point_type = geometry::point_type_t<Segment>;
+    typedef typename geometry::point_type<Segment>::type point_type;
 
     point_type const& at(std::size_t index) const
     {

@@ -240,7 +240,7 @@ template
 >
 struct tag<model::point<CoordinateType, DimensionCount, CoordinateSystem> >
 {
-    using type = point_tag;
+    typedef point_tag type;
 };
 
 template

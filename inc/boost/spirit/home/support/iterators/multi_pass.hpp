@@ -14,7 +14,6 @@
 #include <boost/spirit/home/support/iterators/detail/combine_policies.hpp>
 #include <boost/limits.hpp>
 #include <boost/detail/workaround.hpp>
-#include <boost/core/invoke_swap.hpp>
 #include <boost/utility/base_from_member.hpp>
 
 namespace boost { namespace spirit
@@ -93,7 +92,7 @@ namespace boost { namespace spirit
 
         void swap(multi_pass& x)
         {
-            boost::core::invoke_swap(this->member, x.member);
+            boost::swap(this->member, x.member);
             this->policies_base_type::swap(x);
         }
 

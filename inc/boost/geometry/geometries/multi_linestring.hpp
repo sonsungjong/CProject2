@@ -102,7 +102,7 @@ template
 >
 struct tag< model::multi_linestring<LineString, Container, Allocator> >
 {
-    using type = multi_linestring_tag;
+    typedef multi_linestring_tag type;
 };
 
 } // namespace traits

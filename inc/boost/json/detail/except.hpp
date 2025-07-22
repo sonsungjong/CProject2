@@ -24,7 +24,7 @@ BOOST_JSON_DECL
 void
 BOOST_NORETURN
 throw_system_error(
-    system::error_code const& ec,
+    error_code const& ec,
     source_location const& loc = BOOST_CURRENT_LOCATION);
 
 BOOST_JSON_DECL

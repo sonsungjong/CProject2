@@ -13,7 +13,6 @@
 #include <boost/mpl/and.hpp>
 #include <boost/mpl/or.hpp>
 #include <boost/mpl/not.hpp>
-#include <boost/mpl/bool.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/type_traits/is_const.hpp>
 #include <boost/type_traits/is_reference.hpp>
@@ -21,7 +20,7 @@
 #include <boost/range/detail/any_iterator_buffer.hpp>
 #include <boost/range/detail/any_iterator_interface.hpp>
 #include <boost/range/detail/any_iterator_wrapper.hpp>
-#include <boost/core/enable_if.hpp>
+#include <boost/utility/enable_if.hpp>
 
 namespace boost
 {

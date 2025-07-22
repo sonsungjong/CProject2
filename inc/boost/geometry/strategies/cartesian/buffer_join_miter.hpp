@@ -77,11 +77,12 @@ public:
             return false;
         }
 
-        using promoted_type = typename geometry::select_most_precise
+        typedef typename coordinate_type<Point>::type coordinate_type;
+        typedef typename geometry::select_most_precise
         <
-            coordinate_type_t<Point>,
+            coordinate_type,
             double
-        >::type;
+        >::type promoted_type;
 
         Point p = ip;
 

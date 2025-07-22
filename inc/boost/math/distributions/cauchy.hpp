@@ -1,6 +1,5 @@
 // Copyright John Maddock 2006, 2007.
 // Copyright Paul A. Bristow 2007.
-// Copyright Matt Borland 2024.
 
 //  Use, modification and distribution are subject to the
 //  Boost Software License, Version 1.0. (See accompanying file
@@ -14,21 +13,12 @@
 #pragma warning(disable : 4127) // conditional expression is constant
 #endif
 
-#include <boost/math/tools/config.hpp>
-#include <boost/math/tools/tuple.hpp>
-#include <boost/math/tools/numeric_limits.hpp>
-#include <boost/math/tools/precision.hpp>
+#include <boost/math/distributions/fwd.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <boost/math/distributions/complement.hpp>
 #include <boost/math/distributions/detail/common_error_handling.hpp>
-#include <boost/math/policies/policy.hpp>
-#include <boost/math/policies/error_handling.hpp>
-
-#ifndef BOOST_MATH_HAS_NVRTC
-#include <boost/math/distributions/fwd.hpp>
 #include <utility>
 #include <cmath>
-#endif
 
 namespace boost{ namespace math
 {
@@ -40,19 +30,31 @@ namespace detail
 {
 
 template <class RealType, class Policy>
-BOOST_MATH_GPU_ENABLED RealType cdf_imp(const cauchy_distribution<RealType, Policy>& dist, const RealType& x, bool complement)
+RealType cdf_imp(const cauchy_distribution<RealType, Policy>& dist, const RealType& x, bool complement)
 {
    //
    // This calculates the cdf of the Cauchy distribution and/or its complement.
    //
-   // This implementation uses the formula
+   // The usual formula for the Cauchy cdf is:
    //
-   //     cdf = atan2(1, -x)/pi
+   // cdf = 0.5 + atan(x)/pi
    //
-   // where x is the standardized (i.e. shifted and scaled) domain variable.
+   // But that suffers from cancellation error as x -> -INF.
+   //
+   // Recall that for x < 0:
+   //
+   // atan(x) = -pi/2 - atan(1/x)
+   //
+   // Substituting into the above we get:
+   //
+   // CDF = -atan(1/x)  ; x < 0
+   //
+   // So the procedure is to calculate the cdf for -fabs(x)
+   // using the above formula, and then subtract from 1 when required
+   // to get the result.
    //
    BOOST_MATH_STD_USING // for ADL of std functions
-   constexpr auto function = "boost::math::cdf(cauchy<%1%>&, %1%)";
+   static const char* function = "boost::math::cdf(cauchy<%1%>&, %1%)";
    RealType result = 0;
    RealType location = dist.location();
    RealType scale = dist.scale();
@@ -64,47 +66,42 @@ BOOST_MATH_GPU_ENABLED RealType cdf_imp(const cauchy_distribution<RealType, Poli
    {
       return result;
    }
-   #ifdef BOOST_MATH_HAS_GPU_SUPPORT
-   if(x > tools::max_value<RealType>())
-   {
-      return static_cast<RealType>((complement) ? 0 : 1);
-   }
-   if(x < -tools::max_value<RealType>())
-   {
-      return static_cast<RealType>((complement) ? 1 : 0);
-   }
-   #else
-   if(boost::math::numeric_limits<RealType>::has_infinity && x == boost::math::numeric_limits<RealType>::infinity())
+   if(std::numeric_limits<RealType>::has_infinity && x == std::numeric_limits<RealType>::infinity())
    { // cdf +infinity is unity.
      return static_cast<RealType>((complement) ? 0 : 1);
    }
-   if(boost::math::numeric_limits<RealType>::has_infinity && x == -boost::math::numeric_limits<RealType>::infinity())
+   if(std::numeric_limits<RealType>::has_infinity && x == -std::numeric_limits<RealType>::infinity())
    { // cdf -infinity is zero.
      return static_cast<RealType>((complement) ? 1 : 0);
    }
-   #endif
    if(false == detail::check_x(function, x, &result, Policy()))
    { // Catches x == NaN
       return result;
    }
-   RealType x_std = static_cast<RealType>((complement) ? 1 : -1)*(x - location) / scale;
-   return atan2(static_cast<RealType>(1), x_std) / constants::pi<RealType>();
+   RealType mx = -fabs((x - location) / scale); // scale is > 0
+   if(mx > -tools::epsilon<RealType>() / 8)
+   {  // special case first: x extremely close to location.
+      return static_cast<RealType>(0.5f);
+   }
+   result = -atan(1 / mx) / constants::pi<RealType>();
+   return (((x > location) != complement) ? 1 - result : result);
 } // cdf
 
 template <class RealType, class Policy>
-BOOST_MATH_GPU_ENABLED RealType quantile_imp(
+RealType quantile_imp(
       const cauchy_distribution<RealType, Policy>& dist,
-      RealType p,
+      const RealType& p,
       bool complement)
 {
    // This routine implements the quantile for the Cauchy distribution,
    // the value p may be the probability, or its complement if complement=true.
    //
-   // The procedure calculates the distance from the
+   // The procedure first performs argument reduction on p to avoid error
+   // when calculating the tangent, then calculates the distance from the
    // mid-point of the distribution.  This is either added or subtracted
    // from the location parameter depending on whether `complement` is true.
    //
-   constexpr auto function = "boost::math::quantile(cauchy<%1%>&, %1%)";
+   static const char* function = "boost::math::quantile(cauchy<%1%>&, %1%)";
    BOOST_MATH_STD_USING // for ADL of std functions
 
    RealType result = 0;
@@ -132,15 +129,16 @@ BOOST_MATH_GPU_ENABLED RealType quantile_imp(
       return (complement ? 1 : -1) * policies::raise_overflow_error<RealType>(function, 0, Policy());
    }
 
-   if(p > 0.5)
+   RealType P = p - floor(p);   // argument reduction of p:
+   if(P > 0.5)
    {
-      p = p - 1;
+      P = P - 1;
    }
-   if(p == 0.5)   // special case:
+   if(P == 0.5)   // special case:
    {
       return location;
    }
-   result = -scale / tan(constants::pi<RealType>() * p);
+   result = -scale / tan(constants::pi<RealType>() * P);
    return complement ? RealType(location - result) : RealType(location + result);
 } // quantile
 
@@ -153,20 +151,20 @@ public:
    typedef RealType value_type;
    typedef Policy policy_type;
 
-   BOOST_MATH_GPU_ENABLED cauchy_distribution(RealType l_location = 0, RealType l_scale = 1)
+   cauchy_distribution(RealType l_location = 0, RealType l_scale = 1)
       : m_a(l_location), m_hg(l_scale)
    {
-    constexpr auto function = "boost::math::cauchy_distribution<%1%>::cauchy_distribution";
+    static const char* function = "boost::math::cauchy_distribution<%1%>::cauchy_distribution";
      RealType result;
      detail::check_location(function, l_location, &result, Policy());
      detail::check_scale(function, l_scale, &result, Policy());
    } // cauchy_distribution
 
-   BOOST_MATH_GPU_ENABLED RealType location()const
+   RealType location()const
    {
       return m_a;
    }
-   BOOST_MATH_GPU_ENABLED RealType scale()const
+   RealType scale()const
    {
       return m_hg;
    }
@@ -186,48 +184,48 @@ cauchy_distribution(RealType,RealType)->cauchy_distribution<typename boost::math
 #endif
 
 template <class RealType, class Policy>
-BOOST_MATH_GPU_ENABLED inline const boost::math::pair<RealType, RealType> range(const cauchy_distribution<RealType, Policy>&)
+inline const std::pair<RealType, RealType> range(const cauchy_distribution<RealType, Policy>&)
 { // Range of permissible values for random variable x.
-  BOOST_MATH_IF_CONSTEXPR (boost::math::numeric_limits<RealType>::has_infinity)
+  if (std::numeric_limits<RealType>::has_infinity)
   { 
-     return boost::math::pair<RealType, RealType>(-boost::math::numeric_limits<RealType>::infinity(), boost::math::numeric_limits<RealType>::infinity()); // - to + infinity.
+     return std::pair<RealType, RealType>(-std::numeric_limits<RealType>::infinity(), std::numeric_limits<RealType>::infinity()); // - to + infinity.
   }
   else
   { // Can only use max_value.
    using boost::math::tools::max_value;
-   return boost::math::pair<RealType, RealType>(-max_value<RealType>(), max_value<RealType>()); // - to + max.
+   return std::pair<RealType, RealType>(-max_value<RealType>(), max_value<RealType>()); // - to + max.
   }
 }
 
 template <class RealType, class Policy>
-BOOST_MATH_GPU_ENABLED inline const boost::math::pair<RealType, RealType> support(const cauchy_distribution<RealType, Policy>& )
+inline const std::pair<RealType, RealType> support(const cauchy_distribution<RealType, Policy>& )
 { // Range of supported values for random variable x.
    // This is range where cdf rises from 0 to 1, and outside it, the pdf is zero.
-  BOOST_MATH_IF_CONSTEXPR (boost::math::numeric_limits<RealType>::has_infinity)
+  if (std::numeric_limits<RealType>::has_infinity)
   { 
-     return boost::math::pair<RealType, RealType>(-boost::math::numeric_limits<RealType>::infinity(), boost::math::numeric_limits<RealType>::infinity()); // - to + infinity.
+     return std::pair<RealType, RealType>(-std::numeric_limits<RealType>::infinity(), std::numeric_limits<RealType>::infinity()); // - to + infinity.
   }
   else
   { // Can only use max_value.
      using boost::math::tools::max_value;
-     return boost::math::pair<RealType, RealType>(-tools::max_value<RealType>(), max_value<RealType>()); // - to + max.
+     return std::pair<RealType, RealType>(-tools::max_value<RealType>(), max_value<RealType>()); // - to + max.
   }
 }
 
 template <class RealType, class Policy>
-BOOST_MATH_GPU_ENABLED inline RealType pdf(const cauchy_distribution<RealType, Policy>& dist, const RealType& x)
+inline RealType pdf(const cauchy_distribution<RealType, Policy>& dist, const RealType& x)
 {  
    BOOST_MATH_STD_USING  // for ADL of std functions
 
-   constexpr auto function = "boost::math::pdf(cauchy<%1%>&, %1%)";
+   static const char* function = "boost::math::pdf(cauchy<%1%>&, %1%)";
    RealType result = 0;
    RealType location = dist.location();
    RealType scale = dist.scale();
-   if(false == detail::check_scale(function, scale, &result, Policy()))
+   if(false == detail::check_scale("boost::math::pdf(cauchy<%1%>&, %1%)", scale, &result, Policy()))
    {
       return result;
    }
-   if(false == detail::check_location(function, location, &result, Policy()))
+   if(false == detail::check_location("boost::math::pdf(cauchy<%1%>&, %1%)", location, &result, Policy()))
    {
       return result;
    }
@@ -236,7 +234,7 @@ BOOST_MATH_GPU_ENABLED inline RealType pdf(const cauchy_distribution<RealType, P
      return 0; // pdf + and - infinity is zero.
    }
    // These produce MSVC 4127 warnings, so the above used instead.
-   //if(boost::math::numeric_limits<RealType>::has_infinity && abs(x) == boost::math::numeric_limits<RealType>::infinity())
+   //if(std::numeric_limits<RealType>::has_infinity && abs(x) == std::numeric_limits<RealType>::infinity())
    //{ // pdf + and - infinity is zero.
    //  return 0;
    //}
@@ -252,112 +250,111 @@ BOOST_MATH_GPU_ENABLED inline RealType pdf(const cauchy_distribution<RealType, P
 } // pdf
 
 template <class RealType, class Policy>
-BOOST_MATH_GPU_ENABLED inline RealType cdf(const cauchy_distribution<RealType, Policy>& dist, const RealType& x)
+inline RealType cdf(const cauchy_distribution<RealType, Policy>& dist, const RealType& x)
 {
    return detail::cdf_imp(dist, x, false);
 } // cdf
 
 template <class RealType, class Policy>
-BOOST_MATH_GPU_ENABLED inline RealType quantile(const cauchy_distribution<RealType, Policy>& dist, const RealType& p)
+inline RealType quantile(const cauchy_distribution<RealType, Policy>& dist, const RealType& p)
 {
    return detail::quantile_imp(dist, p, false);
 } // quantile
 
 template <class RealType, class Policy>
-BOOST_MATH_GPU_ENABLED inline RealType cdf(const complemented2_type<cauchy_distribution<RealType, Policy>, RealType>& c)
+inline RealType cdf(const complemented2_type<cauchy_distribution<RealType, Policy>, RealType>& c)
 {
    return detail::cdf_imp(c.dist, c.param, true);
 } //  cdf complement
 
 template <class RealType, class Policy>
-BOOST_MATH_GPU_ENABLED inline RealType quantile(const complemented2_type<cauchy_distribution<RealType, Policy>, RealType>& c)
+inline RealType quantile(const complemented2_type<cauchy_distribution<RealType, Policy>, RealType>& c)
 {
    return detail::quantile_imp(c.dist, c.param, true);
 } // quantile complement
 
 template <class RealType, class Policy>
-BOOST_MATH_GPU_ENABLED inline RealType mean(const cauchy_distribution<RealType, Policy>&)
+inline RealType mean(const cauchy_distribution<RealType, Policy>&)
 {  // There is no mean:
    typedef typename Policy::assert_undefined_type assert_type;
-   static_assert(assert_type::value == 0, "The Cauchy Distribution has no mean");
+   static_assert(assert_type::value == 0, "assert type is undefined");
 
    return policies::raise_domain_error<RealType>(
       "boost::math::mean(cauchy<%1%>&)",
       "The Cauchy distribution does not have a mean: "
       "the only possible return value is %1%.",
-      boost::math::numeric_limits<RealType>::quiet_NaN(), Policy());
+      std::numeric_limits<RealType>::quiet_NaN(), Policy());
 }
 
 template <class RealType, class Policy>
-BOOST_MATH_GPU_ENABLED inline RealType variance(const cauchy_distribution<RealType, Policy>& /*dist*/)
+inline RealType variance(const cauchy_distribution<RealType, Policy>& /*dist*/)
 {
    // There is no variance:
    typedef typename Policy::assert_undefined_type assert_type;
-   static_assert(assert_type::value == 0, "The Cauchy Distribution has no variance");
+   static_assert(assert_type::value == 0, "assert type is undefined");
 
    return policies::raise_domain_error<RealType>(
       "boost::math::variance(cauchy<%1%>&)",
       "The Cauchy distribution does not have a variance: "
       "the only possible return value is %1%.",
-      boost::math::numeric_limits<RealType>::quiet_NaN(), Policy());
+      std::numeric_limits<RealType>::quiet_NaN(), Policy());
 }
 
 template <class RealType, class Policy>
-BOOST_MATH_GPU_ENABLED inline RealType mode(const cauchy_distribution<RealType, Policy>& dist)
+inline RealType mode(const cauchy_distribution<RealType, Policy>& dist)
 {
    return dist.location();
 }
 
 template <class RealType, class Policy>
-BOOST_MATH_GPU_ENABLED inline RealType median(const cauchy_distribution<RealType, Policy>& dist)
+inline RealType median(const cauchy_distribution<RealType, Policy>& dist)
 {
    return dist.location();
 }
-
 template <class RealType, class Policy>
-BOOST_MATH_GPU_ENABLED inline RealType skewness(const cauchy_distribution<RealType, Policy>& /*dist*/)
+inline RealType skewness(const cauchy_distribution<RealType, Policy>& /*dist*/)
 {
    // There is no skewness:
    typedef typename Policy::assert_undefined_type assert_type;
-   static_assert(assert_type::value == 0, "The Cauchy Distribution has no skewness");
+   static_assert(assert_type::value == 0, "assert type is undefined");
 
    return policies::raise_domain_error<RealType>(
       "boost::math::skewness(cauchy<%1%>&)",
       "The Cauchy distribution does not have a skewness: "
       "the only possible return value is %1%.",
-      boost::math::numeric_limits<RealType>::quiet_NaN(), Policy()); // infinity?
+      std::numeric_limits<RealType>::quiet_NaN(), Policy()); // infinity?
 }
 
 template <class RealType, class Policy>
-BOOST_MATH_GPU_ENABLED inline RealType kurtosis(const cauchy_distribution<RealType, Policy>& /*dist*/)
+inline RealType kurtosis(const cauchy_distribution<RealType, Policy>& /*dist*/)
 {
    // There is no kurtosis:
    typedef typename Policy::assert_undefined_type assert_type;
-   static_assert(assert_type::value == 0, "The Cauchy Distribution has no kurtosis");
+   static_assert(assert_type::value == 0, "assert type is undefined");
 
    return policies::raise_domain_error<RealType>(
       "boost::math::kurtosis(cauchy<%1%>&)",
       "The Cauchy distribution does not have a kurtosis: "
       "the only possible return value is %1%.",
-      boost::math::numeric_limits<RealType>::quiet_NaN(), Policy());
+      std::numeric_limits<RealType>::quiet_NaN(), Policy());
 }
 
 template <class RealType, class Policy>
-BOOST_MATH_GPU_ENABLED inline RealType kurtosis_excess(const cauchy_distribution<RealType, Policy>& /*dist*/)
+inline RealType kurtosis_excess(const cauchy_distribution<RealType, Policy>& /*dist*/)
 {
    // There is no kurtosis excess:
    typedef typename Policy::assert_undefined_type assert_type;
-   static_assert(assert_type::value == 0, "The Cauchy Distribution has no kurtosis excess");
+   static_assert(assert_type::value == 0, "assert type is undefined");
 
    return policies::raise_domain_error<RealType>(
       "boost::math::kurtosis_excess(cauchy<%1%>&)",
       "The Cauchy distribution does not have a kurtosis: "
       "the only possible return value is %1%.",
-      boost::math::numeric_limits<RealType>::quiet_NaN(), Policy());
+      std::numeric_limits<RealType>::quiet_NaN(), Policy());
 }
 
 template <class RealType, class Policy>
-BOOST_MATH_GPU_ENABLED inline RealType entropy(const cauchy_distribution<RealType, Policy> & dist)
+inline RealType entropy(const cauchy_distribution<RealType, Policy> & dist)
 {
    using std::log;
    return log(2*constants::two_pi<RealType>()*dist.scale());

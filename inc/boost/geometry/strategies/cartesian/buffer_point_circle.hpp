@@ -74,14 +74,17 @@ public :
                 DistanceStrategy const& distance_strategy,
                 OutputRange& output_range) const
     {
-        using output_point_type = typename boost::range_value<OutputRange>::type;
+        typedef typename boost::range_value<OutputRange>::type output_point_type;
 
-        using promoted_type = typename geometry::select_most_precise
+        typedef typename geometry::select_most_precise
             <
-                geometry::coordinate_type_t<Point>,
-                geometry::coordinate_type_t<output_point_type>,
+                typename geometry::select_most_precise
+                    <
+                        typename geometry::coordinate_type<Point>::type,
+                        typename geometry::coordinate_type<output_point_type>::type
+                    >::type,
                 double
-            >::type;
+            >::type promoted_type;
 
         promoted_type const buffer_distance = distance_strategy.apply(point, point,
                         strategy::buffer::buffer_side_left);

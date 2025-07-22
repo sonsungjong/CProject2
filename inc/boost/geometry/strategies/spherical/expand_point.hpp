@@ -12,7 +12,7 @@
 
 
 #include <boost/config/pragma_message.hpp>
-BOOST_PRAGMA_MESSAGE("This include file is deprecated and will be removed in Boost 1.86")
+BOOST_PRAGMA_MESSAGE("This include file is deprecated and will be removed in the future.")
 
 
 #include <boost/geometry/strategy/spherical/expand_point.hpp>

@@ -10,7 +10,6 @@
 #ifndef BOOST_JSON_DETAIL_VALUE_HPP
 #define BOOST_JSON_DETAIL_VALUE_HPP
 
-#include <boost/json/fwd.hpp>
 #include <boost/json/kind.hpp>
 #include <boost/json/storage_ptr.hpp>
 #include <cstdint>

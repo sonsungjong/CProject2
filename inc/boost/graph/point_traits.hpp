@@ -9,8 +9,6 @@
 #ifndef BOOST_GRAPH_POINT_TRAITS_HPP
 #define BOOST_GRAPH_POINT_TRAITS_HPP
 
-#include <cstddef>
-
 namespace boost
 {
 namespace graph

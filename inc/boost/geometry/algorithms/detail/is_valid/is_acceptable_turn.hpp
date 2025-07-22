@@ -33,7 +33,7 @@ template
 <
     typename Geometry,
     order_selector Order = geometry::point_order<Geometry>::value,
-    typename Tag = tag_t<Geometry>
+    typename Tag = typename tag<Geometry>::type
 >
 struct acceptable_operation
 {};
@@ -69,7 +69,7 @@ struct acceptable_operation<MultiPolygon, clockwise, multi_polygon_tag>
 
 
 
-template <typename Geometry, typename Tag = tag_t<Geometry>>
+template <typename Geometry, typename Tag = typename tag<Geometry>::type>
 struct is_acceptable_turn
 {};
 

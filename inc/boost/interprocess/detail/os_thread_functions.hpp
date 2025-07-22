@@ -34,7 +34,7 @@
 #include <boost/interprocess/detail/workaround.hpp>
 #include <boost/interprocess/streams/bufferstream.hpp>
 #include <cstddef>
-#include <cassert>
+#include <ostream>
 
 #if defined(BOOST_INTERPROCESS_WINDOWS)
 #  include <boost/interprocess/detail/win32_api.hpp>
@@ -44,7 +44,6 @@
 #  include <unistd.h>
 #  include <sched.h>
 #  include <time.h>
-#  include <errno.h>
 #  ifdef BOOST_INTERPROCESS_BSD_DERIVATIVE
       //Some *BSD systems (OpenBSD & NetBSD) need sys/param.h before sys/sysctl.h, whereas
       //others (FreeBSD & Darwin) need sys/types.h
@@ -161,12 +160,6 @@ inline OS_highres_count_t get_current_system_highres_count()
    return (OS_highres_count_t)count;
 }
 
-inline unsigned get_current_system_highres_rand()
-{
-   unsigned __int64 count = (unsigned __int64) get_current_system_highres_count();
-   return static_cast<unsigned>(count + (count >> 32u));
-}
-
 inline void zero_highres_count(OS_highres_count_t &count)
 {  count = 0;  }
 
@@ -195,7 +188,7 @@ inline void thread_sleep_tick()
 inline void thread_yield()
 {  winapi::sched_yield();  }
 
-inline void thread_sleep_ms(unsigned int ms)
+inline void thread_sleep(unsigned int ms)
 {  winapi::sleep(ms);  }
 
 //systemwide thread
@@ -220,18 +213,17 @@ inline OS_systemwide_thread_id_t get_invalid_systemwide_thread_id()
    return get_invalid_thread_id();
 }
 
-inline unsigned long long get_current_process_creation_time()
+inline long double get_current_process_creation_time()
 {
    winapi::interprocess_filetime CreationTime, ExitTime, KernelTime, UserTime;
 
    winapi::get_process_times
       ( winapi::get_current_process(), &CreationTime, &ExitTime, &KernelTime, &UserTime);
 
-   unsigned long long microsecs = CreationTime.dwHighDateTime;
-   microsecs <<= 32u;
-   microsecs |= CreationTime.dwLowDateTime;
-   microsecs /= 10u;
-   return microsecs;
+   typedef long double ldouble_t;
+   const ldouble_t resolution = (100.0l/1000000000.0l);
+   return CreationTime.dwHighDateTime*(ldouble_t(1u<<31u)*2.0l*resolution) +
+              CreationTime.dwLowDateTime*resolution;
 }
 
 inline unsigned int get_num_cores()
@@ -361,16 +353,6 @@ inline OS_highres_count_t get_current_system_highres_count()
    #endif
 }
 
-inline unsigned get_current_system_highres_rand()
-{
-   OS_highres_count_t count = get_current_system_highres_count();
-   #if defined(BOOST_INTERPROCESS_CLOCK_MONOTONIC)
-      return static_cast<unsigned>(count.tv_sec + count.tv_nsec);
-   #elif defined(BOOST_INTERPROCESS_MATCH_ABSOLUTE_TIME)
-      return static_cast<unsigned>(count);
-   #endif
-}
-
 #ifndef BOOST_INTERPROCESS_MATCH_ABSOLUTE_TIME
 
 inline void zero_highres_count(OS_highres_count_t &count)
@@ -440,25 +422,15 @@ inline void thread_sleep_tick()
    //Sleep for the half of the tick time
    rqt.tv_sec  = 0;
    rqt.tv_nsec = (long)get_system_tick_ns()/2;
-
-   struct timespec rmn;
-   while (0 != BOOST_INTERPROCESS_EINTR_RETRY(int, -1, ::nanosleep(&rqt, &rmn)) && errno == EINTR) {
-      rqt.tv_sec = rmn.tv_sec;
-      rqt.tv_nsec = rmn.tv_nsec;
-   }
+   ::nanosleep(&rqt, 0);
 }
 
-inline void thread_sleep_ms(unsigned int ms)
+inline void thread_sleep(unsigned int ms)
 {
    struct timespec rqt;
-   rqt.tv_sec = static_cast<time_t>(ms/1000u);
-   rqt.tv_nsec = static_cast<long int>((ms%1000u)*1000000u);
-
-   struct timespec rmn;
-   while (0 != BOOST_INTERPROCESS_EINTR_RETRY(int, -1, ::nanosleep(&rqt, &rmn)) && errno == EINTR) {
-      rqt.tv_sec  = rmn.tv_sec;
-      rqt.tv_nsec = rmn.tv_nsec;
-   }
+   rqt.tv_sec = ms/1000u;
+   rqt.tv_nsec = (ms%1000u)*1000000u;
+   ::nanosleep(&rqt, 0);
 }
 
 //systemwide thread
@@ -477,8 +449,8 @@ inline OS_systemwide_thread_id_t get_invalid_systemwide_thread_id()
    return OS_systemwide_thread_id_t(get_invalid_process_id(), get_invalid_thread_id());
 }
 
-inline unsigned long long get_current_process_creation_time()
-{ return 0u; }
+inline long double get_current_process_creation_time()
+{ return 0.0L; }
 
 inline unsigned int get_num_cores()
 {
@@ -529,11 +501,7 @@ inline int thread_create(OS_thread_t * thread, void *(*start_routine)(void*), vo
 {  return pthread_create(thread, 0, start_routine, arg); }
 
 inline void thread_join(OS_thread_t thread)
-{
-   int ret = pthread_join(thread, 0);
-   (void)ret;
-   assert(0 == ret);
-}
+{  (void)pthread_join(thread, 0);  }
 
 #endif   //#if defined (BOOST_INTERPROCESS_WINDOWS)
 
@@ -565,16 +533,8 @@ inline int thread_create( OS_thread_t * thread, boost::ipwinapiext::LPTHREAD_STA
 
 inline void thread_join( OS_thread_t thread)
 {
-   {
-      unsigned long ret = winapi::wait_for_single_object( thread.handle(), winapi::infinite_time );
-      assert(0 == ret);
-      (void)ret;
-   }
-   {
-      bool ret = winapi::close_handle(thread.handle());
-      assert(true == ret);
-      (void)ret;
-   }
+   winapi::wait_for_single_object( thread.handle(), winapi::infinite_time );
+   winapi::close_handle( thread.handle() );
 }
 
 #endif

@@ -289,14 +289,8 @@ class mutant_relation : public
 
     // Operators
 
-    mutant_relation& operator=(const mutant_relation & rel)
-    {
-        base_::change_to(rel);
-        return *this;
-    }
-
-    mutant_relation& operator=(const mutant_relation<TA,TB,Info,
-                                                     !force_mutable> & rel)
+    template< bool FM >
+    mutant_relation& operator=(const mutant_relation<TA,TB,Info,FM> & rel)
     {
         base_::change_to(rel);
         return *this;

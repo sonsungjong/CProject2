@@ -86,7 +86,10 @@ template
 <
     typename Geometry,
     bool AddForOpen,
-    typename Tag = tag_cast_t<tag_t<Geometry>, multi_tag>
+    typename Tag = typename tag_cast
+        <
+            typename tag<Geometry>::type, multi_tag
+        >::type
 >
 struct num_points: not_implemented<Tag>
 {};
@@ -139,7 +142,7 @@ struct num_points<Geometry, AddForOpen, multi_tag>
 namespace resolve_dynamic
 {
 
-template <typename Geometry, typename Tag = tag_t<Geometry>>
+template <typename Geometry, typename Tag = typename tag<Geometry>::type>
 struct num_points
 {
     static inline std::size_t apply(Geometry const& geometry, bool add_for_open)

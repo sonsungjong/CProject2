@@ -14,6 +14,7 @@
 #include <string>
 
 #include <boost/concept_check.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/core/access.hpp>
@@ -48,16 +49,6 @@ struct segments_intersection_ratios
     static inline return_type segments_crosses(side_info const&,
                     SegmentIntersectionInfo const& sinfo,
                     Segment1 const& , Segment2 const& )
-    {
-        return_type result;
-        result.assign(sinfo);
-        return result;
-    }
-
-    template<typename SegmentIntersectionInfo, typename Point>
-    static inline return_type
-    segments_share_common_point(side_info const&, SegmentIntersectionInfo const& sinfo,
-                                Point const& p)
     {
         return_type result;
         result.assign(sinfo);

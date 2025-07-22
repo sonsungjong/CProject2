@@ -25,7 +25,7 @@ template
 <
     typename Geometry,
     typename Box,
-    typename CSTag = geometry::cs_tag_t<Geometry>
+    typename CSTag = typename geometry::cs_tag<Geometry>::type
 >
 struct default_strategy
 {

@@ -47,7 +47,7 @@ struct linear_to_linear
         {
             return dispatch::distance
                 <
-                    point_type_t<Linear1>,
+                    typename point_type<Linear1>::type,
                     Linear2,
                     Strategies
                 >::apply(*points_begin(linear1), linear2, strategies);
@@ -57,7 +57,7 @@ struct linear_to_linear
         {
             return dispatch::distance
                 <
-                    point_type_t<Linear2>,
+                    typename point_type<Linear2>::type,
                     Linear1,
                     Strategies
                 >::apply(*points_begin(linear2), linear1, strategies);

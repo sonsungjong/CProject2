@@ -36,7 +36,7 @@ namespace dispatch
 template
 <
     typename Geometry,
-    typename Tag = tag_t<Geometry>
+    typename Tag = typename tag<Geometry>::type
 >
 struct envelope : not_implemented<Tag>
 {};

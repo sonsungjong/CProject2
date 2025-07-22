@@ -26,7 +26,7 @@ namespace boost { namespace geometry
 namespace formula_dispatch
 {
 
-template <typename ResultType, typename Geometry, typename Tag = tag_t<Geometry>>
+template <typename ResultType, typename Geometry, typename Tag = typename tag<Geometry>::type>
 struct eccentricity_sqr
     : not_implemented<Tag>
 {};

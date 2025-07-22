@@ -52,28 +52,28 @@ template
 <
     typename GeometryContained,
     typename GeometryContaining,
-    typename TagContained = tag_t<GeometryContained>,
-    typename TagContaining = tag_t<GeometryContaining>,
-    typename CastedTagContained = tag_cast_t
+    typename TagContained = typename tag<GeometryContained>::type,
+    typename TagContaining = typename tag<GeometryContaining>::type,
+    typename CastedTagContained = typename tag_cast
                                     <
-                                        tag_t<GeometryContained>,
+                                        typename tag<GeometryContained>::type,
                                         pointlike_tag, linear_tag, polygonal_tag, areal_tag
-                                    >,
-    typename CastedTagContaining = tag_cast_t
+                                    >::type,
+    typename CastedTagContaining = typename tag_cast
                                     <
-                                        tag_t<GeometryContaining>,
+                                        typename tag<GeometryContaining>::type,
                                         pointlike_tag, linear_tag, polygonal_tag, areal_tag
-                                    >,
-    typename CsTagContained = tag_cast_t
+                                    >::type,
+    typename CsTagContained = typename tag_cast
                                 <
-                                    cs_tag_t<point_type_t<GeometryContained>>,
+                                    typename cs_tag<typename point_type<GeometryContained>::type>::type,
                                     spherical_tag
-                                >,
-    typename CsTagContaining = tag_cast_t
+                                >::type,
+    typename CsTagContaining = typename tag_cast
                                 <
-                                    cs_tag_t<point_type_t<GeometryContaining>>,
+                                    typename cs_tag<typename point_type<GeometryContaining>::type>::type,
                                     spherical_tag
-                                >
+                                >::type
 >
 struct default_strategy
 {

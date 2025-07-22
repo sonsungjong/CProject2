@@ -17,7 +17,7 @@ namespace boost {
 namespace urls {
 namespace grammar {
 
-template<BOOST_URL_CONSTRAINT(Rule) R>
+template<class R>
 BOOST_URL_NO_INLINE
 auto
 parse(
@@ -36,7 +36,7 @@ parse(
     return r.parse(it, end);
 }
 
-template<BOOST_URL_CONSTRAINT(Rule) R>
+template<class R>
 BOOST_URL_NO_INLINE
 auto
 parse(

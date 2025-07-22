@@ -108,7 +108,7 @@ template
 >
 struct tag<model::linestring<Point, Container, Allocator> >
 {
-    using type = linestring_tag;
+    typedef linestring_tag type;
 };
 } // namespace traits
 

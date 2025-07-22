@@ -112,13 +112,13 @@ struct constructor
     void operator()(Args && ... args)
     {
         T(std::forward<Args> (args) ...);
-    }
+    };
 };
 //
 //****************************************************************************
-} // End namespace util
-} // End namespace common
-} // End namespace sort
-} // End namespace boost
+};// End namespace util
+};// End namespace common
+};// End namespace sort
+};// End namespace boost
 //****************************************************************************
 #endif

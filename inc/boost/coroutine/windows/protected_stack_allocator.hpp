@@ -52,8 +52,14 @@ struct basic_protected_stack_allocator
         if ( ! limit) throw std::bad_alloc();
 
         DWORD old_options;
-        BOOST_VERIFY( FALSE != ::VirtualProtect(
-            limit, traits_type::page_size(), PAGE_READWRITE | PAGE_GUARD /*PAGE_NOACCESS*/, & old_options));
+#if defined(BOOST_DISABLE_ASSERTS)
+        ::VirtualProtect(
+            limit, traits_type::page_size(), PAGE_READWRITE | PAGE_GUARD /*PAGE_NOACCESS*/, & old_options);
+#else
+        const BOOL result = ::VirtualProtect(
+            limit, traits_type::page_size(), PAGE_READWRITE | PAGE_GUARD /*PAGE_NOACCESS*/, & old_options);
+        BOOST_ASSERT( FALSE != result);
+#endif
 
         ctx.size = size_;
         ctx.sp = static_cast< char * >( limit) + ctx.size;

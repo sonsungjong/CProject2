@@ -148,10 +148,6 @@ ci_digest(
     The function is defined only for strings
     containing low-ASCII characters.
 
-    @param s0 The first string
-    @param s1 The second string
-    @return `true` if `s0` case-insensitively equals `s1`, otherwise `false`
-
     @par Example
     @code
     assert( ci_is_equal( "Boost", "boost" ) );
@@ -161,6 +157,16 @@ ci_digest(
         @ref ci_compare,
         @ref ci_is_less.
 */
+#ifdef BOOST_URL_DOCS
+template<
+    class String0,
+    class String1>
+bool
+ci_is_equal(
+    String0 const& s0,
+    String1 const& s1);
+#else
+
 template<
     class String0,
     class String1>
@@ -183,24 +189,6 @@ ci_is_equal(
     return detail::ci_is_equal(s0, s1);
 }
 
-/** Return true if s0 equals s1 using case-insensitive comparison
-
-    The function is defined only for strings
-    containing low-ASCII characters.
-
-    @param s0 The first string
-    @param s1 The second string
-    @return `true` if `s0` case-insensitively equals `s1`, otherwise `false`
-
-    @par Example
-    @code
-    assert( ci_is_equal( "Boost", "boost" ) );
-    @endcode
-
-    @see
-        @ref ci_compare,
-        @ref ci_is_less.
-*/
 inline
 bool
 ci_is_equal(
@@ -213,6 +201,7 @@ ci_is_equal(
         return false;
     return detail::ci_is_equal(s0, s1);
 }
+#endif
 
 /** Return true if s0 is less than s1 using case-insensitive comparison 
 
@@ -222,10 +211,6 @@ ci_is_equal(
     lexicographical comparison.
     The function is defined only for strings
     containing low-ASCII characters.
-
-    @param s0 The first string
-    @param s1 The second string
-    @return `true` if `s0` is case-insensitively less than `s1`, otherwise `false`
 
     @par Example
     @code
@@ -249,20 +234,6 @@ ci_is_less(
 
 //------------------------------------------------
 
-namespace implementation_defined {
-struct ci_hash
-{
-    using is_transparent = void;
-
-    std::size_t
-    operator()(
-        core::string_view s) const noexcept
-    {
-        return ci_digest(s);
-    }
-};
-}
-
 /** A case-insensitive hash function object for strings
 
     The hash function is non-cryptographic and
@@ -284,24 +255,21 @@ struct ci_hash
         @ref ci_equal,
         @ref ci_less.
 */
-using ci_hash = implementation_defined::ci_hash;
-
-namespace implementation_defined {
-struct ci_equal
+#ifdef BOOST_URL_DOCS
+using ci_hash = __see_below__;
+#else
+struct ci_hash
 {
     using is_transparent = void;
 
-    template<
-        class String0, class String1>
-    bool
+    std::size_t
     operator()(
-        String0 s0,
-        String1 s1) const noexcept
+        core::string_view s) const noexcept
     {
-        return ci_is_equal(s0, s1);
+        return ci_digest(s);
     }
 };
-} // implementation_defined
+#endif
 
 /** A case-insensitive equals predicate for strings
 
@@ -323,22 +291,24 @@ struct ci_equal
         @ref ci_hash,
         @ref ci_less.
 */
-using ci_equal = implementation_defined::ci_equal;
-
-namespace implementation_defined {
-struct ci_less
+#ifdef BOOST_URL_DOCS
+using ci_equal = __see_below__;
+#else
+struct ci_equal
 {
     using is_transparent = void;
 
-    std::size_t
+    template<
+        class String0, class String1>
+    bool
     operator()(
-        core::string_view s0,
-        core::string_view s1) const noexcept
+        String0 s0,
+        String1 s1) const noexcept
     {
-        return ci_is_less(s0, s1);
+        return ci_is_equal(s0, s1);
     }
 };
-}
+#endif
 
 /** A case-insensitive less predicate for strings
 
@@ -362,7 +332,22 @@ struct ci_less
         @ref ci_equal,
         @ref ci_hash.
 */
-using ci_less = implementation_defined::ci_less;
+#ifdef BOOST_URL_DOCS
+using ci_less = __see_below__;
+#else
+struct ci_less
+{
+    using is_transparent = void;
+
+    std::size_t
+    operator()(
+        core::string_view s0,
+        core::string_view s1) const noexcept
+    {
+        return ci_is_less(s0, s1);
+    }
+};
+#endif
 
 } // grammar
 } // urls

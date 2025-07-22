@@ -43,7 +43,7 @@ namespace urls {
 
     @par Example 2
     Parsing functions like @ref parse_uri_reference
-    return a `boost::system::result` containing either a valid
+    return a @ref result containing either a valid
     @ref url_view upon succcess, otherwise they
     contain an error. The error can be converted to
     an exception by the caller if desired:
@@ -235,8 +235,6 @@ public:
 
         @par Exception Safety
         Throws nothing.
-
-        @param other The other view.
     */
     url_view(
         url_view const& other) noexcept
@@ -261,8 +259,6 @@ public:
 
         @par Exception Safety
         Throws nothing.
-
-        @param other The other view.
     */
     url_view(
         url_view_base const& other) noexcept;
@@ -283,9 +279,6 @@ public:
 
         @par Exception Safety
         Throws nothing.
-
-        @param other The other view.
-        @return A reference to this object.
     */
     url_view&
     operator=(
@@ -313,9 +306,6 @@ public:
 
         @par Exception Safety
         Throws nothing.
-
-        @param other The other view.
-        @return A reference to this object.
     */
     url_view& operator=(
         url_view_base const& other) noexcept;
@@ -337,8 +327,6 @@ public:
 
         @par Exception Safety
         Throws nothing.
-
-        @return The maximum number of characters possible.
     */
     static
     constexpr

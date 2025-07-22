@@ -1,6 +1,5 @@
 //
 // Copyright 2007-2012 Christian Henning, Andreas Pokorny
-// Copyright 2024 Dirk Stolle
 //
 // Distributed under the Boost Software License, Version 1.0
 // See accompanying file LICENSE_1_0.txt or copy at
@@ -410,28 +409,12 @@ public:
                  );
     }
 
-    long int tell()
-    {
-        auto pos = _in.tellg();
-
-        io_error_if( pos == std::istream::pos_type(-1)
-                   , "istream_device: file position error"
-                   );
-
-        return static_cast<long int>(pos);
-    }
-
     void write(const byte_t*, std::size_t)
     {
         io_error( "istream_device: Bad io error." );
     }
 
     void flush() {}
-
-    int error()
-    {
-        return _in.fail();
-    }
 
 private:
 
@@ -465,17 +448,6 @@ public:
                         ?std::ios::cur
                         :std::ios::end )
                   );
-    }
-
-    long int tell()
-    {
-        auto pos = _out.tellp();
-
-        io_error_if( pos == std::ostream::pos_type(-1)
-                   , "ostream_device: file position error"
-                   );
-
-        return static_cast<long int>(pos);
     }
 
     void write( const byte_t* data
@@ -537,10 +509,7 @@ public:
         _out << line;
     }
 
-    int error()
-    {
-        return _out.fail();
-    }
+
 
 private:
 

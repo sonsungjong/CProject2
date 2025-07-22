@@ -1,7 +1,5 @@
 // Boost.Geometry
 
-// Copyright (c) 2025 Adam Wulkiewicz, Lodz, Poland.
-
 // Copyright (c) 2020-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -16,8 +14,6 @@
 #include <boost/geometry/strategies/area/spherical.hpp>
 #include <boost/geometry/strategies/azimuth/spherical.hpp>
 #include <boost/geometry/strategies/buffer/spherical.hpp>
-#include <boost/geometry/strategies/centroid/spherical.hpp>
-#include <boost/geometry/strategies/closest_points/spherical.hpp>
 #include <boost/geometry/strategies/convex_hull/spherical.hpp>
 #include <boost/geometry/strategies/distance/spherical.hpp>
 #include <boost/geometry/strategies/envelope/spherical.hpp>
@@ -44,10 +40,9 @@ template
 >
 class spherical
     // derived from the umbrella strategy defining the most strategies
-    : public strategies::closest_points::spherical<RadiusTypeOrSphere, CalculationType>
-    , public strategies::centroid::detail::spherical
+    : public strategies::index::detail::spherical<RadiusTypeOrSphere, CalculationType>
 {
-    using base_t = strategies::closest_points::spherical<RadiusTypeOrSphere, CalculationType>;
+    using base_t = strategies::index::detail::spherical<RadiusTypeOrSphere, CalculationType>;
 
 public:
     spherical() = default;

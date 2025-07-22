@@ -283,7 +283,7 @@ void remove_edge_if(Predicate p, std::vector< EdgeList, Allocator >& g)
 template < class EdgeList, class Allocator >
 typename EdgeList::value_type add_vertex(std::vector< EdgeList, Allocator >& g)
 {
-    g.emplace_back();
+    g.resize(g.size() + 1);
     return g.size() - 1;
 }
 

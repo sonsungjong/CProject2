@@ -47,7 +47,7 @@ struct is_simple_multipoint
     {
         typedef geometry::less
             <
-                point_type_t<MultiPoint>,
+                typename point_type<MultiPoint>::type,
                 -1,
                 Strategy
             > less_type;

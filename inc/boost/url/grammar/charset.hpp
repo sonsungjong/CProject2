@@ -17,31 +17,11 @@
 #include <type_traits>
 #include <utility>
 
-#ifdef BOOST_URL_HAS_CONCEPTS
-#include <concepts>
-#endif
-
 namespace boost {
 namespace urls {
 namespace grammar {
 
-namespace implementation_defined
-{
-template<class T, class = void>
-struct is_charset : std::false_type {};
-
-template<class T>
-struct is_charset<T, void_t<
-    decltype(
-    std::declval<bool&>() =
-        std::declval<T const&>().operator()(
-            std::declval<char>())
-            ) > > : std::true_type
-{
-};
-}
-
-/** Alias for `std::true_type` if T satisfies @ref CharSet.
+/** Alias for `std::true_type` if T satisfies <em>CharSet</em>.
 
     This metafunction determines if the
     type `T` meets these requirements of
@@ -63,62 +43,23 @@ struct is_charset<T, void_t<
 
     @tparam T the type to check.
 */
+#ifdef BOOST_URL_DOCS
 template<class T>
-using is_charset = BOOST_URL_SEE_BELOW(implementation_defined::is_charset<T>);
+using is_charset = __see_below__;
+#else
+template<class T, class = void>
+struct is_charset : std::false_type {};
 
-#ifdef BOOST_URL_HAS_CONCEPTS
-/** Concept for a CharSet
-
-    A `CharSet` is a unary predicate which is invocable with
-    this equivalent signature:
-
-    @code
-    bool( char ch ) const noexcept;
-    @endcode
-
-    The predicate returns `true` if `ch` is a member of the
-    set, or `false` otherwise.
-
-    @par Exemplar
-
-    For best results, it is suggested that all constructors and
-    member functions for character sets be marked `constexpr`.
-
-    @code
-    struct CharSet
-    {
-        bool operator()( char c ) const noexcept;
-
-        // These are both optional. If either or both are left
-        // unspecified, a default implementation will be used.
-        //
-        char const* find_if( char const* first, char const* last ) const noexcept;
-        char const* find_if_not( char const* first, char const* last ) const noexcept;
-    };
-    @endcode
-
-    @par Models
-
-    @li @ref alnum_chars
-    @li @ref alpha_chars
-    @li @ref digit_chars
-    @li @ref hexdig_chars
-    @li @ref lut_chars
-
-    @see
-        @ref is_charset,
-        @ref find_if,
-        @ref find_if_not.
-
- */
-template <class T>
-concept CharSet =
-    requires (T const t, char c)
+template<class T>
+struct is_charset<T, void_t<
+    decltype(
+    std::declval<bool&>() =
+        std::declval<T const&>().operator()(
+            std::declval<char>())
+            ) > > : std::true_type
 {
-    { t(c) } -> std::convertible_to<bool>;
 };
 #endif
-
 
 //------------------------------------------------
 
@@ -141,23 +82,23 @@ concept CharSet =
     @see
         @ref find_if_not.
 */
-template<BOOST_URL_CONSTRAINT(CharSet) CS>
+template<class CharSet>
 char const*
 find_if(
     char const* const first,
     char const* const last,
-    CS const& cs) noexcept
+    CharSet const& cs) noexcept
 {
     // If you get a compile error here
     // it means your type does not meet
     // the requirements. Please check the
     // documentation.
     static_assert(
-        is_charset<CS>::value,
+        is_charset<CharSet>::value,
         "CharSet requirements not met");
 
     return detail::find_if(first, last, cs,
-        detail::has_find_if<CS>{});
+        detail::has_find_if<CharSet>{});
 }
 
 /** Find the first character in the string that is not in CharSet
@@ -179,28 +120,30 @@ find_if(
     @see
         @ref find_if_not.
 */
-template<BOOST_URL_CONSTRAINT(CharSet) CS>
+template<class CharSet>
 char const*
 find_if_not(
     char const* const first,
     char const* const last,
-    CS const& cs) noexcept
+    CharSet const& cs) noexcept
 {
     // If you get a compile error here
     // it means your type does not meet
     // the requirements. Please check the
     // documentation.
     static_assert(
-        is_charset<CS>::value,
+        is_charset<CharSet>::value,
         "CharSet requirements not met");
 
     return detail::find_if_not(first, last, cs,
-        detail::has_find_if_not<CS>{});
+        detail::has_find_if_not<CharSet>{});
 }
 
 //------------------------------------------------
 
-namespace implementation_defined {
+#ifndef BOOST_URL_DOCS
+namespace detail {
+
 template<class CharSet>
 struct charset_ref
 {
@@ -231,7 +174,9 @@ struct charset_ref
             first, last, cs_ );
     }
 };
-} // implementation_defined
+
+} // detail
+#endif
 
 /** Return a reference to a character set
 
@@ -247,21 +192,22 @@ struct charset_ref
     is no longer referenced. For best results,
     `ref` should only be used with compile-time
     constants.
-
-    @tparam CharSet The character set type
-    @param cs The character set to use
-    @return The character set as a reference type
 */
-template<BOOST_URL_CONSTRAINT(CharSet) CS>
+template<class CharSet>
 constexpr
+#ifdef BOOST_URL_DOCS
+__implementation_defined__
+#else
 typename std::enable_if<
-    is_charset<CS>::value &&
-    ! std::is_same<CS,
-        implementation_defined::charset_ref<CS> >::value,
-    implementation_defined::charset_ref<CS> >::type
-ref(CS const& cs) noexcept
+    is_charset<CharSet>::value &&
+    ! std::is_same<CharSet,
+        detail::charset_ref<CharSet> >::value,
+    detail::charset_ref<CharSet> >::type
+#endif
+ref(CharSet const& cs) noexcept
 {
-    return implementation_defined::charset_ref<CS>{cs};
+    return detail::charset_ref<
+        CharSet>{cs};
 }
 
 } // grammar

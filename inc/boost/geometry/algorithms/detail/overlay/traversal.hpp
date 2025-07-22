@@ -1,11 +1,10 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2024 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2023-2024 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017-2024.
-// Modifications copyright (c) 2017-2024 Oracle and/or its affiliates.
-// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// This file was modified by Oracle on 2017-2020.
+// Modifications copyright (c) 2017-2020 Oracle and/or its affiliates.
+
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -23,12 +22,13 @@
 #include <boost/range/value_type.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/cluster_info.hpp>
-#include <boost/geometry/algorithms/detail/overlay/debug_traverse.hpp>
+#include <boost/geometry/algorithms/detail/overlay/cluster_exits.hpp>
 #include <boost/geometry/algorithms/detail/overlay/is_self_turn.hpp>
 #include <boost/geometry/algorithms/detail/overlay/sort_by_side.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
+#include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/assert.hpp>
-#include <boost/geometry/util/constexpr.hpp>
+#include <boost/geometry/util/condition.hpp>
 
 #if defined(BOOST_GEOMETRY_DEBUG_INTERSECTION) \
     || defined(BOOST_GEOMETRY_OVERLAY_REPORT_WKT) \
@@ -45,6 +45,36 @@ namespace boost { namespace geometry
 namespace detail { namespace overlay
 {
 
+template <typename Turn, typename Operation>
+#ifdef BOOST_GEOMETRY_DEBUG_TRAVERSE
+inline void debug_traverse(Turn const& turn, Operation op,
+                std::string const& header, bool condition = true)
+{
+    if (! condition)
+    {
+        return;
+    }
+    std::cout << " " << header
+        << " at " << op.seg_id
+        << " meth: " << method_char(turn.method)
+        << " op: " << operation_char(op.operation)
+        << " vis: " << visited_char(op.visited)
+        << " of:  " << operation_char(turn.operations[0].operation)
+        << operation_char(turn.operations[1].operation)
+        << " " << geometry::wkt(turn.point)
+        << std::endl;
+
+    if (boost::contains(header, "Finished"))
+    {
+        std::cout << std::endl;
+    }
+}
+#else
+inline void debug_traverse(Turn const& , Operation, const char*, bool = true)
+{
+}
+#endif
+
 template
 <
     bool Reverse1,
@@ -54,7 +84,8 @@ template
     typename Geometry2,
     typename Turns,
     typename Clusters,
-    typename Strategy,
+    typename RobustPolicy,
+    typename SideStrategy,
     typename Visitor
 >
 struct traversal
@@ -63,26 +94,27 @@ private :
 
     static const operation_type target_operation = operation_from_overlay<OverlayType>::value;
 
-    using side_compare_type = typename sort_by_side::side_compare<target_operation>::type;
-    using turn_type = typename boost::range_value<Turns>::type;
-    using turn_operation_type = typename turn_type::turn_operation_type;
+    typedef typename sort_by_side::side_compare<target_operation>::type side_compare_type;
+    typedef typename boost::range_value<Turns>::type turn_type;
+    typedef typename turn_type::turn_operation_type turn_operation_type;
 
-    using point_type = geometry::point_type_t<Geometry1>;
-    using sbs_type = sort_by_side::side_sorter
+    typedef typename geometry::point_type<Geometry1>::type point_type;
+    typedef sort_by_side::side_sorter
         <
             Reverse1, Reverse2, OverlayType,
-            point_type, Strategy, side_compare_type
-        >;
+            point_type, SideStrategy, side_compare_type
+        > sbs_type;
 
 public :
     inline traversal(Geometry1 const& geometry1, Geometry2 const& geometry2,
             Turns& turns, Clusters const& clusters,
-            Strategy const& strategy,
+            RobustPolicy const& robust_policy, SideStrategy const& strategy,
             Visitor& visitor)
         : m_geometry1(geometry1)
         , m_geometry2(geometry2)
         , m_turns(turns)
         , m_clusters(clusters)
+        , m_robust_policy(robust_policy)
         , m_strategy(strategy)
         , m_visitor(visitor)
     {
@@ -201,12 +233,24 @@ public :
                               segment_identifier const& previous_seg_id) const
     {
         // For uu/ii, only switch sources if indicated
-        // Buffer and self-turns do not use source_index (always 0).
-        return OverlayType == overlay_buffer || is_self_turn<OverlayType>(turn)
-            ? select_source_generic<&segment_identifier::multi_index>(
-                        turn, candidate_seg_id, previous_seg_id)
-            : select_source_generic<&segment_identifier::source_index>(
+
+        if (BOOST_GEOMETRY_CONDITION(OverlayType == overlay_buffer))
+        {
+            // Buffer does not use source_index (always 0).
+            return select_source_generic<&segment_identifier::multi_index>(
                         turn, candidate_seg_id, previous_seg_id);
+        }
+
+        if (is_self_turn<OverlayType>(turn))
+        {
+            // Also, if it is a self-turn, stay on same ring (multi/ring)
+            return select_source_generic<&segment_identifier::multi_index>(
+                        turn, candidate_seg_id, previous_seg_id);
+        }
+
+        // Use source_index
+        return select_source_generic<&segment_identifier::source_index>(
+                    turn, candidate_seg_id, previous_seg_id);
     }
 
     inline bool traverse_possible(signed_size_type turn_index) const
@@ -299,27 +343,25 @@ public :
             return true;
         }
 
-        if BOOST_GEOMETRY_CONSTEXPR (OverlayType == overlay_buffer)
+        if (BOOST_GEOMETRY_CONDITION(OverlayType == overlay_buffer)
+            && possible[0] && possible[1])
         {
-            if (possible[0] && possible[1])
+            // Buffers sometimes have multiple overlapping pieces, where remaining
+            // distance could lead to the wrong choice. Take the matching operation.
+
+            bool is_target[2] = {0};
+            for (int i = 0; i < 2; i++)
             {
-                // Buffers sometimes have multiple overlapping pieces, where remaining
-                // distance could lead to the wrong choice. Take the matching operation.
+                turn_operation_type const& next_op = m_turns[next[i]].operations[i];
+                is_target[i] = next_op.operation == target_operation;
+            }
 
-                bool is_target[2] = {0};
-                for (int i = 0; i < 2; i++)
-                {
-                    turn_operation_type const& next_op = m_turns[next[i]].operations[i];
-                    is_target[i] = next_op.operation == target_operation;
-                }
-
-                if (is_target[0] != is_target[1])
-                {
-                    // Take the matching operation
-                    selected_op_index = is_target[0] ? 0 : 1;
-                    debug_traverse(turn, turn.operations[selected_op_index], "Candidate cc target");
-                    return true;
-                }
+            if (is_target[0] != is_target[1])
+            {
+                // Take the matching operation
+                selected_op_index = is_target[0] ? 0 : 1;
+                debug_traverse(turn, turn.operations[selected_op_index], "Candidate cc target");
+                return true;
             }
         }
 
@@ -463,7 +505,7 @@ public :
     }
 
     inline
-    bool select_operation(turn_type const& turn,
+    bool select_operation(const turn_type& turn,
                 signed_size_type turn_index,
                 signed_size_type start_turn_index,
                 segment_identifier const& previous_seg_id,
@@ -476,7 +518,7 @@ public :
             result = select_cc_operation(turn, start_turn_index,
                                          selected_op_index);
         }
-        else if BOOST_GEOMETRY_CONSTEXPR (OverlayType == overlay_dissolve)
+        else if (BOOST_GEOMETRY_CONDITION(OverlayType == overlay_dissolve))
         {
             result = select_preferred_operation(turn, turn_index,
                 start_turn_index, selected_op_index);
@@ -494,7 +536,7 @@ public :
         return result;
     }
 
-    inline int starting_operation_index(turn_type const& turn) const
+    inline int starting_operation_index(const turn_type& turn) const
     {
         for (int i = 0; i < 2; i++)
         {
@@ -506,7 +548,7 @@ public :
         return -1;
     }
 
-    inline bool both_finished(turn_type const& turn) const
+    inline bool both_finished(const turn_type& turn) const
     {
         for (int i = 0; i < 2; i++)
         {
@@ -518,18 +560,16 @@ public :
         return true;
     }
 
-    // Returns a priority, the one with the highst priority will be selected
-    //   0: not OK
-    //   1: OK following spike out
-    //   2: OK but next turn is in same cluster
-    //   3: OK
-    //   4: OK and start turn matches
-    //   5: OK and start turn and start operation both match, this is the best
-    inline int priority_of_turn_in_cluster(sort_by_side::rank_type selected_rank,
+    inline int priority_of_turn_in_cluster_union(sort_by_side::rank_type selected_rank,
             typename sbs_type::rp const& ranked_point,
-            cluster_info const& cinfo,
+            std::set<signed_size_type> const& cluster_indices,
             signed_size_type start_turn_index, int start_op_index) const
     {
+        // Returns 0: not OK
+        // Returns 1: OK but next turn is in same cluster
+        // Returns 2: OK
+        // Returns 3: OK and start turn matches
+        // Returns 4: OK and start turn and start op both match
         if (ranked_point.rank != selected_rank
             || ranked_point.direction != sort_by_side::dir_to)
         {
@@ -545,30 +585,24 @@ public :
             return 0;
         }
 
-        if BOOST_GEOMETRY_CONSTEXPR (OverlayType != overlay_dissolve)
+        if (BOOST_GEOMETRY_CONDITION(OverlayType != overlay_dissolve)
+            && (op.enriched.count_left != 0 || op.enriched.count_right == 0))
         {
-            if ((op.enriched.count_left != 0 || op.enriched.count_right == 0) && cinfo.spike_count > 0)
-            {
-                // Check counts: in some cases interior rings might be generated with
-                // polygons on both sides. For dissolve it can be anything.
-
-                // If this forms a spike, going to/from the cluster point in the same
-                // (opposite) direction, it can still be used.
-                return 1;
-            }
+            // Check counts: in some cases interior rings might be generated with
+            // polygons on both sides. For dissolve it can be anything.
+            return 0;
         }
 
         bool const to_start = ranked_point.turn_index == start_turn_index;
         bool const to_start_index = ranked_point.operation_index == start_op_index;
 
         bool const next_in_same_cluster
-                = cinfo.turn_indices.count(op.enriched.get_next_turn_index()) > 0;
+                = cluster_indices.count(op.enriched.get_next_turn_index()) > 0;
 
-        // Return the priority as described above
-        return to_start && to_start_index ? 5
-            : to_start ? 4
-            : next_in_same_cluster ? 2
-            : 3
+        return to_start && to_start_index ? 4
+            : to_start ? 3
+            : next_in_same_cluster ? 1
+            : 2
             ;
     }
 
@@ -613,8 +647,9 @@ public :
         return -1;
     }
 
-    inline bool select_from_cluster(signed_size_type& turn_index, int& op_index,
-        cluster_info const& cinfo, sbs_type const& sbs,
+    inline bool select_from_cluster_union(signed_size_type& turn_index,
+        std::set<signed_size_type> const& cluster_indices,
+        int& op_index, sbs_type const& sbs,
         signed_size_type start_turn_index, int start_op_index) const
     {
         sort_by_side::rank_type const selected_rank = select_rank(sbs);
@@ -622,15 +657,15 @@ public :
         int current_priority = 0;
         for (std::size_t i = 1; i < sbs.m_ranked_points.size(); i++)
         {
-            auto const& ranked_point = sbs.m_ranked_points[i];
+            typename sbs_type::rp const& ranked_point = sbs.m_ranked_points[i];
 
             if (ranked_point.rank > selected_rank)
             {
                 break;
             }
 
-            int const priority = priority_of_turn_in_cluster(selected_rank,
-                ranked_point, cinfo, start_turn_index, start_op_index);
+            int const priority = priority_of_turn_in_cluster_union(selected_rank,
+                ranked_point, cluster_indices, start_turn_index, start_op_index);
 
             if (priority > current_priority)
             {
@@ -642,9 +677,7 @@ public :
         return current_priority > 0;
     }
 
-    // Analyzes a clustered intersection, as if it is clustered.
-    // This is used for II intersections
-    inline bool analyze_ii_cluster(signed_size_type& turn_index,
+    inline bool analyze_cluster_intersection(signed_size_type& turn_index,
                 int& op_index, sbs_type const& sbs) const
     {
         // Select the rank based on regions and isolation
@@ -759,34 +792,34 @@ public :
             return false;
         }
 
-        if BOOST_GEOMETRY_CONSTEXPR (is_union)
+        cluster_exits<OverlayType, Turns, sbs_type> exits(m_turns, cinfo.turn_indices, sbs);
+
+        if (exits.apply(turn_index, op_index))
         {
-            if (cinfo.open_count == 0 && cinfo.spike_count > 0)
-            {
-                // Leave the cluster from the spike.
-                for (std::size_t i = 0; i + 1 < sbs.m_ranked_points.size(); i++)
-                {
-                    auto const& current = sbs.m_ranked_points[i];
-                    auto const& next = sbs.m_ranked_points[i + 1];
-                    if (current.rank == next.rank
-                        && current.direction == detail::overlay::sort_by_side::dir_from
-                        && next.direction == detail::overlay::sort_by_side::dir_to)
-                    {
-                        turn_index = next.turn_index;
-                        op_index = next.operation_index;
-                        return true;
-                    }
-                }
-            }
+            return true;
         }
 
-        return select_from_cluster(turn_index, op_index, cinfo, sbs, start_turn_index, start_op_index);
+        bool result = false;
+
+        if (is_union)
+        {
+            result = select_from_cluster_union(turn_index, cinfo.turn_indices,
+                                               op_index, sbs,
+                                               start_turn_index, start_op_index);
+            if (! result)
+            {
+               // There no way out found, try second pass in collected cluster exits
+               result = exits.apply(turn_index, op_index, false);
+            }
+        }
+        else
+        {
+            result = analyze_cluster_intersection(turn_index, op_index, sbs);
+        }
+        return result;
     }
 
     // Analyzes a non-clustered "ii" intersection, as if it is clustered.
-    // TODO: it, since select_from_cluster is generalized (July 2024),
-    // uses a specific function used only for "ii" intersections.
-    // Therefore the sort-by-side solution should not be necessary and can be refactored.
     inline bool analyze_ii_intersection(signed_size_type& turn_index, int& op_index,
                     turn_type const& current_turn,
                     segment_identifier const& previous_seg_id)
@@ -810,7 +843,9 @@ public :
 
         sbs.apply(current_turn.point);
 
-        return analyze_ii_cluster(turn_index, op_index, sbs);
+        bool result = analyze_cluster_intersection(turn_index, op_index, sbs);
+
+        return result;
     }
 
     inline void change_index_for_self_turn(signed_size_type& to_vertex_index,
@@ -818,58 +853,56 @@ public :
                 turn_operation_type const& start_op,
                 int start_op_index) const
     {
-        if BOOST_GEOMETRY_CONSTEXPR (OverlayType != overlay_buffer
-                                  && OverlayType != overlay_dissolve)
+        if (BOOST_GEOMETRY_CONDITION(OverlayType != overlay_buffer
+                                     && OverlayType != overlay_dissolve))
         {
             return;
         }
-        else // else prevents unreachable code warning
-        {
-            const bool allow_uu = OverlayType != overlay_buffer;
 
-            // It travels to itself, can happen. If this is a buffer, it can
-            // sometimes travel to itself in the following configuration:
-            //
-            // +---->--+
-            // |       |
-            // |   +---*----+ *: one turn, with segment index 2/7
-            // |   |   |    |
-            // |   +---C    | C: closing point (start/end)
-            // |            |
-            // +------------+
-            //
-            // If it starts on segment 2 and travels to itself on segment 2, that
-            // should be corrected to 7 because that is the shortest path
-            //
-            // Also a uu turn (touching with another buffered ring) might have this
-            // apparent configuration, but there it should
-            // always travel the whole ring
+        const bool allow_uu = OverlayType != overlay_buffer;
 
-            turn_operation_type const& other_op
-                    = start_turn.operations[1 - start_op_index];
+        // It travels to itself, can happen. If this is a buffer, it can
+        // sometimes travel to itself in the following configuration:
+        //
+        // +---->--+
+        // |       |
+        // |   +---*----+ *: one turn, with segment index 2/7
+        // |   |   |    |
+        // |   +---C    | C: closing point (start/end)
+        // |            |
+        // +------------+
+        //
+        // If it starts on segment 2 and travels to itself on segment 2, that
+        // should be corrected to 7 because that is the shortest path
+        //
+        // Also a uu turn (touching with another buffered ring) might have this
+        // apparent configuration, but there it should
+        // always travel the whole ring
 
-            bool const correct
-                    = (allow_uu || ! start_turn.both(operation_union))
-                      && start_op.seg_id.source_index == other_op.seg_id.source_index
-                      && start_op.seg_id.multi_index == other_op.seg_id.multi_index
-                      && start_op.seg_id.ring_index == other_op.seg_id.ring_index
-                      && start_op.seg_id.segment_index == to_vertex_index;
+        turn_operation_type const& other_op
+                = start_turn.operations[1 - start_op_index];
+
+        bool const correct
+                = (allow_uu || ! start_turn.both(operation_union))
+                  && start_op.seg_id.source_index == other_op.seg_id.source_index
+                  && start_op.seg_id.multi_index == other_op.seg_id.multi_index
+                  && start_op.seg_id.ring_index == other_op.seg_id.ring_index
+                  && start_op.seg_id.segment_index == to_vertex_index;
 
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE)
-            std::cout << " WARNING: self-buffer "
-                      << " correct=" << correct
-                      << " turn=" << operation_char(start_turn.operations[0].operation)
-                      << operation_char(start_turn.operations[1].operation)
-                      << " start=" << start_op.seg_id.segment_index
-                      << " from=" << to_vertex_index
-                      << " to=" << other_op.enriched.travels_to_vertex_index
-                      << std::endl;
+        std::cout << " WARNING: self-buffer "
+                  << " correct=" << correct
+                  << " turn=" << operation_char(start_turn.operations[0].operation)
+                  << operation_char(start_turn.operations[1].operation)
+                  << " start=" << start_op.seg_id.segment_index
+                  << " from=" << to_vertex_index
+                  << " to=" << other_op.enriched.travels_to_vertex_index
+                  << std::endl;
 #endif
 
-            if (correct)
-            {
-                to_vertex_index = other_op.enriched.travels_to_vertex_index;
-            }
+        if (correct)
+        {
+            to_vertex_index = other_op.enriched.travels_to_vertex_index;
         }
     }
 
@@ -928,7 +961,7 @@ public :
                 = has_points
                 && current_turn.is_clustered()
                 && m_turns[start_turn_index].cluster_id == current_turn.cluster_id;
-        if BOOST_GEOMETRY_CONSTEXPR (target_operation == operation_intersection)
+        if (BOOST_GEOMETRY_CONDITION(target_operation == operation_intersection))
         {
             // Intersection or difference
 
@@ -1004,9 +1037,11 @@ private :
     Geometry2 const& m_geometry2;
     Turns& m_turns;
     Clusters const& m_clusters;
-    Strategy m_strategy;
+    RobustPolicy const& m_robust_policy;
+    SideStrategy m_strategy;
     Visitor& m_visitor;
 };
+
 
 
 }} // namespace detail::overlay

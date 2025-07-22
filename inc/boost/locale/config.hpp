@@ -8,12 +8,6 @@
 #define BOOST_LOCALE_CONFIG_HPP_INCLUDED
 
 #include <boost/config.hpp>
-#include <boost/config/workaround.hpp>
-#ifdef __has_include
-#    if __has_include(<version>)
-#        include <version>
-#    endif
-#endif
 
 #if defined(BOOST_ALL_DYN_LINK) || defined(BOOST_LOCALE_DYN_LINK)
 #    ifdef BOOST_LOCALE_SOURCE
@@ -88,7 +82,6 @@
 #if !defined(BOOST_LOCALE_NO_SANITIZE)
 #    define BOOST_LOCALE_NO_SANITIZE(what)
 #endif
-
 /// \endcond
 
 #endif // boost/locale/config.hpp

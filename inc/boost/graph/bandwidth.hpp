@@ -10,7 +10,6 @@
 #include <algorithm> // for std::min and std::max
 #include <boost/config.hpp>
 #include <boost/graph/graph_traits.hpp>
-#include <boost/graph/properties.hpp>
 #include <boost/detail/numeric_traits.hpp>
 
 namespace boost

@@ -25,7 +25,6 @@
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/util/range.hpp>
-#include <boost/geometry/util/type_traits.hpp>
 
 namespace boost { namespace geometry {
 
@@ -34,12 +33,9 @@ namespace boost { namespace geometry {
 #ifndef DOXYGEN_NO_DISPATCH
 namespace detail_dispatch {
 
-template
-<
-    typename Geometry,
-    typename Tag = geometry::tag_t<Geometry>,
-    bool IsMulti = util::is_multi<Geometry>::value
->
+template <typename Geometry,
+          typename Tag = typename geometry::tag<Geometry>::type,
+          bool IsMulti = std::is_base_of<multi_tag, Tag>::value>
 struct sub_range : not_implemented<Tag>
 {};
 
@@ -58,7 +54,7 @@ struct sub_range<Geometry, Tag, false>
 template <typename Geometry>
 struct sub_range<Geometry, polygon_tag, false>
 {
-    using return_type = geometry::ring_return_type_t<Geometry>;
+    typedef typename geometry::ring_return_type<Geometry>::type return_type;
 
     template <typename Id> static inline
     return_type apply(Geometry & geometry, Id const& id)
@@ -69,10 +65,10 @@ struct sub_range<Geometry, polygon_tag, false>
         }
         else
         {
-            using size_type = typename boost::range_size
+            typedef typename boost::range_size
                 <
                     typename geometry::interior_type<Geometry>::type
-                >::type;
+                >::type size_type;
             size_type const ri = static_cast<size_type>(id.ring_index);
             return range::at(geometry::interior_rings(geometry), ri);
         }

@@ -22,7 +22,10 @@ public:
 
     inline inconsistent_turns_exception() {}
 
-    char const* what() const noexcept override
+    virtual ~inconsistent_turns_exception() throw()
+    {}
+
+    virtual char const* what() const throw()
     {
         return "Boost.Geometry Inconsistent Turns exception";
     }

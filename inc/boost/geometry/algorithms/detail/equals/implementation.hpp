@@ -215,7 +215,7 @@ struct equals_by_collection
             >::template type
                 <
                     calculation_type,
-                    geometry::point_type_t<Geometry1>
+                    typename geometry::point_type<Geometry1>::type
                 >;
 
         std::vector<collected_vector_type> c1, c2;

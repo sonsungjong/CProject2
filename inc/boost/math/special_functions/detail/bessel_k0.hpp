@@ -13,14 +13,10 @@
 #pragma warning(disable:4702) // Unreachable code (release mode only warning)
 #endif
 
-#include <boost/math/tools/config.hpp>
-#include <boost/math/tools/type_traits.hpp>
-#include <boost/math/tools/numeric_limits.hpp>
-#include <boost/math/tools/precision.hpp>
 #include <boost/math/tools/rational.hpp>
 #include <boost/math/tools/big_constant.hpp>
-#include <boost/math/tools/assert.hpp>
 #include <boost/math/policies/error_handling.hpp>
+#include <boost/math/tools/assert.hpp>
 
 #if defined(__GNUC__) && defined(BOOST_MATH_USE_FLOAT128)
 //
@@ -48,37 +44,35 @@
 namespace boost { namespace math { namespace detail{
 
 template <typename T>
-BOOST_MATH_GPU_ENABLED T bessel_k0(const T& x);
+T bessel_k0(const T& x);
 
 template <class T, class tag>
 struct bessel_k0_initializer
 {
    struct init
    {
-      BOOST_MATH_GPU_ENABLED init()
+      init()
       {
          do_init(tag());
       }
-      BOOST_MATH_GPU_ENABLED static void do_init(const boost::math::integral_constant<int, 113>&)
+      static void do_init(const std::integral_constant<int, 113>&)
       {
          bessel_k0(T(0.5));
          bessel_k0(T(1.5));
       }
-      BOOST_MATH_GPU_ENABLED static void do_init(const boost::math::integral_constant<int, 64>&)
+      static void do_init(const std::integral_constant<int, 64>&)
       {
          bessel_k0(T(0.5));
          bessel_k0(T(1.5));
       }
       template <class U>
-      BOOST_MATH_GPU_ENABLED static void do_init(const U&){}
-      BOOST_MATH_GPU_ENABLED void force_instantiate()const{}
+      static void do_init(const U&){}
+      void force_instantiate()const{}
    };
-   BOOST_MATH_STATIC const init initializer;
-   BOOST_MATH_GPU_ENABLED static void force_instantiate()
+   static const init initializer;
+   static void force_instantiate()
    {
-      #ifndef BOOST_MATH_HAS_GPU_SUPPORT
       initializer.force_instantiate();
-      #endif
    }
 };
 
@@ -87,14 +81,14 @@ const typename bessel_k0_initializer<T, tag>::init bessel_k0_initializer<T, tag>
 
 
 template <typename T, int N>
-BOOST_MATH_GPU_ENABLED T bessel_k0_imp(const T&, const boost::math::integral_constant<int, N>&)
+T bessel_k0_imp(const T&, const std::integral_constant<int, N>&)
 {
    BOOST_MATH_ASSERT(0);
    return 0;
 }
 
 template <typename T>
-BOOST_MATH_GPU_ENABLED T bessel_k0_imp(const T& x, const boost::math::integral_constant<int, 24>&)
+T bessel_k0_imp(const T& x, const std::integral_constant<int, 24>&)
 {
    BOOST_MATH_STD_USING
    if(x <= 1)
@@ -103,14 +97,14 @@ BOOST_MATH_GPU_ENABLED T bessel_k0_imp(const T& x, const boost::math::integral_c
       // Expected Error Term : -2.358e-09
       // Maximum Relative Change in Control Points : 9.552e-02
       // Max Error found at float precision = Poly : 4.448220e-08
-      BOOST_MATH_STATIC const T Y = 1.137250900268554688f;
-      BOOST_MATH_STATIC const T P[] = 
+      static const T Y = 1.137250900268554688f;
+      static const T P[] = 
       {
          -1.372508979104259711e-01f,
          2.622545986273687617e-01f,
          5.047103728247919836e-03f
       };
-      BOOST_MATH_STATIC const T Q[] = 
+      static const T Q[] = 
       {
          1.000000000000000000e+00f,
          -8.928694018000029415e-02f,
@@ -123,7 +117,7 @@ BOOST_MATH_GPU_ENABLED T bessel_k0_imp(const T& x, const boost::math::integral_c
       // Expected Error Term : -1.343e-09
       // Maximum Relative Change in Control Points : 2.405e-02
       // Max Error found at float precision = Poly : 1.354814e-07
-      BOOST_MATH_STATIC const T P2[] = {
+      static const T P2[] = {
          1.159315158e-01f,
          2.789828686e-01f,
          2.524902861e-02f,
@@ -139,14 +133,14 @@ BOOST_MATH_GPU_ENABLED T bessel_k0_imp(const T& x, const boost::math::integral_c
       // Maximum Relative Change in Control Points : 9.064e-02
       // Max Error found at float precision = Poly : 5.065020e-08
 
-      BOOST_MATH_STATIC const T P[] =
+      static const T P[] =
       {
          2.533141220e-01f,
          5.221502603e-01f,
          6.380180669e-02f,
          -5.934976547e-02f
       };
-      BOOST_MATH_STATIC const T Q[] =
+      static const T Q[] =
       {
          1.000000000e+00f,
          2.679722431e+00f,
@@ -164,7 +158,7 @@ BOOST_MATH_GPU_ENABLED T bessel_k0_imp(const T& x, const boost::math::integral_c
 }
 
 template <typename T>
-BOOST_MATH_GPU_ENABLED T bessel_k0_imp(const T& x, const boost::math::integral_constant<int, 53>&)
+T bessel_k0_imp(const T& x, const std::integral_constant<int, 53>&)
 {
    BOOST_MATH_STD_USING
    if(x <= 1)
@@ -173,8 +167,8 @@ BOOST_MATH_GPU_ENABLED T bessel_k0_imp(const T& x, const boost::math::integral_c
       // Expected Error Term : -6.077e-17
       // Maximum Relative Change in Control Points : 7.797e-02
       // Max Error found at double precision = Poly : 1.003156e-16
-      BOOST_MATH_STATIC const T Y = 1.137250900268554688;
-      BOOST_MATH_STATIC const T P[] =
+      static const T Y = 1.137250900268554688;
+      static const T P[] =
       {
          -1.372509002685546267e-01,
          2.574916117833312855e-01,
@@ -182,7 +176,7 @@ BOOST_MATH_GPU_ENABLED T bessel_k0_imp(const T& x, const boost::math::integral_c
          5.445476986653926759e-04,
          7.125159422136622118e-06
       };
-      BOOST_MATH_STATIC const T Q[] =
+      static const T Q[] =
       {
          1.000000000000000000e+00,
          -5.458333438017788530e-02,
@@ -197,7 +191,7 @@ BOOST_MATH_GPU_ENABLED T bessel_k0_imp(const T& x, const boost::math::integral_c
       // Expected Error Term : 3.392e-18
       // Maximum Relative Change in Control Points : 2.041e-02
       // Max Error found at double precision = Poly : 2.513112e-16
-      BOOST_MATH_STATIC const T P2[] =
+      static const T P2[] =
       {
          1.159315156584124484e-01,
          2.789828789146031732e-01,
@@ -218,8 +212,8 @@ BOOST_MATH_GPU_ENABLED T bessel_k0_imp(const T& x, const boost::math::integral_c
       // Maximum Relative Change in Control Points : 2.757e-01
       // Max Error found at double precision = Poly : 1.001560e-16
 
-      BOOST_MATH_STATIC const T Y = 1;
-      BOOST_MATH_STATIC const T P[] =
+      static const T Y = 1;
+      static const T P[] =
       {
          2.533141373155002416e-01,
          3.628342133984595192e+00,
@@ -231,7 +225,7 @@ BOOST_MATH_GPU_ENABLED T bessel_k0_imp(const T& x, const boost::math::integral_c
          -1.414237994269995877e+00,
          -9.369168119754924625e-02
       };
-      BOOST_MATH_STATIC const T Q[] =
+      static const T Q[] =
       {
          1.000000000000000000e+00,
          1.494194694879908328e+01,
@@ -254,7 +248,7 @@ BOOST_MATH_GPU_ENABLED T bessel_k0_imp(const T& x, const boost::math::integral_c
 }
 
 template <typename T>
-BOOST_MATH_GPU_ENABLED T bessel_k0_imp(const T& x, const boost::math::integral_constant<int, 64>&)
+T bessel_k0_imp(const T& x, const std::integral_constant<int, 64>&)
 {
    BOOST_MATH_STD_USING
       if(x <= 1)
@@ -263,8 +257,8 @@ BOOST_MATH_GPU_ENABLED T bessel_k0_imp(const T& x, const boost::math::integral_c
          // Expected Error Term : 2.180e-22
          // Maximum Relative Change in Control Points : 2.943e-01
          // Max Error found at float80 precision = Poly : 3.923207e-20
-         BOOST_MATH_STATIC const T Y = 1.137250900268554687500e+00;
-         BOOST_MATH_STATIC const T P[] =
+         static const T Y = 1.137250900268554687500e+00;
+         static const T P[] =
          {
             BOOST_MATH_BIG_CONSTANT(T, 64, -1.372509002685546875002e-01),
             BOOST_MATH_BIG_CONSTANT(T, 64, 2.566481981037407600436e-01),
@@ -273,7 +267,7 @@ BOOST_MATH_GPU_ENABLED T bessel_k0_imp(const T& x, const boost::math::integral_c
             BOOST_MATH_BIG_CONSTANT(T, 64, 1.213747930378196492543e-05),
             BOOST_MATH_BIG_CONSTANT(T, 64, 9.423709328020389560844e-08)
          };
-         BOOST_MATH_STATIC const T Q[] =
+         static const T Q[] =
          {
             BOOST_MATH_BIG_CONSTANT(T, 64, 1.000000000000000000000e+00),
             BOOST_MATH_BIG_CONSTANT(T, 64, -4.843828412587773008342e-02),
@@ -290,7 +284,7 @@ BOOST_MATH_GPU_ENABLED T bessel_k0_imp(const T& x, const boost::math::integral_c
          // Expected Error Term : -2.434e-21
          // Maximum Relative Change in Control Points : 2.459e-02
          // Max Error found at float80 precision = Poly : 1.482487e-19
-         BOOST_MATH_STATIC const T P2[] =
+         static const T P2[] =
          {
             BOOST_MATH_BIG_CONSTANT(T, 64, 1.159315156584124488110e-01),
             BOOST_MATH_BIG_CONSTANT(T, 64, 2.764832791416047889734e-01),
@@ -298,7 +292,7 @@ BOOST_MATH_GPU_ENABLED T bessel_k0_imp(const T& x, const boost::math::integral_c
             BOOST_MATH_BIG_CONSTANT(T, 64, 3.660777862036966089410e-04),
             BOOST_MATH_BIG_CONSTANT(T, 64, 2.094942446930673386849e-06)
          };
-         BOOST_MATH_STATIC const T Q2[] =
+         static const T Q2[] =
          {
             BOOST_MATH_BIG_CONSTANT(T, 64, 1.000000000000000000000e+00),
             BOOST_MATH_BIG_CONSTANT(T, 64, -2.156100313881251616320e-02),
@@ -314,8 +308,8 @@ BOOST_MATH_GPU_ENABLED T bessel_k0_imp(const T& x, const boost::math::integral_c
          // Expected Error Term : 2.236e-21
          // Maximum Relative Change in Control Points : 3.021e-01
          //Max Error found at float80 precision = Poly : 8.727378e-20
-         BOOST_MATH_STATIC const T Y = 1;
-         BOOST_MATH_STATIC const T P[] =
+         static const T Y = 1;
+         static const T P[] =
          {
             BOOST_MATH_BIG_CONSTANT(T, 64, 2.533141373155002512056e-01),
             BOOST_MATH_BIG_CONSTANT(T, 64, 5.417942070721928652715e+00),
@@ -329,7 +323,7 @@ BOOST_MATH_GPU_ENABLED T bessel_k0_imp(const T& x, const boost::math::integral_c
             BOOST_MATH_BIG_CONSTANT(T, 64, -4.059789241612946683713e+00),
             BOOST_MATH_BIG_CONSTANT(T, 64, -1.612783121537333908889e-01)
          };
-         BOOST_MATH_STATIC const T Q[] =
+         static const T Q[] =
          {
             BOOST_MATH_BIG_CONSTANT(T, 64, 1.000000000000000000000e+00),
             BOOST_MATH_BIG_CONSTANT(T, 64, 2.200669254769325861404e+01),
@@ -354,7 +348,7 @@ BOOST_MATH_GPU_ENABLED T bessel_k0_imp(const T& x, const boost::math::integral_c
 }
 
 template <typename T>
-BOOST_MATH_GPU_ENABLED T bessel_k0_imp(const T& x, const boost::math::integral_constant<int, 113>&)
+T bessel_k0_imp(const T& x, const std::integral_constant<int, 113>&)
 {
    BOOST_MATH_STD_USING
       if(x <= 1)
@@ -363,8 +357,8 @@ BOOST_MATH_GPU_ENABLED T bessel_k0_imp(const T& x, const boost::math::integral_c
          // Expected Error Term : 5.682e-37
          // Maximum Relative Change in Control Points : 6.094e-04
          // Max Error found at float128 precision = Poly : 5.338213e-35
-         BOOST_MATH_STATIC const T Y = 1.137250900268554687500000000000000000e+00f;
-         BOOST_MATH_STATIC const T P[] =
+         static const T Y = 1.137250900268554687500000000000000000e+00f;
+         static const T P[] =
          {
             BOOST_MATH_BIG_CONSTANT(T, 113, -1.372509002685546875000000000000000006e-01),
             BOOST_MATH_BIG_CONSTANT(T, 113, 2.556212905071072782462974351698081303e-01),
@@ -375,7 +369,7 @@ BOOST_MATH_GPU_ENABLED T bessel_k0_imp(const T& x, const boost::math::integral_c
             BOOST_MATH_BIG_CONSTANT(T, 113, 1.752489221949580551692915881999762125e-09),
             BOOST_MATH_BIG_CONSTANT(T, 113, 5.243010555737173524710512824955368526e-12)
          };
-         BOOST_MATH_STATIC const T Q[] =
+         static const T Q[] =
          {
             BOOST_MATH_BIG_CONSTANT(T, 113, 1.000000000000000000000000000000000000e+00),
             BOOST_MATH_BIG_CONSTANT(T, 113, -4.095631064064621099785696980653193721e-02),
@@ -393,7 +387,7 @@ BOOST_MATH_GPU_ENABLED T bessel_k0_imp(const T& x, const boost::math::integral_c
          // Expected Error Term : 5.105e-38
          // Maximum Relative Change in Control Points : 9.734e-03
          // Max Error found at float128 precision = Poly : 1.688806e-34
-         BOOST_MATH_STATIC const T P2[] =
+         static const T P2[] =
          {
             BOOST_MATH_BIG_CONSTANT(T, 113, 1.159315156584124488107200313757741370e-01),
             BOOST_MATH_BIG_CONSTANT(T, 113, 2.789828789146031122026800078439435369e-01),
@@ -419,8 +413,8 @@ BOOST_MATH_GPU_ENABLED T bessel_k0_imp(const T& x, const boost::math::integral_c
          // Expected Error Term : 4.917e-40
          // Maximum Relative Change in Control Points : 3.385e-01
          // Max Error found at float128 precision = Poly : 1.567573e-34
-         BOOST_MATH_STATIC const T Y = 1;
-         BOOST_MATH_STATIC const T P[] =
+         static const T Y = 1;
+         static const T P[] =
          {
             BOOST_MATH_BIG_CONSTANT(T, 113, 2.533141373155002512078826424055226265e-01),
             BOOST_MATH_BIG_CONSTANT(T, 113, 2.001949740768235770078339977110749204e+01),
@@ -445,7 +439,7 @@ BOOST_MATH_GPU_ENABLED T bessel_k0_imp(const T& x, const boost::math::integral_c
             BOOST_MATH_BIG_CONSTANT(T, 113, -4.201632288615609937883545928660649813e+03),
             BOOST_MATH_BIG_CONSTANT(T, 113, -3.690820607338480548346746717311811406e+01)
          };
-         BOOST_MATH_STATIC const T Q[] =
+         static const T Q[] =
          {
             BOOST_MATH_BIG_CONSTANT(T, 113, 1.000000000000000000000000000000000000e+00),
             BOOST_MATH_BIG_CONSTANT(T, 113, 7.964877874035741452203497983642653107e+01),
@@ -470,7 +464,7 @@ BOOST_MATH_GPU_ENABLED T bessel_k0_imp(const T& x, const boost::math::integral_c
             BOOST_MATH_BIG_CONSTANT(T, 113, 8.370574966987293592457152146806662562e+03),
             BOOST_MATH_BIG_CONSTANT(T, 113, 4.871254714311063594080644835895740323e+01)
          };
-         if(-x > tools::log_min_value<T>())
+         if(x < tools::log_max_value<T>())
             return  ((tools::evaluate_rational(P, Q, T(1 / x)) + Y) * exp(-x) / sqrt(x));
          else
          {
@@ -481,33 +475,33 @@ BOOST_MATH_GPU_ENABLED T bessel_k0_imp(const T& x, const boost::math::integral_c
 }
 
 template <typename T>
-BOOST_MATH_GPU_ENABLED T bessel_k0_imp(const T& x, const boost::math::integral_constant<int, 0>&)
+T bessel_k0_imp(const T& x, const std::integral_constant<int, 0>&)
 {
    if(boost::math::tools::digits<T>() <= 24)
-      return bessel_k0_imp(x, boost::math::integral_constant<int, 24>());
+      return bessel_k0_imp(x, std::integral_constant<int, 24>());
    else if(boost::math::tools::digits<T>() <= 53)
-      return bessel_k0_imp(x, boost::math::integral_constant<int, 53>());
+      return bessel_k0_imp(x, std::integral_constant<int, 53>());
    else if(boost::math::tools::digits<T>() <= 64)
-      return bessel_k0_imp(x, boost::math::integral_constant<int, 64>());
+      return bessel_k0_imp(x, std::integral_constant<int, 64>());
    else if(boost::math::tools::digits<T>() <= 113)
-      return bessel_k0_imp(x, boost::math::integral_constant<int, 113>());
+      return bessel_k0_imp(x, std::integral_constant<int, 113>());
    BOOST_MATH_ASSERT(0);
    return 0;
 }
 
 template <typename T>
-BOOST_MATH_GPU_ENABLED inline T bessel_k0(const T& x)
+inline T bessel_k0(const T& x)
 {
-   typedef boost::math::integral_constant<int,
-      ((boost::math::numeric_limits<T>::digits == 0) || (boost::math::numeric_limits<T>::radix != 2)) ?
+   typedef std::integral_constant<int,
+      ((std::numeric_limits<T>::digits == 0) || (std::numeric_limits<T>::radix != 2)) ?
       0 :
-      boost::math::numeric_limits<T>::digits <= 24 ?
+      std::numeric_limits<T>::digits <= 24 ?
       24 :
-      boost::math::numeric_limits<T>::digits <= 53 ?
+      std::numeric_limits<T>::digits <= 53 ?
       53 :
-      boost::math::numeric_limits<T>::digits <= 64 ?
+      std::numeric_limits<T>::digits <= 64 ?
       64 :
-      boost::math::numeric_limits<T>::digits <= 113 ?
+      std::numeric_limits<T>::digits <= 113 ?
       113 : -1
    > tag_type;
 

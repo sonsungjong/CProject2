@@ -88,7 +88,7 @@ namespace traits
 template <typename CoordinateType, typename CoordinateSystem>
 struct tag<model::d3::point_xyz<CoordinateType, CoordinateSystem> >
 {
-    using type = point_tag;
+    typedef point_tag type;
 };
 
 template<typename CoordinateType, typename CoordinateSystem>

@@ -15,8 +15,6 @@
 #include <boost/spirit/home/karma/detail/output_iterator.hpp>
 #include <boost/spirit/home/karma/stream/detail/format_manip.hpp>
 #include <boost/spirit/home/support/unused.hpp>
-#include <boost/mpl/bool.hpp>
-#include <iosfwd>
 
 ///////////////////////////////////////////////////////////////////////////////
 namespace boost { namespace spirit { namespace karma 
@@ -109,7 +107,7 @@ namespace boost { namespace spirit { namespace karma
 
         if (!g.derived().generate(sink, unused, unused, unused))
         {
-            os.setstate(std::basic_ostream<Char, Traits>::failbit);
+            os.setstate(std::ios_base::failbit);
         }
         return os;
     }

@@ -45,7 +45,7 @@ struct cartesian_segment_box
           >
     {};
 
-    using cs_tag = cartesian_tag;
+    typedef cartesian_tag cs_tag;
 
     template
     <

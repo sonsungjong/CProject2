@@ -38,32 +38,63 @@ template<class CharSet>
 std::size_t
 re_encoded_size_unsafe(
     core::string_view s,
-    CharSet const& unreserved) noexcept
+    CharSet const& unreserved,
+    encoding_opts opt) noexcept
 {
     std::size_t n = 0;
-    auto it = s.begin();
     auto const end = s.end();
-    while(it != end)
+    auto it = s.begin();
+    if(opt.space_as_plus)
     {
-        if(*it != '%')
+        while(it != end)
         {
-            if( unreserved(*it) )
-                n += 1;
+            if(*it != '%')
+            {
+                if( unreserved(*it)
+                    || *it == ' ')
+                    n += 1; 
+                else
+                    n += 3;
+                ++it;
+            }
             else
+            {
+                BOOST_ASSERT(end - it >= 3);
+                BOOST_ASSERT(
+                    grammar::hexdig_value(
+                        it[1]) >= 0);
+                BOOST_ASSERT(
+                    grammar::hexdig_value(
+                        it[2]) >= 0);
                 n += 3;
-            ++it;
+                it += 3;
+            }
         }
-        else
+    }
+    else
+    {
+        while(it != end)
         {
-            BOOST_ASSERT(end - it >= 3);
-            BOOST_ASSERT(
+            if(*it != '%')
+            {
+                if(unreserved(*it))
+                    n += 1; 
+                else
+                    n += 3;
+                ++it;
+            }
+            else
+            {
+                BOOST_ASSERT(end - it >= 3);
+                BOOST_ASSERT(
                     grammar::hexdig_value(
-                            it[1]) >= 0);
-            BOOST_ASSERT(
+                        it[1]) >= 0);
+                BOOST_ASSERT(
                     grammar::hexdig_value(
-                            it[2]) >= 0);
-            n += 3;
-            it += 3;
+                        it[2]) >= 0);
+                n += 3;
+                it += 3;
+            }
         }
     }
     return n;
@@ -77,15 +108,15 @@ re_encode_unsafe(
     char*& dest_,
     char const* const end,
     core::string_view s,
-    CharSet const& unreserved) noexcept
+    CharSet const& unreserved,
+    encoding_opts opt) noexcept
 {
-    static constexpr bool lower_case = false;
-    char const* const hex = detail::hexdigs[lower_case];
+    char const* const hex =
+        detail::hexdigs[opt.lower_case];
     auto const encode = [end, hex](
-            char*& dest,
-            char c0) noexcept
+        char*& dest,
+        unsigned char c) noexcept
     {
-        auto c = static_cast<unsigned char>(c0);
         ignore_unused(end);
         *dest++ = '%';
         BOOST_ASSERT(dest != end);
@@ -100,30 +131,67 @@ re_encode_unsafe(
     auto const last = s.end();
     std::size_t dn = 0;
     auto it = s.begin();
-    while(it != last)
+
+    if(opt.space_as_plus)
     {
-        BOOST_ASSERT(dest != end);
-        if(*it != '%')
+        while(it != last)
         {
-            if(unreserved(*it))
+            BOOST_ASSERT(dest != end);
+            if(*it != '%')
             {
-                *dest++ = *it;
+                if(*it == ' ')
+                {
+                    *dest++ = '+';
+                }
+                else if(unreserved(*it))
+                {
+                    *dest++ = *it;
+                }
+                else
+                {
+                    encode(dest, *it);
+                    dn += 2;
+                }
+                ++it;
             }
             else
             {
-                encode(dest, *it);
+                *dest++ = *it++;
+                BOOST_ASSERT(dest != end);
+                *dest++ = *it++;
+                BOOST_ASSERT(dest != end);
+                *dest++ = *it++;
                 dn += 2;
             }
-            ++it;
         }
-        else
+    }
+    else
+    {
+        while(it != last)
         {
-            *dest++ = *it++;
             BOOST_ASSERT(dest != end);
-            *dest++ = *it++;
-            BOOST_ASSERT(dest != end);
-            *dest++ = *it++;
-            dn += 2;
+            if(*it != '%')
+            {
+                if(unreserved(*it))
+                {
+                    *dest++ = *it;
+                }
+                else
+                {
+                    encode(dest, *it);
+                    dn += 2;
+                }
+                ++it;
+            }
+            else
+            {
+                *dest++ = *it++;
+                BOOST_ASSERT(dest != end);
+                *dest++ = *it++;
+                BOOST_ASSERT(dest != end);
+                *dest++ = *it++;
+                dn += 2;
+            }
         }
     }
     dest_ = dest;

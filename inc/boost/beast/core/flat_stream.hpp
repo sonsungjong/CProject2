@@ -22,9 +22,7 @@
 namespace boost {
 namespace beast {
 
-/** (Deprecated: This wrapper is no longer needed; Asio linearizes
-    scatter/gather I/O in ssl::stream.) Stream wrapper to improve write
-    performance.
+/** Stream wrapper to improve write performance.
 
     This wrapper flattens writes for buffer sequences having length
     greater than 1 and total size below a predefined amount, using
@@ -243,13 +241,11 @@ public:
             std::size_t bytes_transferred   // Number of bytes read.
         );
         @endcode
-        If the handler has an associated immediate executor,
-        an immediate completion will be dispatched to it.
-        Otherwise, the handler will not be invoked from within
-        this function. Invocation of the handler will be performed
-        by dispatching to the immediate executor. If no
-        immediate executor is specified, this is equivalent
-        to using `net::post`.
+        Regardless of whether the asynchronous operation completes
+        immediately or not, the handler will not be invoked from within
+        this function. Invocation of the handler will be performed in a
+        manner equivalent to using `net::post`.
+        
         @note The `read_some` operation may not read all of the requested number of
         bytes. Consider using the function `net::async_read` if you need
         to ensure that the requested amount of data is read before the asynchronous
@@ -327,13 +323,11 @@ public:
             std::size_t bytes_transferred   // Number of bytes written.
         );
         @endcode     
-        If the handler has an associated immediate executor,
-        an immediate completion will be dispatched to it.
-        Otherwise, the handler will not be invoked from within
-        this function. Invocation of the handler will be performed
-        by dispatching to the immediate executor. If no
-        immediate executor is specified, this is equivalent
-        to using `net::post`.
+        Regardless of whether the asynchronous operation completes
+        immediately or not, the handler will not be invoked from within
+        this function. Invocation of the handler will be performed in a
+        manner equivalent to using `net::post`.
+        
         @note The `async_write_some` operation may not transmit all of the data to
         the peer. Consider using the function `net::async_write` if you need
         to ensure that all data is written before the asynchronous operation completes.

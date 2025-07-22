@@ -38,21 +38,21 @@ namespace sinks = boost::log::sinks;
 namespace keywords = boost::log::keywords;
 
 #ifdef _DEBUG
-#pragma comment(lib, "boost//libboost_random-vc143-mt-gd-x64-1_88.lib")
-#pragma comment(lib, "boost//libboost_log-vc143-mt-gd-x64-1_88.lib")
-#pragma comment(lib, "boost//libboost_log_setup-vc143-mt-gd-x64-1_88.lib")
-#pragma comment(lib, "boost//libboost_thread-vc143-mt-gd-x64-1_88.lib")
-#pragma comment(lib, "boost//libboost_system-vc143-mt-gd-x64-1_88.lib")
-#pragma comment(lib, "boost//libboost_filesystem-vc143-mt-gd-x64-1_88.lib")
-#pragma comment(lib, "boost//libboost_date_time-vc143-mt-gd-x64-1_88.lib")
+#pragma comment(lib, "boost//libboost_random-vc142-mt-gd-x64-1_83.lib")
+#pragma comment(lib, "boost//libboost_log-vc142-mt-gd-x64-1_83.lib")
+#pragma comment(lib, "boost//libboost_log_setup-vc142-mt-gd-x64-1_83.lib")
+#pragma comment(lib, "boost//libboost_thread-vc142-mt-gd-x64-1_83.lib")
+#pragma comment(lib, "boost//libboost_system-vc142-mt-gd-x64-1_83.lib")
+#pragma comment(lib, "boost//libboost_filesystem-vc142-mt-gd-x64-1_83.lib")
+#pragma comment(lib, "boost//libboost_date_time-vc142-mt-gd-x64-1_83.lib")
 #else
-#pragma comment(lib, "boost//libboost_random-vc143-mt-x64-1_88.lib")
-#pragma comment(lib, "boost//libboost_log-vc143-mt-x64-1_88.lib")
-#pragma comment(lib, "boost//libboost_log_setup-vc143-mt-x64-1_88.lib")
-#pragma comment(lib, "boost//libboost_thread-vc143-mt-x64-1_88.lib")
-#pragma comment(lib, "boost//libboost_system-vc143-mt-x64-1_88.lib")
-#pragma comment(lib, "boost//libboost_filesystem-vc143-mt-x64-1_88.lib")
-#pragma comment(lib, "boost//libboost_date_time-vc143-mt-x64-1_88.lib")
+#pragma comment(lib, "boost//libboost_random-vc142-mt-x64-1_83.lib")
+#pragma comment(lib, "boost//libboost_log-vc142-mt-x64-1_83.lib")
+#pragma comment(lib, "boost//libboost_log_setup-vc142-mt-x64-1_83.lib")
+#pragma comment(lib, "boost//libboost_thread-vc142-mt-x64-1_83.lib")
+#pragma comment(lib, "boost//libboost_system-vc142-mt-x64-1_83.lib")
+#pragma comment(lib, "boost//libboost_filesystem-vc142-mt-x64-1_83.lib")
+#pragma comment(lib, "boost//libboost_date_time-vc142-mt-x64-1_83.lib")
 #endif
 
 void init_log()

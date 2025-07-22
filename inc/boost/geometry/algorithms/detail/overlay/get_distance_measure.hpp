@@ -78,7 +78,7 @@ struct get_distance_measure<CalculationType, spherical_tag>
     static result_type apply(SegmentPoint const& , SegmentPoint const& ,
                              Point const& )
     {
-        result_type const result;
+        const result_type result;
         return result;
     }
 };
@@ -125,7 +125,7 @@ inline auto get_distance_measure(SegmentPoint const& p1, SegmentPoint const& p2,
     // Verify equality, without using a tolerance
     // (so don't use equals or equals_point_point)
     // because it is about very tiny differences.
-    auto identical = [](auto const& point1, auto const& point2)
+    auto identical = [](const auto& point1, const auto& point2)
     {
         return geometry::get<0>(point1) == geometry::get<0>(point2)
             && geometry::get<1>(point1) == geometry::get<1>(point2);

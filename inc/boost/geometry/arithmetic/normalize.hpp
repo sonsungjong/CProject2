@@ -26,22 +26,22 @@ namespace detail
 {
 
 template <typename Point>
-inline coordinate_type_t<Point> vec_length_sqr(Point const& pt)
+inline typename coordinate_type<Point>::type vec_length_sqr(Point const& pt)
 {
     return dot_product(pt, pt);
 }
 
 template <typename Point>
-inline coordinate_type_t<Point> vec_length(Point const& pt)
+inline typename coordinate_type<Point>::type vec_length(Point const& pt)
 {
     // NOTE: hypot() could be used instead of sqrt()
     return math::sqrt(dot_product(pt, pt));
 }
 
 template <typename Point>
-inline bool vec_normalize(Point & pt, coordinate_type_t<Point>& len)
+inline bool vec_normalize(Point & pt, typename coordinate_type<Point>::type & len)
 {
-    using coord_t = coordinate_type_t<Point>;
+    typedef typename coordinate_type<Point>::type coord_t;
 
     coord_t const c0 = 0;
     len = vec_length(pt);
@@ -58,7 +58,7 @@ inline bool vec_normalize(Point & pt, coordinate_type_t<Point>& len)
 template <typename Point>
 inline bool vec_normalize(Point & pt)
 {
-    using coord_t = coordinate_type_t<Point>;
+    typedef typename coordinate_type<Point>::type coord_t;
     coord_t len;
     return vec_normalize(pt, len);
 }

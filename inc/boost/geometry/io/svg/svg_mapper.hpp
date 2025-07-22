@@ -153,7 +153,7 @@ struct svg_map<multi_tag, Multi, SvgPoint>
 {
     typedef typename single_tag_of
       <
-          geometry::tag_t<Multi>
+          typename geometry::tag<Multi>::type
       >::type stag;
 
     template <typename TransformStrategy>
@@ -186,7 +186,11 @@ struct devarianted_svg_map
     {
         svg_map
             <
-                tag_cast_t<tag_t<Geometry>, multi_tag>,
+                typename tag_cast
+                    <
+                        typename tag<Geometry>::type,
+                        multi_tag
+                    >::type,
                 typename std::remove_const<Geometry>::type,
                 SvgPoint
             >::apply(stream, style, size, geometry, strategy);
@@ -270,7 +274,7 @@ class svg_mapper : boost::noncopyable
 
     typedef typename geometry::select_most_precise
         <
-            coordinate_type_t<Point>,
+            typename coordinate_type<Point>::type,
             double
         >::type calculation_type;
 
@@ -452,7 +456,7 @@ public :
             << " x=\"" << get<0>(map_point) + offset_x << "\""
             << " y=\"" << get<1>(map_point) + offset_y << "\""
             << ">";
-        if (s.find('\n') == std::string::npos)
+        if (s.find("\n") == std::string::npos)
         {
              m_stream  << s;
         }

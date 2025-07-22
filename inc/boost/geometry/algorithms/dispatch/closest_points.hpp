@@ -34,22 +34,22 @@ namespace dispatch
 template
 <
     typename Geometry1, typename Geometry2,
-    typename Tag1 = tag_cast_t
+    typename Tag1 = typename tag_cast
         <
-            tag_t<Geometry1>,
+            typename tag<Geometry1>::type,
             segment_tag,
             box_tag,
             linear_tag,
             areal_tag
-        >,
-    typename Tag2 = tag_cast_t
+        >::type,
+    typename Tag2 = typename tag_cast
         <
-            tag_t<Geometry2>,
+            typename tag<Geometry2>::type,
             segment_tag,
             box_tag,
             linear_tag,
             areal_tag
-        >,
+        >::type,
     bool Reverse = reverse_dispatch<Geometry1, Geometry2>::type::value
 >
 struct closest_points : not_implemented<Tag1, Tag2>

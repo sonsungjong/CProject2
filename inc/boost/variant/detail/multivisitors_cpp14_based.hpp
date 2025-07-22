@@ -120,7 +120,7 @@ namespace detail { namespace variant {
                     ),
                 std::tuple<>()
             ),
-            std::forward<T1>(v1)
+            ::boost::forward<T1>(v1)
         );
     }
 
@@ -142,7 +142,7 @@ namespace detail { namespace variant {
                     ),
                 std::tuple<>()
             ),
-            std::forward<T1>(v1)
+            ::boost::forward<T1>(v1)
         );
     }
 

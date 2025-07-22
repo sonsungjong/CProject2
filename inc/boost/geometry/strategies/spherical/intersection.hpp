@@ -2,8 +2,7 @@
 
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// Copyright (c) 2016-2024, Oracle and/or its affiliates.
-// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// Copyright (c) 2016-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -24,6 +23,7 @@
 #include <boost/geometry/algorithms/detail/assign_values.hpp>
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
+#include <boost/geometry/algorithms/detail/recalculate.hpp>
 
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/arithmetic/cross_product.hpp>
@@ -94,7 +94,7 @@ template
 >
 struct ecef_segments
 {
-    using cs_tag = spherical_tag;
+    typedef spherical_tag cs_tag;
 
     enum intersection_point_flag { ipi_inters = 0, ipi_at_a1, ipi_at_a2, ipi_at_b1, ipi_at_b2 };
 
@@ -133,8 +133,8 @@ struct ecef_segments
         }
 
         Vector3d intersection_point;
-        SegmentRatio ra;
-        SegmentRatio rb;
+        SegmentRatio robust_ra;
+        SegmentRatio robust_rb;
         intersection_point_flag ip_flag;
 
         CalcPolicy const& calc_policy;
@@ -424,8 +424,8 @@ struct ecef_segments
                         vec3d_t
                     > sinfo(calc_policy);
 
-                sinfo.ra.assign(dist_a1_i1, dist_a1_a2);
-                sinfo.rb.assign(dist_b1_i1, dist_b1_b2);
+                sinfo.robust_ra.assign(dist_a1_i1, dist_a1_a2);
+                sinfo.robust_rb.assign(dist_b1_i1, dist_b1_b2);
                 sinfo.intersection_point = i1;
                 sinfo.ip_flag = ip_flag;
 
@@ -794,7 +794,7 @@ struct spherical_segments_calc_policy
     template <typename Point3d>
     struct plane
     {
-        using coord_t = coordinate_type_t<Point3d>;
+        typedef typename coordinate_type<Point3d>::type coord_t;
 
         // not normalized
         plane(Point3d const& p1, Point3d const& p2)
@@ -832,7 +832,7 @@ struct spherical_segments_calc_policy
                                     plane<Point3d> const& plane2,
                                     Point3d & ip1, Point3d & ip2)
     {
-        using coord_t = coordinate_type_t<Point3d>;
+        typedef typename coordinate_type<Point3d>::type coord_t;
 
         ip1 = cross_product(plane1.normal, plane2.normal);
         // NOTE: the length should be greater than 0 at this point

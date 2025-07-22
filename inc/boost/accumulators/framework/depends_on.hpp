@@ -321,12 +321,6 @@ namespace boost { namespace accumulators
             {
             }
 
-            accumulator_wrapper& operator=(accumulator_wrapper const &that)
-            {
-                *static_cast<Accumulator *>(this) = *static_cast<Accumulator const *>(&that);
-                return *this;
-            }
-
             template<typename Args>
             accumulator_wrapper(Args const &args)
               : Accumulator(args)

@@ -10,12 +10,8 @@
 #pragma once
 #endif
 
-#include <boost/math/tools/config.hpp>
-#include <boost/math/tools/precision.hpp>
-#include <boost/math/policies/error_handling.hpp>
 #include <boost/math/special_functions/detail/bessel_k0.hpp>
 #include <boost/math/special_functions/detail/bessel_k1.hpp>
-#include <boost/math/special_functions/sign.hpp>
 #include <boost/math/policies/error_handling.hpp>
 
 // Modified Bessel function of the second kind of integer order
@@ -24,24 +20,23 @@
 namespace boost { namespace math { namespace detail{
 
 template <typename T, typename Policy>
-BOOST_MATH_GPU_ENABLED T bessel_kn(int n, T x, const Policy& pol)
+T bessel_kn(int n, T x, const Policy& pol)
 {
     BOOST_MATH_STD_USING
     T value, current, prev;
 
     using namespace boost::math::tools;
 
-    constexpr auto function = "boost::math::bessel_kn<%1%>(%1%,%1%)";
+    static const char* function = "boost::math::bessel_kn<%1%>(%1%,%1%)";
 
     if (x < 0)
     {
-       return policies::raise_domain_error<T>(function, "Got x = %1%, but argument x must be non-negative, complex number result not supported.", x, pol);
+       return policies::raise_domain_error<T>(function,
+            "Got x = %1%, but argument x must be non-negative, complex number result not supported.", x, pol);
     }
     if (x == 0)
     {
-       return (n == 0) ? 
-          policies::raise_overflow_error<T>(function, nullptr, pol) 
-          : policies::raise_domain_error<T>(function, "Got x = %1%, but argument x must be positive, complex number result not supported.", x, pol);
+       return policies::raise_overflow_error<T>(function, nullptr, pol);
     }
 
     if (n < 0)
@@ -78,8 +73,8 @@ BOOST_MATH_GPU_ENABLED T bessel_kn(int n, T x, const Policy& pol)
            ++k;
        }
        while(k < n);
-       if (tools::max_value<T>() * scale < fabs(value))
-          return ((boost::math::signbit)(scale) ? -1 : 1) * sign(value) * policies::raise_overflow_error<T>(function, nullptr, pol);
+       if(tools::max_value<T>() * scale < fabs(value))
+          return sign(scale) * sign(value) * policies::raise_overflow_error<T>(function, nullptr, pol);
        value /= scale;
     }
     return value;

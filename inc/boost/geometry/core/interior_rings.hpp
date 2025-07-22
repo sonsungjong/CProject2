@@ -90,11 +90,11 @@ struct interior_rings<polygon_tag, Polygon>
 template <typename MultiPolygon>
 struct interior_type<multi_polygon_tag, MultiPolygon>
 {
-    using type = typename core_dispatch::interior_type
+    typedef typename core_dispatch::interior_type
         <
             polygon_tag,
             typename boost::range_value<MultiPolygon>::type
-        >::type;
+        >::type type;
 };
 
 
@@ -113,11 +113,11 @@ struct interior_type<multi_polygon_tag, MultiPolygon>
 */
 
 template <typename Polygon>
-inline interior_return_type_t<Polygon> interior_rings(Polygon& polygon)
+inline typename interior_return_type<Polygon>::type interior_rings(Polygon& polygon)
 {
     return core_dispatch::interior_rings
         <
-            tag_t<Polygon>,
+            typename tag<Polygon>::type,
             Polygon
         >::apply(polygon);
 }
@@ -134,11 +134,12 @@ inline interior_return_type_t<Polygon> interior_rings(Polygon& polygon)
 \qbk{distinguish,const version}
 */
 template <typename Polygon>
-inline interior_return_type_t<Polygon const> interior_rings(Polygon const& polygon)
+inline typename interior_return_type<Polygon const>::type interior_rings(
+            Polygon const& polygon)
 {
     return core_dispatch::interior_rings
         <
-            tag_t<Polygon>,
+            typename tag<Polygon>::type,
             Polygon const
         >::apply(polygon);
 }

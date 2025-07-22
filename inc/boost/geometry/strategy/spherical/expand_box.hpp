@@ -38,8 +38,6 @@
 
 #include <boost/geometry/strategy/expand.hpp>
 
-#include <boost/geometry/util/is_inverse_spheroidal_coordinates.hpp>
-
 #include <boost/geometry/views/detail/indexed_point_view.hpp>
 
 namespace boost { namespace geometry

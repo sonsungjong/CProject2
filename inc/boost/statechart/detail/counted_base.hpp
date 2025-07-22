@@ -8,7 +8,7 @@
 
 
 
-#include <boost/smart_ptr/detail/atomic_count.hpp>
+#include <boost/detail/atomic_count.hpp>
 #include <boost/config.hpp> // BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP
 
 

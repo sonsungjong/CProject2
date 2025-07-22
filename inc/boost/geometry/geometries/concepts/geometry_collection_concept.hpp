@@ -47,7 +47,7 @@ template
 <
     typename Geometry,
     typename SubGeometry,
-    typename Tag = tag_t<Geometry>,
+    typename Tag = typename tag<Geometry>::type,
     bool IsSubDynamicOrCollection = util::is_dynamic_geometry<SubGeometry>::value
                                  || util::is_geometry_collection<SubGeometry>::value
 >

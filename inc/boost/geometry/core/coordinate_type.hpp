@@ -3,7 +3,6 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
-// Copyright (c) 2024 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2020.
 // Modifications copyright (c) 2020, Oracle and/or its affiliates.
@@ -57,21 +56,19 @@ namespace core_dispatch
 template <typename GeometryTag, typename Geometry>
 struct coordinate_type
 {
+    typedef typename point_type<GeometryTag, Geometry>::type point_type;
+
     // Call its own specialization on point-tag
-    using type = typename coordinate_type
-        <
-            point_tag,
-            typename point_type<GeometryTag, Geometry>::type
-        >::type;
+    typedef typename coordinate_type<point_tag, point_type>::type type;
 };
 
 template <typename Point>
 struct coordinate_type<point_tag, Point>
 {
-    using type = typename traits::coordinate_type
+    typedef typename traits::coordinate_type
         <
-            util::remove_cptrref_t<Point>
-        >::type;
+            typename util::remove_cptrref<Point>::type
+        >::type type;
 };
 
 
@@ -89,17 +86,12 @@ struct coordinate_type<point_tag, Point>
 template <typename Geometry>
 struct coordinate_type
 {
-    using type = typename core_dispatch::coordinate_type
+    typedef typename core_dispatch::coordinate_type
         <
-            tag_t<Geometry>,
-            util::remove_cptrref_t<Geometry>
-        >::type;
+            typename tag<Geometry>::type,
+            typename util::remove_cptrref<Geometry>::type
+        >::type type;
 };
-
-
-template <typename Geometry>
-using coordinate_type_t = typename coordinate_type<Geometry>::type;
-
 
 /*!
 \brief assert_coordinate_type_equal, a compile-time check for equality of two coordinate types
@@ -108,8 +100,11 @@ using coordinate_type_t = typename coordinate_type<Geometry>::type;
 template <typename Geometry1, typename Geometry2>
 constexpr inline void assert_coordinate_type_equal(Geometry1 const& , Geometry2 const& )
 {
-  static_assert(std::is_same<coordinate_type_t<Geometry1>, coordinate_type_t<Geometry2>>::value,
-                "Coordinate types in geometries should be the same");
+  static_assert(std::is_same
+      <
+          typename coordinate_type<Geometry1>::type,
+          typename coordinate_type<Geometry2>::type
+      >::value, "Coordinate types in geometries should be the same");
 }
 
 }} // namespace boost::geometry

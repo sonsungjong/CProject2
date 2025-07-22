@@ -71,7 +71,8 @@ namespace detail_dispatch { namespace within {
 // returns 0 if P is on the boundry of G
 // returns -1 if P is in the exterior of G
 
-template <typename Geometry, typename Tag = geometry::tag_t<Geometry>>
+template <typename Geometry,
+          typename Tag = typename geometry::tag<Geometry>::type>
 struct point_in_geometry
     : not_implemented<Tag>
 {};
@@ -93,7 +94,7 @@ struct point_in_geometry<Segment, segment_tag>
     template <typename Point, typename Strategy> static inline
     int apply(Point const& point, Segment const& segment, Strategy const& strategy)
     {
-        using point_type = geometry::point_type_t<Segment>;
+        typedef typename geometry::point_type<Segment>::type point_type;
         point_type p0, p1;
 // TODO: don't copy points
         detail::assign_point_from_index<0>(segment, p0);
@@ -194,7 +195,7 @@ struct point_in_geometry<Polygon, polygon_tag>
     {
         int const code = point_in_geometry
             <
-                ring_type_t<Polygon>
+                typename ring_type<Polygon>::type
             >::apply(point, exterior_ring(polygon), strategy);
 
         if (code == 1)
@@ -204,7 +205,7 @@ struct point_in_geometry<Polygon, polygon_tag>
             {
                 int const interior_code = point_in_geometry
                     <
-                        ring_type_t<Polygon>
+                        typename ring_type<Polygon>::type
                     >::apply(point, *it, strategy);
 
                 if (interior_code != -1)

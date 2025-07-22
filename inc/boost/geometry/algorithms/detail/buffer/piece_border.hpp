@@ -18,7 +18,6 @@
 #include <array>
 
 #include <boost/core/addressof.hpp>
-#include <boost/range/size.hpp>
 
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/config.hpp>
@@ -103,9 +102,9 @@ namespace detail { namespace buffer
 template <typename Ring, typename Point>
 struct piece_border
 {
-    using coordinate_type = geometry::coordinate_type_t<Point>;
-    using radius_type = typename default_comparable_distance_result<Point>::type;
-    using state_type = typename geometry::strategy::buffer::turn_in_ring_winding<coordinate_type>::state_type;
+    typedef typename geometry::coordinate_type<Point>::type coordinate_type;
+    typedef typename default_comparable_distance_result<Point>::type radius_type;
+    typedef typename geometry::strategy::buffer::turn_in_ring_winding<coordinate_type>::state_type state_type;
 
     bool m_reversed;
 
@@ -475,7 +474,7 @@ private :
     template <typename It>
     inline void calculate_radii(Point const& center, It begin, It end)
     {
-        using segment_type = geometry::model::referring_segment<Point const>;
+        typedef geometry::model::referring_segment<Point const> segment_type;
 
         bool first = true;
 

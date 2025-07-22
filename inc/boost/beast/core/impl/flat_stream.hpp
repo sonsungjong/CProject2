@@ -85,20 +85,11 @@ public:
 
 struct run_write_op
 {
-    flat_stream* self;
-
-    using executor_type = typename flat_stream::executor_type;
-
-    executor_type
-    get_executor() const noexcept
-    {
-        return self->get_executor();
-    }
-
     template<class WriteHandler, class Buffers>
     void
     operator()(
         WriteHandler&& h,
+        flat_stream* s,
         Buffers const& b)
     {
         // If you get an error on the following line it means
@@ -112,7 +103,7 @@ struct run_write_op
 
         write_op<
             typename std::decay<WriteHandler>::type>(
-                std::forward<WriteHandler>(h), *self, b);
+                std::forward<WriteHandler>(h), *s, b);
     }
 };
 
@@ -259,8 +250,9 @@ async_write_some(
     return net::async_initiate<
         WriteHandler,
         void(error_code, std::size_t)>(
-            typename ops::run_write_op{this},
+            typename ops::run_write_op{},
             handler,
+            this,
             buffers);
 }
 

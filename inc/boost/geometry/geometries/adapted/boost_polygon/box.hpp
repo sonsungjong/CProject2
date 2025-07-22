@@ -34,7 +34,7 @@ namespace traits
 template <typename CoordinateType>
 struct tag<boost::polygon::rectangle_data<CoordinateType> >
 {
-    using type = box_tag;
+    typedef box_tag type;
 };
 
 

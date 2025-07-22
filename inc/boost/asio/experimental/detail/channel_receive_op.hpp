@@ -2,7 +2,7 @@
 // experimental/detail/channel_receive_op.hpp
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2025 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2023 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -17,10 +17,11 @@
 
 #include <boost/asio/detail/config.hpp>
 #include <boost/asio/detail/bind_handler.hpp>
-#include <boost/asio/detail/completion_handler.hpp>
 #include <boost/asio/detail/handler_alloc_helpers.hpp>
 #include <boost/asio/error.hpp>
+#include <boost/asio/experimental/detail/channel_handler.hpp>
 #include <boost/asio/experimental/detail/channel_operation.hpp>
+#include <boost/asio/experimental/detail/channel_payload.hpp>
 
 #include <boost/asio/detail/push_options.hpp>
 
@@ -38,14 +39,9 @@ public:
     func_(this, immediate_op, &payload);
   }
 
-  void post(Payload payload)
+  void complete(Payload payload)
   {
-    func_(this, post_op, &payload);
-  }
-
-  void dispatch(Payload payload)
-  {
-    func_(this, dispatch_op, &payload);
+    func_(this, complete_op, &payload);
   }
 
 protected:
@@ -64,7 +60,7 @@ public:
   template <typename... Args>
   channel_receive_op(Handler& handler, const IoExecutor& io_ex)
     : channel_receive<Payload>(&channel_receive_op::do_action),
-      handler_(static_cast<Handler&&>(handler)),
+      handler_(BOOST_ASIO_MOVE_CAST(Handler)(handler)),
       work_(handler_, io_ex)
   {
   }
@@ -80,8 +76,8 @@ public:
 
     // Take ownership of the operation's outstanding work.
     channel_operation::handler_work<Handler, IoExecutor> w(
-        static_cast<channel_operation::handler_work<Handler, IoExecutor>&&>(
-          o->work_));
+        BOOST_ASIO_MOVE_CAST2(channel_operation::handler_work<
+          Handler, IoExecutor>)(o->work_));
 
     // Make a copy of the handler so that the memory can be deallocated before
     // the handler is posted. Even if we're not about to post the handler, a
@@ -92,17 +88,15 @@ public:
     if (a != channel_operation::destroy_op)
     {
       Payload* payload = static_cast<Payload*>(v);
-      boost::asio::detail::completion_payload_handler<Payload, Handler> handler(
-          static_cast<Payload&&>(*payload), o->handler_);
+      channel_handler<Payload, Handler> handler(
+          BOOST_ASIO_MOVE_CAST(Payload)(*payload), o->handler_);
       p.h = boost::asio::detail::addressof(handler.handler_);
       p.reset();
       BOOST_ASIO_HANDLER_INVOCATION_BEGIN(());
       if (a == channel_operation::immediate_op)
         w.immediate(handler, handler.handler_, 0);
-      else if (a == channel_operation::dispatch_op)
-        w.dispatch(handler, handler.handler_);
       else
-        w.post(handler, handler.handler_);
+        w.complete(handler, handler.handler_);
       BOOST_ASIO_HANDLER_INVOCATION_END;
     }
     else

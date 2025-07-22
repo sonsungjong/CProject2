@@ -1,6 +1,5 @@
 //  Copyright (c) 2006 Xiaogang Zhang
 //  Copyright (c) 2006 John Maddock
-//  Copyright (c) 2024 Matt Borland
 //  Use, modification and distribution are subject to the
 //  Boost Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -19,8 +18,6 @@
 #pragma once
 #endif
 
-#include <boost/math/tools/config.hpp>
-#include <boost/math/tools/type_traits.hpp>
 #include <boost/math/special_functions/math_fwd.hpp>
 #include <boost/math/special_functions/ellint_rf.hpp>
 #include <boost/math/special_functions/ellint_rd.hpp>
@@ -36,16 +33,16 @@
 namespace boost { namespace math {
 
 template <class T1, class T2, class Policy>
-BOOST_MATH_GPU_ENABLED typename tools::promote_args<T1, T2>::type ellint_d(T1 k, T2 phi, const Policy& pol);
+typename tools::promote_args<T1, T2>::type ellint_d(T1 k, T2 phi, const Policy& pol);
 
 namespace detail{
 
 template <typename T, typename Policy>
-BOOST_MATH_GPU_ENABLED T ellint_d_imp(T k, const Policy& pol);
+T ellint_d_imp(T k, const Policy& pol);
 
 // Elliptic integral (Legendre form) of the second kind
 template <typename T, typename Policy>
-BOOST_MATH_GPU_ENABLED T ellint_d_imp(T phi, T k, const Policy& pol)
+T ellint_d_imp(T phi, T k, const Policy& pol)
 {
     BOOST_MATH_STD_USING
     using namespace boost::math::tools;
@@ -116,14 +113,15 @@ BOOST_MATH_GPU_ENABLED T ellint_d_imp(T phi, T k, const Policy& pol)
 
 // Complete elliptic integral (Legendre form) of the second kind
 template <typename T, typename Policy>
-BOOST_MATH_GPU_ENABLED T ellint_d_imp(T k, const Policy& pol)
+T ellint_d_imp(T k, const Policy& pol)
 {
     BOOST_MATH_STD_USING
     using namespace boost::math::tools;
 
     if (abs(k) >= 1)
     {
-       return policies::raise_domain_error<T>("boost::math::ellint_d<%1%>(%1%)", "Got k = %1%, function requires |k| <= 1", k, pol);
+       return policies::raise_domain_error<T>("boost::math::ellint_d<%1%>(%1%)",
+            "Got k = %1%, function requires |k| <= 1", k, pol);
     }
     if(fabs(k) <= tools::root_epsilon<T>())
        return constants::pi<T>() / 4;
@@ -138,7 +136,7 @@ BOOST_MATH_GPU_ENABLED T ellint_d_imp(T k, const Policy& pol)
 }
 
 template <typename T, typename Policy>
-BOOST_MATH_GPU_ENABLED inline typename tools::promote_args<T>::type ellint_d(T k, const Policy& pol, const boost::math::true_type&)
+inline typename tools::promote_args<T>::type ellint_d(T k, const Policy& pol, const std::true_type&)
 {
    typedef typename tools::promote_args<T>::type result_type;
    typedef typename policies::evaluation<result_type, Policy>::type value_type;
@@ -147,7 +145,7 @@ BOOST_MATH_GPU_ENABLED inline typename tools::promote_args<T>::type ellint_d(T k
 
 // Elliptic integral (Legendre form) of the second kind
 template <class T1, class T2>
-BOOST_MATH_GPU_ENABLED inline typename tools::promote_args<T1, T2>::type ellint_d(T1 k, T2 phi, const boost::math::false_type&)
+inline typename tools::promote_args<T1, T2>::type ellint_d(T1 k, T2 phi, const std::false_type&)
 {
    return boost::math::ellint_d(k, phi, policies::policy<>());
 }
@@ -156,21 +154,21 @@ BOOST_MATH_GPU_ENABLED inline typename tools::promote_args<T1, T2>::type ellint_
 
 // Complete elliptic integral (Legendre form) of the second kind
 template <typename T>
-BOOST_MATH_GPU_ENABLED inline typename tools::promote_args<T>::type ellint_d(T k)
+inline typename tools::promote_args<T>::type ellint_d(T k)
 {
    return ellint_d(k, policies::policy<>());
 }
 
 // Elliptic integral (Legendre form) of the second kind
 template <class T1, class T2>
-BOOST_MATH_GPU_ENABLED inline typename tools::promote_args<T1, T2>::type ellint_d(T1 k, T2 phi)
+inline typename tools::promote_args<T1, T2>::type ellint_d(T1 k, T2 phi)
 {
    typedef typename policies::is_policy<T2>::type tag_type;
    return detail::ellint_d(k, phi, tag_type());
 }
 
 template <class T1, class T2, class Policy>
-BOOST_MATH_GPU_ENABLED inline typename tools::promote_args<T1, T2>::type ellint_d(T1 k, T2 phi, const Policy& pol)
+inline typename tools::promote_args<T1, T2>::type ellint_d(T1 k, T2 phi, const Policy& pol)
 {
    typedef typename tools::promote_args<T1, T2>::type result_type;
    typedef typename policies::evaluation<result_type, Policy>::type value_type;

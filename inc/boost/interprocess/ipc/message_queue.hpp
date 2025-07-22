@@ -28,11 +28,12 @@
 #include <boost/interprocess/sync/interprocess_mutex.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>
 #include <boost/interprocess/detail/utilities.hpp>
-#include <boost/interprocess/timed_utils.hpp>
+#include <boost/interprocess/detail/timed_utils.hpp>
 #include <boost/interprocess/offset_ptr.hpp>
 #include <boost/interprocess/creation_tags.hpp>
 #include <boost/interprocess/exceptions.hpp>
 #include <boost/interprocess/permissions.hpp>
+#include <boost/core/no_exceptions_support.hpp>
 #include <boost/interprocess/detail/type_traits.hpp>
 #include <boost/intrusive/pointer_traits.hpp>
 #include <boost/move/detail/type_traits.hpp> //make_unsigned, alignment_of
@@ -141,12 +142,6 @@ class message_queue_t
    message_queue_t(open_only_t, const wchar_t *name);
 
    #endif //defined(BOOST_INTERPROCESS_WCHAR_NAMED_RESOURCES) || defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
-
-   //!Creates a process shared message queue in anonymous memory. For this message queue,
-   //!the maximum number of messages will be "max_num_msg" and the maximum message size
-   //!will be "max_msg_size". Throws on error.
-   message_queue_t(size_type max_num_msg,
-                 size_type max_msg_size);
 
    //!Destroys *this and indicates that the calling process is finished using
    //!the resource. All opened message queues are still
@@ -684,12 +679,12 @@ class msg_queue_initialization_func_t
       if(created){
          mptr     = reinterpret_cast<char*>(address);
          //Construct the message queue header at the beginning
-         BOOST_INTERPROCESS_TRY{
+         BOOST_TRY{
             new (mptr) mq_hdr_t<VoidPointer>(m_maxmsg, m_maxmsgsize);
          }
-         BOOST_INTERPROCESS_CATCH(...){
+         BOOST_CATCH(...){
             return false;
-         } BOOST_INTERPROCESS_CATCH_END
+         } BOOST_CATCH_END
       }
       return true;
    }
@@ -809,15 +804,6 @@ inline message_queue_t<VoidPointer>::message_queue_t(open_only_t, const wchar_t 
 
 #endif //defined(BOOST_INTERPROCESS_WCHAR_NAMED_RESOURCES) || defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
 
-template <class VoidPointer>
-inline message_queue_t<VoidPointer>::message_queue_t(size_type max_num_msg,
-                                    size_type max_msg_size)
-   :  m_shmem(get_mem_size(max_msg_size, max_num_msg),
-            static_cast<void*>(0),
-            //Prepare initialization functor
-            ipcdetail::msg_queue_initialization_func_t<VoidPointer> (max_num_msg, max_msg_size))
-{}
-
 template<class VoidPointer>
 inline void message_queue_t<VoidPointer>::send
    (const void *buffer, size_type buffer_size, unsigned int priority)
@@ -862,7 +848,7 @@ inline bool message_queue_t<VoidPointer>::do_send(
    {
       //If the queue is full execute blocking logic
       if (p_hdr->is_full()) {
-         BOOST_INTERPROCESS_TRY{
+         BOOST_TRY{
             #ifdef BOOST_INTERPROCESS_MSG_QUEUE_CIRCULAR_INDEX
             ++p_hdr->m_blocked_senders;
             #endif
@@ -902,12 +888,12 @@ inline bool message_queue_t<VoidPointer>::do_send(
             --p_hdr->m_blocked_senders;
             #endif
          }
-         BOOST_INTERPROCESS_CATCH(...){
+         BOOST_CATCH(...){
             #ifdef BOOST_INTERPROCESS_MSG_QUEUE_CIRCULAR_INDEX
             --p_hdr->m_blocked_senders;
             #endif
-            BOOST_INTERPROCESS_RETHROW;
-         } BOOST_INTERPROCESS_CATCH_END
+            BOOST_RETHROW;
+         } BOOST_CATCH_END
       }
 
       #if defined(BOOST_INTERPROCESS_MSG_QUEUE_CIRCULAR_INDEX)
@@ -990,7 +976,7 @@ inline bool
    {
       //If there are no messages execute blocking logic
       if (p_hdr->is_empty()) {
-         BOOST_INTERPROCESS_TRY{
+         BOOST_TRY{
             #if defined(BOOST_INTERPROCESS_MSG_QUEUE_CIRCULAR_INDEX)
             ++p_hdr->m_blocked_receivers;
             #endif
@@ -1032,12 +1018,12 @@ inline bool
             --p_hdr->m_blocked_receivers;
             #endif
          }
-         BOOST_INTERPROCESS_CATCH(...){
+         BOOST_CATCH(...){
             #if defined(BOOST_INTERPROCESS_MSG_QUEUE_CIRCULAR_INDEX)
             --p_hdr->m_blocked_receivers;
             #endif
-            BOOST_INTERPROCESS_RETHROW;
-         } BOOST_INTERPROCESS_CATCH_END
+            BOOST_RETHROW;
+         } BOOST_CATCH_END
       }
 
       #ifdef BOOST_INTERPROCESS_MSG_QUEUE_CIRCULAR_INDEX

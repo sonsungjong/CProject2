@@ -15,6 +15,7 @@
 #include <boost/beast/websocket/detail/mask.hpp>
 #include <boost/beast/websocket/impl/stream_impl.hpp>
 #include <boost/beast/core/async_base.hpp>
+#include <boost/beast/core/bind_handler.hpp>
 #include <boost/beast/core/buffers_prefix.hpp>
 #include <boost/beast/core/buffers_suffix.hpp>
 #include <boost/beast/core/flat_static_buffer.hpp>
@@ -25,6 +26,7 @@
 #include <boost/beast/core/detail/clamp.hpp>
 #include <boost/beast/core/detail/config.hpp>
 #include <boost/asio/coroutine.hpp>
+#include <boost/asio/post.hpp>
 #include <boost/assert.hpp>
 #include <boost/config.hpp>
 #include <boost/optional.hpp>
@@ -120,8 +122,7 @@ public:
                         __FILE__, __LINE__,
                         "websocket::async_read_some"));
 
-                    const auto ex = this->get_immediate_executor();
-                    net::dispatch(ex, std::move(*this));
+                    net::post(sp->stream().get_executor(), std::move(*this));
                 }
                 BOOST_ASSERT(impl.rd_block.is_locked(this));
 
@@ -227,8 +228,6 @@ public:
                     // Handle ping frame
                     if(impl.rd_fh.op == detail::opcode::ping)
                     {
-                        impl.update_timer(this->get_executor());
-
                         if(impl.ctrl_cb)
                         {
                             if(! cont)
@@ -239,8 +238,7 @@ public:
                                         __FILE__, __LINE__,
                                         "websocket::async_read_some"));
 
-                                    const auto ex = this->get_immediate_executor();
-                                    net::dispatch(ex, std::move(*this));
+                                    net::post(sp->stream().get_executor(), std::move(*this));
                                 }
                                 BOOST_ASSERT(cont);
                                 // VFALCO call check_stop_now() here?
@@ -293,8 +291,7 @@ public:
                                     __FILE__, __LINE__,
                                     "websocket::async_read_some"));
 
-                                const auto ex = this->get_immediate_executor();
-                                net::dispatch(ex, std::move(*this));
+                                net::post(sp->stream().get_executor(), std::move(*this));
                             }
                             BOOST_ASSERT(impl.wr_block.is_locked(this));
                             if(impl.check_stop_now(ec))
@@ -338,8 +335,7 @@ public:
                                         __FILE__, __LINE__,
                                         "websocket::async_read_some"));
 
-                                    const auto ex = this->get_immediate_executor();
-                                    net::dispatch(ex, std::move(*this));
+                                    net::post(sp->stream().get_executor(), std::move(*this));
                                 }
                                 BOOST_ASSERT(cont);
                             }
@@ -370,8 +366,7 @@ public:
                                         __FILE__, __LINE__,
                                         "websocket::async_read_some"));
 
-                                    const auto ex = this->get_immediate_executor();
-                                    net::dispatch(ex, std::move(*this));
+                                    net::post(sp->stream().get_executor(), std::move(*this));
                                 }
                                 BOOST_ASSERT(cont);
                             }
@@ -653,8 +648,7 @@ public:
                         __FILE__, __LINE__,
                         "websocket::async_read_some"));
 
-                    const auto ex = this->get_immediate_executor();
-                    net::dispatch(ex, std::move(*this));
+                    net::post(sp->stream().get_executor(), std::move(*this));
                 }
                 BOOST_ASSERT(impl.wr_block.is_locked(this));
                 if(impl.check_stop_now(ec))
@@ -821,22 +815,13 @@ template<class NextLayer, bool deflateSupported>
 struct stream<NextLayer, deflateSupported>::
     run_read_some_op
 {
-    boost::shared_ptr<impl_type> const& self;
-
-    using executor_type = typename stream::executor_type;
-
-    executor_type
-    get_executor() const noexcept
-    {
-        return self->stream().get_executor();
-    }
-
     template<
         class ReadHandler,
         class MutableBufferSequence>
     void
     operator()(
         ReadHandler&& h,
+        boost::shared_ptr<impl_type> const& sp,
         MutableBufferSequence const& b)
     {
         // If you get an error on the following line it means
@@ -852,7 +837,7 @@ struct stream<NextLayer, deflateSupported>::
             typename std::decay<ReadHandler>::type,
             MutableBufferSequence>(
                 std::forward<ReadHandler>(h),
-                self,
+                sp,
                 b);
     }
 };
@@ -861,22 +846,13 @@ template<class NextLayer, bool deflateSupported>
 struct stream<NextLayer, deflateSupported>::
     run_read_op
 {
-    boost::shared_ptr<impl_type> const& self;
-
-    using executor_type = typename stream::executor_type;
-
-    executor_type
-    get_executor() const noexcept
-    {
-        return self->stream().get_executor();
-    }
-
     template<
         class ReadHandler,
         class DynamicBuffer>
     void
     operator()(
         ReadHandler&& h,
+        boost::shared_ptr<impl_type> const& sp,
         DynamicBuffer* b,
         std::size_t limit,
         bool some)
@@ -894,7 +870,7 @@ struct stream<NextLayer, deflateSupported>::
             typename std::decay<ReadHandler>::type,
             DynamicBuffer>(
                 std::forward<ReadHandler>(h),
-                self,
+                sp,
                 *b,
                 limit,
                 some);
@@ -957,8 +933,9 @@ async_read(DynamicBuffer& buffer, ReadHandler&& handler)
     return net::async_initiate<
         ReadHandler,
         void(error_code, std::size_t)>(
-            run_read_op{impl_},
+            run_read_op{},
             handler,
+            impl_,
             &buffer,
             0,
             false);
@@ -1005,7 +982,7 @@ read_some(
     if(! limit)
         limit = (std::numeric_limits<std::size_t>::max)();
     auto const size =
-        clamp(impl_->read_size_hint_db(buffer), limit);
+        clamp(read_size_hint(buffer), limit);
     BOOST_ASSERT(size > 0);
     auto mb = beast::detail::dynamic_buffer_prepare(
         buffer, size, ec, error::buffer_overflow);
@@ -1033,8 +1010,9 @@ async_read_some(
     return net::async_initiate<
         ReadHandler,
         void(error_code, std::size_t)>(
-            run_read_op{impl_},
+            run_read_op{},
             handler,
+            impl_,
             &buffer,
             limit,
             true);
@@ -1413,8 +1391,9 @@ async_read_some(
     return net::async_initiate<
         ReadHandler,
         void(error_code, std::size_t)>(
-            run_read_some_op{impl_},
+            run_read_some_op{},
             handler,
+            impl_,
             buffers);
 }
 

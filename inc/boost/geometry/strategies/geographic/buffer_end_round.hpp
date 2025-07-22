@@ -134,7 +134,7 @@ public :
         return distance;
     }
 
-    //! Returns the piece_type (round end)
+    //! Returns the piece_type (flat end)
     static inline piece_type get_piece_type()
     {
         return buffered_round_end;

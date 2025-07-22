@@ -1,5 +1,4 @@
 //  (C) Copyright Nick Thompson 2019.
-//  (C) Copyright Matt Borland 2024.
 //  Use, modification and distribution are subject to the
 //  Boost Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -7,25 +6,21 @@
 #ifndef BOOST_MATH_SPECIAL_GEGENBAUER_HPP
 #define BOOST_MATH_SPECIAL_GEGENBAUER_HPP
 
-#include <boost/math/tools/config.hpp>
-#include <boost/math/tools/type_traits.hpp>
-#include <boost/math/tools/numeric_limits.hpp>
-
-#ifndef BOOST_MATH_NO_EXCEPTIONS
+#include <limits>
 #include <stdexcept>
-#endif
+#include <type_traits>
 
 namespace boost { namespace math {
 
 template<typename Real>
-BOOST_MATH_GPU_ENABLED Real gegenbauer(unsigned n, Real lambda, Real x)
+Real gegenbauer(unsigned n, Real lambda, Real x)
 {
-    static_assert(!boost::math::is_integral<Real>::value, "Gegenbauer polynomials required floating point arguments.");
+    static_assert(!std::is_integral<Real>::value, "Gegenbauer polynomials required floating point arguments.");
     if (lambda <= -1/Real(2)) {
-#ifndef BOOST_MATH_NO_EXCEPTIONS
+#ifndef BOOST_NO_EXCEPTIONS
        throw std::domain_error("lambda > -1/2 is required.");
 #else
-       return boost::math::numeric_limits<Real>::quiet_NaN();
+       return std::numeric_limits<Real>::quiet_NaN();
 #endif
     }
     // The only reason to do this is because of some instability that could be present for x < 0 that is not present for x > 0.
@@ -46,7 +41,7 @@ BOOST_MATH_GPU_ENABLED Real gegenbauer(unsigned n, Real lambda, Real x)
 
     Real yk = y1;
     Real k = 2;
-    Real k_max = n*(1+boost::math::numeric_limits<Real>::epsilon());
+    Real k_max = n*(1+std::numeric_limits<Real>::epsilon());
     Real gamma = 2*(lambda - 1);
     while(k < k_max)
     {
@@ -60,7 +55,7 @@ BOOST_MATH_GPU_ENABLED Real gegenbauer(unsigned n, Real lambda, Real x)
 
 
 template<typename Real>
-BOOST_MATH_GPU_ENABLED Real gegenbauer_derivative(unsigned n, Real lambda, Real x, unsigned k)
+Real gegenbauer_derivative(unsigned n, Real lambda, Real x, unsigned k)
 {
     if (k > n) {
         return Real(0);
@@ -75,7 +70,7 @@ BOOST_MATH_GPU_ENABLED Real gegenbauer_derivative(unsigned n, Real lambda, Real 
 }
 
 template<typename Real>
-BOOST_MATH_GPU_ENABLED Real gegenbauer_prime(unsigned n, Real lambda, Real x) {
+Real gegenbauer_prime(unsigned n, Real lambda, Real x) {
     return gegenbauer_derivative<Real>(n, lambda, x, 1);
 }
 

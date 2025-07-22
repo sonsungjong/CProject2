@@ -28,8 +28,10 @@ inline T cyl_bessel_j_prime_imp(T v, T x, const Policy& pol)
    //
    // Prevent complex result:
    //
-   if ((x < 0) && (floor(v) != v))
-      return boost::math::policies::raise_domain_error<T>(function, "Got x = %1%, but function requires x >= 0", x, pol);
+   if (x < 0 && floor(v) != v)
+      return boost::math::policies::raise_domain_error<T>(
+         function,
+         "Got x = %1%, but function requires x >= 0", x, pol);
    //
    // Special cases for x == 0:
    //
@@ -41,8 +43,9 @@ inline T cyl_bessel_j_prime_imp(T v, T x, const Policy& pol)
          return static_cast<T>(-0.5);
       else if (floor(v) == v || v > 1)
          return 0;
-      else
-         return boost::math::policies::raise_domain_error<T>(function, "Got x = %1%, but function is indeterminate for this order", x, pol);
+      else return boost::math::policies::raise_domain_error<T>(
+         function,
+         "Got x = %1%, but function is indeterminate for this order", x, pol);
    }
    //
    // Special case for large x: use asymptotic expansion:
@@ -83,7 +86,9 @@ inline T sph_bessel_j_prime_imp(unsigned v, T x, const Policy& pol)
    // Prevent complex result:
    //
    if (x < 0)
-      return boost::math::policies::raise_domain_error<T>(function, "Got x = %1%, but function requires x >= 0.", x, pol);
+      return boost::math::policies::raise_domain_error<T>(
+         function,
+         "Got x = %1%, but function requires x >= 0.", x, pol);
    //
    // Special case for v == 0:
    //
@@ -94,7 +99,9 @@ inline T sph_bessel_j_prime_imp(unsigned v, T x, const Policy& pol)
    // Special case for x == 0 and v > 0:
    //
    if (x == 0)
-      return boost::math::policies::raise_domain_error<T>(function, "Got x = %1%, but function is indeterminate for this order", x, pol);
+      return boost::math::policies::raise_domain_error<T>(
+         function,
+         "Got x = %1%, but function is indeterminate for this order", x, pol);
    //
    // Default case:
    //
@@ -110,7 +117,9 @@ inline T cyl_bessel_i_prime_imp(T v, T x, const Policy& pol)
    // Prevent complex result:
    //
    if (x < 0 && floor(v) != v)
-      return boost::math::policies::raise_domain_error<T>(function, "Got x = %1%, but function requires x >= 0", x, pol);
+      return boost::math::policies::raise_domain_error<T>(
+         function,
+         "Got x = %1%, but function requires x >= 0", x, pol);
    //
    // Special cases for x == 0:
    //
@@ -120,8 +129,9 @@ inline T cyl_bessel_i_prime_imp(T v, T x, const Policy& pol)
          return static_cast<T>(0.5);
       else if (floor(v) == v || v > 1)
          return 0;
-      else 
-         return boost::math::policies::raise_domain_error<T>(function, "Got x = %1%, but function is indeterminate for this order", x, pol);
+      else return boost::math::policies::raise_domain_error<T>(
+         function,
+         "Got x = %1%, but function is indeterminate for this order", x, pol);
    }
    //
    // Special case for v == 0:
@@ -141,7 +151,9 @@ inline T cyl_bessel_k_prime_imp(T v, T x, const Policy& pol)
    // Prevent complex and indeterminate results:
    //
    if (x <= 0)
-      return boost::math::policies::raise_domain_error<T>("boost::math::cyl_bessel_k_prime<%1%>(%1%,%1%)", "Got x = %1%, but function requires x > 0", x, pol);
+      return boost::math::policies::raise_domain_error<T>(
+         "boost::math::cyl_bessel_k_prime<%1%>(%1%,%1%)",
+         "Got x = %1%, but function requires x > 0", x, pol);
    //
    // Special case for v == 0:
    //
@@ -161,7 +173,9 @@ inline T cyl_neumann_prime_imp(T v, T x, const Policy& pol)
    // Prevent complex and indeterminate results:
    //
    if (x <= 0)
-      return boost::math::policies::raise_domain_error<T>("boost::math::cyl_neumann_prime<%1%>(%1%,%1%)", "Got x = %1%, but function requires x > 0", x, pol);
+      return boost::math::policies::raise_domain_error<T>(
+         "boost::math::cyl_neumann_prime<%1%>(%1%,%1%)",
+         "Got x = %1%, but function requires x > 0", x, pol);
    //
    // Special case for large x: use asymptotic expansion:
    //
@@ -194,7 +208,9 @@ inline T sph_neumann_prime_imp(unsigned v, T x, const Policy& pol)
    // Prevent complex and indeterminate result:
    //
    if (x <= 0)
-      return boost::math::policies::raise_domain_error<T>("boost::math::sph_neumann_prime<%1%>(%1%,%1%)", "Got x = %1%, but function requires x > 0.", x, pol);
+      return boost::math::policies::raise_domain_error<T>(
+         "boost::math::sph_neumann_prime<%1%>(%1%,%1%)",
+         "Got x = %1%, but function requires x > 0.", x, pol);
    //
    // Special case for v == 0:
    //

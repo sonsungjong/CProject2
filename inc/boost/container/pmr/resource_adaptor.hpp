@@ -36,19 +36,19 @@ namespace pmr_dtl {
 template<class T>
 struct max_allocator_alignment
 {
-   BOOST_STATIC_CONSTEXPR std::size_t value = 1;
+   static const std::size_t value = 1;
 };
 
 template<class T>
 struct max_allocator_alignment< ::boost::container::new_allocator<T> >
 {
-   BOOST_STATIC_CONSTEXPR std::size_t value = boost::move_detail::alignment_of<boost::move_detail::max_align_t>::value;
+   static const std::size_t value = boost::move_detail::alignment_of<boost::move_detail::max_align_t>::value;
 };
 
 template<class T>
 struct max_allocator_alignment< std::allocator<T> >
 {
-   BOOST_STATIC_CONSTEXPR std::size_t value = boost::move_detail::alignment_of<boost::move_detail::max_align_t>::value;
+   static const std::size_t value = boost::move_detail::alignment_of<boost::move_detail::max_align_t>::value;
 };
 
 }  //namespace pmr_dtl
@@ -87,7 +87,7 @@ class resource_adaptor_imp
    void static_assert_if_not_char_allocator() const
    {
       //This class can only be used with allocators type char
-      BOOST_CONTAINER_STATIC_ASSERT((boost::container::dtl::is_same<typename Allocator::value_type, char>::value));
+      BOOST_STATIC_ASSERT((boost::container::dtl::is_same<typename Allocator::value_type, char>::value));
    }
    #endif
 

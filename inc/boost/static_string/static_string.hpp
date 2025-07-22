@@ -34,6 +34,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <cstdio>
+#include <cwchar>
 #include <functional>
 #include <initializer_list>
 #include <limits>
@@ -57,11 +58,9 @@ template<std::size_t N>
 using static_string =
   basic_static_string<N, char, std::char_traits<char>>;
 
-#ifdef BOOST_STATIC_STRING_HAS_WCHAR
 template<std::size_t N>
 using static_wstring =
   basic_static_string<N, wchar_t, std::char_traits<wchar_t>>;
-#endif
 
 template<std::size_t N>
 using static_u16string =
@@ -146,36 +145,31 @@ struct is_string_like<
 // directly and other convertible types such as std::string.
 // When no string_view type is available, then we check for the
 // data and size member functions, and use them directly for assignments.
-// Types convertible to basic_static_string are not considered viewable
-// to prevent any ambiguity during overload resolution.
-template<std::size_t N, typename T, typename CharT, typename Traits, typename = void>
+template<typename T, typename CharT, typename Traits, typename = void>
 struct enable_if_viewable { };
 
-template<std::size_t N, typename T, typename CharT, typename Traits>
-struct enable_if_viewable<N, T, CharT, Traits,
+template<typename T, typename CharT, typename Traits>
+struct enable_if_viewable<T, CharT, Traits,
     typename std::enable_if<
 #if !defined(BOOST_STATIC_STRING_HAS_ANY_STRING_VIEW)
-        is_string_like<T, CharT>::value &&
-        !std::is_convertible<const T&, const basic_static_string<N, CharT, Traits>&>::value
+        is_string_like<T, CharT>::value
 #elif defined(BOOST_STATIC_STRING_STANDALONE)
         std::is_convertible<const T&, std::basic_string_view<CharT, Traits>>::value &&
-        !std::is_convertible<const T&, const CharT*>::value &&
-        !std::is_convertible<const T&, const basic_static_string<N, CharT, Traits>&>::value
+        !std::is_convertible<const T&, const CharT*>::value
 #else
         (
             std::is_convertible<const T&, basic_string_view<CharT, Traits>>::value ||
             std::is_convertible<const T&, core::basic_string_view<CharT>>::value
         ) &&
-        !std::is_convertible<const T&, const CharT*>::value &&
-        !std::is_convertible<const T&, const basic_static_string<N, CharT, Traits>&>::value
+        !std::is_convertible<const T&, const CharT*>::value
 #endif
     >::type>
 {
   using type = void;
 };
 
-template<std::size_t N, typename T, typename CharT, typename Traits>
-using enable_if_viewable_t = typename enable_if_viewable<N, T, CharT, Traits>::type;
+template<typename T, typename CharT, typename Traits>
+using enable_if_viewable_t = typename enable_if_viewable<T, CharT, Traits>::type;
 
 // The common string_view type used in private operations with enable_if_viewable_t
 // - T const& itself when no string_view type is available
@@ -556,7 +550,6 @@ to_static_string_int_impl(Integer value) noexcept
   return static_string<N>(digits_begin, std::distance(digits_begin, digits_end));
 }
 
-#ifdef BOOST_STATIC_STRING_HAS_WCHAR
 template<std::size_t N, typename Integer>
 inline
 static_wstring<N>
@@ -568,7 +561,6 @@ to_static_wstring_int_impl(Integer value) noexcept
     digits_end, value, std::is_signed<Integer>{});
   return static_wstring<N>(digits_begin, std::distance(digits_begin, digits_end));
 }
-#endif
 
 BOOST_STATIC_STRING_CPP11_CONSTEXPR
 inline
@@ -646,7 +638,6 @@ to_static_string_float_impl(long double value) noexcept
   return static_string<N>(buffer);
 }
 
-#ifdef BOOST_STATIC_STRING_HAS_WCHAR
 template<std::size_t N>
 inline
 static_wstring<N>
@@ -720,7 +711,6 @@ to_static_wstring_float_impl(long double value) noexcept
   // this will not throw
   return static_wstring<N>(buffer);
 }
-#endif
 
 #if defined(__GNUC__) && __GNUC__ >= 7
 #pragma GCC diagnostic pop
@@ -1127,7 +1117,7 @@ public:
   */
   template<typename T
 #ifndef BOOST_STATIC_STRING_DOCS
-    , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+    , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
   >
   explicit
@@ -1147,7 +1137,7 @@ public:
   */
   template<typename T
 #ifndef BOOST_STATIC_STRING_DOCS
-    , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+    , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
   >
   BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -1324,8 +1314,7 @@ public:
 
       @code
       std::is_convertible<const T&, string_view>::value &&
-      !std::is_convertible<const T&, const CharT*>::value &&
-      !std::is_convertible<const T&, const basic_static_string&>::value
+      !std::is_convertible<const T&, const CharT*>::value
       @endcode
 
       @return `*this`
@@ -1336,7 +1325,7 @@ public:
   */
   template<typename T
 #ifndef BOOST_STATIC_STRING_DOCS
-    , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+    , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
   >
   BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -1614,8 +1603,7 @@ public:
 
       @code
       std::is_convertible<const T&, string_view>::value &&
-      !std::is_convertible<const T&, const CharT*>::value &&
-      !std::is_convertible<const T&, const basic_static_string&>::value
+      !std::is_convertible<const T&, const CharT*>::value
       @endcode
 
       @return `*this`
@@ -1626,7 +1614,7 @@ public:
   */
   template<typename T
 #ifndef BOOST_STATIC_STRING_DOCS
-    , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+    , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
   >
   BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -1660,8 +1648,7 @@ public:
 
       @code
       std::is_convertible<const T&, string_view>::value &&
-      !std::is_convertible<const T&, const CharT*>::value &&
-      !std::is_convertible<const T&, const basic_static_string&>::value
+      !std::is_convertible<const T&, const CharT*>::value
       @endcode
 
       @return `*this`
@@ -1677,7 +1664,7 @@ public:
   */
   template<typename T
 #ifndef BOOST_STATIC_STRING_DOCS
-    , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+    , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
   >
   basic_static_string&
@@ -2607,8 +2594,7 @@ public:
       @par Constraints
 
       `std::is_convertible<const T&, string_view>::value &&
-      !std::is_convertible<const T&, const CharT*>::value &&
-      !std::is_convertible<const T&, const basic_static_string&>::value`.
+      !std::is_convertible<const T&, const CharT*>::value`.
 
       @param index The index to insert at.
       @param t The string to insert from.
@@ -2618,7 +2604,7 @@ public:
   */
   template<typename T
 #ifndef BOOST_STATIC_STRING_DOCS
-    , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+    , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
   >
   BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -2649,8 +2635,7 @@ public:
       @par Constraints
 
       `std::is_convertible<const T&, string_view>::value &&
-      !std::is_convertible<const T&, const_pointer>::value &&
-      !std::is_convertible<const T&, const basic_static_string&>::value`.
+      !std::is_convertible<const T&, const_pointer>::value`.
 
       @return `*this`
 
@@ -2666,7 +2651,7 @@ public:
   */
   template<typename T
 #ifndef BOOST_STATIC_STRING_DOCS
-    , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+    , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
   >
   BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -3021,8 +3006,7 @@ public:
 
       @code
       std::is_convertible<T const&, string_view>::value &&
-      !std::is_convertible<T const&, char const*>::value &&
-      !std::is_convertible<const T&, const basic_static_string&>::value
+      !std::is_convertible<T const&, char const*>::value
       @endcode
 
       @return `*this`
@@ -3033,7 +3017,7 @@ public:
   */
   template<typename T
 #ifndef BOOST_STATIC_STRING_DOCS
-    , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+    , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
   >
   BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -3059,8 +3043,7 @@ public:
 
       @code
       std::is_convertible<T const&, string_view>::value &&
-      !std::is_convertible<T const&, char const*>::value &&
-      !std::is_convertible<const T&, const basic_static_string&>::value
+      !std::is_convertible<T const&, char const*>::value
       @endcode
 
       @return `*this`
@@ -3076,7 +3059,7 @@ public:
   */
   template<typename T
 #ifndef BOOST_STATIC_STRING_DOCS
-    , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+    , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
   >
   BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -3198,8 +3181,7 @@ public:
 
       @code
       std::is_convertible<T const&, string_view>::value &&
-      !std::is_convertible<T const&, char const*>::value &&
-      !std::is_convertible<const T&, const basic_static_string&>::value
+      !std::is_convertible<T const&, char const*>::value
       @endcode
 
       @return `*this`
@@ -3210,7 +3192,7 @@ public:
   */
   template<typename T
 #ifndef BOOST_STATIC_STRING_DOCS
-    , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+    , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
   >
   BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -3458,8 +3440,7 @@ public:
 
       @code
       std::is_convertible<const T&, string_view>::value &&
-      !std::is_convertible<const T&, const_pointer>::value &&
-      !std::is_convertible<const T&, const basic_static_string&>::value.
+      !std::is_convertible<const T&, const_pointer>::value.
       @endcode
 
       @return The result of lexicographically comparing `s` and the string.
@@ -3468,7 +3449,7 @@ public:
   */
   template<typename T
 #ifndef BOOST_STATIC_STRING_DOCS
-    , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+    , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
   >
   BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -3503,8 +3484,7 @@ public:
 
       @code
       std::is_convertible<const T&, string_view>::value &&
-      !std::is_convertible<const T&, const_pointer>::value &&
-      !std::is_convertible<const T&, const basic_static_string&>::value.
+      !std::is_convertible<const T&, const_pointer>::value.
       @endcode
 
       @return The result of lexicographically comparing `s` and `sub`.
@@ -3517,7 +3497,7 @@ public:
   */
   template<typename T
 #ifndef BOOST_STATIC_STRING_DOCS
-    , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+    , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
   >
   BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -3555,8 +3535,7 @@ public:
 
       @code
       std::is_convertible<const T&, string_view>::value &&
-      !std::is_convertible<const T&, const_pointer>::value &&
-      !std::is_convertible<const T&, const basic_static_string&>::value.
+      !std::is_convertible<const T&, const_pointer>::value.
       @endcode
 
       @return The result of lexicographically comparing `sub1` and `sub2`.
@@ -3573,7 +3552,7 @@ public:
   */
   template<typename T
 #ifndef BOOST_STATIC_STRING_DOCS
-    , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+    , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
   >
   BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -3888,8 +3867,7 @@ public:
       @par Constraints
 
       `std::is_convertible<const T&, string_view>::value &&
-      !std::is_convertible<const T&, const CharT*>::value &&
-      !std::is_convertible<const T&, const basic_static_string&>::value`.
+      !std::is_convertible<const T&, const CharT*>::value`.
 
       @return `*this`
 
@@ -3902,7 +3880,7 @@ public:
   */
   template<typename T
 #ifndef BOOST_STATIC_STRING_DOCS
-    , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+    , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
   >
   BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -3935,8 +3913,7 @@ public:
       @par Constraints
 
       `std::is_convertible<const T&, string_view>::value &&
-      !std::is_convertible<const T&, const CharT*>::value &&
-      !std::is_convertible<const T&, const basic_static_string&>::value`.
+      !std::is_convertible<const T&, const CharT*>::value`.
 
       @return `*this`
 
@@ -3953,7 +3930,7 @@ public:
   */
   template<typename T
 #ifndef BOOST_STATIC_STRING_DOCS
-    , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+    , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
   >
   BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -4152,8 +4129,7 @@ public:
       @par Constraints
 
       `std::is_convertible<const T&, string_view>::value &&
-      !std::is_convertible<const T&, const CharT*>::value &&
-      !std::is_convertible<const T&, const basic_static_string&>::value`.
+      !std::is_convertible<const T&, const CharT*>::value`.
 
       @return `*this`
 
@@ -4166,7 +4142,7 @@ public:
   */
   template<typename T
 #ifndef BOOST_STATIC_STRING_DOCS
-    , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+    , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
   >
   BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -4416,8 +4392,7 @@ public:
       @par Constraints
 
       `std::is_convertible<const T&, string_view>::value &&
-      !std::is_convertible<const T&, const CharT*>::value &&
-      !std::is_convertible<const T&, const basic_static_string&>::value`.
+      !std::is_convertible<const T&, const CharT*>::value`.
 
       @return The lowest index `idx` greater than or equal to `pos`
       where each element of `{sv.begin(), sv.end())` is equal to
@@ -4430,7 +4405,7 @@ public:
   */
   template<typename T
 #ifndef BOOST_STATIC_STRING_DOCS
-    , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+    , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
   >
   BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -4574,8 +4549,7 @@ public:
       @par Constraints
 
       `std::is_convertible<const T&, string_view>::value &&
-      !std::is_convertible<const T&, const CharT*>::value &&
-      !std::is_convertible<const T&, const basic_static_string&>::value`.
+      !std::is_convertible<const T&, const CharT*>::value`.
 
       @return The highest index `idx` less than or equal to `pos`
       where each element of `{sv.begin(), sv.end())` is equal to
@@ -4588,7 +4562,7 @@ public:
   */
   template<typename T
 #ifndef BOOST_STATIC_STRING_DOCS
-    , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+    , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
   >
   BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -4728,8 +4702,7 @@ public:
       @par Constraints
 
       `std::is_convertible<const T&, string_view>::value &&
-      !std::is_convertible<const T&, const CharT*>::value &&
-      !std::is_convertible<const T&, const basic_static_string&>::value`.
+      !std::is_convertible<const T&, const CharT*>::value`.
 
       @return The index corrosponding to the first occurrence of
       any of the characters in `{sv.begin(), sv.end())` within
@@ -4741,7 +4714,7 @@ public:
   */
   template<typename T
 #ifndef BOOST_STATIC_STRING_DOCS
-    , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+    , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
   >
   BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -4876,8 +4849,7 @@ public:
       @par Constraints
 
       `std::is_convertible<const T&, string_view>::value &&
-      !std::is_convertible<const T&, const CharT*>::value &&
-      !std::is_convertible<const T&, const basic_static_string&>::value`.
+      !std::is_convertible<const T&, const CharT*>::value`.
 
       @return The index corrosponding to the last occurrence of
       any of the characters in `{sv.begin(), sv.end())` within
@@ -4889,7 +4861,7 @@ public:
   */
   template<typename T
 #ifndef BOOST_STATIC_STRING_DOCS
-    , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+    , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
   >
   BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -5023,8 +4995,7 @@ public:
       @par Constraints
 
       `std::is_convertible<const T&, string_view>::value &&
-      !std::is_convertible<const T&, const CharT*>::value &&
-      !std::is_convertible<const T&, const basic_static_string&>::value`.
+      !std::is_convertible<const T&, const CharT*>::value`.
 
       @return The index corrosponding to the first occurrence of
       a character that is not in `{sv.begin(), sv.end())` within
@@ -5036,7 +5007,7 @@ public:
   */
   template<typename T
 #ifndef BOOST_STATIC_STRING_DOCS
-    , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+    , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
   >
   BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -5169,8 +5140,7 @@ public:
       @par Constraints
 
       `std::is_convertible<const T&, string_view>::value &&
-      !std::is_convertible<const T&, const CharT*>::value &&
-      !std::is_convertible<const T&, const basic_static_string&>::value`.
+      !std::is_convertible<const T&, const CharT*>::value`.
 
       @return The index corrosponding to the last occurrence of
       a character that is not in `{sv.begin(), sv.end())` within
@@ -5182,7 +5152,7 @@ public:
   */
   template<typename T
 #ifndef BOOST_STATIC_STRING_DOCS
-    , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+    , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
   >
   BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -5314,7 +5284,7 @@ public:
   */
   template<typename T
 #ifndef BOOST_STATIC_STRING_DOCS
-            , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+            , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
   >
   BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -5378,7 +5348,7 @@ public:
   */
   template<typename T
 #ifndef BOOST_STATIC_STRING_DOCS
-            , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+            , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
   >
   BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -5647,7 +5617,7 @@ operator==(
 
 template<std::size_t N, typename CharT, typename Traits, class T
 #ifndef BOOST_STATIC_STRING_DOCS
-      , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+      , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
     >
 BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -5665,7 +5635,7 @@ operator==(
 
 template<std::size_t N, typename CharT, typename Traits, class T
 #ifndef BOOST_STATIC_STRING_DOCS
-      , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+      , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
     >
 BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -5709,7 +5679,7 @@ operator!=(
 
 template<std::size_t N, typename CharT, typename Traits, class T
 #ifndef BOOST_STATIC_STRING_DOCS
-      , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+      , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
     >
 BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -5727,7 +5697,7 @@ operator!=(
 
 template<std::size_t N, typename CharT, typename Traits, class T
 #ifndef BOOST_STATIC_STRING_DOCS
-      , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+      , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
     >
 BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -5771,7 +5741,7 @@ operator<(
 
 template<std::size_t N, typename CharT, typename Traits, class T
 #ifndef BOOST_STATIC_STRING_DOCS
-      , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+      , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
     >
 BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -5789,7 +5759,7 @@ operator<(
 
 template<std::size_t N, typename CharT, typename Traits, class T
 #ifndef BOOST_STATIC_STRING_DOCS
-      , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+      , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
     >
 BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -5833,7 +5803,7 @@ operator<=(
 
 template<std::size_t N, typename CharT, typename Traits, class T
 #ifndef BOOST_STATIC_STRING_DOCS
-      , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+      , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
     >
 BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -5851,7 +5821,7 @@ operator<=(
 
 template<std::size_t N, typename CharT, typename Traits, class T
 #ifndef BOOST_STATIC_STRING_DOCS
-      , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+      , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
     >
 BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -5895,7 +5865,7 @@ operator>(
 
 template<std::size_t N, typename CharT, typename Traits, class T
 #ifndef BOOST_STATIC_STRING_DOCS
-      , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+      , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
     >
 BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -5913,7 +5883,7 @@ operator>(
 
 template<std::size_t N, typename CharT, typename Traits, class T
 #ifndef BOOST_STATIC_STRING_DOCS
-      , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+      , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
     >
 BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -5958,7 +5928,7 @@ operator>=(
 
 template<std::size_t N, typename CharT, typename Traits, class T
 #ifndef BOOST_STATIC_STRING_DOCS
-      , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+      , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
     >
 BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -5976,7 +5946,7 @@ operator>=(
 
 template<std::size_t N, typename CharT, typename Traits, class T
 #ifndef BOOST_STATIC_STRING_DOCS
-      , typename = detail::enable_if_viewable_t<N, T, CharT, Traits>
+      , typename = detail::enable_if_viewable_t<T, CharT, Traits>
 #endif
     >
 BOOST_STATIC_STRING_CPP14_CONSTEXPR
@@ -6232,7 +6202,6 @@ to_static_string(long double value) noexcept
     std::numeric_limits<long double>::max_digits10 + 4>(value);
 }
 
-#ifdef BOOST_STATIC_STRING_HAS_WCHAR
 /// Converts `value` to a `static_wstring`
 static_wstring<std::numeric_limits<int>::digits10 + 2>
 inline
@@ -6313,7 +6282,6 @@ to_static_wstring(long double value) noexcept
   return detail::to_static_wstring_float_impl<
     std::numeric_limits<long double>::max_digits10 + 4>(value);
 }
-#endif
 
 //------------------------------------------------------------------------------
 //
@@ -6354,9 +6322,7 @@ hash_value(
 //------------------------------------------------------------------------------
 
 using static_strings::static_string;
-#ifdef BOOST_STATIC_STRING_HAS_WCHAR
 using static_strings::static_wstring;
-#endif
 using static_strings::static_u16string;
 using static_strings::static_u32string;
 } // boost
@@ -6385,29 +6351,38 @@ struct hash<
     return std::hash<view_type>()(view_type(str.data(), str.size()));
 #else
     std::size_t seed = 0;
-    for (CharT const& c : str)
-    {
-#if BOOST_STATIC_STRING_ARCH == 64
-      seed += 0x9e3779b9 + std::hash<CharT>()( c );
-      std::size_t const m = (std::size_t(0xe9846af) << 32) + 0x9b1a615d;
-      seed ^= seed >> 32;
-      seed *= m;
-      seed ^= seed >> 32;
-      seed *= m;
-      seed ^= seed >> 28;
-#elif BOOST_STATIC_STRING_ARCH == 32
-      seed += 0x9e3779b9 + std::hash<CharT>()( c );
-      std::size_t const m1 = 0x21f0aaad;
-      std::size_t const m2 = 0x735a2d97;
-      seed ^= seed >> 16;
-      seed *= m1;
-      seed ^= seed >> 15;
-      seed *= m2;
-      seed ^= seed >> 15;
-#endif
+    for (CharT const& c : str) {
+      mix_impl(std::integral_constant<bool, sizeof(std::size_t) >= 8>{}, seed, c);
     }
     return seed;
 #endif
+  }
+
+  static
+  void
+  mix_impl(std::true_type, std::size_t& seed, CharT c)
+  {
+    seed += 0x9e3779b9 + std::hash<CharT>()( c );
+    std::size_t const m = (std::size_t(0xe9846af) << 32) + 0x9b1a615d;
+    seed ^= seed >> 32;
+    seed *= m;
+    seed ^= seed >> 32;
+    seed *= m;
+    seed ^= seed >> 28;
+  }
+
+  static
+  void
+  mix_impl(std::false_type, std::size_t& seed, CharT c)
+  {
+    seed += 0x9e3779b9 + std::hash<CharT>()( c );
+    std::size_t const m1 = 0x21f0aaad;
+    std::size_t const m2 = 0x735a2d97;
+    seed ^= seed >> 16;
+    seed *= m1;
+    seed ^= seed >> 15;
+    seed *= m2;
+    seed ^= seed >> 15;
   }
 };
 } // std

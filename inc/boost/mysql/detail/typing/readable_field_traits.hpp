@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019-2025 Ruben Perez Hidalgo (rubenperez038 at gmail dot com)
+// Copyright (c) 2019-2023 Ruben Perez Hidalgo (rubenperez038 at gmail dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -24,9 +24,6 @@
 #include <boost/mysql/detail/typing/meta_check_context.hpp>
 #include <boost/mysql/detail/typing/pos_map.hpp>
 #include <boost/mysql/detail/void_t.hpp>
-
-#include <boost/mp11/algorithm.hpp>
-#include <boost/mp11/utility.hpp>
 
 #include <cstdint>
 #include <limits>
@@ -100,7 +97,7 @@ template <class T>
 struct int_traits<T, true, 1>
 {
     static constexpr bool is_supported = true;
-    static BOOST_INLINE_CONSTEXPR const char* type_name = "int8_t";
+    static constexpr const char* type_name = "int8_t";
     static bool meta_check(meta_check_context& ctx)
     {
         switch (ctx.current_meta().type())
@@ -116,7 +113,7 @@ template <class T>
 struct int_traits<T, false, 1>
 {
     static constexpr bool is_supported = true;
-    static BOOST_INLINE_CONSTEXPR const char* type_name = "uint8_t";
+    static constexpr const char* type_name = "uint8_t";
     static bool meta_check(meta_check_context& ctx)
     {
         switch (ctx.current_meta().type())
@@ -132,7 +129,7 @@ template <class T>
 struct int_traits<T, true, 2>
 {
     static constexpr bool is_supported = true;
-    static BOOST_INLINE_CONSTEXPR const char* type_name = "int16_t";
+    static constexpr const char* type_name = "int16_t";
     static bool meta_check(meta_check_context& ctx)
     {
         switch (ctx.current_meta().type())
@@ -150,7 +147,7 @@ template <class T>
 struct int_traits<T, false, 2>
 {
     static constexpr bool is_supported = true;
-    static BOOST_INLINE_CONSTEXPR const char* type_name = "uint16_t";
+    static constexpr const char* type_name = "uint16_t";
     static bool meta_check(meta_check_context& ctx)
     {
         switch (ctx.current_meta().type())
@@ -168,7 +165,7 @@ template <class T>
 struct int_traits<T, true, 4>
 {
     static constexpr bool is_supported = true;
-    static BOOST_INLINE_CONSTEXPR const char* type_name = "int32_t";
+    static constexpr const char* type_name = "int32_t";
     static bool meta_check(meta_check_context& ctx)
     {
         switch (ctx.current_meta().type())
@@ -188,7 +185,7 @@ template <class T>
 struct int_traits<T, false, 4>
 {
     static constexpr bool is_supported = true;
-    static BOOST_INLINE_CONSTEXPR const char* type_name = "uint32_t";
+    static constexpr const char* type_name = "uint32_t";
     static bool meta_check(meta_check_context& ctx)
     {
         switch (ctx.current_meta().type())
@@ -208,7 +205,7 @@ template <class T>
 struct int_traits<T, true, 8>
 {
     static constexpr bool is_supported = true;
-    static BOOST_INLINE_CONSTEXPR const char* type_name = "int64_t";
+    static constexpr const char* type_name = "int64_t";
     static bool meta_check(meta_check_context& ctx)
     {
         switch (ctx.current_meta().type())
@@ -229,7 +226,7 @@ template <class T>
 struct int_traits<T, false, 8>
 {
     static constexpr bool is_supported = true;
-    static BOOST_INLINE_CONSTEXPR const char* type_name = "uint64_t";
+    static constexpr const char* type_name = "uint64_t";
     static bool meta_check(meta_check_context& ctx)
     {
         switch (ctx.current_meta().type())
@@ -316,7 +313,7 @@ template <>
 struct readable_field_traits<bool, void>
 {
     static constexpr bool is_supported = true;
-    static BOOST_INLINE_CONSTEXPR const char* type_name = "bool";
+    static constexpr const char* type_name = "bool";
     static bool meta_check(meta_check_context& ctx)
     {
         return ctx.current_meta().type() == column_type::tinyint && !ctx.current_meta().is_unsigned();
@@ -336,7 +333,7 @@ template <>
 struct readable_field_traits<float, void>
 {
     static constexpr bool is_supported = true;
-    static BOOST_INLINE_CONSTEXPR const char* type_name = "float";
+    static constexpr const char* type_name = "float";
     static bool meta_check(meta_check_context& ctx)
     {
         return ctx.current_meta().type() == column_type::float_;
@@ -356,7 +353,7 @@ template <>
 struct readable_field_traits<double, void>
 {
     static constexpr bool is_supported = true;
-    static BOOST_INLINE_CONSTEXPR const char* type_name = "double";
+    static constexpr const char* type_name = "double";
     static bool meta_check(meta_check_context& ctx)
     {
         switch (ctx.current_meta().type())
@@ -390,7 +387,7 @@ template <class Allocator>
 struct readable_field_traits<std::basic_string<char, std::char_traits<char>, Allocator>, void>
 {
     static constexpr bool is_supported = true;
-    static BOOST_INLINE_CONSTEXPR const char* type_name = "string";
+    static constexpr const char* type_name = "string";
     static bool meta_check(meta_check_context& ctx)
     {
         switch (ctx.current_meta().type())
@@ -423,7 +420,7 @@ template <class Allocator>
 struct readable_field_traits<std::vector<unsigned char, Allocator>, void>
 {
     static constexpr bool is_supported = true;
-    static BOOST_INLINE_CONSTEXPR const char* type_name = "blob";
+    static constexpr const char* type_name = "blob";
     static bool meta_check(meta_check_context& ctx)
     {
         switch (ctx.current_meta().type())
@@ -452,7 +449,7 @@ template <>
 struct readable_field_traits<date, void>
 {
     static constexpr bool is_supported = true;
-    static BOOST_INLINE_CONSTEXPR const char* type_name = "date";
+    static constexpr const char* type_name = "date";
     static bool meta_check(meta_check_context& ctx) { return ctx.current_meta().type() == column_type::date; }
     static error_code parse(field_view input, date& output)
     {
@@ -469,7 +466,7 @@ template <>
 struct readable_field_traits<datetime, void>
 {
     static constexpr bool is_supported = true;
-    static BOOST_INLINE_CONSTEXPR const char* type_name = "datetime";
+    static constexpr const char* type_name = "datetime";
     static bool meta_check(meta_check_context& ctx)
     {
         switch (ctx.current_meta().type())
@@ -494,7 +491,7 @@ template <>
 struct readable_field_traits<time, void>
 {
     static constexpr bool is_supported = true;
-    static BOOST_INLINE_CONSTEXPR const char* type_name = "time";
+    static constexpr const char* type_name = "time";
     static bool meta_check(meta_check_context& ctx) { return ctx.current_meta().type() == column_type::time; }
     static error_code parse(field_view input, time& output)
     {
@@ -533,7 +530,7 @@ struct readable_field_traits<
 {
     using value_type = typename T::value_type;
     static constexpr bool is_supported = true;
-    static BOOST_INLINE_CONSTEXPR const char* type_name = readable_field_traits<value_type>::type_name;
+    static constexpr const char* type_name = readable_field_traits<value_type>::type_name;
     static bool meta_check(meta_check_context& ctx)
     {
         ctx.set_nullability_checked();
@@ -592,6 +589,30 @@ void meta_check_field(meta_check_context& ctx)
     static_assert(is_readable_field<ReadableField>::value, "Should be a ReadableField");
     meta_check_field_impl<ReadableField>(ctx);
     ctx.advance();
+}
+
+struct meta_check_field_fn
+{
+    meta_check_context ctx;
+
+    template <class T>
+    void operator()(T)
+    {
+        meta_check_field<typename T::type>(ctx);
+    }
+};
+
+template <typename ReadableFieldList>
+error_code meta_check_field_type_list(
+    span<const std::size_t> field_map,
+    name_table_t name_table,
+    metadata_collection_view meta,
+    diagnostics& diag
+)
+{
+    meta_check_field_fn fn{meta_check_context(field_map, name_table, meta)};
+    boost::mp11::mp_for_each<ReadableFieldList>(fn);
+    return fn.ctx.check_errors(diag);
 }
 
 }  // namespace detail

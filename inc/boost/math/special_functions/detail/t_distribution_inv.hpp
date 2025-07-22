@@ -11,9 +11,6 @@
 #pragma once
 #endif
 
-#include <boost/math/tools/config.hpp>
-#include <boost/math/tools/type_traits.hpp>
-#include <boost/math/tools/numeric_limits.hpp>
 #include <boost/math/special_functions/cbrt.hpp>
 #include <boost/math/special_functions/round.hpp>
 #include <boost/math/special_functions/trunc.hpp>
@@ -27,7 +24,7 @@ namespace boost{ namespace math{ namespace detail{
 // Communications of the ACM, 13(10): 619-620, Oct., 1970.
 //
 template <class T, class Policy>
-BOOST_MATH_GPU_ENABLED T inverse_students_t_hill(T ndf, T u, const Policy& pol)
+T inverse_students_t_hill(T ndf, T u, const Policy& pol)
 {
    BOOST_MATH_STD_USING
    BOOST_MATH_ASSERT(u <= 0.5);
@@ -77,7 +74,7 @@ BOOST_MATH_GPU_ENABLED T inverse_students_t_hill(T ndf, T u, const Policy& pol)
 // Journal of Computational Finance, Vol 9 Issue 4, pp 37-73, Summer 2006
 //
 template <class T, class Policy>
-BOOST_MATH_GPU_ENABLED T inverse_students_t_tail_series(T df, T v, const Policy& pol)
+T inverse_students_t_tail_series(T df, T v, const Policy& pol)
 {
    BOOST_MATH_STD_USING
    // Tail series expansion, see section 6 of Shaw's paper.
@@ -128,7 +125,7 @@ BOOST_MATH_GPU_ENABLED T inverse_students_t_tail_series(T df, T v, const Policy&
 }
 
 template <class T, class Policy>
-BOOST_MATH_GPU_ENABLED T inverse_students_t_body_series(T df, T u, const Policy& pol)
+T inverse_students_t_body_series(T df, T u, const Policy& pol)
 {
    BOOST_MATH_STD_USING
    //
@@ -207,7 +204,7 @@ BOOST_MATH_GPU_ENABLED T inverse_students_t_body_series(T df, T u, const Policy&
 }
 
 template <class T, class Policy>
-BOOST_MATH_GPU_ENABLED T inverse_students_t(T df, T u, T v, const Policy& pol, bool* pexact = nullptr)
+T inverse_students_t(T df, T u, T v, const Policy& pol, bool* pexact = nullptr)
 {
    //
    // df = number of degrees of freedom.
@@ -223,7 +220,7 @@ BOOST_MATH_GPU_ENABLED T inverse_students_t(T df, T u, T v, const Policy& pol, b
    if(u > v)
    {
       // function is symmetric, invert it:
-      BOOST_MATH_GPU_SAFE_SWAP(u, v);
+      std::swap(u, v);
       invert = true;
    }
    if((floor(df) == df) && (df < 20))
@@ -419,7 +416,7 @@ calculate_real:
 }
 
 template <class T, class Policy>
-BOOST_MATH_GPU_ENABLED inline T find_ibeta_inv_from_t_dist(T a, T p, T /*q*/, T* py, const Policy& pol)
+inline T find_ibeta_inv_from_t_dist(T a, T p, T /*q*/, T* py, const Policy& pol)
 {
    T u = p / 2;
    T v = 1 - u;
@@ -429,21 +426,8 @@ BOOST_MATH_GPU_ENABLED inline T find_ibeta_inv_from_t_dist(T a, T p, T /*q*/, T*
    return df / (df + t * t);
 }
 
-// NVRTC requires this forward decl because there is a header cycle between here and ibeta_inverse.hpp
-#ifdef BOOST_MATH_HAS_NVRTC
-
-} // Namespace detail
-
-template <class T1, class T2, class T3, class T4, class Policy>
-BOOST_MATH_GPU_ENABLED inline typename tools::promote_args<T1, T2, T3, T4>::type
-   ibeta_inv(T1 a, T2 b, T3 p, T4* py, const Policy& pol);
-
-namespace detail {
-
-#endif
-
 template <class T, class Policy>
-BOOST_MATH_GPU_ENABLED inline T fast_students_t_quantile_imp(T df, T p, const Policy& pol, const boost::math::false_type*)
+inline T fast_students_t_quantile_imp(T df, T p, const Policy& pol, const std::false_type*)
 {
    BOOST_MATH_STD_USING
    //
@@ -466,12 +450,12 @@ BOOST_MATH_GPU_ENABLED inline T fast_students_t_quantile_imp(T df, T p, const Po
 }
 
 template <class T, class Policy>
-BOOST_MATH_GPU_ENABLED T fast_students_t_quantile_imp(T df, T p, const Policy& pol, const boost::math::true_type*)
+T fast_students_t_quantile_imp(T df, T p, const Policy& pol, const std::true_type*)
 {
    BOOST_MATH_STD_USING
    bool invert = false;
    if((df < 2) && (floor(df) != df))
-      return boost::math::detail::fast_students_t_quantile_imp(df, p, pol, static_cast<boost::math::false_type*>(nullptr));
+      return boost::math::detail::fast_students_t_quantile_imp(df, p, pol, static_cast<std::false_type*>(nullptr));
    if(p > 0.5)
    {
       p = 1 - p;
@@ -537,7 +521,7 @@ BOOST_MATH_GPU_ENABLED T fast_students_t_quantile_imp(T df, T p, const Policy& p
 }
 
 template <class T, class Policy>
-BOOST_MATH_GPU_ENABLED inline T fast_students_t_quantile(T df, T p, const Policy& pol)
+inline T fast_students_t_quantile(T df, T p, const Policy& pol)
 {
    typedef typename policies::evaluation<T, Policy>::type value_type;
    typedef typename policies::normalise<
@@ -547,12 +531,12 @@ BOOST_MATH_GPU_ENABLED inline T fast_students_t_quantile(T df, T p, const Policy
       policies::discrete_quantile<>,
       policies::assert_undefined<> >::type forwarding_policy;
 
-   typedef boost::math::integral_constant<bool,
-      (boost::math::numeric_limits<T>::digits <= 53)
+   typedef std::integral_constant<bool,
+      (std::numeric_limits<T>::digits <= 53)
        &&
-      (boost::math::numeric_limits<T>::is_specialized)
+      (std::numeric_limits<T>::is_specialized)
        &&
-      (boost::math::numeric_limits<T>::radix == 2)
+      (std::numeric_limits<T>::radix == 2)
    > tag_type;
    return policies::checked_narrowing_cast<T, forwarding_policy>(fast_students_t_quantile_imp(static_cast<value_type>(df), static_cast<value_type>(p), pol, static_cast<tag_type*>(nullptr)), "boost::math::students_t_quantile<%1%>(%1%,%1%,%1%)");
 }

@@ -78,20 +78,23 @@ namespace traits
 template <typename Point>
 struct tag<model::pointing_segment<Point> >
 {
-    using type = segment_tag;
+    typedef segment_tag type;
 };
 
 template <typename Point>
 struct point_type<model::pointing_segment<Point> >
 {
-    using type = Point;
+    typedef Point type;
 };
 
 template <typename Point, std::size_t Dimension>
 struct indexed_access<model::pointing_segment<Point>, 0, Dimension>
 {
-    using segment_type = model::pointing_segment<Point>;
-    using coordinate_type = geometry::coordinate_type_t<segment_type>;
+    typedef model::pointing_segment<Point> segment_type;
+    typedef typename geometry::coordinate_type
+        <
+            segment_type
+        >::type coordinate_type;
 
     static inline coordinate_type get(segment_type const& s)
     {
@@ -110,8 +113,11 @@ struct indexed_access<model::pointing_segment<Point>, 0, Dimension>
 template <typename Point, std::size_t Dimension>
 struct indexed_access<model::pointing_segment<Point>, 1, Dimension>
 {
-    using segment_type = model::pointing_segment<Point>;
-    using coordinate_type = geometry::coordinate_type_t<segment_type>;
+    typedef model::pointing_segment<Point> segment_type;
+    typedef typename geometry::coordinate_type
+        <
+            segment_type
+        >::type coordinate_type;
 
     static inline coordinate_type get(segment_type const& s)
     {

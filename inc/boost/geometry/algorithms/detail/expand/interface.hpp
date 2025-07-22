@@ -101,7 +101,7 @@ struct expand<default_strategy, false>
 namespace resolve_dynamic
 {
 
-template <typename Geometry, typename Tag = tag_t<Geometry>>
+template <typename Geometry, typename Tag = typename tag<Geometry>::type>
 struct expand
 {
     template <typename Box, typename Strategy>

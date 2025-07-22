@@ -1278,8 +1278,6 @@ inline BOOST_MP_CXX14_CONSTEXPR void eval_fmod(T& result, const T& a, const T& b
       result = std::numeric_limits<number<T> >::quiet_NaN().backend();
       errno  = EDOM;
       return;
-   default:
-      break;
    }
    switch (eval_fpclassify(b))
    {
@@ -1288,8 +1286,6 @@ inline BOOST_MP_CXX14_CONSTEXPR void eval_fmod(T& result, const T& a, const T& b
       result = std::numeric_limits<number<T> >::quiet_NaN().backend();
       errno  = EDOM;
       return;
-   default:
-      break;
    }
    T n;
    eval_divide(result, a, b);
@@ -1299,30 +1295,6 @@ inline BOOST_MP_CXX14_CONSTEXPR void eval_fmod(T& result, const T& a, const T& b
       eval_floor(n, result);
    eval_multiply(n, b);
    eval_subtract(result, a, n);
-   if (eval_get_sign(result) != 0)
-   {
-      //
-      // Sanity check, that due to rounding errors in division, 
-      // we haven't accidently calculated the wrong value:
-      // See https://github.com/boostorg/multiprecision/issues/604 for an example.
-      //
-      if (eval_get_sign(result) == eval_get_sign(b))
-      {
-         if (result.compare(b) >= 0)
-         {
-            eval_subtract(result, b);
-         }
-      }
-      else
-      {
-         n = b;
-         n.negate();
-         if (result.compare(n) >= 0)
-         {
-            eval_subtract(result, n);
-         }
-      }
-   }
 }
 template <class T, class A>
 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<boost::multiprecision::detail::is_arithmetic<A>::value, void>::type eval_fmod(T& result, const T& x, const A& a)
@@ -1415,8 +1387,6 @@ inline BOOST_MP_CXX14_CONSTEXPR void eval_fdim(T& result, const T& a, const T& b
    case FP_INFINITE:
       result = zero;
       return;
-   default:
-      break;
    }
    switch (eval_fpclassify(a))
    {
@@ -1426,8 +1396,6 @@ inline BOOST_MP_CXX14_CONSTEXPR void eval_fdim(T& result, const T& a, const T& b
    case FP_INFINITE:
       result = a;
       return;
-   default:
-      break;
    }
    if (eval_gt(a, b))
    {
@@ -1450,8 +1418,6 @@ inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<boost::multiprecision::d
    case FP_INFINITE:
       result = zero;
       return;
-   default:
-      break;
    }
    switch (eval_fpclassify(a))
    {
@@ -1461,8 +1427,6 @@ inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<boost::multiprecision::d
    case FP_INFINITE:
       result = a;
       return;
-   default:
-      break;
    }
    if (eval_gt(a, canonical_b))
    {
@@ -1485,8 +1449,6 @@ inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<boost::multiprecision::d
    case FP_INFINITE:
       result = zero;
       return;
-   default:
-      break;
    }
    switch (BOOST_MP_FPCLASSIFY(a))
    {
@@ -1496,8 +1458,6 @@ inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<boost::multiprecision::d
    case FP_INFINITE:
       result = std::numeric_limits<number<T> >::infinity().backend();
       return;
-   default:
-      break;
    }
    if (eval_gt(canonical_a, b))
    {
@@ -1520,8 +1480,6 @@ inline BOOST_MP_CXX14_CONSTEXPR void eval_trunc(T& result, const T& a)
    case FP_INFINITE:
       result = a;
       return;
-   default:
-      break;
    }
    if (eval_get_sign(a) < 0)
       eval_ceil(result, a);
@@ -1938,8 +1896,6 @@ inline BOOST_MP_CXX14_CONSTEXPR typename B::exponent_type eval_ilogb(const B& va
       return (std::numeric_limits<typename B::exponent_type>::max)();
    case FP_ZERO:
       return (std::numeric_limits<typename B::exponent_type>::min)();
-   default:
-      break;
    }
    B result;
    eval_frexp(result, val, &e);
@@ -1965,8 +1921,6 @@ inline BOOST_MP_CXX14_CONSTEXPR void eval_logb(B& result, const B& val)
       if (eval_signbit(val))
          result.negate();
       return;
-   default:
-      break;
    }
    using max_t = typename std::conditional<std::is_same<std::intmax_t, long>::value, long long, std::intmax_t>::type;
    result = static_cast<max_t>(eval_ilogb(val));
@@ -2360,21 +2314,21 @@ template <class T, expression_template_option ExpressionTemplates>
 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<number_category<T>::value == number_kind_complex, component_type<number<T, ExpressionTemplates>>>::type::type
 abs(const number<T, ExpressionTemplates>& v)
 {
-   return boost::math::hypot(real(v), imag(v));
+   return std::move(boost::math::hypot(real(v), imag(v)));
 }
 template <class tag, class A1, class A2, class A3, class A4>
 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<number_category<typename detail::expression<tag, A1, A2, A3, A4>::result_type>::value == number_kind_complex, component_type<typename detail::expression<tag, A1, A2, A3, A4>::result_type>>::type::type
 abs(const detail::expression<tag, A1, A2, A3, A4>& v)
 {
    using number_type = typename detail::expression<tag, A1, A2, A3, A4>::result_type;
-   return abs(static_cast<number_type>(v));
+   return std::move(abs(static_cast<number_type>(v)));
 }
 
 template <class T, expression_template_option ExpressionTemplates>
 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<number_category<T>::value == number_kind_complex, typename scalar_result_from_possible_complex<number<T, ExpressionTemplates> >::type>::type
 arg(const number<T, ExpressionTemplates>& v)
 {
-   return atan2(imag(v), real(v));
+   return std::move(atan2(imag(v), real(v)));
 }
 template <class T, expression_template_option ExpressionTemplates>
 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<number_category<T>::value == number_kind_floating_point, typename scalar_result_from_possible_complex<number<T, ExpressionTemplates> >::type>::type
@@ -2387,7 +2341,7 @@ inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<number_category<typename
 arg(const detail::expression<tag, A1, A2, A3, A4>& v)
 {
    using number_type = typename detail::expression<tag, A1, A2, A3, A4>::result_type;
-   return arg(static_cast<number_type>(v));
+   return std::move(arg(static_cast<number_type>(v)));
 }
 #endif // BOOST_MP_MATH_AVAILABLE
 
@@ -2396,7 +2350,7 @@ inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<number_category<T>::valu
 norm(const number<T, ExpressionTemplates>& v)
 {
    typename component_type<number<T, ExpressionTemplates> >::type a(real(v)), b(imag(v));
-   return a * a + b * b;
+   return std::move(a * a + b * b);
 }
 template <class T, expression_template_option ExpressionTemplates>
 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<number_category<T>::value != number_kind_complex, typename scalar_result_from_possible_complex<number<T, ExpressionTemplates> >::type>::type
@@ -2409,7 +2363,7 @@ inline BOOST_MP_CXX14_CONSTEXPR typename scalar_result_from_possible_complex<typ
 norm(const detail::expression<tag, A1, A2, A3, A4>& v)
 {
    using number_type = typename detail::expression<tag, A1, A2, A3, A4>::result_type;
-   return norm(static_cast<number_type>(v));
+   return std::move(norm(static_cast<number_type>(v)));
 }
 
 template <class Backend, expression_template_option ExpressionTemplates>
@@ -2508,19 +2462,13 @@ void raise_rounding_error(T1, T2, T3, T4, T5)
 template <typename T1, typename T2, typename T3, typename T4, typename T5>
 void raise_overflow_error(T1, T2, T3, T4, T5)
 {
-   BOOST_MP_THROW_EXCEPTION(std::overflow_error("Overflow error"));
+   BOOST_MP_THROW_EXCEPTION(std::runtime_error("Overflow error"));
 }
 
 template <typename T1, typename T2, typename T3, typename T4, typename T5>
 void raise_evaluation_error(T1, T2, T3, T4, T5)
 {
    BOOST_MP_THROW_EXCEPTION(std::runtime_error("Evaluation error"));
-}
-
-template <typename T1, typename T2, typename T3, typename T4, typename T5>
-void raise_domain_error(T1, T2, T3, T4, T5)
-{
-   BOOST_MP_THROW_EXCEPTION(std::domain_error("Domain error"));
 }
 
 template <typename T, typename... Args>
@@ -4002,46 +3950,41 @@ ilogb(const detail::expression<tag, A1, A2, A3, A4>& val)
 } //namespace multiprecision
 
 namespace math {
-
-
 //
 // Overload of Boost.Math functions that find the wrong overload when used with number:
 //
 namespace detail {
-
 template <class T>
 T sinc_pi_imp(T);
-template <class T, class Policy>
-T sinhc_pi_imp(T, const Policy&);
-
+template <class T>
+T sinhc_pi_imp(T);
 } // namespace detail
-
 template <class Backend, multiprecision::expression_template_option ExpressionTemplates>
 inline multiprecision::number<Backend, ExpressionTemplates> sinc_pi(const multiprecision::number<Backend, ExpressionTemplates>& x)
 {
    boost::multiprecision::detail::scoped_default_precision<multiprecision::number<Backend, ExpressionTemplates> > precision_guard(x);
-   return detail::sinc_pi_imp(x);
+   return std::move(detail::sinc_pi_imp(x));
 }
 
 template <class Backend, multiprecision::expression_template_option ExpressionTemplates, class Policy>
 inline multiprecision::number<Backend, ExpressionTemplates> sinc_pi(const multiprecision::number<Backend, ExpressionTemplates>& x, const Policy&)
 {
    boost::multiprecision::detail::scoped_default_precision<multiprecision::number<Backend, ExpressionTemplates> > precision_guard(x);
-   return detail::sinc_pi_imp(x);
+   return std::move(detail::sinc_pi_imp(x));
 }
 
 template <class Backend, multiprecision::expression_template_option ExpressionTemplates>
 inline multiprecision::number<Backend, ExpressionTemplates> sinhc_pi(const multiprecision::number<Backend, ExpressionTemplates>& x)
 {
    boost::multiprecision::detail::scoped_default_precision<multiprecision::number<Backend, ExpressionTemplates> > precision_guard(x);
-   return detail::sinhc_pi_imp(x, boost::math::policies::policy<>());
+   return std::move(detail::sinhc_pi_imp(x));
 }
 
 template <class Backend, multiprecision::expression_template_option ExpressionTemplates, class Policy>
-inline multiprecision::number<Backend, ExpressionTemplates> sinhc_pi(const multiprecision::number<Backend, ExpressionTemplates>& x, const Policy& pol)
+inline multiprecision::number<Backend, ExpressionTemplates> sinhc_pi(const multiprecision::number<Backend, ExpressionTemplates>& x, const Policy&)
 {
-   boost::multiprecision::detail::scoped_default_precision<multiprecision::number<Backend, ExpressionTemplates> > precision_guard(x, pol);
-   return detail::sinhc_pi_imp(x, pol);
+   boost::multiprecision::detail::scoped_default_precision<multiprecision::number<Backend, ExpressionTemplates> > precision_guard(x);
+   return std::move(boost::math::sinhc_pi(x));
 }
 
 using boost::multiprecision::gcd;

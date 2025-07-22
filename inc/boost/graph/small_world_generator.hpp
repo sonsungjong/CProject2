@@ -11,7 +11,6 @@
 
 #include <iterator>
 #include <utility>
-#include <boost/graph/graph_traits.hpp>
 #include <boost/random/uniform_01.hpp>
 #include <boost/random/uniform_int.hpp>
 

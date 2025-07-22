@@ -75,9 +75,14 @@ struct exterior_ring
 template <typename Polygon>
 struct exterior_ring<polygon_tag, Polygon>
 {
-    static geometry::ring_return_type_t<Polygon> apply(Polygon& polygon)
+    static
+    typename geometry::ring_return_type<Polygon>::type
+        apply(Polygon& polygon)
     {
-        return traits::exterior_ring<std::remove_const_t<Polygon>>::get(polygon);
+        return traits::exterior_ring
+            <
+                typename std::remove_const<Polygon>::type
+            >::get(polygon);
     }
 };
 
@@ -95,11 +100,11 @@ struct exterior_ring<polygon_tag, Polygon>
     \return a reference to the exterior ring
 */
 template <typename Polygon>
-inline ring_return_type_t<Polygon> exterior_ring(Polygon& polygon)
+inline typename ring_return_type<Polygon>::type exterior_ring(Polygon& polygon)
 {
     return core_dispatch::exterior_ring
         <
-            tag_t<Polygon>,
+            typename tag<Polygon>::type,
             Polygon
         >::apply(polygon);
 }
@@ -116,11 +121,12 @@ inline ring_return_type_t<Polygon> exterior_ring(Polygon& polygon)
 \qbk{distinguish,const version}
 */
 template <typename Polygon>
-inline ring_return_type_t<Polygon const> exterior_ring(Polygon const& polygon)
+inline typename ring_return_type<Polygon const>::type exterior_ring(
+        Polygon const& polygon)
 {
     return core_dispatch::exterior_ring
         <
-            tag_t<Polygon>,
+            typename tag<Polygon>::type,
             Polygon const
         >::apply(polygon);
 }

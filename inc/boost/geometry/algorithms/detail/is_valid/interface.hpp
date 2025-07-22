@@ -92,7 +92,7 @@ struct is_valid<default_strategy, false>
 namespace resolve_dynamic
 {
 
-template <typename Geometry, typename Tag = tag_t<Geometry>>
+template <typename Geometry, typename Tag = typename tag<Geometry>::type>
 struct is_valid
 {
     template <typename VisitPolicy, typename Strategy>

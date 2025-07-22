@@ -34,6 +34,8 @@ namespace strategy { namespace within
 /*!
 \brief Within detection using cross counting
 \ingroup strategies
+\tparam Point \tparam_point
+\tparam PointOfSegment \tparam_segment_point
 \tparam CalculationType \tparam_calculation
 \author adapted from Randolph Franklin algorithm
 \author Barend and Maarten, 1995

@@ -4,10 +4,6 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2024.
-// Modifications copyright (c) 2024 Oracle and/or its affiliates.
-// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
-
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -21,7 +17,7 @@
 #include <cmath>
 #include <utility>
 
-#if defined(BOOST_GEOMETRY_DEBUG_INTERSECTION)
+#if defined(BOOST_GEOMETRY_DEBUG_INTERSECTION) || defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
 #  include <iostream>
 #endif
 
@@ -150,7 +146,7 @@ public :
         return sides[Which].first == 0 ? 0 : 1;
     }
 
-#if defined(BOOST_GEOMETRY_DEBUG_INTERSECTION)
+#if defined(BOOST_GEOMETRY_DEBUG_INTERSECTION) || defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
     inline void debug() const
     {
         std::cout << sides[0].first << " "

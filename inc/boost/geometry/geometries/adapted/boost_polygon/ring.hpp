@@ -34,7 +34,7 @@ namespace traits
 template <typename CoordinateType>
 struct tag<boost::polygon::polygon_data<CoordinateType> >
 {
-    using type = ring_tag;
+    typedef ring_tag type;
 };
 
 template <typename CoordinateType>

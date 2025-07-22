@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2025 Antony Polukhin
+// Copyright (c) 2016-2023 Antony Polukhin
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -32,8 +32,6 @@
 ///
 /// \b Synopsis:
 namespace boost { namespace pfr {
-
-BOOST_PFR_BEGIN_MODULE_EXPORT
 
     /// Does a field-by-field equality comparison.
     ///
@@ -124,9 +122,6 @@ BOOST_PFR_BEGIN_MODULE_EXPORT
         return result;
 #endif
     }
-
-BOOST_PFR_END_MODULE_EXPORT
-
 }} // namespace boost::pfr
 
 #endif // BOOST_PFR_OPS_HPP

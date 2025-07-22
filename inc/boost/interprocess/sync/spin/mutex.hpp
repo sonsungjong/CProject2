@@ -26,7 +26,6 @@
 #include <boost/cstdint.hpp>
 #include <boost/interprocess/detail/os_thread_functions.hpp>
 #include <boost/interprocess/sync/detail/common_algorithms.hpp>
-#include <boost/interprocess/timed_utils.hpp>
 
 namespace boost {
 namespace interprocess {

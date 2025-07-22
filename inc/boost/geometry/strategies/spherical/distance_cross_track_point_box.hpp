@@ -65,7 +65,7 @@ public :
         // this method assumes that the coordinates of the point and
         // the box are normalized
 
-        using box_point_type = point_type_t<Box>;
+        typedef typename point_type<Box>::type box_point_type;
 
         box_point_type bottom_left, bottom_right, top_left, top_right;
         geometry::detail::assign_box_corners(box,
@@ -83,7 +83,7 @@ public :
         ReturnType const pi = math::pi<ReturnType>();
         ReturnType const two_pi = math::two_pi<ReturnType>();
 
-        using box_point_type = point_type_t<Box>;
+        typedef typename point_type<Box>::type box_point_type;
 
         // First check if the point is within the band defined by the
         // minimum and maximum longitude of the box; if yes, determine
@@ -205,7 +205,7 @@ class cross_track_point_box
 public:
     template <typename Point, typename Box>
     struct return_type
-        : services::return_type<Strategy, Point, point_type_t<Box>>
+        : services::return_type<Strategy, Point, typename point_type<Box>::type>
     {};
 
     typedef typename Strategy::radius_type radius_type;
@@ -266,7 +266,7 @@ public:
             (
                 (concepts::PointDistanceStrategy
                     <
-                        Strategy, Point, point_type_t<Box>
+                        Strategy, Point, typename point_type<Box>::type
                     >)
             );
 #endif
@@ -354,7 +354,7 @@ public:
 
         return result_from_distance
             <
-                Strategy, P, point_type_t<Box>
+                Strategy, P, typename point_type<Box>::type
             >::apply(s, distance);
     }
 };
@@ -379,7 +379,7 @@ struct default_strategy
                     typename default_strategy
                         <
                             point_tag, point_tag,
-                            Point, point_type_t<Box>,
+                            Point, typename point_type<Box>::type,
                             spherical_equatorial_tag, spherical_equatorial_tag
                         >::type,
                     Strategy

@@ -26,7 +26,8 @@
 
 #include <boost/interprocess/interprocess_fwd.hpp>
 #include <boost/assert.hpp>
-#include <boost/container/detail/addressof.hpp>
+#include <boost/static_assert.hpp>
+#include <boost/utility/addressof.hpp>
 #include <boost/interprocess/allocators/detail/adaptive_node_pool.hpp>
 #include <boost/interprocess/containers/version_type.hpp>
 #include <boost/container/detail/multiallocation_chain.hpp>
@@ -80,7 +81,7 @@ class private_adaptive_pool_base
       , OverheadPercent
       > node_pool_t;
 
-   BOOST_INTERPROCESS_STATIC_ASSERT((Version <=2));
+   BOOST_STATIC_ASSERT((Version <=2));
 
    #endif   //#ifndef BOOST_INTERPROCESS_DOXYGEN_INVOKED
 

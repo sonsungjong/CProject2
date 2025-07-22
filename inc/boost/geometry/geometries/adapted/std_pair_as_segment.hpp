@@ -45,7 +45,7 @@ namespace traits
 template <typename Point>
 struct tag<std::pair<Point, Point> >
 {
-    using type = segment_tag;
+    typedef segment_tag type;
 };
 
 template <typename Point>
@@ -57,7 +57,7 @@ struct point_type<std::pair<Point, Point> >
 template <typename Point, std::size_t Dimension>
 struct indexed_access<std::pair<Point, Point>, 0, Dimension>
 {
-    using coordinate_type = geometry::coordinate_type_t<Point>;
+    typedef typename geometry::coordinate_type<Point>::type coordinate_type;
 
     static inline coordinate_type get(std::pair<Point, Point> const& s)
     {
@@ -74,7 +74,7 @@ struct indexed_access<std::pair<Point, Point>, 0, Dimension>
 template <typename Point, std::size_t Dimension>
 struct indexed_access<std::pair<Point, Point>, 1, Dimension>
 {
-    using coordinate_type = geometry::coordinate_type_t<Point>;
+    typedef typename geometry::coordinate_type<Point>::type coordinate_type;
 
     static inline coordinate_type get(std::pair<Point, Point> const& s)
     {

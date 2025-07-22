@@ -33,7 +33,7 @@
 */
 #define BOOST_GEOMETRY_REGISTER_MULTI_POINT(MultiPoint) \
 namespace boost { namespace geometry { namespace traits {  \
-    template<> struct tag<MultiPoint> { using type = multi_point_tag; }; \
+    template<> struct tag<MultiPoint> { typedef multi_point_tag type; }; \
 }}}
 
 
@@ -52,7 +52,7 @@ namespace boost { namespace geometry { namespace traits {  \
 */
 #define BOOST_GEOMETRY_REGISTER_MULTI_POINT_TEMPLATED(MultiPoint) \
 namespace boost { namespace geometry { namespace traits {  \
-    template<typename Point> struct tag< MultiPoint<Point> > { using type = multi_point_tag; }; \
+    template<typename Point> struct tag< MultiPoint<Point> > { typedef multi_point_tag type; }; \
 }}}
 
 

@@ -3,9 +3,8 @@
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014-2024.
-// Modifications copyright (c) 2014-2024 Oracle and/or its affiliates.
-// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// This file was modified by Oracle on 2014-2021.
+// Modifications copyright (c) 2014-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -63,12 +62,14 @@ struct copy_segments_ring
         typename Ring,
         typename SegmentIdentifier,
         typename Strategy,
+        typename RobustPolicy,
         typename RangeOut
     >
     static inline void apply(Ring const& ring,
             SegmentIdentifier const& seg_id,
             signed_size_type to_index,
             Strategy const& strategy,
+            RobustPolicy const& robust_policy,
             RangeOut& current_output)
     {
         using view_type = detail::closed_clockwise_view
@@ -107,7 +108,7 @@ struct copy_segments_ring
 
         for (signed_size_type i = 0; i < count; ++i, ++it)
         {
-            detail::overlay::append_no_dups_or_spikes(current_output, *it, strategy);
+            detail::overlay::append_no_dups_or_spikes(current_output, *it, strategy, robust_policy);
         }
     }
 };
@@ -117,21 +118,24 @@ class copy_segments_linestring
 {
 private:
     // remove spikes
-    template <typename RangeOut, typename Point, typename Strategy>
+    template <typename RangeOut, typename Point, typename Strategy, typename RobustPolicy>
     static inline void append_to_output(RangeOut& current_output,
                                         Point const& point,
                                         Strategy const& strategy,
+                                        RobustPolicy const& robust_policy,
                                         std::true_type const&)
     {
         detail::overlay::append_no_dups_or_spikes(current_output, point,
-                                                  strategy);
+                                                  strategy,
+                                                  robust_policy);
     }
 
     // keep spikes
-    template <typename RangeOut, typename Point, typename Strategy>
+    template <typename RangeOut, typename Point, typename Strategy, typename RobustPolicy>
     static inline void append_to_output(RangeOut& current_output,
                                         Point const& point,
                                         Strategy const& strategy,
+                                        RobustPolicy const&,
                                         std::false_type const&)
     {
         detail::overlay::append_no_duplicates(current_output, point, strategy);
@@ -143,12 +147,14 @@ public:
         typename LineString,
         typename SegmentIdentifier,
         typename SideStrategy,
+        typename RobustPolicy,
         typename RangeOut
     >
     static inline void apply(LineString const& ls,
             SegmentIdentifier const& seg_id,
             signed_size_type to_index,
             SideStrategy const& strategy,
+            RobustPolicy const& robust_policy,
             RangeOut& current_output)
     {
         signed_size_type const from_index = seg_id.segment_index + 1;
@@ -165,7 +171,7 @@ public:
         auto it = boost::begin(ls) + from_index;
         for (signed_size_type i = 0; i < count; ++i, ++it)
         {
-            append_to_output(current_output, *it, strategy,
+            append_to_output(current_output, *it, strategy, robust_policy,
                              std::integral_constant<bool, RemoveSpikes>());
         }
     }
@@ -179,12 +185,14 @@ struct copy_segments_polygon
         typename Polygon,
         typename SegmentIdentifier,
         typename SideStrategy,
+        typename RobustPolicy,
         typename RangeOut
     >
     static inline void apply(Polygon const& polygon,
             SegmentIdentifier const& seg_id,
             signed_size_type to_index,
             SideStrategy const& strategy,
+            RobustPolicy const& robust_policy,
             RangeOut& current_output)
     {
         // Call ring-version with the right ring
@@ -195,6 +203,7 @@ struct copy_segments_polygon
                     : range::at(geometry::interior_rings(polygon), seg_id.ring_index),
                 seg_id, to_index,
                 strategy,
+                robust_policy,
                 current_output
             );
     }
@@ -209,12 +218,14 @@ struct copy_segments_box
         typename Box,
         typename SegmentIdentifier,
         typename SideStrategy,
+        typename RobustPolicy,
         typename RangeOut
     >
     static inline void apply(Box const& box,
             SegmentIdentifier const& seg_id,
             signed_size_type to_index,
             SideStrategy const& strategy,
+            RobustPolicy const& robust_policy,
             RangeOut& current_output)
     {
         signed_size_type index = seg_id.segment_index + 1;
@@ -225,7 +236,7 @@ struct copy_segments_box
             : 5 - index + to_index + 1;
 
         // Create array of points, the fifth one closes it
-        std::array<point_type_t<Box>, 5> bp;
+        std::array<typename point_type<Box>::type, 5> bp;
         assign_box_corners_oriented<Reverse>(box, bp);
         bp[4] = bp[0];
 
@@ -234,7 +245,7 @@ struct copy_segments_box
         for (signed_size_type i = 0; i < count; i++, index++)
         {
             detail::overlay::append_no_dups_or_spikes(current_output,
-                bp[index % 5], strategy);
+                bp[index % 5], strategy, robust_policy);
 
         }
     }
@@ -249,12 +260,14 @@ struct copy_segments_multi
         typename MultiGeometry,
         typename SegmentIdentifier,
         typename SideStrategy,
+        typename RobustPolicy,
         typename RangeOut
     >
     static inline void apply(MultiGeometry const& multi_geometry,
             SegmentIdentifier const& seg_id,
             signed_size_type to_index,
             SideStrategy const& strategy,
+            RobustPolicy const& robust_policy,
             RangeOut& current_output)
     {
 
@@ -268,6 +281,7 @@ struct copy_segments_multi
         Policy::apply(range::at(multi_geometry, seg_id.multi_index),
                       seg_id, to_index,
                       strategy,
+                      robust_policy,
                       current_output);
     }
 };
@@ -337,21 +351,23 @@ template
     typename Geometry,
     typename SegmentIdentifier,
     typename SideStrategy,
+    typename RobustPolicy,
     typename RangeOut
 >
 inline void copy_segments(Geometry const& geometry,
             SegmentIdentifier const& seg_id,
             signed_size_type to_index,
             SideStrategy const& strategy,
+            RobustPolicy const& robust_policy,
             RangeOut& range_out)
 {
     concepts::check<Geometry const>();
 
     dispatch::copy_segments
         <
-            tag_t<Geometry>,
+            typename tag<Geometry>::type,
             Reverse
-        >::apply(geometry, seg_id, to_index, strategy, range_out);
+        >::apply(geometry, seg_id, to_index, strategy, robust_policy, range_out);
 }
 
 

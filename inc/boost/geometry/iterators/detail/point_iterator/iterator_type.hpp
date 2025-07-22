@@ -37,7 +37,7 @@ namespace detail { namespace point_iterator
 {
 
 
-template <typename Geometry, typename Tag = tag_t<Geometry>>
+template <typename Geometry, typename Tag = typename tag<Geometry>::type>
 struct iterator_type
     : not_implemented<Geometry>
 {};

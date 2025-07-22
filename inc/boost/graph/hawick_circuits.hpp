@@ -153,14 +153,13 @@ namespace hawick_circuits_detail
     public:
         hawick_circuits_from(Graph const& graph, Visitor& visitor,
             VertexIndexMap const& vim, Stack& stack, ClosedMatrix& closed,
-            VerticesSize n_vertices, unsigned int max_length)
+            VerticesSize n_vertices)
         : graph_(graph)
         , visitor_(visitor)
         , vim_(vim)
         , stack_(stack)
         , closed_(closed)
         , blocked_(n_vertices, vim_)
-        , max_length_(max_length)
         {
             BOOST_ASSERT(blocked_map_starts_all_unblocked());
 
@@ -225,10 +224,6 @@ namespace hawick_circuits_detail
             stack_.push_back(v);
             block(v);
 
-            // Truncate the search if any circuits would exceed max_length_.
-            bool const truncate_search =
-                (max_length_ > 0 && stack_.size() >= max_length_);
-
             // Cache some values that are used more than once in the function.
             VertexIndex const index_of_start = index_of(start);
             AdjacentVertices const adj_vertices
@@ -254,19 +249,13 @@ namespace hawick_circuits_detail
                     found_circuit = true;
                 }
 
-                // If required, truncate the search before the subsequent
-                // recursive call to circuit().
-                else if (truncate_search)
-                    continue;
-
                 // If `w` is not blocked, we continue searching further down the
                 // same path for a cycle with `w` in it.
                 else if (!is_blocked(w) && circuit(start, w))
                     found_circuit = true;
             }
 
-            bool const finish_circuit = (found_circuit || truncate_search);
-            if (finish_circuit)
+            if (found_circuit)
                 unblock(v);
             else
                 for (AdjacencyIterator w_it = boost::begin(adj_vertices);
@@ -285,7 +274,7 @@ namespace hawick_circuits_detail
 
             BOOST_ASSERT(v == stack_.back());
             stack_.pop_back();
-            return finish_circuit;
+            return found_circuit;
         }
 
     public:
@@ -298,14 +287,12 @@ namespace hawick_circuits_detail
         Stack& stack_;
         ClosedMatrix& closed_;
         BlockedMap blocked_;
-        unsigned int max_length_;
     };
 
     template < typename GetAdjacentVertices, typename Graph, typename Visitor,
         typename VertexIndexMap >
     void call_hawick_circuits(Graph const& graph,
-        Visitor /* by value */ visitor, VertexIndexMap const& vertex_index_map,
-        unsigned int max_length)
+        Visitor /* by value */ visitor, VertexIndexMap const& vertex_index_map)
     {
         typedef graph_traits< Graph > Traits;
         typedef typename Traits::vertex_descriptor Vertex;
@@ -335,8 +322,7 @@ namespace hawick_circuits_detail
             // construction. It would be strictly equivalent to have these as
             // member variables of the sub algorithm.
             SubAlgorithm sub_algo(
-                graph, visitor, vertex_index_map, stack, closed, n_vertices,
-                max_length);
+                graph, visitor, vertex_index_map, stack, closed, n_vertices);
             sub_algo(*start);
             stack.clear();
             typename ClosedMatrix::iterator row, last_row = closed.end();
@@ -347,35 +333,30 @@ namespace hawick_circuits_detail
 
     template < typename GetAdjacentVertices, typename Graph, typename Visitor >
     void call_hawick_circuits(
-        Graph const& graph, BOOST_FWD_REF(Visitor) visitor,
-        unsigned int max_length)
+        Graph const& graph, BOOST_FWD_REF(Visitor) visitor)
     {
         call_hawick_circuits< GetAdjacentVertices >(graph,
-            boost::forward< Visitor >(visitor), get(vertex_index, graph),
-            max_length);
+            boost::forward< Visitor >(visitor), get(vertex_index, graph));
     }
 } // end namespace hawick_circuits_detail
 
 //! Enumerate all the elementary circuits in a directed multigraph.
 template < typename Graph, typename Visitor, typename VertexIndexMap >
 void hawick_circuits(BOOST_FWD_REF(Graph) graph, BOOST_FWD_REF(Visitor) visitor,
-    BOOST_FWD_REF(VertexIndexMap) vertex_index_map,
-    unsigned int max_length = 0)
+    BOOST_FWD_REF(VertexIndexMap) vertex_index_map)
 {
     hawick_circuits_detail::call_hawick_circuits<
         hawick_circuits_detail::get_all_adjacent_vertices >(
         boost::forward< Graph >(graph), boost::forward< Visitor >(visitor),
-        boost::forward< VertexIndexMap >(vertex_index_map), max_length);
+        boost::forward< VertexIndexMap >(vertex_index_map));
 }
 
 template < typename Graph, typename Visitor >
-void hawick_circuits(BOOST_FWD_REF(Graph) graph, BOOST_FWD_REF(Visitor) visitor,
-    unsigned int max_length = 0)
+void hawick_circuits(BOOST_FWD_REF(Graph) graph, BOOST_FWD_REF(Visitor) visitor)
 {
     hawick_circuits_detail::call_hawick_circuits<
         hawick_circuits_detail::get_all_adjacent_vertices >(
-        boost::forward< Graph >(graph), boost::forward< Visitor >(visitor),
-        max_length);
+        boost::forward< Graph >(graph), boost::forward< Visitor >(visitor));
 }
 
 /*!
@@ -385,24 +366,21 @@ void hawick_circuits(BOOST_FWD_REF(Graph) graph, BOOST_FWD_REF(Visitor) visitor,
 template < typename Graph, typename Visitor, typename VertexIndexMap >
 void hawick_unique_circuits(BOOST_FWD_REF(Graph) graph,
     BOOST_FWD_REF(Visitor) visitor,
-    BOOST_FWD_REF(VertexIndexMap) vertex_index_map,
-    unsigned int max_length = 0)
+    BOOST_FWD_REF(VertexIndexMap) vertex_index_map)
 {
     hawick_circuits_detail::call_hawick_circuits<
         hawick_circuits_detail::get_unique_adjacent_vertices >(
         boost::forward< Graph >(graph), boost::forward< Visitor >(visitor),
-        boost::forward< VertexIndexMap >(vertex_index_map), max_length);
+        boost::forward< VertexIndexMap >(vertex_index_map));
 }
 
 template < typename Graph, typename Visitor >
 void hawick_unique_circuits(
-    BOOST_FWD_REF(Graph) graph, BOOST_FWD_REF(Visitor) visitor,
-    unsigned int max_length = 0)
+    BOOST_FWD_REF(Graph) graph, BOOST_FWD_REF(Visitor) visitor)
 {
     hawick_circuits_detail::call_hawick_circuits<
         hawick_circuits_detail::get_unique_adjacent_vertices >(
-        boost::forward< Graph >(graph), boost::forward< Visitor >(visitor),
-        max_length);
+        boost::forward< Graph >(graph), boost::forward< Visitor >(visitor));
 }
 } // end namespace boost
 

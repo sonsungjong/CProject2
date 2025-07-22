@@ -18,7 +18,6 @@
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/util/range.hpp>
-#include <boost/geometry/util/type_traits.hpp>
 
 namespace boost { namespace geometry {
 
@@ -30,7 +29,11 @@ namespace detail_dispatch {
 template
 <
     typename Geometry,
-    bool IsMulti = util::is_multi<Geometry>::value
+    bool IsMulti = std::is_base_of
+                    <
+                        multi_tag,
+                        typename geometry::tag<Geometry>::type
+                    >::value
 >
 struct single_geometry
 {

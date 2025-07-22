@@ -43,7 +43,7 @@ struct linear_to_linear
         {
             dispatch::closest_points
                 <
-                    point_type_t<Linear1>,
+                    typename point_type<Linear1>::type,
                     Linear2
                 >::apply(*points_begin(linear1), linear2, shortest_seg, strategies);
             return;
@@ -53,7 +53,7 @@ struct linear_to_linear
         {
             dispatch::closest_points
                 <
-                    point_type_t<Linear2>,
+                    typename point_type<Linear2>::type,
                     Linear1
                 >::apply(*points_begin(linear2), linear1, shortest_seg, strategies);
             detail::closest_points::swap_segment_points::apply(shortest_seg);
@@ -91,7 +91,7 @@ struct segment_to_linear
                              bool = false)
     {
         using linestring_type = geometry::model::linestring
-            <point_type_t<Segment>>;
+            <typename point_type<Segment>::type>;
         linestring_type linestring;
         convert(segment, linestring);
         linear_to_linear::apply(linestring, linear, shortest_seg, strategies);

@@ -180,7 +180,6 @@ public:
         Calls to allocate may throw.
 
         @param other The params to assign.
-        @return `*this`
     */
     params_ref&
     operator=(
@@ -211,7 +210,6 @@ public:
         Calls to allocate may throw.
 
         @param init The list of params to assign.
-        @return `*this`
     */
     params_ref&
     operator=(
@@ -219,8 +217,6 @@ public:
             param_view> init);
 
     /** Conversion
-
-        @return A view of the query parameters.
     */
     operator
     params_view() const noexcept;
@@ -247,8 +243,6 @@ public:
         @code
         Throws nothing.
         @endcode
-
-        @return A reference to the url.
     */
     url_base&
     url() const noexcept
@@ -349,8 +343,8 @@ public:
         Strong guarantee.
         Calls to allocate may throw.
 
-        @param first The first element to assign.
-        @param last One past the last element to assign.
+        @param first, last The range of params
+        to assign.
     */
     template<class FwdIt>
     void
@@ -443,9 +437,10 @@ public:
         Strong guarantee.
         Calls to allocate may throw.
 
-        @param first The first element to append.
-        @param last One past the last element to append.
         @return An iterator to the first new element.
+
+        @param first, last The range of params
+        to append.
     */
     template<class FwdIt>
     iterator
@@ -555,9 +550,9 @@ public:
         @param before An iterator before which
         the element is inserted. This may
         be equal to `end()`.
-        @param first The first element to insert.
-        @param last One past the last element to insert.
-        @return An iterator to the first element inserted, or `before` if `first == last`.
+
+        @param first, last The range of params
+        to insert.
     */
     template<class FwdIt>
     iterator
@@ -615,9 +610,11 @@ public:
         @par Exception Safety
         Throws nothing.
 
-        @param first The first element to remove.
-        @param last One past the last element to remove.
-        @return An iterator to one past the removed range.
+        @return An iterator to one past
+        the removed range.
+
+        @param first, last The range of
+        elements to erase.
     */
     iterator
     erase(
@@ -764,11 +761,11 @@ public:
         element inserted, or one past `to` if
         `first == last`.
 
-        @param from The first element to replace.
-        @param to One past the last element to replace.
-        @param first The first element to insert.
-        @param last One past the last element to insert.
-        @return An iterator to the first element inserted, or one past `to` if `first == last`.
+        @param from,to The range of elements to
+        replace.
+
+        @param first, last The range of params
+        to assign.
     */
     template<class FwdIt>
     iterator
@@ -919,6 +916,18 @@ public:
     //--------------------------------------------
 
 private:
+    detail::params_iter_impl
+    find_impl(
+        detail::params_iter_impl,
+        core::string_view,
+        ignore_case_param) const noexcept;
+
+    detail::params_iter_impl
+    find_last_impl(
+        detail::params_iter_impl,
+        core::string_view,
+        ignore_case_param) const noexcept;
+
     template<class FwdIt>
     void
     assign(FwdIt first, FwdIt last,

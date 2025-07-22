@@ -25,6 +25,7 @@
 #include <boost/move/utility_core.hpp>
 #include <vector>
 #include <boost/interprocess/detail/managed_memory_impl.hpp>
+#include <boost/core/no_exceptions_support.hpp>
 //These includes needed to fulfill default template parameters of
 //predeclarations in interprocess_fwd.hpp
 #include <boost/interprocess/mem_algo/rbtree_best_fit.hpp>
@@ -106,13 +107,13 @@ class basic_managed_heap_memory
    {
       //If memory is reallocated, data will
       //be automatically copied
-      BOOST_INTERPROCESS_TRY{
+      BOOST_TRY{
         m_heapmem.resize(m_heapmem.size()+extra_bytes);
       }
-      BOOST_INTERPROCESS_CATCH(...){
+      BOOST_CATCH(...){
          return false;
       }
-      BOOST_INTERPROCESS_CATCH_END
+      BOOST_CATCH_END
 
       //Grow always works
       base_t::close_impl();

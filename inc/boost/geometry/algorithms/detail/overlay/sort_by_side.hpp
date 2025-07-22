@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2015 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2017-2023 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2017-2023.
 // Modifications copyright (c) 2017-2023 Oracle and/or its affiliates.
@@ -27,7 +27,7 @@
 #include <boost/geometry/algorithms/detail/direction_code.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
-#include <boost/geometry/util/constexpr.hpp>
+#include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_coordinate_type.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
@@ -39,22 +39,35 @@ namespace boost { namespace geometry
 namespace detail { namespace overlay { namespace sort_by_side
 {
 
-// From means: from intersecting-segment-begin-point to cluster
-// To means: from cluster to intersecting-segment-end-point
 enum direction_type { dir_unknown = -1, dir_from = 0, dir_to = 1 };
 
-using rank_type = signed_size_type;
+typedef signed_size_type rank_type;
+
 
 // Point-wrapper, adding some properties
 template <typename Point>
 struct ranked_point
 {
+    ranked_point()
+        : rank(0)
+        , turn_index(-1)
+        , operation_index(-1)
+        , direction(dir_unknown)
+        , count_left(0)
+        , count_right(0)
+        , operation(operation_none)
+    {}
+
     ranked_point(Point const& p, signed_size_type ti, int oi,
                  direction_type d, operation_type op, segment_identifier const& si)
         : point(p)
+        , rank(0)
+        , zone(-1)
         , turn_index(ti)
         , operation_index(oi)
         , direction(d)
+        , count_left(0)
+        , count_right(0)
         , operation(op)
         , seg_id(si)
     {}
@@ -62,76 +75,79 @@ struct ranked_point
     using point_type = Point;
 
     Point point;
-    rank_type rank{0};
-    signed_size_type zone{-1}; // index of closed zone, in uu turn there would be 2 zones
-    signed_size_type turn_index{-1};
-    int operation_index{-1}; // 0,1
-    direction_type direction{dir_unknown};
-
-    // The number of polygons on the left side
-    std::size_t count_left{0};
-
-    // The number of polygons on the right side
-    std::size_t count_right{0};
-
-    operation_type operation{operation_none};
+    rank_type rank;
+    signed_size_type zone; // index of closed zone, in uu turn there would be 2 zones
+    signed_size_type turn_index;
+    int operation_index; // 0,1
+    direction_type direction;
+    std::size_t count_left;
+    std::size_t count_right;
+    operation_type operation;
     segment_identifier seg_id;
 };
 
 struct less_by_turn_index
 {
     template <typename T>
-    inline bool operator()(T const& first, T const& second) const
+    inline bool operator()(const T& first, const T& second) const
     {
-        return std::tie(first.turn_index, first.index)
-             < std::tie(second.turn_index, second.index);
+        return first.turn_index == second.turn_index
+            ? first.index < second.index
+            : first.turn_index < second.turn_index
+            ;
     }
 };
 
 struct less_by_index
 {
     template <typename T>
-    inline bool operator()(T const& first, T const& second) const
+    inline bool operator()(const T& first, const T& second) const
     {
-        // First order by direction (from/to)
+        // Length might be considered too
+        // First order by from/to
+        if (first.direction != second.direction)
+        {
+            return first.direction < second.direction;
+        }
         // Then by turn index
+        if (first.turn_index != second.turn_index)
+        {
+            return first.turn_index < second.turn_index;
+        }
         // This can also be the same (for example in buffer), but seg_id is
         // never the same
-        // (Length might be considered too)
-        return std::tie(first.direction, first.turn_index, first.seg_id)
-             < std::tie(second.direction, second.turn_index, second.seg_id);
+        return first.seg_id < second.seg_id;
     }
 };
 
 struct less_false
 {
     template <typename T>
-    inline bool operator()(T const&, T const& ) const
+    inline bool operator()(const T&, const T& ) const
     {
         return false;
     }
 };
 
-template <typename PointOrigin, typename PointTurn, typename Strategy, typename LessOnSame, typename Compare>
+template <typename PointOrigin, typename PointTurn, typename SideStrategy, typename LessOnSame, typename Compare>
 struct less_by_side
 {
-    less_by_side(PointOrigin const& p1, PointTurn const& p2, Strategy const& strategy)
+    less_by_side(const PointOrigin& p1, const PointTurn& p2, SideStrategy const& strategy)
         : m_origin(p1)
         , m_turn_point(p2)
         , m_strategy(strategy)
     {}
 
     template <typename T>
-    inline bool operator()(T const& first, T const& second) const
+    inline bool operator()(const T& first, const T& second) const
     {
-        using cs_tag = typename Strategy::cs_tag;
+        typedef typename SideStrategy::cs_tag cs_tag;
 
         LessOnSame on_same;
         Compare compare;
 
-        auto const side_strategy = m_strategy.side();
-        int const side_first = side_strategy.apply(m_origin, m_turn_point, first.point);
-        int const side_second = side_strategy.apply(m_origin, m_turn_point, second.point);
+        int const side_first = m_strategy.apply(m_origin, m_turn_point, first.point);
+        int const side_second = m_strategy.apply(m_origin, m_turn_point, second.point);
 
         if (side_first == 0 && side_second == 0)
         {
@@ -171,14 +187,14 @@ struct less_by_side
 
         // They are both left, both right, and/or both collinear (with each other and/or with p1,p2)
         // Check mutual side
-        int const side_second_wrt_first = side_strategy.apply(m_turn_point, first.point, second.point);
+        int const side_second_wrt_first = m_strategy.apply(m_turn_point, first.point, second.point);
 
         if (side_second_wrt_first == 0)
         {
             return on_same(first, second);
         }
 
-        int const side_first_wrt_second = side_strategy.apply(m_turn_point, second.point, first.point);
+        int const side_first_wrt_second = m_strategy.apply(m_turn_point, second.point, first.point);
         if (side_second_wrt_first != -side_first_wrt_second)
         {
             // (FP) accuracy error in side calculation, the sides are not opposite.
@@ -197,28 +213,22 @@ struct less_by_side
 private :
     PointOrigin const& m_origin;
     PointTurn const& m_turn_point;
-
-    // Umbrella strategy containing side strategy
-    Strategy const& m_strategy;
+    SideStrategy const& m_strategy;
 };
 
 // Sorts vectors in counter clockwise order (by default)
-// Purposes:
-// - from one entry vector, find the next exit vector
-// - find the open counts
-// - find zones
 template
 <
     bool Reverse1,
     bool Reverse2,
     overlay_type OverlayType,
     typename Point,
-    typename Strategy,
+    typename SideStrategy,
     typename Compare
 >
 struct side_sorter
 {
-    using rp = ranked_point<Point>;
+    typedef ranked_point<Point> rp;
 
 private :
     struct include_union
@@ -244,7 +254,7 @@ private :
     };
 
 public :
-    side_sorter(Strategy const& strategy)
+    side_sorter(SideStrategy const& strategy)
         : m_origin_count(0)
         , m_origin_segment_distance(0)
         , m_strategy(strategy)
@@ -279,17 +289,6 @@ public :
             Point const& point_from, Point const& point_to,
             Operation const& op, bool is_origin)
     {
-        // The segment is added in two parts (sub-segment).
-        // In picture:
-        //
-        // from -----> * -----> to
-        //
-        // where * means: cluster point (intersection point)
-        // from means: start point of original segment
-        // to means: end point of original segment
-        // So from/to is from the perspective of the segment.
-        // From the perspective of the cluster, it is the other way round
-        // (from means: from-segment-to-cluster, to means: from-cluster-to-segment)
         add_segment_from(turn_index, op_index, point_from, op, is_origin);
         add_segment_to(turn_index, op_index, point_to, op);
     }
@@ -322,12 +321,11 @@ public :
         // Use the coordinate type, but if it is too small (e.g. std::int16), use a double
         using ct_type = typename geometry::select_most_precise
             <
-                geometry::coordinate_type_t<Point>,
+                typename geometry::coordinate_type<Point>::type,
                 double
             >::type;
 
-        static auto const tolerance
-            = common_approximately_equals_epsilon_multiplier<ct_type>::value();
+        ct_type const tolerance = 1000000000;
 
         int offset = 0;
         while (approximately_equals(point_from, turn.point, tolerance)
@@ -357,7 +355,7 @@ public :
             Geometry2 const& geometry2,
             bool is_departure)
     {
-        auto const potential_origin = add(turn, op, turn_index, op_index, geometry1, geometry2, false);
+        Point potential_origin = add(turn, op, turn_index, op_index, geometry1, geometry2, false);
 
         if (is_departure)
         {
@@ -393,8 +391,8 @@ public :
         //    to give colinear points
 
         // Sort by side and assign rank
-        less_by_side<Point, PointTurn, Strategy, less_by_index, Compare> less_unique(m_origin, turn_point, m_strategy);
-        less_by_side<Point, PointTurn, Strategy, less_false, Compare> less_non_unique(m_origin, turn_point, m_strategy);
+        less_by_side<Point, PointTurn, SideStrategy, less_by_index, Compare> less_unique(m_origin, turn_point, m_strategy);
+        less_by_side<Point, PointTurn, SideStrategy, less_false, Compare> less_non_unique(m_origin, turn_point, m_strategy);
 
         std::sort(m_ranked_points.begin(), m_ranked_points.end(), less_unique);
 
@@ -419,7 +417,7 @@ public :
 
         for (std::size_t i = 0; i < m_ranked_points.size(); i++)
         {
-            rp const& ranked = m_ranked_points[i];
+            const rp& ranked = m_ranked_points[i];
             if (ranked.direction != dir_from)
             {
                 continue;
@@ -441,7 +439,7 @@ public :
         bool handled[2] = {false, false};
         for (std::size_t i = 0; i < m_ranked_points.size(); i++)
         {
-            rp const& ranked = m_ranked_points[i];
+            const rp& ranked = m_ranked_points[i];
             if (ranked.direction != dir_from)
             {
                 continue;
@@ -459,7 +457,7 @@ public :
 
     void find_open()
     {
-        if BOOST_GEOMETRY_CONSTEXPR (OverlayType == overlay_buffer)
+        if (BOOST_GEOMETRY_CONDITION(OverlayType == overlay_buffer))
         {
             find_open_by_piece_index();
         }
@@ -513,14 +511,12 @@ public :
 
 //private :
 
-    using container_type = std::vector<rp>;
+    typedef std::vector<rp> container_type;
     container_type m_ranked_points;
     Point m_origin;
     std::size_t m_origin_count;
     signed_size_type m_origin_segment_distance;
-
-    // Umbrella strategy containing side strategy
-    Strategy m_strategy;
+    SideStrategy m_strategy;
 
 private :
 
@@ -727,13 +723,13 @@ struct side_compare {};
 template <>
 struct side_compare<operation_union>
 {
-    using type = std::greater<int>;
+    typedef std::greater<int> type;
 };
 
 template <>
 struct side_compare<operation_intersection>
 {
-    using type = std::less<int>;
+    typedef std::less<int> type;
 };
 
 

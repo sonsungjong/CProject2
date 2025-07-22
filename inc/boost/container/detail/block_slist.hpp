@@ -68,11 +68,11 @@ class block_slist_base
 {
    slist_node m_slist;
 
-   BOOST_STATIC_CONSTEXPR std::size_t MaxAlignMinus1 = memory_resource::max_align-1u;
+   static const std::size_t MaxAlignMinus1 = memory_resource::max_align-1u;
 
    public:
 
-   BOOST_STATIC_CONSTEXPR std::size_t header_size = std::size_t(sizeof(DerivedFromBlockSlistHeader) + MaxAlignMinus1) & std::size_t(~MaxAlignMinus1);
+   static const std::size_t header_size = std::size_t(sizeof(DerivedFromBlockSlistHeader) + MaxAlignMinus1) & std::size_t(~MaxAlignMinus1);
 
    explicit block_slist_base()
    {  slist_algo::init_header(&m_slist);  }

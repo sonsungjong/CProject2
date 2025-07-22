@@ -10,8 +10,6 @@
 #ifndef BOOST_GEOMETRY_STRATEGY_SPHERICAL_ENVELOPE_RANGE_HPP
 #define BOOST_GEOMETRY_STRATEGY_SPHERICAL_ENVELOPE_RANGE_HPP
 
-#include <boost/range/size.hpp>
-
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/detail/envelope/initialize.hpp>
 #include <boost/geometry/geometries/segment.hpp>
@@ -80,7 +78,7 @@ inline void spheroidal_linestring(Range const& range, Box& mbr,
 template <typename CalculationType = void>
 struct side_of_pole
 {
-    using cs_tag = spherical_tag;
+    typedef spherical_tag cs_tag;
 
     template <typename P>
     static inline int apply(P const& p1, P const& p2, P const& pole)
@@ -166,7 +164,7 @@ inline bool pole_within(T const& lat_pole, Ring const& ring,
         return false;
     }
 
-    using point_t = geometry::point_type_t<Ring>;
+    using point_t = typename geometry::point_type<Ring>::type;
     point_t point;
     geometry::assign_zero(point);
     geometry::set<1>(point, lat_pole);
@@ -191,8 +189,8 @@ inline void spheroidal_ring(Range const& range, Box& mbr,
 
     spheroidal_linestring(closed_range, mbr, envelope_strategy, expand_strategy);
 
-    using coord_t = geometry::coordinate_type_t<Box>;
-    using point_t = geometry::point_type_t<Box>;
+    using coord_t = typename geometry::coordinate_type<Box>::type;
+    using point_t = typename geometry::point_type<Box>::type;
     using units_t = typename geometry::detail::cs_angular_units<point_t>::type;
     using constants_t = math::detail::constants_on_spheroid<coord_t, units_t>;
     coord_t const two_pi = constants_t::period();

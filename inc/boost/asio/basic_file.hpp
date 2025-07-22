@@ -2,7 +2,7 @@
 // basic_file.hpp
 // ~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2025 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2023 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -21,7 +21,6 @@
   || defined(GENERATING_DOCUMENTATION)
 
 #include <string>
-#include <utility>
 #include <boost/asio/any_io_executor.hpp>
 #include <boost/asio/async_result.hpp>
 #include <boost/asio/detail/cstdint.hpp>
@@ -39,6 +38,10 @@
 #elif defined(BOOST_ASIO_HAS_IO_URING)
 # include <boost/asio/detail/io_uring_file_service.hpp>
 #endif
+
+#if defined(BOOST_ASIO_HAS_MOVE)
+# include <utility>
+#endif // defined(BOOST_ASIO_HAS_MOVE)
 
 #include <boost/asio/detail/push_options.hpp>
 
@@ -110,10 +113,10 @@ public:
    */
   template <typename ExecutionContext>
   explicit basic_file(ExecutionContext& context,
-      constraint_t<
+      typename constraint<
         is_convertible<ExecutionContext&, execution_context&>::value,
         defaulted_constraint
-      > = defaulted_constraint())
+      >::type = defaulted_constraint())
     : impl_(0, 0, context)
   {
   }
@@ -129,20 +132,6 @@ public:
    *
    * @param open_flags A set of flags that determine how the file should be
    * opened.
-   *
-   * Exactly one of the following file_base::flags values must be specified:
-   *
-   * @li flags::read_only
-   * @li flags::write_only
-   * @li flags::read_write
-   *
-   * The following flags may be bitwise or-ed in addition:
-   *
-   * @li flags::append
-   * @li flags::create
-   * @li flags::exclusive
-   * @li flags::truncate
-   * @li flags::sync_all_on_write
    */
   explicit basic_file(const executor_type& ex,
       const char* path, file_base::flags open_flags)
@@ -153,7 +142,7 @@ public:
     boost::asio::detail::throw_error(ec, "open");
   }
 
-  /// Construct and open a basic_file.
+  /// Construct a basic_file without opening it.
   /**
    * This constructor initialises a file and opens it.
    *
@@ -165,28 +154,14 @@ public:
    *
    * @param open_flags A set of flags that determine how the file should be
    * opened.
-   *
-   * Exactly one of the following file_base::flags values must be specified:
-   *
-   * @li flags::read_only
-   * @li flags::write_only
-   * @li flags::read_write
-   *
-   * The following flags may be bitwise or-ed in addition:
-   *
-   * @li flags::append
-   * @li flags::create
-   * @li flags::exclusive
-   * @li flags::truncate
-   * @li flags::sync_all_on_write
    */
   template <typename ExecutionContext>
   explicit basic_file(ExecutionContext& context,
       const char* path, file_base::flags open_flags,
-      constraint_t<
+      typename constraint<
         is_convertible<ExecutionContext&, execution_context&>::value,
         defaulted_constraint
-      > = defaulted_constraint())
+      >::type = defaulted_constraint())
     : impl_(0, 0, context)
   {
     boost::system::error_code ec;
@@ -205,20 +180,6 @@ public:
    *
    * @param open_flags A set of flags that determine how the file should be
    * opened.
-   *
-   * Exactly one of the following file_base::flags values must be specified:
-   *
-   * @li flags::read_only
-   * @li flags::write_only
-   * @li flags::read_write
-   *
-   * The following flags may be bitwise or-ed in addition:
-   *
-   * @li flags::append
-   * @li flags::create
-   * @li flags::exclusive
-   * @li flags::truncate
-   * @li flags::sync_all_on_write
    */
   explicit basic_file(const executor_type& ex,
       const std::string& path, file_base::flags open_flags)
@@ -230,7 +191,7 @@ public:
     boost::asio::detail::throw_error(ec, "open");
   }
 
-  /// Construct and open a basic_file.
+  /// Construct a basic_file without opening it.
   /**
    * This constructor initialises a file and opens it.
    *
@@ -242,28 +203,14 @@ public:
    *
    * @param open_flags A set of flags that determine how the file should be
    * opened.
-   *
-   * Exactly one of the following file_base::flags values must be specified:
-   *
-   * @li flags::read_only
-   * @li flags::write_only
-   * @li flags::read_write
-   *
-   * The following flags may be bitwise or-ed in addition:
-   *
-   * @li flags::append
-   * @li flags::create
-   * @li flags::exclusive
-   * @li flags::truncate
-   * @li flags::sync_all_on_write
    */
   template <typename ExecutionContext>
   explicit basic_file(ExecutionContext& context,
       const std::string& path, file_base::flags open_flags,
-      constraint_t<
+      typename constraint<
         is_convertible<ExecutionContext&, execution_context&>::value,
         defaulted_constraint
-      > = defaulted_constraint())
+      >::type = defaulted_constraint())
     : impl_(0, 0, context)
   {
     boost::system::error_code ec;
@@ -306,10 +253,10 @@ public:
    */
   template <typename ExecutionContext>
   basic_file(ExecutionContext& context, const native_handle_type& native_file,
-      constraint_t<
+      typename constraint<
         is_convertible<ExecutionContext&, execution_context&>::value,
         defaulted_constraint
-      > = defaulted_constraint())
+      >::type = defaulted_constraint())
     : impl_(0, 0, context)
   {
     boost::system::error_code ec;
@@ -318,6 +265,7 @@ public:
     boost::asio::detail::throw_error(ec, "assign");
   }
 
+#if defined(BOOST_ASIO_HAS_MOVE) || defined(GENERATING_DOCUMENTATION)
   /// Move-construct a basic_file from another.
   /**
    * This constructor moves a file from one object to another.
@@ -328,7 +276,7 @@ public:
    * @note Following the move, the moved-from object is in the same state as if
    * constructed using the @c basic_file(const executor_type&) constructor.
    */
-  basic_file(basic_file&& other) noexcept
+  basic_file(basic_file&& other) BOOST_ASIO_NOEXCEPT
     : impl_(std::move(other.impl_))
   {
   }
@@ -365,10 +313,10 @@ public:
    */
   template <typename Executor1>
   basic_file(basic_file<Executor1>&& other,
-      constraint_t<
+      typename constraint<
         is_convertible<Executor1, Executor>::value,
         defaulted_constraint
-      > = defaulted_constraint())
+      >::type = defaulted_constraint())
     : impl_(std::move(other.impl_))
   {
   }
@@ -384,18 +332,19 @@ public:
    * constructed using the @c basic_file(const executor_type&) constructor.
    */
   template <typename Executor1>
-  constraint_t<
+  typename constraint<
     is_convertible<Executor1, Executor>::value,
     basic_file&
-  > operator=(basic_file<Executor1>&& other)
+  >::type operator=(basic_file<Executor1>&& other)
   {
     basic_file tmp(std::move(other));
     impl_ = std::move(tmp.impl_);
     return *this;
   }
+#endif // defined(BOOST_ASIO_HAS_MOVE) || defined(GENERATING_DOCUMENTATION)
 
   /// Get the executor associated with the object.
-  const executor_type& get_executor() noexcept
+  const executor_type& get_executor() BOOST_ASIO_NOEXCEPT
   {
     return impl_.get_executor();
   }
@@ -410,20 +359,6 @@ public:
    * opened.
    *
    * @throws boost::system::system_error Thrown on failure.
-   *
-   * Exactly one of the following file_base::flags values must be specified:
-   *
-   * @li flags::read_only
-   * @li flags::write_only
-   * @li flags::read_write
-   *
-   * The following flags may be bitwise or-ed in addition:
-   *
-   * @li flags::append
-   * @li flags::create
-   * @li flags::exclusive
-   * @li flags::truncate
-   * @li flags::sync_all_on_write
    *
    * @par Example
    * @code
@@ -446,20 +381,6 @@ public:
    *
    * @param open_flags A set of flags that determine how the file should be
    * opened.
-   *
-   * Exactly one of the following file_base::flags values must be specified:
-   *
-   * @li flags::read_only
-   * @li flags::write_only
-   * @li flags::read_write
-   *
-   * The following flags may be bitwise or-ed in addition:
-   *
-   * @li flags::append
-   * @li flags::create
-   * @li flags::exclusive
-   * @li flags::truncate
-   * @li flags::sync_all_on_write
    *
    * @param ec Set to indicate what error occurred, if any.
    *
@@ -492,20 +413,6 @@ public:
    *
    * @throws boost::system::system_error Thrown on failure.
    *
-   * Exactly one of the following file_base::flags values must be specified:
-   *
-   * @li flags::read_only
-   * @li flags::write_only
-   * @li flags::read_write
-   *
-   * The following flags may be bitwise or-ed in addition:
-   *
-   * @li flags::append
-   * @li flags::create
-   * @li flags::exclusive
-   * @li flags::truncate
-   * @li flags::sync_all_on_write
-   *
    * @par Example
    * @code
    * boost::asio::stream_file file(my_context);
@@ -530,20 +437,6 @@ public:
    * opened.
    *
    * @param ec Set to indicate what error occurred, if any.
-   *
-   * Exactly one of the following file_base::flags values must be specified:
-   *
-   * @li flags::read_only
-   * @li flags::write_only
-   * @li flags::read_write
-   *
-   * The following flags may be bitwise or-ed in addition:
-   *
-   * @li flags::append
-   * @li flags::create
-   * @li flags::exclusive
-   * @li flags::truncate
-   * @li flags::sync_all_on_write
    *
    * @par Example
    * @code
@@ -923,8 +816,8 @@ protected:
 
 private:
   // Disallow copying and assignment.
-  basic_file(const basic_file&) = delete;
-  basic_file& operator=(const basic_file&) = delete;
+  basic_file(const basic_file&) BOOST_ASIO_DELETED;
+  basic_file& operator=(const basic_file&) BOOST_ASIO_DELETED;
 };
 
 } // namespace asio

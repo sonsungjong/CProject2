@@ -1,4 +1,4 @@
-// Copyright Antony Polukhin, 2016-2025.
+// Copyright Antony Polukhin, 2016-2023.
 //
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
@@ -12,18 +12,20 @@
 #   pragma once
 #endif
 
-#include <array>
-#include <type_traits>
+#include <boost/array.hpp>
+#include <boost/static_assert.hpp>
+#include <boost/type_traits/is_pointer.hpp>
+#include <boost/type_traits/make_unsigned.hpp>
 
 namespace boost { namespace stacktrace { namespace detail {
 
 BOOST_STATIC_CONSTEXPR char to_hex_array_bytes[] = "0123456789ABCDEF";
 
 template <class T>
-inline std::array<char, 2 + sizeof(void*) * 2 + 1> to_hex_array(T addr) noexcept {
-    std::array<char, 2 + sizeof(void*) * 2 + 1> ret = {"0x"};
+inline boost::array<char, 2 + sizeof(void*) * 2 + 1> to_hex_array(T addr) BOOST_NOEXCEPT {
+    boost::array<char, 2 + sizeof(void*) * 2 + 1> ret = {"0x"};
     ret.back() = '\0';
-    static_assert(!std::is_pointer<T>::value, "");
+    BOOST_STATIC_ASSERT_MSG(!boost::is_pointer<T>::value, "");
 
     const std::size_t s = sizeof(T);
 
@@ -41,9 +43,9 @@ inline std::array<char, 2 + sizeof(void*) * 2 + 1> to_hex_array(T addr) noexcept
     return ret;
 }
 
-inline std::array<char, 2 + sizeof(void*) * 2 + 1> to_hex_array(const void* addr) noexcept {
+inline boost::array<char, 2 + sizeof(void*) * 2 + 1> to_hex_array(const void* addr) BOOST_NOEXCEPT {
     return to_hex_array(
-        reinterpret_cast< std::make_unsigned<std::ptrdiff_t>::type >(addr)
+        reinterpret_cast< boost::make_unsigned<std::ptrdiff_t>::type >(addr)
     );
 }
 

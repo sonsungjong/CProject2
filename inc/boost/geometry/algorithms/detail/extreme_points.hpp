@@ -122,8 +122,8 @@ template<typename Ring, std::size_t Dimension>
 struct extreme_points_on_ring
 {
 
-    using coordinate_type = geometry::coordinate_type_t<Ring>;
-    using point_type = geometry::point_type_t<Ring>;
+    typedef typename geometry::coordinate_type<Ring>::type coordinate_type;
+    typedef typename geometry::point_type<Ring>::type point_type;
 
     template <typename CirclingIterator, typename Points>
     static inline bool extend(CirclingIterator& it,
@@ -393,7 +393,7 @@ template
 <
     typename Geometry,
     std::size_t Dimension,
-    typename GeometryTag = tag_t<Geometry>
+    typename GeometryTag = typename tag<Geometry>::type
 >
 struct extreme_points
 {};
@@ -412,10 +412,11 @@ struct extreme_points<Polygon, Dimension, polygon_tag>
     static inline bool apply(Polygon const& polygon, Extremes& extremes, Intruders& intruders,
                              SideStrategy const& strategy)
     {
-        using ring_implementation = detail::extreme_points::extreme_points_on_ring
+        typedef typename geometry::ring_type<Polygon>::type ring_type;
+        typedef detail::extreme_points::extreme_points_on_ring
             <
-                geometry::ring_type_t<Polygon>, Dimension
-            >;
+                ring_type, Dimension
+            > ring_implementation;
 
         if (! ring_implementation::apply(geometry::exterior_ring(polygon),
                                          extremes, intruders, strategy))
@@ -545,10 +546,10 @@ inline bool extreme_points(Geometry const& geometry,
                            Extremes& extremes,
                            Intruders& intruders)
 {
-    using strategy_type = typename strategy::side::services::default_strategy
+    typedef typename strategy::side::services::default_strategy
             <
-                cs_tag_t<Geometry>
-            >::type;
+                typename cs_tag<Geometry>::type
+            >::type strategy_type;
 
     return geometry::extreme_points<Edge>(geometry,extremes, intruders, strategy_type());
 }

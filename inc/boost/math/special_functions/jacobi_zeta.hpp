@@ -11,8 +11,6 @@
 #pragma once
 #endif
 
-#include <boost/math/tools/config.hpp>
-#include <boost/math/tools/promotion.hpp>
 #include <boost/math/special_functions/math_fwd.hpp>
 #include <boost/math/special_functions/ellint_1.hpp>
 #include <boost/math/special_functions/ellint_rj.hpp>
@@ -29,7 +27,7 @@ namespace detail{
 
 // Elliptic integral - Jacobi Zeta
 template <typename T, typename Policy>
-BOOST_MATH_GPU_ENABLED T jacobi_zeta_imp(T phi, T k, const Policy& pol, T kp)
+T jacobi_zeta_imp(T phi, T k, const Policy& pol)
 {
     BOOST_MATH_STD_USING
     using namespace boost::math::tools;
@@ -45,26 +43,26 @@ BOOST_MATH_GPU_ENABLED T jacobi_zeta_imp(T phi, T k, const Policy& pol, T kp)
     T result;
     T sinp = sin(phi);
     T cosp = cos(phi);
-    T c2 = cosp * cosp;
-    T one_minus_ks2 = kp + c2 - kp * c2;
+    T s2 = sinp * sinp;
     T k2 = k * k;
+    T kp = 1 - k2;
     if(k == 1)
        result = sinp * (boost::math::sign)(cosp);  // We get here by simplifying JacobiZeta[w, 1] in Mathematica, and the fact that 0 <= phi.
     else
     {
-       result = k2 * sinp * cosp * sqrt(one_minus_ks2) * ellint_rj_imp(T(0), kp, T(1), one_minus_ks2, pol) / (3 * ellint_k_imp(k, pol, kp));
+       typedef std::integral_constant<int,
+          std::is_floating_point<T>::value&& std::numeric_limits<T>::digits && (std::numeric_limits<T>::digits <= 54) ? 0 :
+          std::is_floating_point<T>::value && std::numeric_limits<T>::digits && (std::numeric_limits<T>::digits <= 64) ? 1 : 2
+       > precision_tag_type;
+       result = k2 * sinp * cosp * sqrt(1 - k2 * s2) * ellint_rj_imp(T(0), kp, T(1), T(1 - k2 * s2), pol) / (3 * ellint_k_imp(k, pol, precision_tag_type()));
     }
     return invert ? T(-result) : result;
 }
-template <typename T, typename Policy>
-BOOST_MATH_GPU_ENABLED inline T jacobi_zeta_imp(T phi, T k, const Policy& pol)
-{
-   return jacobi_zeta_imp(phi, k, pol, T(1 - k * k));
-}
+
 } // detail
 
 template <class T1, class T2, class Policy>
-BOOST_MATH_GPU_ENABLED inline typename tools::promote_args<T1, T2>::type jacobi_zeta(T1 k, T2 phi, const Policy& pol)
+inline typename tools::promote_args<T1, T2>::type jacobi_zeta(T1 k, T2 phi, const Policy& pol)
 {
    typedef typename tools::promote_args<T1, T2>::type result_type;
    typedef typename policies::evaluation<result_type, Policy>::type value_type;
@@ -72,7 +70,7 @@ BOOST_MATH_GPU_ENABLED inline typename tools::promote_args<T1, T2>::type jacobi_
 }
 
 template <class T1, class T2>
-BOOST_MATH_GPU_ENABLED inline typename tools::promote_args<T1, T2>::type jacobi_zeta(T1 k, T2 phi)
+inline typename tools::promote_args<T1, T2>::type jacobi_zeta(T1 k, T2 phi)
 {
    return boost::math::jacobi_zeta(k, phi, policies::policy<>());
 }

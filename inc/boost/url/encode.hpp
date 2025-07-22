@@ -16,8 +16,6 @@
 #include <boost/core/detail/string_view.hpp>
 #include <boost/url/grammar/all_chars.hpp>
 #include <boost/url/grammar/string_token.hpp>
-#include <boost/url/grammar/type_traits.hpp>
-#include <boost/url/grammar/charset.hpp>
 
 namespace boost {
 namespace urls {
@@ -60,11 +58,11 @@ namespace urls {
         @ref encoding_opts,
         @ref make_pct_string_view.
 */
-template<BOOST_URL_CONSTRAINT(grammar::CharSet) CS>
+template<class CharSet>
 std::size_t
 encoded_size(
     core::string_view s,
-    CS const& unreserved,
+    CharSet const& unreserved,
     encoding_opts opt = {}) noexcept;
 
 //------------------------------------------------
@@ -116,24 +114,24 @@ encoded_size(
         @ref encoded_size,
         @ref make_pct_string_view.
 */
-template<BOOST_URL_CONSTRAINT(grammar::CharSet) CS>
+template<class CharSet>
 std::size_t
 encode(
     char* dest,
     std::size_t size,
     core::string_view s,
-    CS const& unreserved,
+    CharSet const& unreserved,
     encoding_opts opt = {});
 
 #ifndef BOOST_URL_DOCS
 // VFALCO semi-private for now
-template<BOOST_URL_CONSTRAINT(grammar::CharSet) CS>
+template<class CharSet>
 std::size_t
 encode_unsafe(
     char* dest,
     std::size_t size,
     core::string_view s,
-    CS const& unreserved,
+    CharSet const& unreserved,
     encoding_opts opt);
 #endif
 
@@ -182,13 +180,13 @@ encode_unsafe(
 */
 template<
     BOOST_URL_STRTOK_TPARAM,
-    BOOST_URL_CONSTRAINT(grammar::CharSet) CS>
+    class CharSet>
 BOOST_URL_STRTOK_RETURN
 encode(
     core::string_view s,
-    CS const& unreserved,
+    CharSet const& unreserved,
     encoding_opts opt = {},
-    StringToken&& token = {}) noexcept;
+    BOOST_URL_STRTOK_ARG(token)) noexcept;
 
 } // urls
 } // boost

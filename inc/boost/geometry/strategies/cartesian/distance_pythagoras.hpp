@@ -26,9 +26,8 @@
 
 #include <boost/geometry/strategies/distance.hpp>
 
-#include <boost/geometry/util/calculation_type.hpp>
 #include <boost/geometry/util/math.hpp>
-#include <boost/geometry/util/numeric_cast.hpp>
+#include <boost/geometry/util/calculation_type.hpp>
 
 
 namespace boost { namespace geometry
@@ -47,8 +46,8 @@ struct compute_pythagoras
     template <typename Point1, typename Point2>
     static inline T apply(Point1 const& p1, Point2 const& p2)
     {
-        T const c1 = util::numeric_cast<T>(get<I-1>(p1));
-        T const c2 = util::numeric_cast<T>(get<I-1>(p2));
+        T const c1 = boost::numeric_cast<T>(get<I-1>(p1));
+        T const c2 = boost::numeric_cast<T>(get<I-1>(p2));
         T const d = c1 - c2;
         return d * d + compute_pythagoras<I-1, T>::apply(p1, p2);
     }
@@ -60,7 +59,7 @@ struct compute_pythagoras<0, T>
     template <typename Point1, typename Point2>
     static inline T apply(Point1 const&, Point2 const&)
     {
-        return util::numeric_cast<T>(0);
+        return boost::numeric_cast<T>(0);
     }
 };
 
@@ -164,7 +163,7 @@ public :
         // The cast is necessary for MSVC which considers sqrt __int64 as an ambiguous call
         return math::sqrt
             (
-                 util::numeric_cast<typename calculation_type<P1, P2>::type>
+                 boost::numeric_cast<typename calculation_type<P1, P2>::type>
                     (
                         comparable::pythagoras<CalculationType>::apply(p1, p2)
                     )

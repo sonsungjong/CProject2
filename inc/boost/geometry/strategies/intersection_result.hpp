@@ -2,9 +2,8 @@
 
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2015-2024.
-// Modifications copyright (c) 2015-2024 Oracle and/or its affiliates.
-// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// This file was modified by Oracle on 2015-2021.
+// Modifications copyright (c) 2015-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -25,8 +24,8 @@ namespace boost { namespace geometry
 template <typename SegmentRatio>
 struct fraction_type
 {
-    SegmentRatio ra;
-    SegmentRatio rb;
+    SegmentRatio robust_ra; // TODO this can be renamed now to "ra"
+    SegmentRatio robust_rb;
 
     bool initialized;
     inline fraction_type()
@@ -37,15 +36,15 @@ struct fraction_type
     inline void assign(Info const& info)
     {
         initialized = true;
-        ra = info.ra;
-        rb = info.rb;
+        robust_ra = info.robust_ra;
+        robust_rb = info.robust_rb;
     }
 
     inline void assign(SegmentRatio const& a, SegmentRatio const& b)
     {
         initialized = true;
-        ra = a;
-        rb = b;
+        robust_ra = a;
+        robust_rb = b;
     }
 
 };
@@ -58,7 +57,7 @@ struct fraction_type
 template
 <
     typename Point,
-    typename SegmentRatio = segment_ratio<coordinate_type_t<Point>>
+    typename SegmentRatio = segment_ratio<typename coordinate_type<Point>::type>
 >
 struct segment_intersection_points
 {

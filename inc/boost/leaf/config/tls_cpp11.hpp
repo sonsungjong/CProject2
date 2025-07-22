@@ -1,7 +1,8 @@
 #ifndef BOOST_LEAF_CONFIG_TLS_CPP11_HPP_INCLUDED
 #define BOOST_LEAF_CONFIG_TLS_CPP11_HPP_INCLUDED
 
-// Copyright 2018-2024 Emil Dotchevski and Reverge Studios, Inc.
+// Copyright 2018-2022 Emil Dotchevski and Reverge Studios, Inc.
+
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -15,7 +16,7 @@
 
 namespace boost { namespace leaf {
 
-namespace detail
+namespace leaf_detail
 {
     using atomic_unsigned_int = std::atomic<unsigned int>;
 }
@@ -65,8 +66,20 @@ namespace tls
     {
         tagged_uint<Tag>::x = x;
     }
+
+    template <class Tag>
+    void uint_increment() noexcept
+    {
+        ++tagged_uint<Tag>::x;
+    }
+
+    template <class Tag>
+    void uint_decrement() noexcept
+    {
+        --tagged_uint<Tag>::x;
+    }
 }
 
 } }
 
-#endif // BOOST_LEAF_CONFIG_TLS_CPP11_HPP_INCLUDED
+#endif

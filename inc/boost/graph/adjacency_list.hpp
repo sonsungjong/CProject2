@@ -267,21 +267,18 @@ template < class OutEdgeListS = vecS, // a Sequence or an AssociativeContainer
     class EdgeProperty = no_property, class GraphProperty = no_property,
     class EdgeListS = listS >
 class adjacency_list
-: // Support for named vertices
-  // This needs to be inherited from first to ensure it's initialized before the
-  // "base" (i.e. detail::adj_list_gen), because the "base" might indirectly
-  // call functions on it during its construction.
+: public detail::adj_list_gen<
+      adjacency_list< OutEdgeListS, VertexListS, DirectedS, VertexProperty,
+          EdgeProperty, GraphProperty, EdgeListS >,
+      VertexListS, OutEdgeListS, DirectedS, VertexProperty, EdgeProperty,
+      GraphProperty, EdgeListS >::type,
+  // Support for named vertices
   public graph::maybe_named_graph<
       adjacency_list< OutEdgeListS, VertexListS, DirectedS, VertexProperty,
           EdgeProperty, GraphProperty, EdgeListS >,
       typename adjacency_list_traits< OutEdgeListS, VertexListS, DirectedS,
           EdgeListS >::vertex_descriptor,
-      VertexProperty >,
- public detail::adj_list_gen<
-      adjacency_list< OutEdgeListS, VertexListS, DirectedS, VertexProperty,
-          EdgeProperty, GraphProperty, EdgeListS >,
-      VertexListS, OutEdgeListS, DirectedS, VertexProperty, EdgeProperty,
-      GraphProperty, EdgeListS >::type
+      VertexProperty >
 {
 public:
     typedef GraphProperty graph_property_type;

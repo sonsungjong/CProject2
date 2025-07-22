@@ -92,7 +92,7 @@ class BOOST_URL_DECL
 
     @par Invariants
     @code
-    this->capacity() == Capacity + 1
+    this->capacity() == Capacity
     @endcode
 
     @tparam Capacity The maximum capacity
@@ -294,7 +294,6 @@ public:
         Throws nothing.
 
         @param u The url to copy.
-        @return A reference to this object.
     */
     static_url&
     operator=(
@@ -327,7 +326,6 @@ public:
         Capacity would be exceeded.
 
         @param u The url to copy.
-        @return A reference to this object.
     */
     static_url&
     operator=(
@@ -408,8 +406,6 @@ public:
     static_url& set_query(core::string_view s) { url_base::set_query(s); return *this; }
     /// @copydoc url_base::set_encoded_query
     static_url& set_encoded_query(pct_string_view s) { url_base::set_encoded_query(s); return *this; }
-    /// @copydoc url_base::set_params
-    static_url& set_params(std::initializer_list<param_view> ps, encoding_opts opts = {}) { url_base::set_params(ps, opts); return *this; }
     /// @copydoc url_base::remove_query
     static_url& remove_query() noexcept { url_base::remove_query(); return *this; }
 

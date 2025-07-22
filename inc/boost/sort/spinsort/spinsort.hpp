@@ -134,7 +134,7 @@ static void insert_partial_sort (Iter1_t first, Iter1_t mid, Iter1_t last,
         *(viter[i - 1] + (i - 1)) = std::move(*(data + (i - 1)));
     };
 }
-
+;
 //-----------------------------------------------------------------------------
 //  function : check_stable_sort
 /// @brief check if the elements between first and last are osted or reverse
@@ -209,10 +209,8 @@ static bool check_stable_sort(const range<Iter1_t> &rng_data,
     size_t nreverse = it2 - rng_data.first;
     Iter1_t alpha(rng_data.first), beta(it2 - 1), mid(
                     rng_data.first + (nreverse >> 1));
-    while (alpha != mid) {
-	using std::swap;
-        swap(*(alpha++), *(beta--));
-    }
+    while (alpha != mid)
+        std::swap(*(alpha++), *(beta--));
 
     // insert the elements between it1 and last
     if (it2 != rng_data.last)
@@ -222,7 +220,7 @@ static bool check_stable_sort(const range<Iter1_t> &rng_data,
     };
     return true;
 }
-
+;
 //-----------------------------------------------------------------------------
 //  function : range_sort
 /// @brief this function divide r_input in two parts, sort it,and merge moving
@@ -297,7 +295,7 @@ static void range_sort(const range<Iter1_t> &range1,
 
     merge(range2, range_input1, range_input2, comp);
 }
-
+;
 //-----------------------------------------------------------------------------
 //  function : sort_range_sort
 /// @brief this sort elements using the range_sort function and receiving a
@@ -349,7 +347,7 @@ static void sort_range_sort(const range<Iter1_t> &rng_data,
         move_forward(rng_data, rng_buffer);
     };
 }
-
+;
 //
 //############################################################################
 //                                                                          ##
@@ -423,7 +421,6 @@ public:
         if (owner and ptr != nullptr) std::free (ptr);
     };
 };
-
 //----------------------------------------------------------------------------
 //        End of class spinsort
 //----------------------------------------------------------------------------
@@ -473,11 +470,10 @@ spinsort <Iter_t, Compare>
          it2 != last and (sw = comp(*it2, *it1)); it1 = it2++);
     if (sw)
     {
-	using std::swap;
         size_t nelem2 = nelem >> 1;
         Iter_t it1 = first, it2 = last - 1;
         for (size_t i = 0; i < nelem2; ++i)
-            swap(*(it1++), *(it2--));
+            std::swap(*(it1++), *(it2--));
         return;
     };
 
@@ -533,10 +529,10 @@ spinsort <Iter_t, Compare>
         range_sort(range_1, range_2, comp, nlevel);
         merge_half(range_input, range_aux, range_2, comp);
     };
-}
+};
 
 //****************************************************************************
-}//    End namepspace spin_detail
+};//    End namepspace spin_detail
 //****************************************************************************
 //
 namespace bsc = boost::sort::common;
@@ -553,7 +549,7 @@ template <class Iter_t, class Compare = compare_iter<Iter_t>>
 inline void spinsort (Iter_t first, Iter_t last, Compare comp = Compare())
 {
     spin_detail::spinsort <Iter_t, Compare> (first, last, comp);
-}
+};
 
 template <class Iter_t, class Compare = compare_iter<Iter_t>>
 inline void indirect_spinsort (Iter_t first, Iter_t last,
@@ -562,11 +558,11 @@ inline void indirect_spinsort (Iter_t first, Iter_t last,
     typedef typename std::vector<Iter_t>::iterator itx_iter;
     typedef common::less_ptr_no_null <Iter_t, Compare> itx_comp;
     common::indirect_sort (spinsort<itx_iter, itx_comp>, first, last, comp);
-}
+};
 
 //****************************************************************************
-}//    End namespace sort
-}//    End namepspace boost
+};//    End namespace sort
+};//    End namepspace boost
 //****************************************************************************
 //
 #endif

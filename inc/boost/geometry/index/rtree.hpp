@@ -24,7 +24,6 @@
 // Boost
 #include <boost/container/new_allocator.hpp>
 #include <boost/tuple/tuple.hpp>
-#include <boost/core/invoke_swap.hpp>
 
 // Boost.Geometry
 #include <boost/geometry/core/static_assert.hpp>
@@ -193,9 +192,9 @@ public:
     /*! \brief The Box type used by the R-tree. */
     typedef geometry::model::box<
                 geometry::model::point<
-                    coordinate_type_t<indexable_type>,
+                    typename coordinate_type<indexable_type>::type,
                     dimension<indexable_type>::value,
-                    coordinate_system_t<indexable_type>
+                    typename coordinate_system<indexable_type>::type
                 >
             >
     bounds_type;
@@ -658,9 +657,9 @@ public:
                     src.m_members.parameters(),
                     std::move(src.m_members.allocators()))
     {
-        boost::core::invoke_swap(m_members.values_count, src.m_members.values_count);
-        boost::core::invoke_swap(m_members.leafs_level, src.m_members.leafs_level);
-        boost::core::invoke_swap(m_members.root, src.m_members.root);
+        boost::swap(m_members.values_count, src.m_members.values_count);
+        boost::swap(m_members.leafs_level, src.m_members.leafs_level);
+        boost::swap(m_members.root, src.m_members.root);
     }
 
     /*!
@@ -684,9 +683,9 @@ public:
     {
         if ( src.m_members.allocators() == allocator )
         {
-            boost::core::invoke_swap(m_members.values_count, src.m_members.values_count);
-            boost::core::invoke_swap(m_members.leafs_level, src.m_members.leafs_level);
-            boost::core::invoke_swap(m_members.root, src.m_members.root);
+            boost::swap(m_members.values_count, src.m_members.values_count);
+            boost::swap(m_members.leafs_level, src.m_members.leafs_level);
+            boost::swap(m_members.root, src.m_members.root);
         }
         else
         {
@@ -759,9 +758,9 @@ public:
                 m_members.equal_to() = src.m_members.equal_to();
                 m_members.parameters() = src.m_members.parameters();
 
-                boost::core::invoke_swap(m_members.values_count, src.m_members.values_count);
-                boost::core::invoke_swap(m_members.leafs_level, src.m_members.leafs_level);
-                boost::core::invoke_swap(m_members.root, src.m_members.root);
+                boost::swap(m_members.values_count, src.m_members.values_count);
+                boost::swap(m_members.leafs_level, src.m_members.leafs_level);
+                boost::swap(m_members.root, src.m_members.root);
 
                 // NOTE: if propagate is true for std allocators on darwin 4.2.1, glibc++
                 // (allocators stored as base classes of members_holder)
@@ -796,9 +795,9 @@ public:
     */
     void swap(rtree & other)
     {
-        boost::core::invoke_swap(m_members.indexable_getter(), other.m_members.indexable_getter());
-        boost::core::invoke_swap(m_members.equal_to(), other.m_members.equal_to());
-        boost::core::invoke_swap(m_members.parameters(), other.m_members.parameters());
+        boost::swap(m_members.indexable_getter(), other.m_members.indexable_getter());
+        boost::swap(m_members.equal_to(), other.m_members.equal_to());
+        boost::swap(m_members.parameters(), other.m_members.parameters());
 
         // NOTE: if propagate is true for std allocators on darwin 4.2.1, glibc++
         // (allocators stored as base classes of members_holder)
@@ -809,9 +808,9 @@ public:
         > propagate;
         detail::swap_cond(m_members.allocators(), other.m_members.allocators(), propagate());
 
-        boost::core::invoke_swap(m_members.values_count, other.m_members.values_count);
-        boost::core::invoke_swap(m_members.leafs_level, other.m_members.leafs_level);
-        boost::core::invoke_swap(m_members.root, other.m_members.root);
+        boost::swap(m_members.values_count, other.m_members.values_count);
+        boost::swap(m_members.leafs_level, other.m_members.leafs_level);
+        boost::swap(m_members.root, other.m_members.root);
     }
 
     /*!

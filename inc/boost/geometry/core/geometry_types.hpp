@@ -32,7 +32,7 @@ struct geometry_types;
 namespace traits_dispatch
 {
 
-template <typename Geometry, typename Tag = geometry::tag_t<Geometry>>
+template <typename Geometry, typename Tag = typename geometry::tag<Geometry>::type>
 struct geometry_types
 {
     BOOST_GEOMETRY_STATIC_ASSERT_FALSE(

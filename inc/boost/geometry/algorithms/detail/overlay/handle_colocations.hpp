@@ -1,11 +1,11 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2015 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2017-2023 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017-2024.
-// Modifications copyright (c) 2017-2024 Oracle and/or its affiliates.
-// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// This file was modified by Oracle on 2017-2020.
+// Modifications copyright (c) 2017-2020 Oracle and/or its affiliates.
+
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -37,7 +37,7 @@
 #include <boost/geometry/algorithms/detail/overlay/sort_by_side.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
-#include <boost/geometry/util/constexpr.hpp>
+#include <boost/geometry/util/condition.hpp>
 
 #if defined(BOOST_GEOMETRY_DEBUG_HANDLE_COLOCATIONS)
 #  include <iostream>
@@ -97,6 +97,7 @@ inline void cleanup_clusters(Turns& turns, Clusters& clusters)
     }
 
     remove_clusters(turns, clusters);
+    colocate_clusters(clusters, turns);
 }
 
 template <typename Turn, typename IndexSet>
@@ -260,7 +261,7 @@ template
 inline void check_colocation(bool& has_blocked,
         signed_size_type cluster_id, Turns const& turns, Clusters const& clusters)
 {
-    using turn_type = typename boost::range_value<Turns>::type;
+    typedef typename boost::range_value<Turns>::type turn_type;
 
     has_blocked = false;
 
@@ -295,7 +296,7 @@ inline void assign_cluster_ids(Turns& turns, Clusters const& clusters)
     }
     for (auto const& kv : clusters)
     {
-        for (auto const& index : kv.second.turn_indices)
+        for (const auto& index : kv.second.turn_indices)
         {
             turns[index].cluster_id = kv.first;
         }
@@ -316,14 +317,16 @@ template
     typename Geometry0,
     typename Geometry1,
     typename Turns,
-    typename Clusters
+    typename Clusters,
+    typename RobustPolicy
 >
-inline bool handle_colocations(Turns& turns, Clusters& clusters)
+inline bool handle_colocations(Turns& turns, Clusters& clusters,
+                               RobustPolicy const& robust_policy)
 {
     static const detail::overlay::operation_type target_operation
             = detail::overlay::operation_from_overlay<OverlayType>::value;
 
-    get_clusters(turns, clusters);
+    get_clusters(turns, clusters, robust_policy);
 
     if (clusters.empty())
     {
@@ -336,7 +339,7 @@ inline bool handle_colocations(Turns& turns, Clusters& clusters)
     // on turns which are discarded afterwards
     set_colocation<OverlayType>(turns, clusters);
 
-    if BOOST_GEOMETRY_CONSTEXPR (target_operation == operation_intersection)
+    if (BOOST_GEOMETRY_CONDITION(target_operation == operation_intersection))
     {
         discard_interior_exterior_turns
             <
@@ -363,6 +366,23 @@ inline bool handle_colocations(Turns& turns, Clusters& clusters)
 
     return true;
 }
+
+
+struct is_turn_index
+{
+    is_turn_index(signed_size_type index)
+        : m_index(index)
+    {}
+
+    template <typename Indexed>
+    inline bool operator()(Indexed const& indexed) const
+    {
+        // Indexed is a indexed_turn_operation<Operation>
+        return indexed.turn_index == m_index;
+    }
+
+    signed_size_type m_index;
+};
 
 template
 <
@@ -407,22 +427,23 @@ template
     typename Clusters,
     typename Geometry1,
     typename Geometry2,
-    typename Strategy
+    typename SideStrategy
 >
 inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
         operation_type for_operation,
         Geometry1 const& geometry1, Geometry2 const& geometry2,
-        Strategy const& strategy)
+        SideStrategy const& strategy)
 {
-    using turn_type = typename boost::range_value<Turns>::type;
-    using point_type = typename turn_type::point_type;
-    using turn_operation_type = typename turn_type::turn_operation_type;
+    typedef typename boost::range_value<Turns>::type turn_type;
+    typedef typename turn_type::point_type point_type;
+    typedef typename turn_type::turn_operation_type turn_operation_type;
 
-    // Define sorter, sorting counter-clockwise such that polygons are on the right side
-    using sbs_type = sort_by_side::side_sorter
+    // Define sorter, sorting counter-clockwise such that polygons are on the
+    // right side
+    typedef sort_by_side::side_sorter
         <
-            Reverse1, Reverse2, OverlayType, point_type, Strategy, std::less<int>
-        >;
+            Reverse1, Reverse2, OverlayType, point_type, SideStrategy, std::less<int>
+        > sbs_type;
 
     for (auto& pair : clusters)
     {
@@ -442,21 +463,6 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
 
         cinfo.open_count = sbs.open_count(for_operation);
 
-        // Determine spikes
-        cinfo.spike_count = 0;
-        for (std::size_t i = 0; i + 1 < sbs.m_ranked_points.size(); i++)
-        {
-            auto const& current = sbs.m_ranked_points[i];
-            auto const& next = sbs.m_ranked_points[i + 1];
-            if (current.rank == next.rank
-                && current.direction == detail::overlay::sort_by_side::dir_from
-                && next.direction == detail::overlay::sort_by_side::dir_to)
-            {
-                // It leaves, from cluster point, and immediately returns.
-                cinfo.spike_count += 1;
-            }
-        }
-
         bool const set_startable = OverlayType != overlay_dissolve;
 
         // Unset the startable flag for all 'closed' zones. This does not
@@ -469,8 +475,7 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
             turn_operation_type& op = turn.operations[ranked.operation_index];
 
             if (set_startable
-                && for_operation == operation_union
-                && cinfo.open_count == 0)
+                    && for_operation == operation_union && cinfo.open_count == 0)
             {
                 op.enriched.startable = false;
             }
@@ -490,13 +495,11 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
                 continue;
             }
 
-            if BOOST_GEOMETRY_CONSTEXPR (OverlayType == overlay_difference)
+            if (BOOST_GEOMETRY_CONDITION(OverlayType == overlay_difference)
+                    && is_self_turn<OverlayType>(turn))
             {
-                if (is_self_turn<OverlayType>(turn))
-                {
-                    // TODO: investigate
-                    continue;
-                }
+                // TODO: investigate
+                continue;
             }
 
             if ((for_operation == operation_union

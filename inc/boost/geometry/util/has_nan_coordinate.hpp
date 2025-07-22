@@ -88,7 +88,7 @@ bool has_nan_coordinate(Point const& point)
             detail::isnan,
             std::is_floating_point
                 <
-                    coordinate_type_t<Point>
+                    typename coordinate_type<Point>::type
                 >::value
         >::apply(point);
 }

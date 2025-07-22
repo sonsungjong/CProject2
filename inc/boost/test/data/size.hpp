@@ -17,7 +17,6 @@
 
 // STL
 #include <iosfwd>
-#include <cstddef>
 
 #include <boost/test/detail/suppress_warnings.hpp>
 
@@ -31,7 +30,7 @@ namespace data {
 // **************                    size_t                    ************** //
 // ************************************************************************** //
 
-//! Utility for handling the size of a dataset
+//! Utility for handling the size of a datasets
 class size_t {
     struct dummy { void nonnull() {} };
     typedef void (dummy::*safe_bool)();

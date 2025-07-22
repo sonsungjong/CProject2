@@ -27,8 +27,7 @@
 #include <boost/fusion/include/at.hpp>
 #include <boost/fusion/include/vector.hpp>
 #include <boost/fusion/include/cons.hpp>
-#include <boost/core/enable_if.hpp>
-#include <boost/mpl/bool.hpp>
+#include <boost/utility/enable_if.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <ostream>
 

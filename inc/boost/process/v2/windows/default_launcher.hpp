@@ -19,8 +19,6 @@
 #include <boost/process/v2/error.hpp>
 
 #include <numeric>
-#include <memory>
-#include <type_traits>
 #include <windows.h>
 
 #if defined(BOOST_PROCESS_V2_STANDALONE)
@@ -45,8 +43,8 @@ struct base {};
 struct derived : base {};
 
 template<typename Launcher, typename Init>
-inline error_code invoke_on_setup(Launcher & /*launcher*/, const filesystem::path &executable, std::wstring &cmd_line,
-                                  Init && /*init*/, base && )
+inline error_code invoke_on_setup(Launcher & launcher, const filesystem::path &executable, std::wstring &cmd_line,
+                                  Init && init, base && )
 {
   return error_code{};
 }
@@ -71,7 +69,7 @@ template<typename Launcher, typename Init>
 using has_on_setup = decltype(probe_on_setup(std::declval<Launcher&>(), std::declval<Init>(), derived{}));
 
 template<typename Launcher>
-inline error_code on_setup(Launcher & /*launcher*/, const filesystem::path &/*executable*/, std::wstring &/*cmd_line*/)
+inline error_code on_setup(Launcher & launcher, const filesystem::path &executable, std::wstring &cmd_line)
 {
   return error_code{};
 }
@@ -89,15 +87,15 @@ inline error_code on_setup(Launcher & launcher, const filesystem::path &executab
 
 
 template<typename Launcher, typename Init>
-inline void invoke_on_error(Launcher & /*launcher*/, const filesystem::path &/*executable*/, std::wstring &/*cmd_line*/,
-                            const error_code & /*ec*/, Init && /*init*/, base && )
+inline void invoke_on_error(Launcher & launcher, const filesystem::path &executable, std::wstring &cmd_line,
+                            const error_code & ec, Init && init, base && )
 {
 }
 
 template<typename Launcher, typename Init>
 inline auto invoke_on_error(Launcher & launcher, const filesystem::path &executable, std::wstring &cmd_line,
                             const error_code & ec, Init && init, derived && )
--> decltype(init.on_error(launcher, executable, cmd_line, ec))
+-> decltype(init.on_error(launcher, ec, executable, cmd_line, ec))
 {
   init.on_error(launcher, executable, cmd_line, ec);
 }
@@ -116,8 +114,8 @@ using has_on_error = decltype(probe_on_error(std::declval<Launcher&>(), std::dec
 
 
 template<typename Launcher>
-inline void on_error(Launcher & /*launcher*/, const filesystem::path &/*executable*/, std::wstring &/*cmd_line*/,
-                     const error_code & /*ec*/)
+inline void on_error(Launcher & launcher, const filesystem::path &executable, std::wstring &cmd_line,
+                     const error_code & ec)
 {
 }
 
@@ -132,8 +130,8 @@ inline void on_error(Launcher & launcher, const filesystem::path &executable, st
 }
 
 template<typename Launcher, typename Init>
-inline void invoke_on_success(Launcher & /*launcher*/, const filesystem::path &/*executable*/, std::wstring &/*cmd_line*/,
-                              Init && /*init*/, base && )
+inline void invoke_on_success(Launcher & launcher, const filesystem::path &executable, std::wstring &cmd_line,
+                              Init && init, base && )
 {
 }
 
@@ -157,7 +155,7 @@ template<typename Launcher, typename Init>
 using has_on_success = decltype(probe_on_success(std::declval<Launcher&>(), std::declval<Init>(), derived{}));
 
 template<typename Launcher>
-inline void on_success(Launcher & /*launcher*/, const filesystem::path &/*executable*/, std::wstring &/*cmd_line*/)
+inline void on_success(Launcher & launcher, const filesystem::path &executable, std::wstring &cmd_line)
 {
 }
 
@@ -209,8 +207,8 @@ struct default_launcher
   SECURITY_ATTRIBUTES * process_attributes = nullptr;
   //// The thread_attributes passed to CreateProcess
   SECURITY_ATTRIBUTES * thread_attributes = nullptr;
-  /// The inhreited_handles option. bInheritHandles will be true if not empty..
-  std::vector<HANDLE> inherited_handles;
+  /// The bInheritHandles option. Needs to be set to true by any initializers using handles.
+  bool inherit_handles = false;
   /// The creation flags of the process. Initializers may add to them; extended startupinfo is assumed.
   DWORD creation_flags{EXTENDED_STARTUPINFO_PRESENT};
   /// A pointer to the subprocess environment.
@@ -238,7 +236,7 @@ struct default_launcher
   template<typename ExecutionContext, typename Args, typename ... Inits>
   auto operator()(ExecutionContext & context,
                   const typename std::enable_if<std::is_convertible<
-                             ExecutionContext&, net::execution_context&>::value,
+                             ExecutionContext&, BOOST_PROCESS_V2_ASIO_NAMESPACE::execution_context&>::value,
                              filesystem::path >::type & executable,
                   Args && args,
                   Inits && ... inits ) -> enable_init<typename ExecutionContext::executor_type, Inits...>
@@ -257,7 +255,7 @@ struct default_launcher
   auto operator()(ExecutionContext & context,
                   error_code & ec,
                   const typename std::enable_if<std::is_convertible<
-                             ExecutionContext&, net::execution_context&>::value,
+                             ExecutionContext&, BOOST_PROCESS_V2_ASIO_NAMESPACE::execution_context&>::value,
                              filesystem::path >::type & executable,
                   Args && args,
                   Inits && ... inits ) -> enable_init<typename ExecutionContext::executor_type, Inits...>
@@ -268,8 +266,8 @@ struct default_launcher
   template<typename Executor, typename Args, typename ... Inits>
   auto operator()(Executor exec,
                   const typename std::enable_if<
-                             net::execution::is_executor<Executor>::value
-                          || net::is_executor<Executor>::value,
+                             BOOST_PROCESS_V2_ASIO_NAMESPACE::execution::is_executor<Executor>::value 
+                          || BOOST_PROCESS_V2_ASIO_NAMESPACE::is_executor<Executor>::value,
                              filesystem::path >::type & executable,
                   Args && args,
                   Inits && ... inits ) -> enable_init<Executor, Inits...>
@@ -287,8 +285,8 @@ struct default_launcher
   auto operator()(Executor exec,
                   error_code & ec,
                   const typename std::enable_if<
-                             net::execution::is_executor<Executor>::value ||
-                             net::is_executor<Executor>::value,
+                             BOOST_PROCESS_V2_ASIO_NAMESPACE::execution::is_executor<Executor>::value || 
+                             BOOST_PROCESS_V2_ASIO_NAMESPACE::is_executor<Executor>::value,
                              filesystem::path >::type & executable,
                   Args && args,
                   Inits && ... inits ) -> enable_init<Executor, Inits...>
@@ -296,18 +294,10 @@ struct default_launcher
     auto command_line = this->build_command_line(executable, std::forward<Args>(args));
 
     ec = detail::on_setup(*this, executable, command_line, inits...);
-
     if (ec)
     {
       detail::on_error(*this, executable, command_line, ec, inits...);
       return basic_process<Executor>(exec);
-    }
-
-    if (!inherited_handles.empty())
-    {
-      set_handle_list(ec);
-      if (ec)
-        return basic_process<Executor>(exec);
     }
 
     auto ok = ::CreateProcessW(
@@ -315,7 +305,7 @@ struct default_launcher
         command_line.empty() ? nullptr : &command_line.front(),
         process_attributes,
         thread_attributes,
-        inherited_handles.empty() ? FALSE : TRUE,
+        inherit_handles ? TRUE : FALSE,
         creation_flags,
         environment,
         current_directory.empty() ? nullptr : current_directory.c_str(),
@@ -324,7 +314,7 @@ struct default_launcher
 
     if (ok == 0)
     {
-      BOOST_PROCESS_V2_ASSIGN_LAST_ERROR(ec);
+      BOOST_PROCESS_V2_ASSIGN_LAST_ERROR(ec)
       detail::on_error(*this, executable, command_line, ec, inits...);
 
       if (process_information.hProcess != INVALID_HANDLE_VALUE)
@@ -413,24 +403,14 @@ struct default_launcher
     return args;
   }
 
-  struct lpproc_thread_closer
-  {
-    void operator()(::LPPROC_THREAD_ATTRIBUTE_LIST l)
-    {
-      ::DeleteProcThreadAttributeList(l);
-      ::HeapFree(GetProcessHeap(), 0, l);
-    }
-  };
-  std::unique_ptr<std::remove_pointer<LPPROC_THREAD_ATTRIBUTE_LIST>::type, lpproc_thread_closer> proc_attribute_list_storage;
-
-  BOOST_PROCESS_V2_DECL LPPROC_THREAD_ATTRIBUTE_LIST get_thread_attribute_list(error_code & ec);
-  BOOST_PROCESS_V2_DECL void set_handle_list(error_code & ec);
 };
 
 
 }
 BOOST_PROCESS_V2_END_NAMESPACE
 
-
+#if defined(BOOST_PROCESS_V2_HEADER_ONLY)
+#include <boost/process/v2/windows/impl/default_launcher.ipp>
+#endif
 
 #endif //BOOST_PROCESS_V2_WINDOWS_DEFAULT_LAUNCHER_HPP

@@ -275,12 +275,12 @@ namespace graph
 
         /// Extract the name from a vertex property instance
         typename extract_name_type::result_type extract_name(
-            const bundled_vertex_property_type& property) const;
+            const bundled_vertex_property_type& property);
 
         /// Search for a vertex that has the given property (based on its
         /// name)
         optional< vertex_descriptor > vertex_by_property(
-            const bundled_vertex_property_type& property) const;
+            const bundled_vertex_property_type& property);
 
         /// Mapping from names to vertices
         named_vertices_type named_vertices;
@@ -340,7 +340,7 @@ namespace graph
 
     template < BGL_NAMED_GRAPH_PARAMS >
     typename BGL_NAMED_GRAPH::extract_name_type::result_type
-    BGL_NAMED_GRAPH::extract_name(const bundled_vertex_property_type& property) const
+    BGL_NAMED_GRAPH::extract_name(const bundled_vertex_property_type& property)
     {
         return named_vertices.key_extractor().extract(property);
     }
@@ -348,7 +348,7 @@ namespace graph
     template < BGL_NAMED_GRAPH_PARAMS >
     optional< typename BGL_NAMED_GRAPH::vertex_descriptor >
     BGL_NAMED_GRAPH::vertex_by_property(
-        const bundled_vertex_property_type& property) const
+        const bundled_vertex_property_type& property)
     {
         return find_vertex(extract_name(property), *this);
     }

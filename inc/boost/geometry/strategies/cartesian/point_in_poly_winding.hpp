@@ -83,7 +83,7 @@ class cartesian_winding_base
     };
 
 public:
-    using cs_tag = cartesian_tag;
+    typedef cartesian_tag cs_tag;
 
     // Typedefs and static methods to fulfill the concept
     typedef counter state_type;

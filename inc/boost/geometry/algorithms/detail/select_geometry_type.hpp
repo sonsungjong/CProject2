@@ -25,7 +25,7 @@ namespace detail
 {
 
 
-template <typename Geometry, typename Tag = tag_t<Geometry>>
+template <typename Geometry, typename Tag = typename tag<Geometry>::type>
 struct first_geometry_type
 {
     using type = Geometry;

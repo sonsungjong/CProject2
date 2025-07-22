@@ -8,22 +8,19 @@
 #ifndef BOOST_MATH_DISTRIBUTIONS_DETAIL_MODE_HPP
 #define BOOST_MATH_DISTRIBUTIONS_DETAIL_MODE_HPP
 
-#include <boost/math/tools/config.hpp>
-#include <boost/math/tools/cstdint.hpp>
 #include <boost/math/tools/minima.hpp> // function minimization for mode
 #include <boost/math/policies/error_handling.hpp>
 #include <boost/math/distributions/fwd.hpp>
-#include <boost/math/policies/policy.hpp>
 
 namespace boost{ namespace math{ namespace detail{
 
 template <class Dist>
 struct pdf_minimizer
 {
-   BOOST_MATH_GPU_ENABLED pdf_minimizer(const Dist& d)
+   pdf_minimizer(const Dist& d)
       : dist(d) {}
 
-   BOOST_MATH_GPU_ENABLED typename Dist::value_type operator()(const typename Dist::value_type& x)
+   typename Dist::value_type operator()(const typename Dist::value_type& x)
    {
       return -pdf(dist, x);
    }
@@ -32,7 +29,7 @@ private:
 };
 
 template <class Dist>
-BOOST_MATH_GPU_ENABLED typename Dist::value_type generic_find_mode(const Dist& dist, typename Dist::value_type guess, const char* function, typename Dist::value_type step = 0)
+typename Dist::value_type generic_find_mode(const Dist& dist, typename Dist::value_type guess, const char* function, typename Dist::value_type step = 0)
 {
    BOOST_MATH_STD_USING
    typedef typename Dist::value_type value_type;
@@ -50,7 +47,9 @@ BOOST_MATH_GPU_ENABLED typename Dist::value_type generic_find_mode(const Dist& d
       // Oops we don't know how to handle this, or even in which
       // direction we should move in, treat as an evaluation error:
       //
-      return policies::raise_evaluation_error(function, "Could not locate a starting location for the search for the mode, original guess was %1%", guess, policy_type());  // LCOV_EXCL_LINE
+      return policies::raise_evaluation_error(
+         function, 
+         "Could not locate a starting location for the search for the mode, original guess was %1%", guess, policy_type());
    }
    do
    {
@@ -73,7 +72,7 @@ BOOST_MATH_GPU_ENABLED typename Dist::value_type generic_find_mode(const Dist& d
       v = pdf(dist, lower_bound);
    }while(maxval < v);
 
-   boost::math::uintmax_t max_iter = policies::get_max_root_iterations<policy_type>();
+   std::uintmax_t max_iter = policies::get_max_root_iterations<policy_type>();
 
    value_type result = tools::brent_find_minima(
       pdf_minimizer<Dist>(dist), 
@@ -83,9 +82,11 @@ BOOST_MATH_GPU_ENABLED typename Dist::value_type generic_find_mode(const Dist& d
       max_iter).first;
    if(max_iter >= policies::get_max_root_iterations<policy_type>())
    {
-      return policies::raise_evaluation_error<value_type>(function,   // LCOV_EXCL_LINE
-         "Unable to locate solution in a reasonable time: either there is no answer to the mode of the distribution"  // LCOV_EXCL_LINE
-         " or the answer is infinite.  Current best guess is %1%", result, policy_type());  // LCOV_EXCL_LINE
+      return policies::raise_evaluation_error<value_type>(
+         function, 
+         "Unable to locate solution in a reasonable time:"
+         " either there is no answer to the mode of the distribution"
+         " or the answer is infinite.  Current best guess is %1%", result, policy_type());
    }
    return result;
 }
@@ -93,7 +94,7 @@ BOOST_MATH_GPU_ENABLED typename Dist::value_type generic_find_mode(const Dist& d
 // As above,but confined to the interval [0,1]:
 //
 template <class Dist>
-BOOST_MATH_GPU_ENABLED typename Dist::value_type generic_find_mode_01(const Dist& dist, typename Dist::value_type guess, const char* function)
+typename Dist::value_type generic_find_mode_01(const Dist& dist, typename Dist::value_type guess, const char* function)
 {
    BOOST_MATH_STD_USING
    typedef typename Dist::value_type value_type;
@@ -124,7 +125,7 @@ BOOST_MATH_GPU_ENABLED typename Dist::value_type generic_find_mode_01(const Dist
       v = pdf(dist, lower_bound);
    }while(maxval < v);
 
-   boost::math::uintmax_t max_iter = policies::get_max_root_iterations<policy_type>();
+   std::uintmax_t max_iter = policies::get_max_root_iterations<policy_type>();
 
    value_type result = tools::brent_find_minima(
       pdf_minimizer<Dist>(dist), 
@@ -134,8 +135,11 @@ BOOST_MATH_GPU_ENABLED typename Dist::value_type generic_find_mode_01(const Dist
       max_iter).first;
    if(max_iter >= policies::get_max_root_iterations<policy_type>())
    {
-      return policies::raise_evaluation_error<value_type>(function, "Unable to locate solution in a reasonable time:" // LCOV_EXCL_LINE
-         " either there is no answer to the mode of the distribution or the answer is infinite.  Current best guess is %1%", result, policy_type());  // LCOV_EXCL_LINE
+      return policies::raise_evaluation_error<value_type>(
+         function, 
+         "Unable to locate solution in a reasonable time:"
+         " either there is no answer to the mode of the distribution"
+         " or the answer is infinite.  Current best guess is %1%", result, policy_type());
    }
    return result;
 }

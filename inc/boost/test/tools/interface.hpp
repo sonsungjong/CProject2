@@ -55,7 +55,7 @@ do {                                                            \
         ::boost::test_tools::tt_detail::level,                  \
         ::boost::test_tools::tt_detail::CHECK_MSG,              \
         0 );                                                    \
-} while( 0 )                                                    \
+} while( ::boost::test_tools::tt_detail::dummy_cond() )         \
 /**/
 
 //____________________________________________________________________________//
@@ -74,7 +74,7 @@ do {                                                            \
       ::boost::test_tools::tt_detail::level,                    \
       ::boost::test_tools::tt_detail::CHECK_BUILT_ASSERTION,    \
       0 );                                                      \
-} while( 0 )                                                    \
+} while( ::boost::test_tools::tt_detail::dummy_cond() )         \
 /**/
 
 //____________________________________________________________________________//
@@ -98,7 +98,7 @@ do {                                                            \
       ::boost::test_tools::tt_detail::assertion_type()          \
           << arg,                                               \
       0 );                                                      \
-} while( 0 )                                                    \
+} while( ::boost::test_tools::tt_detail::dummy_cond() )         \
 /**/
 
 //____________________________________________________________________________//
@@ -121,7 +121,7 @@ do {                                                                        \
         BOOST_TEST_TOOL_DIRECT_IMPL( P, level, BOOST_TEST_STRINGIZE( P ) ); \
     else                                                                    \
         BOOST_TEST_TOOL_ET_IMPL( P, level );                                \
-} while( 0 )                                                                \
+} while( ::boost::test_tools::tt_detail::dummy_cond() )                     \
 /**/
 
 #define BOOST_TEST_TOOL_UNIV_EX( level, P, ... )                            \
@@ -177,7 +177,7 @@ do { try {                                                                  \
     BOOST_TEST_TOOL_DIRECT_IMPL( Ppassed, TL, Mpassed );                    \
 } catch( E ) {                                                              \
     BOOST_TEST_TOOL_DIRECT_IMPL( Pcaught, TL, Mcaught );                    \
-}} while( 0 )                                                               \
+}} while( ::boost::test_tools::tt_detail::dummy_cond() )                    \
 /**/
 
 #elif defined(BOOST_TEST_TOOLS_DEBUGGABLE)
@@ -190,7 +190,7 @@ do { try {                                                                  \
     BOOST_TEST_TOOL_DIRECT_IMPL( Ppassed, TL, Mpassed );                    \
 } catch( E ) {                                                              \
     BOOST_TEST_TOOL_DIRECT_IMPL( Pcaught, TL, Mcaught );                    \
-}} while( 0 )                                                               \
+}} while( ::boost::test_tools::tt_detail::dummy_cond() )                    \
 /**/
 
 #else
@@ -202,7 +202,7 @@ do { try {                                                                  \
     BOOST_TEST_TOOL_DIRECT_IMPL( Ppassed, TL, Mpassed );                    \
 } catch( E ) {                                                              \
     BOOST_TEST_TOOL_DIRECT_IMPL( Pcaught, TL, Mcaught );                    \
-}} while( 0 )                                                               \
+}} while( ::boost::test_tools::tt_detail::dummy_cond() )                    \
 /**/
 
 #endif

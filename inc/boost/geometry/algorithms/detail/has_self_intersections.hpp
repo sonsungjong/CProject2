@@ -3,9 +3,8 @@
 // Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017-2024.
-// Modifications copyright (c) 2017-2024 Oracle and/or its affiliates.
-// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// This file was modified by Oracle on 2017-2020.
+// Modifications copyright (c) 2017-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -27,6 +26,9 @@
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
 
 #include <boost/geometry/policies/disjoint_interrupt_policy.hpp>
+#include <boost/geometry/policies/robustness/robust_point_type.hpp>
+#include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
+#include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 
 #ifdef BOOST_GEOMETRY_DEBUG_HAS_SELF_INTERSECTIONS
 #  include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
@@ -51,7 +53,7 @@ public:
 
     inline overlay_invalid_input_exception() {}
 
-    char const* what() const noexcept override
+    virtual char const* what() const throw()
     {
         return "Boost.Geometry Overlay invalid input exception";
     }
@@ -65,17 +67,18 @@ namespace detail { namespace overlay
 {
 
 
-template <typename Geometry, typename Strategy>
+template <typename Geometry, typename Strategy, typename RobustPolicy>
 inline bool has_self_intersections(Geometry const& geometry,
         Strategy const& strategy,
+        RobustPolicy const& robust_policy,
         bool throw_on_self_intersection = true)
 {
-    using point_type = point_type_t<Geometry>;
-    using turn_info = turn_info
+    typedef typename point_type<Geometry>::type point_type;
+    typedef turn_info
     <
         point_type,
-        typename segment_ratio_type<point_type>::type
-    >;
+        typename segment_ratio_type<point_type, RobustPolicy>::type
+    > turn_info;
     std::deque<turn_info> turns;
     detail::disjoint::disjoint_interrupt_policy policy;
 
@@ -83,7 +86,7 @@ inline bool has_self_intersections(Geometry const& geometry,
         <
             false,
             detail::overlay::assign_null_policy
-        >(geometry, strategy, turns, policy, 0, false);
+        >(geometry, strategy, robust_policy, turns, policy, 0, false);
 
 #ifdef BOOST_GEOMETRY_DEBUG_HAS_SELF_INTERSECTIONS
     bool first = true;

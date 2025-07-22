@@ -8,76 +8,82 @@
 // 27 Feb 2001   Jeremy Siek
 //      Initial checkin.
 
-#ifndef BOOST_ITERATOR_FUNCTION_OUTPUT_ITERATOR_HPP_INCLUDED_
-#define BOOST_ITERATOR_FUNCTION_OUTPUT_ITERATOR_HPP_INCLUDED_
+#ifndef BOOST_ITERATOR_FUNCTION_OUTPUT_ITERATOR_HPP
+#define BOOST_ITERATOR_FUNCTION_OUTPUT_ITERATOR_HPP
 
-#include <cstddef>
 #include <iterator>
-#include <type_traits>
+#include <boost/config.hpp>
+#include <boost/core/enable_if.hpp>
+#include <boost/type_traits/is_same.hpp>
+#include <boost/type_traits/remove_cv.hpp>
+#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+#include <boost/type_traits/remove_reference.hpp>
+#endif
 
 namespace boost {
 namespace iterators {
 
-template< typename UnaryFunction >
-class function_output_iterator
-{
-private:
-    class output_proxy
-    {
+  template <class UnaryFunction>
+  class function_output_iterator {
+  private:
+    typedef function_output_iterator self;
+
+    class output_proxy {
     public:
-        explicit output_proxy(UnaryFunction& f) noexcept :
-            m_f(f)
-        {}
+      explicit output_proxy(UnaryFunction& f) BOOST_NOEXCEPT : m_f(f) { }
 
-        template< typename T >
-        typename std::enable_if<
-            !std::is_same< typename std::remove_cv< typename std::remove_reference< T >::type >::type, output_proxy >::value,
-            output_proxy const&
-        >::type operator=(T&& value) const
-        {
-            m_f(static_cast< T&& >(value));
-            return *this;
-        }
+#ifdef BOOST_NO_CXX11_RVALUE_REFERENCES
+      template <class T>
+      typename boost::disable_if_c<
+        boost::is_same< typename boost::remove_cv< T >::type, output_proxy >::value,
+        output_proxy&
+      >::type operator=(const T& value) {
+        m_f(value);
+        return *this;
+      }
+#else
+      template <class T>
+      typename boost::disable_if_c<
+        boost::is_same< typename boost::remove_cv< typename boost::remove_reference< T >::type >::type, output_proxy >::value,
+        output_proxy&
+      >::type operator=(T&& value) {
+        m_f(static_cast< T&& >(value));
+        return *this;
+      }
+#endif
 
-        output_proxy(output_proxy const& that) = default;
-        output_proxy& operator=(output_proxy const&) = delete;
+      BOOST_DEFAULTED_FUNCTION(output_proxy(output_proxy const& that), BOOST_NOEXCEPT : m_f(that.m_f) {})
+      BOOST_DELETED_FUNCTION(output_proxy& operator=(output_proxy const&))
 
     private:
-        UnaryFunction& m_f;
+      UnaryFunction& m_f;
     };
 
-public:
-    using iterator_category = std::output_iterator_tag;
-    using value_type = void;
-    using difference_type = std::ptrdiff_t;
-    using pointer = void;
-    using reference = void;
+  public:
+    typedef std::output_iterator_tag iterator_category;
+    typedef void                value_type;
+    typedef void                difference_type;
+    typedef void                pointer;
+    typedef void                reference;
 
-    template<
-        bool Requires = std::is_class< UnaryFunction >::value,
-        typename = typename std::enable_if< Requires >::type
-    >
-    function_output_iterator() :
-        m_f()
-    {}
+    explicit function_output_iterator() {}
 
-    explicit function_output_iterator(UnaryFunction const& f) :
-        m_f(f)
-    {}
+    explicit function_output_iterator(const UnaryFunction& f)
+      : m_f(f) {}
 
     output_proxy operator*() { return output_proxy(m_f); }
-    function_output_iterator& operator++() { return *this; }
-    function_output_iterator& operator++(int) { return *this; }
+    self& operator++() { return *this; }
+    self& operator++(int) { return *this; }
 
-private:
+  private:
     UnaryFunction m_f;
-};
+  };
 
-template< typename UnaryFunction >
-inline function_output_iterator< UnaryFunction > make_function_output_iterator(UnaryFunction const& f = UnaryFunction())
-{
-    return function_output_iterator< UnaryFunction >(f);
-}
+  template <class UnaryFunction>
+  inline function_output_iterator<UnaryFunction>
+  make_function_output_iterator(const UnaryFunction& f = UnaryFunction()) {
+    return function_output_iterator<UnaryFunction>(f);
+  }
 
 } // namespace iterators
 
@@ -86,4 +92,4 @@ using iterators::make_function_output_iterator;
 
 } // namespace boost
 
-#endif // BOOST_ITERATOR_FUNCTION_OUTPUT_ITERATOR_HPP_INCLUDED_
+#endif // BOOST_ITERATOR_FUNCTION_OUTPUT_ITERATOR_HPP

@@ -21,7 +21,6 @@ namespace detail {
 // This is a workaround for GCC >=8.0 <8.4
 // See: https://github.com/boostorg/url/issues/672
 template<class T>
-BOOST_CXX14_CONSTEXPR
 core::string_view
 to_sv(T const& t) noexcept
 {

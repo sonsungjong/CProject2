@@ -11,7 +11,6 @@
 #include <boost/locale/formatting.hpp>
 #include <boost/locale/hold_ptr.hpp>
 #include <boost/locale/time_zone.hpp>
-#include <array>
 #include <locale>
 #include <stdexcept>
 #include <vector>
@@ -389,14 +388,14 @@ namespace boost { namespace locale {
 
     } // namespace period
 
-    /// \brief This class represents a set of periods.
+    /// \brief this class that represents a set of periods,
     ///
     /// It is generally created by operations on periods:
     /// 1995*year + 3*month + 1*day. Note: operations are not commutative.
     class date_time_period_set {
     public:
         /// Default constructor - empty set
-        date_time_period_set() = default;
+        date_time_period_set() {}
 
         /// Create a set of single period with value 1
         date_time_period_set(period::period_type f) { basic_[0] = date_time_period(f); }
@@ -407,21 +406,25 @@ namespace boost { namespace locale {
         /// Append date_time_period \a f to the set
         void add(date_time_period f)
         {
-            const size_t n = size();
-            if(n < basic_.size())
+            size_t n = size();
+            if(n < 4)
                 basic_[n] = f;
             else
                 periods_.push_back(f);
         }
 
-        /// Get number of items in list
+        /// Get number if items in list
         size_t size() const
         {
-            for(size_t i = 0; i < basic_.size(); ++i) {
-                if(basic_[i].type == period::period_type())
-                    return i;
-            }
-            return basic_.size() + periods_.size();
+            if(basic_[0].type == period::period_type())
+                return 0;
+            if(basic_[1].type == period::period_type())
+                return 1;
+            if(basic_[2].type == period::period_type())
+                return 2;
+            if(basic_[3].type == period::period_type())
+                return 3;
+            return 4 + periods_.size();
         }
 
         /// Get item at position \a n the set, n should be in range [0,size)
@@ -429,14 +432,14 @@ namespace boost { namespace locale {
         {
             if(n >= size())
                 throw std::out_of_range("Invalid index to date_time_period");
-            if(n < basic_.size())
+            if(n < 4)
                 return basic_[n];
             else
-                return periods_[n - basic_.size()];
+                return periods_[n - 4];
         }
 
     private:
-        std::array<date_time_period, 4> basic_;
+        date_time_period basic_[4];
         std::vector<date_time_period> periods_;
     };
 
@@ -704,11 +707,6 @@ namespace boost { namespace locale {
         hold_ptr<abstract_calendar> impl_;
     };
 
-    inline void swap(date_time& left, date_time& right) noexcept
-    {
-        left.swap(right);
-    }
-
     /// Writes date_time \a t to output stream \a out.
     ///
     /// This function uses locale, calendar and time zone of the target stream \a in.
@@ -723,15 +721,16 @@ namespace boost { namespace locale {
     template<typename CharType>
     std::basic_ostream<CharType>& operator<<(std::basic_ostream<CharType>& out, const date_time& t)
     {
-        const double time_point = t.time();
-        ios_info& info = ios_info::get(out);
-        const uint64_t display_flags = info.display_flags();
-        if(as::detail::is_datetime_display_flags(display_flags)) {
+        double time_point = t.time();
+        uint64_t display_flags = ios_info::get(out).display_flags();
+        if(display_flags == flags::date || display_flags == flags::time || display_flags == flags::datetime
+           || display_flags == flags::strftime)
+        {
             out << time_point;
         } else {
-            info.display_flags(flags::datetime);
+            ios_info::get(out).display_flags(flags::datetime);
             out << time_point;
-            info.display_flags(display_flags);
+            ios_info::get(out).display_flags(display_flags);
         }
         return out;
     }
@@ -743,8 +742,10 @@ namespace boost { namespace locale {
     std::basic_istream<CharType>& operator>>(std::basic_istream<CharType>& in, date_time& t)
     {
         double v;
-        const uint64_t display_flags = ios_info::get(in).display_flags();
-        if(as::detail::is_datetime_display_flags(display_flags)) {
+        uint64_t display_flags = ios_info::get(in).display_flags();
+        if(display_flags == flags::date || display_flags == flags::time || display_flags == flags::datetime
+           || display_flags == flags::strftime)
+        {
             in >> v;
         } else {
             ios_info::get(in).display_flags(flags::datetime);

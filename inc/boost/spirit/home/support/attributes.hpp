@@ -41,8 +41,7 @@
 #include <boost/mpl/has_xxx.hpp>
 #include <boost/mpl/equal.hpp>
 #include <boost/proto/traits.hpp>
-#include <boost/core/invoke_swap.hpp>
-#include <boost/core/enable_if.hpp>
+#include <boost/utility/enable_if.hpp>
 #include <boost/variant.hpp>
 #include <boost/range/range_fwd.hpp>
 #include <boost/config.hpp>
@@ -991,7 +990,7 @@ namespace boost { namespace spirit { namespace traits
     template <typename T>
     void swap_impl(T& a, T& b)
     {
-        boost::core::invoke_swap(a, b);
+        boost::swap(a, b);
     }
 
     template <typename A>

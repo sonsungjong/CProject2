@@ -22,13 +22,6 @@
 namespace boost {
 namespace urls {
 
-#ifdef BOOST_MSVC
-#   pragma warning(push)
-    // "struct 'boost::urls::encoding_opts' needs to have dll-interface to be used by clients of class 'boost::urls::params_base'"
-    // but encoding_opts should not be BOOST_URL_DECL and params_base should be BOOST_URL_DECL.
-#   pragma warning(disable: 4251)
-#endif
-
 /** Common functionality for containers
 
     This base class is used by the library
@@ -92,7 +85,11 @@ public:
         iterators with static storage
         duration or as long-lived objects.
     */
+#ifdef BOOST_URL_DOCS
+    using iterator = __see_below__;
+#else
     class iterator;
+#endif
 
     /// @copydoc iterator
     using const_iterator = iterator;
@@ -148,8 +145,6 @@ public:
 
         @par Exception Safety
         Throws nothing.
-
-        @return The maximum number of characters possible.
     */
     static
     constexpr
@@ -176,8 +171,6 @@ public:
 
         @par Exception Safety
         Throws nothing.
-
-        @return The buffer.
     */
     pct_string_view
     buffer() const noexcept;
@@ -194,8 +187,6 @@ public:
 
         @par Exception Safety
         Throws nothing.
-
-        @return `true` if there are no params.
     */
     bool
     empty() const noexcept;
@@ -212,8 +203,6 @@ public:
 
         @par Exception Safety
         Throws nothing.
-
-        @return The number of params.
     */
     std::size_t
     size() const noexcept;
@@ -225,8 +214,6 @@ public:
 
         @par Exception Safety
         Throws nothing.
-
-        @return An iterator to the beginning.
     */
     iterator
     begin() const noexcept;
@@ -238,8 +225,6 @@ public:
 
         @par Exception Safety
         Throws nothing.
-
-        @return An iterator to the end.
     */
     iterator
     end() const noexcept;
@@ -273,8 +258,6 @@ public:
         the value @ref ignore_case is passed
         here, the comparison is
         case-insensitive.
-
-        @return `true` if a matching key exists.
     */
     bool
     contains(
@@ -309,8 +292,6 @@ public:
         the value @ref ignore_case is passed
         here, the comparison is
         case-insensitive.
-
-        @return The number of matching keys.
     */
     std::size_t
     count(
@@ -523,10 +504,6 @@ private:
     @code
     return os << ps.buffer();
     @endcode
-
-    @param os The output stream to write to
-    @param qp The parameters to write
-    @return A reference to the output stream, for chaining
 */
 BOOST_URL_DECL
 std::ostream&
@@ -538,9 +515,5 @@ operator<<(
 } // boost
 
 #include <boost/url/impl/params_base.hpp>
-
-#ifdef BOOST_MSVC
-#   pragma warning(pop)
-#endif
 
 #endif

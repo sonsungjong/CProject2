@@ -32,8 +32,8 @@
 #include <boost/geometry/core/coordinate_system.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 
-#include <boost/geometry/util/is_inverse_spheroidal_coordinates.hpp>
 #include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
 #include <boost/geometry/util/range.hpp>
 
 #include <boost/geometry/views/detail/indexed_point_view.hpp>
@@ -229,23 +229,23 @@ struct envelope_range_of_boxes
     {
         // boxes in the range are assumed to be normalized already
 
-        using box_type = typename boost::range_value<RangeOfBoxes>::type;
-        using coordinate_type = coordinate_type_t<box_type>;
-        using units_type = typename detail::cs_angular_units<box_type>::type;
+        typedef typename boost::range_value<RangeOfBoxes>::type box_type;
+        typedef typename coordinate_type<box_type>::type coordinate_type;
+        typedef typename detail::cs_angular_units<box_type>::type units_type;
 
         static const bool is_equatorial = ! std::is_same
                                             <
-                                                cs_tag_t<box_type>,
+                                                typename cs_tag<box_type>::type,
                                                 spherical_polar_tag
                                             >::value;
 
-        using constants = math::detail::constants_on_spheroid
+        typedef math::detail::constants_on_spheroid
             <
                 coordinate_type, units_type, is_equatorial
-            >;
+            > constants;
 
-        using interval_type = longitude_interval<coordinate_type>;
-        using interval_range_type = std::vector<interval_type>;
+        typedef longitude_interval<coordinate_type> interval_type;
+        typedef std::vector<interval_type> interval_range_type;
 
         BOOST_GEOMETRY_ASSERT(! boost::empty(range_of_boxes));
 

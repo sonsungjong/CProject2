@@ -1,8 +1,7 @@
 // Boost.Geometry
 
-// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
-
 // Copyright (c) 2015-2018 Oracle and/or its affiliates.
+
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -18,7 +17,7 @@
 
 #include <boost/geometry/core/radius.hpp>
 
-#include <boost/geometry/util/constexpr.hpp>
+#include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/formulas/differential_quantities.hpp>
@@ -138,7 +137,7 @@ public:
         CT const f_sqr = math::sqr(f);
         CT const f_sqr_per_64 = f_sqr / CT(64);
 
-        if BOOST_GEOMETRY_CONSTEXPR (EnableDistance)
+        if ( BOOST_GEOMETRY_CONDITION(EnableDistance) )
         {
             CT const n1 = X * (A + C*X);
             CT const n2 = Y * (B + E*Y);
@@ -153,7 +152,7 @@ public:
             result.distance = a * sin_d * (T - delta1d + delta2d);
         }
 
-        if BOOST_GEOMETRY_CONSTEXPR (CalcAzimuths)
+        if ( BOOST_GEOMETRY_CONDITION(CalcAzimuths) )
         {
             // NOTE: if both cos_latX == 0 then below we'd have 0 * INF
             // it's a situation when the endpoints are on the poles +-90 deg
@@ -179,7 +178,7 @@ public:
 
             CT const pi = math::pi<CT>();
 
-            if BOOST_GEOMETRY_CONSTEXPR (CalcFwdAzimuth)
+            if (BOOST_GEOMETRY_CONDITION(CalcFwdAzimuth))
             {
                 CT alpha1 = v + u;
                 if (alpha1 > pi)
@@ -190,7 +189,7 @@ public:
                 result.azimuth = alpha1;
             }
 
-            if BOOST_GEOMETRY_CONSTEXPR (CalcRevAzimuth)
+            if (BOOST_GEOMETRY_CONDITION(CalcRevAzimuth))
             {
                 CT alpha2 = pi - (v - u);
                 if (alpha2 > pi)
@@ -202,7 +201,7 @@ public:
             }
         }
 
-        if BOOST_GEOMETRY_CONSTEXPR (CalcQuantities)
+        if (BOOST_GEOMETRY_CONDITION(CalcQuantities))
         {
             typedef differential_quantities<CT, EnableReducedLength, EnableGeodesicScale, 2> quantities;
             quantities::apply(lon1, lat1, lon2, lat2,

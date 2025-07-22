@@ -14,7 +14,6 @@
 #include <string>
 #include <type_traits>
 
-#include <boost/range/size.hpp>
 #include <boost/throw_exception.hpp>
 
 #include <boost/geometry/algorithms/convert.hpp>
@@ -93,18 +92,18 @@ struct transform_geometry_point_coordinates<PtIn, PtOut, false>
 template <typename Geometry, typename CT>
 struct transform_geometry_point
 {
-    using point_type = geometry::point_type_t<Geometry>;
+    typedef typename geometry::point_type<Geometry>::type point_type;
 
-    using type = geometry::model::point
+    typedef geometry::model::point
         <
             typename select_most_precise
                 <
-                    geometry::coordinate_type_t<point_type>,
+                    typename geometry::coordinate_type<point_type>::type,
                     CT
                 >::type,
             geometry::dimension<point_type>::type::value,
-            geometry::coordinate_system_t<point_type>
-        >;
+            typename geometry::coordinate_system<point_type>::type
+        > type;
 
     template <typename PtIn, typename PtOut>
     static inline void apply(PtIn const& in, PtOut & out, bool enable_angles)
@@ -153,7 +152,7 @@ template
 <
     typename Geometry,
     typename CT,
-    typename Tag = geometry::tag_t<Geometry>
+    typename Tag = typename geometry::tag<Geometry>::type
 >
 struct transform_geometry
 {};
@@ -229,10 +228,10 @@ template
                                 <
                                     typename select_most_precise
                                         <
-                                            geometry::coordinate_type_t<OutGeometry>,
+                                            typename geometry::coordinate_type<OutGeometry>::type,
                                             CT
                                         >::type,
-                                    geometry::coordinate_type_t<OutGeometry>
+                                    typename geometry::coordinate_type<OutGeometry>::type
                                 >::value
 >
 struct transform_geometry_wrapper
@@ -379,7 +378,7 @@ template
 <
     typename Geometry,
     typename CT,
-    typename Tag = geometry::tag_t<Geometry>
+    typename Tag = typename geometry::tag<Geometry>::type
 >
 struct transform
     : not_implemented<Tag>

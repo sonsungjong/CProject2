@@ -12,7 +12,6 @@
 
 #include <boost/url/grammar/error.hpp>
 #include <boost/url/grammar/parse.hpp>
-#include <boost/static_assert.hpp>
 #include <cstdint>
 #include <type_traits>
 
@@ -36,7 +35,7 @@ parse_variant(
     std::integral_constant<
         std::size_t, I> const&,
     std::false_type const&) ->
-        system::result<variant2::variant<
+        system::result<variant<
             typename R0::value_type,
             typename Rn::value_type...>>
 {
@@ -58,7 +57,7 @@ parse_variant(
     std::integral_constant<
         std::size_t, I> const&,
     std::true_type const&) ->
-        system::result<variant2::variant<
+        system::result<variant<
             typename R0::value_type,
             typename Rn::value_type...>>
 {
@@ -66,7 +65,7 @@ parse_variant(
     auto rv = parse(
         it, end, get<I>(rn));
     if( rv )
-        return variant2::variant<
+        return variant<
             typename R0::value_type,
             typename Rn::value_type...>{
                 variant2::in_place_index_t<I>{}, *rv};
@@ -84,7 +83,7 @@ parse_variant(
 
 template<class R0, class... Rn>
 auto
-implementation_defined::variant_rule_t<R0, Rn...>::
+variant_rule_t<R0, Rn...>::
 parse(
     char const*& it,
     char const* end) const ->
@@ -99,18 +98,14 @@ parse(
 
 //------------------------------------------------
 
-template<BOOST_URL_CONSTRAINT(Rule) R0, BOOST_URL_CONSTRAINT(Rule)... Rn>
+template<class R0, class... Rn>
 auto
 constexpr
 variant_rule(
     R0 const& r0,
     Rn const&... rn) noexcept ->
-        implementation_defined::variant_rule_t<R0, Rn...>
+        variant_rule_t<R0, Rn...>
 {
-    BOOST_STATIC_ASSERT(
-        mp11::mp_all<
-            is_rule<R0>,
-            is_rule<Rn>...>::value);
     return { r0, rn... };
 }
 

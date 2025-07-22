@@ -3,7 +3,7 @@
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
-// Copyright (c) 2014-2024 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2014-2017 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2014-2023.
 // Modifications copyright (c) 2014-2023 Oracle and/or its affiliates.
@@ -82,9 +82,16 @@ class centroid_exception : public geometry::exception
 {
 public:
 
+    /*!
+    \brief The default constructor
+    */
     inline centroid_exception() {}
 
-    char const* what() const noexcept override
+    /*!
+    \brief Returns the explanatory string.
+    \return Pointer to a null-terminated string with explanatory information.
+    */
+    virtual char const* what() const throw()
     {
         return "Boost.Geometry Centroid calculation exception";
     }
@@ -184,7 +191,7 @@ struct centroid_range_state
                 typename PointTransformer::result_type
                     pt = transformer.apply(*it);
 
-                using point_type = geometry::point_type_t<Ring const>;
+                using point_type = typename geometry::point_type<Ring const>::type;
                 strategy.apply(static_cast<point_type const&>(previous_pt),
                                static_cast<point_type const&>(pt),
                                state);
@@ -208,7 +215,7 @@ struct centroid_range
 
             typename Strategy::template state_type
                 <
-                    geometry::point_type_t<Range>,
+                    typename geometry::point_type<Range>::type,
                     Point
                 >::type state;
 
@@ -265,7 +272,7 @@ struct centroid_polygon
 
             typename Strategy::template state_type
                 <
-                    geometry::point_type_t<Polygon>,
+                    typename geometry::point_type<Polygon>::type,
                     Point
                 >::type state;
 
@@ -333,7 +340,7 @@ struct centroid_multi
 
         typename Strategy::template state_type
             <
-                geometry::point_type_t<Multi>,
+                typename geometry::point_type<Multi>::type,
                 Point
             >::type state;
 
@@ -393,7 +400,7 @@ namespace dispatch
 template
 <
     typename Geometry,
-    typename Tag = tag_t<Geometry>
+    typename Tag = typename tag<Geometry>::type
 >
 struct centroid: not_implemented<Tag>
 {};
@@ -511,10 +518,10 @@ struct centroid<default_strategy, false>
     template <typename Geometry, typename Point>
     static inline void apply(Geometry const& geometry, Point& out, default_strategy)
     {
-        using strategies_type = typename strategies::centroid::services::default_strategy
+        typedef typename strategies::centroid::services::default_strategy
             <
                 Geometry
-            >::type;
+            >::type strategies_type;
 
         dispatch::centroid<Geometry>::apply(geometry, out, strategies_type());
     }
@@ -525,7 +532,7 @@ struct centroid<default_strategy, false>
 
 namespace resolve_dynamic {
 
-template <typename Geometry, typename Tag = tag_t<Geometry>>
+template <typename Geometry, typename Tag = typename tag<Geometry>::type>
 struct centroid
 {
     template <typename Point, typename Strategy>

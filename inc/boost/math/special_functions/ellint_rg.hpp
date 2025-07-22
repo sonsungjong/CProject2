@@ -10,8 +10,8 @@
 #pragma once
 #endif
 
-#include <boost/math/tools/config.hpp>
 #include <boost/math/special_functions/math_fwd.hpp>
+#include <boost/math/tools/config.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <boost/math/policies/error_handling.hpp>
 #include <boost/math/special_functions/ellint_rd.hpp>
@@ -21,26 +21,30 @@
 namespace boost { namespace math { namespace detail{
 
    template <typename T, typename Policy>
-   BOOST_MATH_GPU_ENABLED T ellint_rg_imp(T x, T y, T z, const Policy& pol)
+   T ellint_rg_imp(T x, T y, T z, const Policy& pol)
    {
       BOOST_MATH_STD_USING
-      constexpr auto function = "boost::math::ellint_rf<%1%>(%1%,%1%,%1%)";
+      static const char* function = "boost::math::ellint_rf<%1%>(%1%,%1%,%1%)";
 
       if(x < 0 || y < 0 || z < 0)
       {
-         return policies::raise_domain_error<T>(function, "domain error, all arguments must be non-negative, only sensible result is %1%.", boost::math::numeric_limits<T>::quiet_NaN(), pol);
+         return policies::raise_domain_error<T>(function,
+            "domain error, all arguments must be non-negative, "
+            "only sensible result is %1%.",
+            std::numeric_limits<T>::quiet_NaN(), pol);
       }
       //
       // Function is symmetric in x, y and z, but we require
       // (x - z)(y - z) >= 0 to avoid cancellation error in the result
       // which implies (for example) x >= z >= y
       //
+      using std::swap;
       if(x < y)
-         BOOST_MATH_GPU_SAFE_SWAP(x, y);
+         swap(x, y);
       if(x < z)
-         BOOST_MATH_GPU_SAFE_SWAP(x, z);
+         swap(x, z);
       if(y > z)
-         BOOST_MATH_GPU_SAFE_SWAP(y, z);
+         swap(y, z);
       
       BOOST_MATH_ASSERT(x >= z);
       BOOST_MATH_ASSERT(z >= y);
@@ -63,18 +67,20 @@ namespace boost { namespace math { namespace detail{
          else
          {
             // x = z, y != 0
-            BOOST_MATH_GPU_SAFE_SWAP(x, y);
+            swap(x, y);
             return (x == 0) ? T(sqrt(z) / 2) : T((z * ellint_rc_imp(x, z, pol) + sqrt(x)) / 2);
          }
       }
       else if(y == z)
       {
-         BOOST_MATH_ASSERT(x > 0);  // Ordering of x,y,z above takes care of x == 0 case.
-         return (y == 0) ? T(sqrt(x) / 2) : T((y * ellint_rc_imp(x, y, pol) + sqrt(x)) / 2);
+         if(x == 0)
+            return constants::pi<T>() * sqrt(y) / 4;
+         else
+            return (y == 0) ? T(sqrt(x) / 2) : T((y * ellint_rc_imp(x, y, pol) + sqrt(x)) / 2);
       }
       else if(y == 0)
       {
-         BOOST_MATH_GPU_SAFE_SWAP(y, z);
+         swap(y, z);
          //
          // Special handling for common case, from
          // Numerical Computation of Real or Complex Elliptic Integrals, eq.46
@@ -105,7 +111,7 @@ namespace boost { namespace math { namespace detail{
 } // namespace detail
 
 template <class T1, class T2, class T3, class Policy>
-BOOST_MATH_GPU_ENABLED inline typename tools::promote_args<T1, T2, T3>::type 
+inline typename tools::promote_args<T1, T2, T3>::type 
    ellint_rg(T1 x, T2 y, T3 z, const Policy& pol)
 {
    typedef typename tools::promote_args<T1, T2, T3>::type result_type;
@@ -118,7 +124,7 @@ BOOST_MATH_GPU_ENABLED inline typename tools::promote_args<T1, T2, T3>::type
 }
 
 template <class T1, class T2, class T3>
-BOOST_MATH_GPU_ENABLED inline typename tools::promote_args<T1, T2, T3>::type 
+inline typename tools::promote_args<T1, T2, T3>::type 
    ellint_rg(T1 x, T2 y, T3 z)
 {
    return ellint_rg(x, y, z, policies::policy<>());

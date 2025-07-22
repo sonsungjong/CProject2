@@ -18,22 +18,11 @@
 #ifndef BOOST_MATH_BESSEL_JY_ZERO_2013_01_18_HPP_
   #define BOOST_MATH_BESSEL_JY_ZERO_2013_01_18_HPP_
 
-  #include <boost/math/tools/config.hpp>
-  #include <boost/math/tools/tuple.hpp>
-  #include <boost/math/tools/precision.hpp>
-  #include <boost/math/tools/cstdint.hpp>
-  #include <boost/math/tools/roots.hpp>
+  #include <algorithm>
   #include <boost/math/constants/constants.hpp>
+  #include <boost/math/special_functions/math_fwd.hpp>
   #include <boost/math/special_functions/cbrt.hpp>
   #include <boost/math/special_functions/detail/airy_ai_bi_zero.hpp>
-
-  #ifndef BOOST_MATH_HAS_NVRTC
-  #include <boost/math/special_functions/math_fwd.hpp>
-  #endif
-
-  #ifdef BOOST_MATH_ENABLE_CUDA
-  #  pragma nv_diag_suppress 20012
-  #endif
 
   namespace boost { namespace math {
   namespace detail
@@ -41,7 +30,7 @@
     namespace bessel_zero
     {
       template<class T>
-      BOOST_MATH_GPU_ENABLED T equation_nist_10_21_19(const T& v, const T& a)
+      T equation_nist_10_21_19(const T& v, const T& a)
       {
         // Get the initial estimate of the m'th root of Jv or Yv.
         // This subroutine is used for the order m with m > 1.
@@ -68,11 +57,11 @@
       class equation_as_9_3_39_and_its_derivative
       {
       public:
-        BOOST_MATH_GPU_ENABLED explicit equation_as_9_3_39_and_its_derivative(const T& zt) : zeta(zt) { }
+        explicit equation_as_9_3_39_and_its_derivative(const T& zt) : zeta(zt) { }
 
-        BOOST_MATH_GPU_ENABLED equation_as_9_3_39_and_its_derivative(const equation_as_9_3_39_and_its_derivative&) = default;
+        equation_as_9_3_39_and_its_derivative(const equation_as_9_3_39_and_its_derivative&) = default;
 
-        BOOST_MATH_GPU_ENABLED boost::math::tuple<T, T> operator()(const T& z) const
+        boost::math::tuple<T, T> operator()(const T& z) const
         {
           BOOST_MATH_STD_USING // ADL of std names, needed for acos, sqrt.
 
@@ -97,7 +86,7 @@
       };
 
       template<class T, class Policy>
-      BOOST_MATH_GPU_ENABLED T equation_as_9_5_26(const T& v, const T& ai_bi_root, const Policy& pol)
+      static T equation_as_9_5_26(const T& v, const T& ai_bi_root, const Policy& pol)
       {
         BOOST_MATH_STD_USING // ADL of std names, needed for log, sqrt.
 
@@ -143,9 +132,9 @@
 
         // Select the maximum allowed iterations based on the number
         // of decimal digits in the numeric type T, being at least 12.
-        const auto iterations_allowed = static_cast<boost::math::uintmax_t>(BOOST_MATH_GPU_SAFE_MAX(12, my_digits10 * 2));
+        const auto iterations_allowed = static_cast<std::uintmax_t>((std::max)(12, my_digits10 * 2));
 
-        boost::math::uintmax_t iterations_used = iterations_allowed;
+        std::uintmax_t iterations_used = iterations_allowed;
 
         // Calculate the root of z as a function of zeta.
         const T z = boost::math::tools::newton_raphson_iterate(
@@ -153,7 +142,7 @@
           z_estimate,
           range_zmin,
           range_zmax,
-          BOOST_MATH_GPU_SAFE_MIN(boost::math::tools::digits<T>(), boost::math::tools::digits<float>()),
+          (std::min)(boost::math::tools::digits<T>(), boost::math::tools::digits<float>()),
           iterations_used);
 
         static_cast<void>(iterations_used);
@@ -179,7 +168,7 @@
       namespace cyl_bessel_j_zero_detail
       {
         template<class T, class Policy>
-        BOOST_MATH_GPU_ENABLED T equation_nist_10_21_40_a(const T& v, const Policy& pol)
+        T equation_nist_10_21_40_a(const T& v, const Policy& pol)
         {
           const T v_pow_third(boost::math::cbrt(v, pol));
           const T v_pow_minus_two_thirds(T(1) / (v_pow_third * v_pow_third));
@@ -196,13 +185,13 @@
         class function_object_jv
         {
         public:
-          BOOST_MATH_GPU_ENABLED function_object_jv(const T& v,
+          function_object_jv(const T& v,
                              const Policy& pol) : my_v(v),
                                                   my_pol(pol) { }
 
-          BOOST_MATH_GPU_ENABLED function_object_jv(const function_object_jv&) = default;
+          function_object_jv(const function_object_jv&) = default;
 
-          BOOST_MATH_GPU_ENABLED T operator()(const T& x) const
+          T operator()(const T& x) const
           {
             return boost::math::cyl_bessel_j(my_v, x, my_pol);
           }
@@ -217,16 +206,15 @@
         class function_object_jv_and_jv_prime
         {
         public:
-          BOOST_MATH_GPU_ENABLED function_object_jv_and_jv_prime(
-                                                         const T& v,
-                                                         const bool order_is_zero,
-                                                         const Policy& pol) : my_v(v),
+          function_object_jv_and_jv_prime(const T& v,
+                                          const bool order_is_zero,
+                                          const Policy& pol) : my_v(v),
                                                                my_order_is_zero(order_is_zero),
                                                                my_pol(pol) { }
 
           function_object_jv_and_jv_prime(const function_object_jv_and_jv_prime&) = default;
 
-          BOOST_MATH_GPU_ENABLED boost::math::tuple<T, T> operator()(const T& x) const
+          boost::math::tuple<T, T> operator()(const T& x) const
           {
             // Obtain Jv(x) and Jv'(x).
             // Chris's original code called the Bessel function implementation layer direct, 
@@ -258,10 +246,10 @@
           const function_object_jv_and_jv_prime& operator=(const function_object_jv_and_jv_prime&) = delete;
         };
 
-        template<class T> BOOST_MATH_GPU_ENABLED bool my_bisection_unreachable_tolerance(const T&, const T&) { return false; }
+        template<class T> bool my_bisection_unreachable_tolerance(const T&, const T&) { return false; }
 
         template<class T, class Policy>
-        BOOST_MATH_GPU_ENABLED T initial_guess(const T& v, const int m, const Policy& pol)
+        T initial_guess(const T& v, const int m, const Policy& pol)
         {
           BOOST_MATH_STD_USING // ADL of std names, needed for floor.
 
@@ -327,7 +315,7 @@
                 }
                 else
                 {
-                  root_lo *= 0.75F; // LCOV_EXCL_LINE probably unreachable, but hard to prove?
+                  root_lo *= 0.75F;
                 }
               }
             }
@@ -337,7 +325,7 @@
             }
 
             // Perform several steps of bisection iteration to refine the guess.
-            boost::math::uintmax_t number_of_iterations(12U);
+            std::uintmax_t number_of_iterations(12U);
 
             // Do the bisection iteration.
             const boost::math::tuple<T, T> guess_pair =
@@ -402,7 +390,7 @@
       namespace cyl_neumann_zero_detail
       {
         template<class T, class Policy>
-        BOOST_MATH_GPU_ENABLED T equation_nist_10_21_40_b(const T& v, const Policy& pol)
+        T equation_nist_10_21_40_b(const T& v, const Policy& pol)
         {
           const T v_pow_third(boost::math::cbrt(v, pol));
           const T v_pow_minus_two_thirds(T(1) / (v_pow_third * v_pow_third));
@@ -419,13 +407,13 @@
         class function_object_yv
         {
         public:
-          BOOST_MATH_GPU_ENABLED function_object_yv(const T& v,
-                                                    const Policy& pol) : my_v(v),
-                                                                         my_pol(pol) { }
+          function_object_yv(const T& v,
+                             const Policy& pol) : my_v(v),
+                                                  my_pol(pol) { }
 
-          BOOST_MATH_GPU_ENABLED function_object_yv(const function_object_yv&) = default;
+          function_object_yv(const function_object_yv&) = default;
 
-          BOOST_MATH_GPU_ENABLED T operator()(const T& x) const
+          T operator()(const T& x) const
           {
             return boost::math::cyl_neumann(my_v, x, my_pol);
           }
@@ -440,13 +428,13 @@
         class function_object_yv_and_yv_prime
         {
         public:
-          BOOST_MATH_GPU_ENABLED function_object_yv_and_yv_prime(const T& v,
-                                                                 const Policy& pol) : my_v(v),
-                                                                                      my_pol(pol) { }
+          function_object_yv_and_yv_prime(const T& v,
+                                          const Policy& pol) : my_v(v),
+                                                               my_pol(pol) { }
 
-          BOOST_MATH_GPU_ENABLED function_object_yv_and_yv_prime(const function_object_yv_and_yv_prime&) = default;
+          function_object_yv_and_yv_prime(const function_object_yv_and_yv_prime&) = default;
 
-          BOOST_MATH_GPU_ENABLED boost::math::tuple<T, T> operator()(const T& x) const
+          boost::math::tuple<T, T> operator()(const T& x) const
           {
             const T half_epsilon(boost::math::tools::epsilon<T>() / 2U);
 
@@ -481,10 +469,10 @@
           const function_object_yv_and_yv_prime& operator=(const function_object_yv_and_yv_prime&) = delete;
         };
 
-        template<class T> BOOST_MATH_GPU_ENABLED bool my_bisection_unreachable_tolerance(const T&, const T&) { return false; }
+        template<class T> bool my_bisection_unreachable_tolerance(const T&, const T&) { return false; }
 
         template<class T, class Policy>
-        BOOST_MATH_GPU_ENABLED T initial_guess(const T& v, const int m, const Policy& pol)
+        T initial_guess(const T& v, const int m, const Policy& pol)
         {
           BOOST_MATH_STD_USING // ADL of std names, needed for floor.
 
@@ -549,7 +537,7 @@
                 }
                 else
                 {
-                  root_lo *= 0.75F; // LCOV_EXCL_LINE probably unreachable, but hard to prove?
+                  root_lo *= 0.75F;
                 }
               }
             }
@@ -572,7 +560,7 @@
             }
 
             // Perform several steps of bisection iteration to refine the guess.
-            boost::math::uintmax_t number_of_iterations(12U);
+            std::uintmax_t number_of_iterations(12U);
 
             // Do the bisection iteration.
             const boost::math::tuple<T, T> guess_pair =
@@ -635,9 +623,5 @@
       } // namespace cyl_neumann_zero_detail
     } // namespace bessel_zero
   } } } // namespace boost::math::detail
-
-  #ifdef BOOST_MATH_ENABLE_CUDA
-  #  pragma nv_diag_default 20012
-  #endif
 
 #endif // BOOST_MATH_BESSEL_JY_ZERO_2013_01_18_HPP_

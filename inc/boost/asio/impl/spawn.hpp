@@ -2,7 +2,7 @@
 // impl/spawn.hpp
 // ~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2025 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2023 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -16,7 +16,6 @@
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include <boost/asio/detail/config.hpp>
-#include <tuple>
 #include <boost/asio/associated_allocator.hpp>
 #include <boost/asio/associated_cancellation_slot.hpp>
 #include <boost/asio/associated_executor.hpp>
@@ -24,14 +23,19 @@
 #include <boost/asio/bind_executor.hpp>
 #include <boost/asio/detail/atomic_count.hpp>
 #include <boost/asio/detail/bind_handler.hpp>
+#include <boost/asio/detail/handler_alloc_helpers.hpp>
 #include <boost/asio/detail/handler_cont_helpers.hpp>
+#include <boost/asio/detail/handler_invoke_helpers.hpp>
 #include <boost/asio/detail/memory.hpp>
 #include <boost/asio/detail/noncopyable.hpp>
 #include <boost/asio/detail/type_traits.hpp>
 #include <boost/asio/detail/utility.hpp>
-#include <boost/asio/disposition.hpp>
-#include <boost/asio/error.hpp>
+#include <boost/asio/detail/variadic_templates.hpp>
 #include <boost/system/system_error.hpp>
+
+#if defined(BOOST_ASIO_HAS_STD_TUPLE)
+# include <tuple>
+#endif // defined(BOOST_ASIO_HAS_STD_TUPLE)
 
 #if defined(BOOST_ASIO_HAS_BOOST_CONTEXT_FIBER)
 # include <boost/context/fiber.hpp>
@@ -51,52 +55,54 @@ inline void spawned_thread_rethrow(void* ex)
 }
 #endif // !defined(BOOST_ASIO_NO_EXCEPTIONS)
 
-#if defined(BOOST_ASIO_HAS_BOOST_CONTEXT_FIBER)
+#if defined(BOOST_ASIO_HAS_BOOST_COROUTINE)
 
-// Spawned thread implementation using Boost.Context's fiber.
-class spawned_fiber_thread : public spawned_thread_base
+// Spawned thread implementation using Boost.Coroutine.
+class spawned_coroutine_thread : public spawned_thread_base
 {
 public:
-  typedef boost::context::fiber fiber_type;
+#if defined(BOOST_COROUTINES_UNIDIRECT) || defined(BOOST_COROUTINES_V2)
+  typedef boost::coroutines::pull_coroutine<void> callee_type;
+  typedef boost::coroutines::push_coroutine<void> caller_type;
+#else
+  typedef boost::coroutines::coroutine<void()> callee_type;
+  typedef boost::coroutines::coroutine<void()> caller_type;
+#endif
 
-  spawned_fiber_thread(fiber_type&& caller)
-    : caller_(static_cast<fiber_type&&>(caller)),
+  spawned_coroutine_thread(caller_type& caller)
+    : caller_(caller),
       on_suspend_fn_(0),
       on_suspend_arg_(0)
   {
   }
 
-  template <typename StackAllocator, typename F>
-  static spawned_thread_base* spawn(allocator_arg_t,
-      StackAllocator&& stack_allocator,
-      F&& f,
+  template <typename F>
+  static spawned_thread_base* spawn(BOOST_ASIO_MOVE_ARG(F) f,
+      const boost::coroutines::attributes& attributes,
       cancellation_slot parent_cancel_slot = cancellation_slot(),
       cancellation_state cancel_state = cancellation_state())
   {
-    spawned_fiber_thread* spawned_thread = 0;
-    fiber_type callee(allocator_arg_t(),
-        static_cast<StackAllocator&&>(stack_allocator),
-        entry_point<decay_t<F>>(
-          static_cast<F&&>(f), &spawned_thread));
-    callee = fiber_type(static_cast<fiber_type&&>(callee)).resume();
-    spawned_thread->callee_ = static_cast<fiber_type&&>(callee);
+    spawned_coroutine_thread* spawned_thread = 0;
+    callee_type callee(entry_point<typename decay<F>::type>(
+          BOOST_ASIO_MOVE_CAST(F)(f), &spawned_thread), attributes);
+    spawned_thread->callee_.swap(callee);
     spawned_thread->parent_cancellation_slot_ = parent_cancel_slot;
     spawned_thread->cancellation_state_ = cancel_state;
     return spawned_thread;
   }
 
   template <typename F>
-  static spawned_thread_base* spawn(F&& f,
+  static spawned_thread_base* spawn(BOOST_ASIO_MOVE_ARG(F) f,
       cancellation_slot parent_cancel_slot = cancellation_slot(),
       cancellation_state cancel_state = cancellation_state())
   {
-    return spawn(allocator_arg_t(), boost::context::fixedsize_stack(),
-        static_cast<F&&>(f), parent_cancel_slot, cancel_state);
+    return spawn(BOOST_ASIO_MOVE_CAST(F)(f), boost::coroutines::attributes(),
+        parent_cancel_slot, cancel_state);
   }
 
   void resume()
   {
-    callee_ = fiber_type(static_cast<fiber_type&&>(callee_)).resume();
+    callee_();
     if (on_suspend_fn_)
     {
       void (*fn)(void*) = on_suspend_fn_;
@@ -114,14 +120,15 @@ public:
     has_context_switched_ = true;
     on_suspend_fn_ = fn;
     on_suspend_arg_ = arg;
-    caller_ = fiber_type(static_cast<fiber_type&&>(caller_)).resume();
+    caller_();
   }
 
   void destroy()
   {
-    fiber_type callee = static_cast<fiber_type&&>(callee_);
+    callee_type callee;
+    callee.swap(callee_);
     if (terminal_)
-      fiber_type(static_cast<fiber_type&&>(callee)).resume();
+      callee();
   }
 
 private:
@@ -130,18 +137,146 @@ private:
   {
   public:
     template <typename F>
-    entry_point(F&& f,
-        spawned_fiber_thread** spawned_thread_out)
-      : function_(static_cast<F&&>(f)),
+    entry_point(BOOST_ASIO_MOVE_ARG(F) f,
+        spawned_coroutine_thread** spawned_thread_out)
+      : function_(BOOST_ASIO_MOVE_CAST(F)(f)),
         spawned_thread_out_(spawned_thread_out)
     {
     }
 
-    fiber_type operator()(fiber_type&& caller)
+    void operator()(caller_type& caller)
     {
-      Function function(static_cast<Function&&>(function_));
+      Function function(BOOST_ASIO_MOVE_CAST(Function)(function_));
+      spawned_coroutine_thread spawned_thread(caller);
+      *spawned_thread_out_ = &spawned_thread;
+      spawned_thread_out_ = 0;
+      spawned_thread.suspend();
+#if !defined(BOOST_ASIO_NO_EXCEPTIONS)
+      try
+#endif // !defined(BOOST_ASIO_NO_EXCEPTIONS)
+      {
+        function(&spawned_thread);
+        spawned_thread.terminal_ = true;
+        spawned_thread.suspend();
+      }
+#if !defined(BOOST_ASIO_NO_EXCEPTIONS)
+      catch (const boost::coroutines::detail::forced_unwind&)
+      {
+        throw;
+      }
+      catch (...)
+      {
+        exception_ptr ex = current_exception();
+        spawned_thread.terminal_ = true;
+        spawned_thread.suspend_with(spawned_thread_rethrow, &ex);
+      }
+#endif // !defined(BOOST_ASIO_NO_EXCEPTIONS)
+    }
+
+  private:
+    Function function_;
+    spawned_coroutine_thread** spawned_thread_out_;
+  };
+
+  caller_type& caller_;
+  callee_type callee_;
+  void (*on_suspend_fn_)(void*);
+  void* on_suspend_arg_;
+};
+
+#endif // defined(BOOST_ASIO_HAS_BOOST_COROUTINE)
+
+#if defined(BOOST_ASIO_HAS_BOOST_CONTEXT_FIBER)
+
+// Spawned thread implementation using Boost.Context's fiber.
+class spawned_fiber_thread : public spawned_thread_base
+{
+public:
+  typedef boost::context::fiber fiber_type;
+
+  spawned_fiber_thread(BOOST_ASIO_MOVE_ARG(fiber_type) caller)
+    : caller_(BOOST_ASIO_MOVE_CAST(fiber_type)(caller)),
+      on_suspend_fn_(0),
+      on_suspend_arg_(0)
+  {
+  }
+
+  template <typename StackAllocator, typename F>
+  static spawned_thread_base* spawn(allocator_arg_t,
+      BOOST_ASIO_MOVE_ARG(StackAllocator) stack_allocator,
+      BOOST_ASIO_MOVE_ARG(F) f,
+      cancellation_slot parent_cancel_slot = cancellation_slot(),
+      cancellation_state cancel_state = cancellation_state())
+  {
+    spawned_fiber_thread* spawned_thread = 0;
+    fiber_type callee(allocator_arg_t(),
+        BOOST_ASIO_MOVE_CAST(StackAllocator)(stack_allocator),
+        entry_point<typename decay<F>::type>(
+          BOOST_ASIO_MOVE_CAST(F)(f), &spawned_thread));
+    callee = fiber_type(BOOST_ASIO_MOVE_CAST(fiber_type)(callee)).resume();
+    spawned_thread->callee_ = BOOST_ASIO_MOVE_CAST(fiber_type)(callee);
+    spawned_thread->parent_cancellation_slot_ = parent_cancel_slot;
+    spawned_thread->cancellation_state_ = cancel_state;
+    return spawned_thread;
+  }
+
+  template <typename F>
+  static spawned_thread_base* spawn(BOOST_ASIO_MOVE_ARG(F) f,
+      cancellation_slot parent_cancel_slot = cancellation_slot(),
+      cancellation_state cancel_state = cancellation_state())
+  {
+    return spawn(allocator_arg_t(), boost::context::fixedsize_stack(),
+        BOOST_ASIO_MOVE_CAST(F)(f), parent_cancel_slot, cancel_state);
+  }
+
+  void resume()
+  {
+    callee_ = fiber_type(BOOST_ASIO_MOVE_CAST(fiber_type)(callee_)).resume();
+    if (on_suspend_fn_)
+    {
+      void (*fn)(void*) = on_suspend_fn_;
+      void* arg = on_suspend_arg_;
+      on_suspend_fn_ = 0;
+      fn(arg);
+    }
+  }
+
+  void suspend_with(void (*fn)(void*), void* arg)
+  {
+    if (throw_if_cancelled_)
+      if (!!cancellation_state_.cancelled())
+        throw_error(boost::asio::error::operation_aborted, "yield");
+    has_context_switched_ = true;
+    on_suspend_fn_ = fn;
+    on_suspend_arg_ = arg;
+    caller_ = fiber_type(BOOST_ASIO_MOVE_CAST(fiber_type)(caller_)).resume();
+  }
+
+  void destroy()
+  {
+    fiber_type callee = BOOST_ASIO_MOVE_CAST(fiber_type)(callee_);
+    if (terminal_)
+      fiber_type(BOOST_ASIO_MOVE_CAST(fiber_type)(callee)).resume();
+  }
+
+private:
+  template <typename Function>
+  class entry_point
+  {
+  public:
+    template <typename F>
+    entry_point(BOOST_ASIO_MOVE_ARG(F) f,
+        spawned_fiber_thread** spawned_thread_out)
+      : function_(BOOST_ASIO_MOVE_CAST(F)(f)),
+        spawned_thread_out_(spawned_thread_out)
+    {
+    }
+
+    fiber_type operator()(BOOST_ASIO_MOVE_ARG(fiber_type) caller)
+    {
+      Function function(BOOST_ASIO_MOVE_CAST(Function)(function_));
       spawned_fiber_thread spawned_thread(
-          static_cast<fiber_type&&>(caller));
+          BOOST_ASIO_MOVE_CAST(fiber_type)(caller));
       *spawned_thread_out_ = &spawned_thread;
       spawned_thread_out_ = 0;
       spawned_thread.suspend();
@@ -165,7 +300,7 @@ private:
         spawned_thread.suspend_with(spawned_thread_rethrow, &ex);
       }
 #endif // !defined(BOOST_ASIO_NO_EXCEPTIONS)
-      return static_cast<fiber_type&&>(spawned_thread.caller_);
+      return BOOST_ASIO_MOVE_CAST(fiber_type)(spawned_thread.caller_);
     }
 
   private:
@@ -183,6 +318,8 @@ private:
 
 #if defined(BOOST_ASIO_HAS_BOOST_CONTEXT_FIBER)
 typedef spawned_fiber_thread default_spawned_thread_type;
+#elif defined(BOOST_ASIO_HAS_BOOST_COROUTINE)
+typedef spawned_coroutine_thread default_spawned_thread_type;
 #else
 # error No spawn() implementation available
 #endif
@@ -194,13 +331,31 @@ public:
   explicit spawned_thread_resumer(spawned_thread_base* spawned_thread)
     : spawned_thread_(spawned_thread)
   {
+#if !defined(BOOST_ASIO_HAS_MOVE)
+    spawned_thread->detach();
+    spawned_thread->attach(&spawned_thread_);
+#endif // !defined(BOOST_ASIO_HAS_MOVE)
   }
 
-  spawned_thread_resumer(spawned_thread_resumer&& other) noexcept
+#if defined(BOOST_ASIO_HAS_MOVE)
+
+  spawned_thread_resumer(spawned_thread_resumer&& other) BOOST_ASIO_NOEXCEPT
     : spawned_thread_(other.spawned_thread_)
   {
     other.spawned_thread_ = 0;
   }
+
+#else // defined(BOOST_ASIO_HAS_MOVE)
+
+  spawned_thread_resumer(
+      const spawned_thread_resumer& other) BOOST_ASIO_NOEXCEPT
+    : spawned_thread_(other.spawned_thread_)
+  {
+    spawned_thread_->detach();
+    spawned_thread_->attach(&spawned_thread_);
+  }
+
+#endif // defined(BOOST_ASIO_HAS_MOVE)
 
   ~spawned_thread_resumer()
   {
@@ -210,7 +365,9 @@ public:
 
   void operator()()
   {
+#if defined(BOOST_ASIO_HAS_MOVE)
     spawned_thread_->attach(&spawned_thread_);
+#endif // defined(BOOST_ASIO_HAS_MOVE)
     spawned_thread_->resume();
   }
 
@@ -226,13 +383,30 @@ public:
     : spawned_thread_(spawned_thread)
   {
     spawned_thread->detach();
+#if !defined(BOOST_ASIO_HAS_MOVE)
+    spawned_thread->attach(&spawned_thread_);
+#endif // !defined(BOOST_ASIO_HAS_MOVE)
   }
 
-  spawned_thread_destroyer(spawned_thread_destroyer&& other) noexcept
+#if defined(BOOST_ASIO_HAS_MOVE)
+
+  spawned_thread_destroyer(spawned_thread_destroyer&& other) BOOST_ASIO_NOEXCEPT
     : spawned_thread_(other.spawned_thread_)
   {
     other.spawned_thread_ = 0;
   }
+
+#else // defined(BOOST_ASIO_HAS_MOVE)
+
+  spawned_thread_destroyer(
+      const spawned_thread_destroyer& other) BOOST_ASIO_NOEXCEPT
+    : spawned_thread_(other.spawned_thread_)
+  {
+    spawned_thread_->detach();
+    spawned_thread_->attach(&spawned_thread_);
+  }
+
+#endif // defined(BOOST_ASIO_HAS_MOVE)
 
   ~spawned_thread_destroyer()
   {
@@ -266,9 +440,14 @@ public:
       spawned_thread_(yield.spawned_thread_)
   {
     spawned_thread_->detach();
+#if !defined(BOOST_ASIO_HAS_MOVE)
+    spawned_thread_->attach(&spawned_thread_);
+#endif // !defined(BOOST_ASIO_HAS_MOVE)
   }
 
-  spawn_handler_base(spawn_handler_base&& other) noexcept
+#if defined(BOOST_ASIO_HAS_MOVE)
+
+  spawn_handler_base(spawn_handler_base&& other) BOOST_ASIO_NOEXCEPT
     : yield_(other.yield_),
       spawned_thread_(other.spawned_thread_)
 
@@ -276,18 +455,30 @@ public:
     other.spawned_thread_ = 0;
   }
 
+#else // defined(BOOST_ASIO_HAS_MOVE)
+
+  spawn_handler_base(const spawn_handler_base& other) BOOST_ASIO_NOEXCEPT
+    : yield_(other.yield_),
+      spawned_thread_(other.spawned_thread_)
+  {
+    spawned_thread_->detach();
+    spawned_thread_->attach(&spawned_thread_);
+  }
+
+#endif // defined(BOOST_ASIO_HAS_MOVE)
+
   ~spawn_handler_base()
   {
     if (spawned_thread_)
       (post)(yield_.executor_, spawned_thread_destroyer(spawned_thread_));
   }
 
-  executor_type get_executor() const noexcept
+  executor_type get_executor() const BOOST_ASIO_NOEXCEPT
   {
     return yield_.executor_;
   }
 
-  cancellation_slot_type get_cancellation_slot() const noexcept
+  cancellation_slot_type get_cancellation_slot() const BOOST_ASIO_NOEXCEPT
   {
     return spawned_thread_->get_cancellation_slot();
   }
@@ -305,7 +496,7 @@ protected:
 };
 
 // Completion handlers for when basic_yield_context is used as a token.
-template <typename Executor, typename Signature, typename = void>
+template <typename Executor, typename Signature>
 class spawn_handler;
 
 template <typename Executor, typename R>
@@ -368,14 +559,13 @@ private:
   result_type& result_;
 };
 
-template <typename Executor, typename R, typename Disposition>
-class spawn_handler<Executor, R(Disposition),
-    enable_if_t<is_disposition<Disposition>::value>
-  > : public spawn_handler_base<Executor>
+template <typename Executor, typename R>
+class spawn_handler<Executor, R(exception_ptr)>
+  : public spawn_handler_base<Executor>
 {
 public:
   typedef void return_type;
-  typedef Disposition* result_type;
+  typedef exception_ptr* result_type;
 
   spawn_handler(const basic_yield_context<Executor>& yield, result_type& result)
     : spawn_handler_base<Executor>(yield),
@@ -383,16 +573,16 @@ public:
   {
   }
 
-  void operator()(Disposition d)
+  void operator()(exception_ptr ex)
   {
-    result_ = detail::addressof(d);
+    result_ = &ex;
     this->resume();
   }
 
   static return_type on_resume(result_type& result)
   {
-    if (*result != no_error)
-      boost::asio::throw_exception(static_cast<Disposition&&>(*result));
+    if (result)
+      rethrow_exception(*result);
   }
 
 private:
@@ -400,9 +590,8 @@ private:
 };
 
 template <typename Executor, typename R, typename T>
-class spawn_handler<Executor, R(T),
-    enable_if_t<!is_disposition<T>::value>
-  > : public spawn_handler_base<Executor>
+class spawn_handler<Executor, R(T)>
+  : public spawn_handler_base<Executor>
 {
 public:
   typedef T return_type;
@@ -416,13 +605,13 @@ public:
 
   void operator()(T value)
   {
-    result_ = detail::addressof(value);
+    result_ = &value;
     this->resume();
   }
 
   static return_type on_resume(result_type& result)
   {
-    return static_cast<return_type&&>(*result);
+    return BOOST_ASIO_MOVE_CAST(return_type)(*result);
   }
 
 private:
@@ -457,7 +646,7 @@ public:
     }
     else
       result_.ec_ = &ec;
-    result_.value_ = detail::addressof(value);
+    result_.value_ = &value;
     this->resume();
   }
 
@@ -465,24 +654,23 @@ public:
   {
     if (result.ec_)
       throw_error(*result.ec_);
-    return static_cast<return_type&&>(*result.value_);
+    return BOOST_ASIO_MOVE_CAST(return_type)(*result.value_);
   }
 
 private:
   result_type& result_;
 };
 
-template <typename Executor, typename R, typename Disposition, typename T>
-class spawn_handler<Executor, R(Disposition, T),
-    enable_if_t<is_disposition<Disposition>::value>
-  > : public spawn_handler_base<Executor>
+template <typename Executor, typename R, typename T>
+class spawn_handler<Executor, R(exception_ptr, T)>
+  : public spawn_handler_base<Executor>
 {
 public:
   typedef T return_type;
 
   struct result_type
   {
-    Disposition* disposition_;
+    exception_ptr* ex_;
     return_type* value_;
   };
 
@@ -492,34 +680,33 @@ public:
   {
   }
 
-  void operator()(Disposition d, T value)
+  void operator()(exception_ptr ex, T value)
   {
-    result_.disposition_ = detail::addressof(d);
-    result_.value_ = detail::addressof(value);
+    result_.ex_ = &ex;
+    result_.value_ = &value;
     this->resume();
   }
 
   static return_type on_resume(result_type& result)
   {
-    if (*result.disposition_ != no_error)
-    {
-      boost::asio::throw_exception(
-          static_cast<Disposition&&>(*result.disposition_));
-    }
-    return static_cast<return_type&&>(*result.value_);
+    if (result.ex_)
+      rethrow_exception(*result.ex_);
+    return BOOST_ASIO_MOVE_CAST(return_type)(*result.value_);
   }
 
 private:
   result_type& result_;
 };
 
-template <typename Executor, typename R, typename T, typename... Ts>
-class spawn_handler<Executor, R(T, Ts...),
-    enable_if_t<!is_disposition<T>::value>
-  > : public spawn_handler_base<Executor>
+#if defined(BOOST_ASIO_HAS_VARIADIC_TEMPLATES) \
+  && defined(BOOST_ASIO_HAS_STD_TUPLE)
+
+template <typename Executor, typename R, typename... Ts>
+class spawn_handler<Executor, R(Ts...)>
+  : public spawn_handler_base<Executor>
 {
 public:
-  typedef std::tuple<T, Ts...> return_type;
+  typedef std::tuple<Ts...> return_type;
 
   typedef return_type* result_type;
 
@@ -530,16 +717,16 @@ public:
   }
 
   template <typename... Args>
-  void operator()(Args&&... args)
+  void operator()(BOOST_ASIO_MOVE_ARG(Args)... args)
   {
-    return_type value(static_cast<Args&&>(args)...);
-    result_ = detail::addressof(value);
+    return_type value(BOOST_ASIO_MOVE_CAST(Args)(args)...);
+    result_ = &value;
     this->resume();
   }
 
   static return_type on_resume(result_type& result)
   {
-    return static_cast<return_type&&>(*result);
+    return BOOST_ASIO_MOVE_CAST(return_type)(*result);
   }
 
 private:
@@ -567,9 +754,9 @@ public:
 
   template <typename... Args>
   void operator()(boost::system::error_code ec,
-      Args&&... args)
+      BOOST_ASIO_MOVE_ARG(Args)... args)
   {
-    return_type value(static_cast<Args&&>(args)...);
+    return_type value(BOOST_ASIO_MOVE_CAST(Args)(args)...);
     if (this->yield_.ec_)
     {
       *this->yield_.ec_ = ec;
@@ -577,7 +764,7 @@ public:
     }
     else
       result_.ec_ = &ec;
-    result_.value_ = detail::addressof(value);
+    result_.value_ = &value;
     this->resume();
   }
 
@@ -585,24 +772,23 @@ public:
   {
     if (result.ec_)
       throw_error(*result.ec_);
-    return static_cast<return_type&&>(*result.value_);
+    return BOOST_ASIO_MOVE_CAST(return_type)(*result.value_);
   }
 
 private:
   result_type& result_;
 };
 
-template <typename Executor, typename R, typename Disposition, typename... Ts>
-class spawn_handler<Executor, R(Disposition, Ts...),
-    enable_if_t<is_disposition<Disposition>::value>
-  > : public spawn_handler_base<Executor>
+template <typename Executor, typename R, typename... Ts>
+class spawn_handler<Executor, R(exception_ptr, Ts...)>
+  : public spawn_handler_base<Executor>
 {
 public:
   typedef std::tuple<Ts...> return_type;
 
   struct result_type
   {
-    Disposition* disposition_;
+    exception_ptr* ex_;
     return_type* value_;
   };
 
@@ -613,27 +799,27 @@ public:
   }
 
   template <typename... Args>
-  void operator()(Disposition d, Args&&... args)
+  void operator()(exception_ptr ex, BOOST_ASIO_MOVE_ARG(Args)... args)
   {
-    return_type value(static_cast<Args&&>(args)...);
-    result_.disposition_ = detail::addressof(d);
-    result_.value_ = detail::addressof(value);
+    return_type value(BOOST_ASIO_MOVE_CAST(Args)(args)...);
+    result_.ex_ = &ex;
+    result_.value_ = &value;
     this->resume();
   }
 
   static return_type on_resume(result_type& result)
   {
-    if (*result.disposition_ != no_error)
-    {
-      boost::asio::throw_exception(
-          static_cast<Disposition&&>(*result.disposition_));
-    }
-    return static_cast<return_type&&>(*result.value_);
+    if (result.ex_)
+      rethrow_exception(*result.ex_);
+    return BOOST_ASIO_MOVE_CAST(return_type)(*result.value_);
   }
 
 private:
   result_type& result_;
 };
+
+#endif // defined(BOOST_ASIO_HAS_VARIADIC_TEMPLATES)
+       //   && defined(BOOST_ASIO_HAS_STD_TUPLE)
 
 template <typename Executor, typename Signature>
 inline bool asio_handler_is_continuation(spawn_handler<Executor, Signature>*)
@@ -643,8 +829,6 @@ inline bool asio_handler_is_continuation(spawn_handler<Executor, Signature>*)
 
 } // namespace detail
 
-#if !defined(GENERATING_DOCUMENTATION)
-
 template <typename Executor, typename Signature>
 class async_result<basic_yield_context<Executor>, Signature>
 {
@@ -652,12 +836,13 @@ public:
   typedef typename detail::spawn_handler<Executor, Signature> handler_type;
   typedef typename handler_type::return_type return_type;
 
-#if defined(BOOST_ASIO_HAS_VARIADIC_LAMBDA_CAPTURES)
+#if defined(BOOST_ASIO_HAS_VARIADIC_TEMPLATES)
+# if defined(BOOST_ASIO_HAS_VARIADIC_LAMBDA_CAPTURES)
 
   template <typename Initiation, typename... InitArgs>
-  static return_type initiate(Initiation&& init,
+  static return_type initiate(BOOST_ASIO_MOVE_ARG(Initiation) init,
       const basic_yield_context<Executor>& yield,
-      InitArgs&&... init_args)
+      BOOST_ASIO_MOVE_ARG(InitArgs)... init_args)
   {
     typename handler_type::result_type result
       = typename handler_type::result_type();
@@ -665,30 +850,30 @@ public:
     yield.spawned_thread_->suspend_with(
         [&]()
         {
-          static_cast<Initiation&&>(init)(
+          BOOST_ASIO_MOVE_CAST(Initiation)(init)(
               handler_type(yield, result),
-              static_cast<InitArgs&&>(init_args)...);
+              BOOST_ASIO_MOVE_CAST(InitArgs)(init_args)...);
         });
 
     return handler_type::on_resume(result);
   }
 
-#else // defined(BOOST_ASIO_HAS_VARIADIC_LAMBDA_CAPTURES)
+# else // defined(BOOST_ASIO_HAS_VARIADIC_LAMBDA_CAPTURES)
 
   template <typename Initiation, typename... InitArgs>
   struct suspend_with_helper
   {
     typename handler_type::result_type& result_;
-    Initiation&& init_;
+    BOOST_ASIO_MOVE_ARG(Initiation) init_;
     const basic_yield_context<Executor>& yield_;
-    std::tuple<InitArgs&&...> init_args_;
+    std::tuple<BOOST_ASIO_MOVE_ARG(InitArgs)...> init_args_;
 
     template <std::size_t... I>
     void do_invoke(detail::index_sequence<I...>)
     {
-      static_cast<Initiation&&>(init_)(
+      BOOST_ASIO_MOVE_CAST(Initiation)(init_)(
           handler_type(yield_, result_),
-          static_cast<InitArgs&&>(std::get<I>(init_args_))...);
+          BOOST_ASIO_MOVE_CAST(InitArgs)(std::get<I>(init_args_))...);
     }
 
     void operator()()
@@ -698,26 +883,122 @@ public:
   };
 
   template <typename Initiation, typename... InitArgs>
-  static return_type initiate(Initiation&& init,
+  static return_type initiate(BOOST_ASIO_MOVE_ARG(Initiation) init,
       const basic_yield_context<Executor>& yield,
-      InitArgs&&... init_args)
+      BOOST_ASIO_MOVE_ARG(InitArgs)... init_args)
   {
     typename handler_type::result_type result
       = typename handler_type::result_type();
 
     yield.spawned_thread_->suspend_with(
       suspend_with_helper<Initiation, InitArgs...>{
-          result, static_cast<Initiation&&>(init), yield,
-          std::tuple<InitArgs&&...>(
-            static_cast<InitArgs&&>(init_args)...)});
+          result, BOOST_ASIO_MOVE_CAST(Initiation)(init), yield,
+          std::tuple<BOOST_ASIO_MOVE_ARG(InitArgs)...>(
+            BOOST_ASIO_MOVE_CAST(InitArgs)(init_args)...)});
 
     return handler_type::on_resume(result);
   }
 
-#endif // defined(BOOST_ASIO_HAS_VARIADIC_LAMBDA_CAPTURES)
-};
+# endif // defined(BOOST_ASIO_HAS_VARIADIC_LAMBDA_CAPTURES)
+#else // defined(BOOST_ASIO_HAS_VARIADIC_TEMPLATES)
 
-#endif // !defined(GENERATING_DOCUMENTATION)
+  template <typename Initiation>
+  static return_type initiate(Initiation init,
+      const basic_yield_context<Executor>& yield)
+  {
+    typename handler_type::result_type result
+      = typename handler_type::result_type();
+
+    struct on_suspend
+    {
+      Initiation& init_;
+      const basic_yield_context<Executor>& yield_;
+      typename handler_type::result_type& result_;
+
+      void do_call()
+      {
+        BOOST_ASIO_MOVE_CAST(Initiation)(init_)(
+            handler_type(yield_, result_));
+      }
+
+      static void call(void* arg)
+      {
+        static_cast<on_suspend*>(arg)->do_call();
+      }
+    } o = { init, yield, result };
+
+    yield.spawned_thread_->suspend_with(&on_suspend::call, &o);
+
+    return handler_type::on_resume(result);
+  }
+
+#define BOOST_ASIO_PRIVATE_ON_SUSPEND_MEMBERS(n) \
+  BOOST_ASIO_PRIVATE_ON_SUSPEND_MEMBERS_##n
+#define BOOST_ASIO_PRIVATE_ON_SUSPEND_MEMBERS_1 \
+  T1& x1;
+#define BOOST_ASIO_PRIVATE_ON_SUSPEND_MEMBERS_2 \
+  T1& x1; T2& x2;
+#define BOOST_ASIO_PRIVATE_ON_SUSPEND_MEMBERS_3 \
+  T1& x1; T2& x2; T3& x3;
+#define BOOST_ASIO_PRIVATE_ON_SUSPEND_MEMBERS_4 \
+  T1& x1; T2& x2; T3& x3; T4& x4;
+#define BOOST_ASIO_PRIVATE_ON_SUSPEND_MEMBERS_5 \
+  T1& x1; T2& x2; T3& x3; T4& x4; T5& x5;
+#define BOOST_ASIO_PRIVATE_ON_SUSPEND_MEMBERS_6 \
+  T1& x1; T2& x2; T3& x3; T4& x4; T5& x5; T6& x6;
+#define BOOST_ASIO_PRIVATE_ON_SUSPEND_MEMBERS_7 \
+  T1& x1; T2& x2; T3& x3; T4& x4; T5& x5; T6& x6; T7& x7;
+#define BOOST_ASIO_PRIVATE_ON_SUSPEND_MEMBERS_8 \
+  T1& x1; T2& x2; T3& x3; T4& x4; T5& x5; T6& x6; T7& x7; T8& x8;
+
+#define BOOST_ASIO_PRIVATE_INITIATE_DEF(n) \
+  template <typename Initiation, BOOST_ASIO_VARIADIC_TPARAMS(n)> \
+  static return_type initiate(Initiation init, \
+      const basic_yield_context<Executor>& yield, \
+      BOOST_ASIO_VARIADIC_BYVAL_PARAMS(n)) \
+  { \
+    typename handler_type::result_type result \
+      = typename handler_type::result_type(); \
+  \
+    struct on_suspend \
+    { \
+      Initiation& init; \
+      const basic_yield_context<Executor>& yield; \
+      typename handler_type::result_type& result; \
+      BOOST_ASIO_PRIVATE_ON_SUSPEND_MEMBERS(n) \
+  \
+      void do_call() \
+      { \
+        BOOST_ASIO_MOVE_CAST(Initiation)(init)( \
+            handler_type(yield, result), \
+            BOOST_ASIO_VARIADIC_MOVE_ARGS(n)); \
+      } \
+  \
+      static void call(void* arg) \
+      { \
+        static_cast<on_suspend*>(arg)->do_call(); \
+      } \
+    } o = { init, yield, result, BOOST_ASIO_VARIADIC_BYVAL_ARGS(n) }; \
+  \
+    yield.spawned_thread_->suspend_with(&on_suspend::call, &o); \
+  \
+    return handler_type::on_resume(result); \
+  } \
+  /**/
+  BOOST_ASIO_VARIADIC_GENERATE(BOOST_ASIO_PRIVATE_INITIATE_DEF)
+#undef BOOST_ASIO_PRIVATE_INITIATE_DEF
+#undef BOOST_ASIO_PRIVATE_ON_SUSPEND_MEMBERS
+#undef BOOST_ASIO_PRIVATE_ON_SUSPEND_MEMBERS_1
+#undef BOOST_ASIO_PRIVATE_ON_SUSPEND_MEMBERS_2
+#undef BOOST_ASIO_PRIVATE_ON_SUSPEND_MEMBERS_3
+#undef BOOST_ASIO_PRIVATE_ON_SUSPEND_MEMBERS_4
+#undef BOOST_ASIO_PRIVATE_ON_SUSPEND_MEMBERS_5
+#undef BOOST_ASIO_PRIVATE_ON_SUSPEND_MEMBERS_6
+#undef BOOST_ASIO_PRIVATE_ON_SUSPEND_MEMBERS_7
+#undef BOOST_ASIO_PRIVATE_ON_SUSPEND_MEMBERS_8
+
+#endif // defined(BOOST_ASIO_HAS_VARIADIC_TEMPLATES)
+};
 
 namespace detail {
 
@@ -727,10 +1008,10 @@ class spawn_entry_point
 public:
   template <typename F, typename H>
   spawn_entry_point(const Executor& ex,
-      F&& f, H&& h)
+      BOOST_ASIO_MOVE_ARG(F) f, BOOST_ASIO_MOVE_ARG(H) h)
     : executor_(ex),
-      function_(static_cast<F&&>(f)),
-      handler_(static_cast<H&&>(h)),
+      function_(BOOST_ASIO_MOVE_CAST(F)(f)),
+      handler_(BOOST_ASIO_MOVE_CAST(H)(h)),
       work_(handler_, executor_)
   {
   }
@@ -739,7 +1020,8 @@ public:
   {
     const basic_yield_context<Executor> yield(spawned_thread, executor_);
     this->call(yield,
-        void_type<result_of_t<Function(basic_yield_context<Executor>)>>());
+        void_type<typename result_of<Function(
+          basic_yield_context<Executor>)>::type>());
   }
 
 private:
@@ -763,6 +1045,12 @@ private:
       throw;
     }
 # endif // defined(BOOST_ASIO_HAS_BOOST_CONTEXT_FIBER)
+# if defined(BOOST_ASIO_HAS_BOOST_COROUTINE)
+    catch (const boost::coroutines::detail::forced_unwind&)
+    {
+      throw;
+    }
+# endif // defined(BOOST_ASIO_HAS_BOOST_COROUTINE)
     catch (...)
     {
       exception_ptr ex = current_exception();
@@ -784,9 +1072,8 @@ private:
       T result(function_(yield));
       if (!yield.spawned_thread_->has_context_switched())
         (post)(yield);
-      detail::move_binder2<Handler, exception_ptr, T>
-        handler(0, static_cast<Handler&&>(handler_),
-          exception_ptr(), static_cast<T&&>(result));
+      detail::binder2<Handler, exception_ptr, T>
+        handler(handler_, exception_ptr(), BOOST_ASIO_MOVE_CAST(T)(result));
       work_.complete(handler, handler.handler_);
     }
 #if !defined(BOOST_ASIO_NO_EXCEPTIONS)
@@ -796,13 +1083,18 @@ private:
       throw;
     }
 # endif // defined(BOOST_ASIO_HAS_BOOST_CONTEXT_FIBER)
+# if defined(BOOST_ASIO_HAS_BOOST_COROUTINE)
+    catch (const boost::coroutines::detail::forced_unwind&)
+    {
+      throw;
+    }
+# endif // defined(BOOST_ASIO_HAS_BOOST_COROUTINE)
     catch (...)
     {
       exception_ptr ex = current_exception();
       if (!yield.spawned_thread_->has_context_switched())
         (post)(yield);
-      detail::move_binder2<Handler, exception_ptr, T>
-        handler(0, static_cast<Handler&&>(handler_), ex, T());
+      detail::binder2<Handler, exception_ptr, T> handler(handler_, ex, T());
       work_.complete(handler, handler.handler_);
     }
 #endif // !defined(BOOST_ASIO_NO_EXCEPTIONS)
@@ -850,15 +1142,16 @@ private:
   Executor ex_;
 };
 
+
 template <typename Handler, typename Executor>
 class spawn_cancellation_handler<Handler, Executor,
-    enable_if_t<
+    typename enable_if<
       is_same<
         typename associated_executor<Handler,
           Executor>::asio_associated_executor_is_unspecialised,
         void
       >::value
-    >>
+    >::type>
 {
 public:
   spawn_cancellation_handler(const Handler&, const Executor&)
@@ -890,21 +1183,21 @@ public:
   {
   }
 
-  executor_type get_executor() const noexcept
+  executor_type get_executor() const BOOST_ASIO_NOEXCEPT
   {
     return executor_;
   }
 
   template <typename Handler, typename F>
-  void operator()(Handler&& handler,
-      F&& f) const
+  void operator()(BOOST_ASIO_MOVE_ARG(Handler) handler,
+      BOOST_ASIO_MOVE_ARG(F) f) const
   {
-    typedef decay_t<Handler> handler_type;
-    typedef decay_t<F> function_type;
+    typedef typename decay<Handler>::type handler_type;
+    typedef typename decay<F>::type function_type;
     typedef spawn_cancellation_handler<
       handler_type, Executor> cancel_handler_type;
 
-    associated_cancellation_slot_t<handler_type> slot
+    typename associated_cancellation_slot<handler_type>::type slot
       = boost::asio::get_associated_cancellation_slot(handler);
 
     cancel_handler_type* cancel_handler = slot.is_connected()
@@ -922,24 +1215,24 @@ public:
         spawned_thread_resumer(
           default_spawned_thread_type::spawn(
             spawn_entry_point<Executor, function_type, handler_type>(
-              executor_, static_cast<F&&>(f),
-              static_cast<Handler&&>(handler)),
+              executor_, BOOST_ASIO_MOVE_CAST(F)(f),
+              BOOST_ASIO_MOVE_CAST(Handler)(handler)),
             proxy_slot, cancel_state)));
   }
 
 #if defined(BOOST_ASIO_HAS_BOOST_CONTEXT_FIBER)
 
   template <typename Handler, typename StackAllocator, typename F>
-  void operator()(Handler&& handler, allocator_arg_t,
-      StackAllocator&& stack_allocator,
-      F&& f) const
+  void operator()(BOOST_ASIO_MOVE_ARG(Handler) handler, allocator_arg_t,
+      BOOST_ASIO_MOVE_ARG(StackAllocator) stack_allocator,
+      BOOST_ASIO_MOVE_ARG(F) f) const
   {
-    typedef decay_t<Handler> handler_type;
-    typedef decay_t<F> function_type;
+    typedef typename decay<Handler>::type handler_type;
+    typedef typename decay<F>::type function_type;
     typedef spawn_cancellation_handler<
       handler_type, Executor> cancel_handler_type;
 
-    associated_cancellation_slot_t<handler_type> slot
+    typename associated_cancellation_slot<handler_type>::type slot
       = boost::asio::get_associated_cancellation_slot(handler);
 
     cancel_handler_type* cancel_handler = slot.is_connected()
@@ -956,10 +1249,10 @@ public:
     (dispatch)(executor_,
         spawned_thread_resumer(
           spawned_fiber_thread::spawn(allocator_arg_t(),
-            static_cast<StackAllocator&&>(stack_allocator),
+            BOOST_ASIO_MOVE_CAST(StackAllocator)(stack_allocator),
             spawn_entry_point<Executor, function_type, handler_type>(
-              executor_, static_cast<F&&>(f),
-              static_cast<Handler&&>(handler)),
+              executor_, BOOST_ASIO_MOVE_CAST(F)(f),
+              BOOST_ASIO_MOVE_CAST(Handler)(handler)),
             proxy_slot, cancel_state)));
   }
 
@@ -973,141 +1266,349 @@ private:
 
 template <typename Executor, typename F,
     BOOST_ASIO_COMPLETION_TOKEN_FOR(typename detail::spawn_signature<
-      result_of_t<F(basic_yield_context<Executor>)>>::type) CompletionToken>
-inline auto spawn(const Executor& ex, F&& function, CompletionToken&& token,
-    constraint_t<
+      typename result_of<F(basic_yield_context<Executor>)>::type>::type)
+        CompletionToken>
+inline BOOST_ASIO_INITFN_AUTO_RESULT_TYPE_PREFIX(CompletionToken,
+    typename detail::spawn_signature<
+      typename result_of<F(basic_yield_context<Executor>)>::type>::type)
+spawn(const Executor& ex, BOOST_ASIO_MOVE_ARG(F) function,
+    BOOST_ASIO_MOVE_ARG(CompletionToken) token,
+#if defined(BOOST_ASIO_HAS_BOOST_COROUTINE)
+    typename constraint<
+      !is_same<
+        typename decay<CompletionToken>::type,
+        boost::coroutines::attributes
+      >::value
+    >::type,
+#endif // defined(BOOST_ASIO_HAS_BOOST_COROUTINE)
+    typename constraint<
       is_executor<Executor>::value || execution::is_executor<Executor>::value
-    >)
-  -> decltype(
+    >::type)
+  BOOST_ASIO_INITFN_AUTO_RESULT_TYPE_SUFFIX((
     async_initiate<CompletionToken,
       typename detail::spawn_signature<
-        result_of_t<F(basic_yield_context<Executor>)>>::type>(
-          declval<detail::initiate_spawn<Executor>>(),
-          token, static_cast<F&&>(function)))
+        typename result_of<F(basic_yield_context<Executor>)>::type>::type>(
+          declval<detail::initiate_spawn<Executor> >(),
+          token, BOOST_ASIO_MOVE_CAST(F)(function))))
 {
   return async_initiate<CompletionToken,
     typename detail::spawn_signature<
-      result_of_t<F(basic_yield_context<Executor>)>>::type>(
+      typename result_of<F(basic_yield_context<Executor>)>::type>::type>(
         detail::initiate_spawn<Executor>(ex),
-        token, static_cast<F&&>(function));
+        token, BOOST_ASIO_MOVE_CAST(F)(function));
 }
 
 template <typename ExecutionContext, typename F,
     BOOST_ASIO_COMPLETION_TOKEN_FOR(typename detail::spawn_signature<
-      result_of_t<F(basic_yield_context<
-        typename ExecutionContext::executor_type>)>>::type) CompletionToken>
-inline auto spawn(ExecutionContext& ctx, F&& function, CompletionToken&& token,
-    constraint_t<
+      typename result_of<F(basic_yield_context<
+        typename ExecutionContext::executor_type>)>::type>::type)
+          CompletionToken>
+inline BOOST_ASIO_INITFN_AUTO_RESULT_TYPE_PREFIX(CompletionToken,
+    typename detail::spawn_signature<
+      typename result_of<F(basic_yield_context<
+        typename ExecutionContext::executor_type>)>::type>::type)
+spawn(ExecutionContext& ctx, BOOST_ASIO_MOVE_ARG(F) function,
+    BOOST_ASIO_MOVE_ARG(CompletionToken) token,
+#if defined(BOOST_ASIO_HAS_BOOST_COROUTINE)
+    typename constraint<
+      !is_same<
+        typename decay<CompletionToken>::type,
+        boost::coroutines::attributes
+      >::value
+    >::type,
+#endif // defined(BOOST_ASIO_HAS_BOOST_COROUTINE)
+    typename constraint<
       is_convertible<ExecutionContext&, execution_context&>::value
-    >)
-  -> decltype(
+    >::type)
+  BOOST_ASIO_INITFN_AUTO_RESULT_TYPE_SUFFIX((
     async_initiate<CompletionToken,
       typename detail::spawn_signature<
-        result_of_t<F(basic_yield_context<
-          typename ExecutionContext::executor_type>)>>::type>(
+        typename result_of<F(basic_yield_context<
+          typename ExecutionContext::executor_type>)>::type>::type>(
             declval<detail::initiate_spawn<
-              typename ExecutionContext::executor_type>>(),
-            token, static_cast<F&&>(function)))
+              typename ExecutionContext::executor_type> >(),
+            token, BOOST_ASIO_MOVE_CAST(F)(function))))
 {
-  return (spawn)(ctx.get_executor(), static_cast<F&&>(function),
-      static_cast<CompletionToken&&>(token));
+  return (spawn)(ctx.get_executor(), BOOST_ASIO_MOVE_CAST(F)(function),
+      BOOST_ASIO_MOVE_CAST(CompletionToken)(token));
 }
 
 template <typename Executor, typename F,
     BOOST_ASIO_COMPLETION_TOKEN_FOR(typename detail::spawn_signature<
-      result_of_t<F(basic_yield_context<Executor>)>>::type)
+      typename result_of<F(basic_yield_context<Executor>)>::type>::type)
         CompletionToken>
-inline auto spawn(const basic_yield_context<Executor>& ctx,
-    F&& function, CompletionToken&& token,
-    constraint_t<
+inline BOOST_ASIO_INITFN_AUTO_RESULT_TYPE_PREFIX(CompletionToken,
+    typename detail::spawn_signature<
+      typename result_of<F(basic_yield_context<Executor>)>::type>::type)
+spawn(const basic_yield_context<Executor>& ctx,
+    BOOST_ASIO_MOVE_ARG(F) function,
+    BOOST_ASIO_MOVE_ARG(CompletionToken) token,
+#if defined(BOOST_ASIO_HAS_BOOST_COROUTINE)
+    typename constraint<
+      !is_same<
+        typename decay<CompletionToken>::type,
+        boost::coroutines::attributes
+      >::value
+    >::type,
+#endif // defined(BOOST_ASIO_HAS_BOOST_COROUTINE)
+    typename constraint<
       is_executor<Executor>::value || execution::is_executor<Executor>::value
-    >)
-  -> decltype(
+    >::type)
+  BOOST_ASIO_INITFN_AUTO_RESULT_TYPE_SUFFIX((
     async_initiate<CompletionToken,
       typename detail::spawn_signature<
-        result_of_t<F(basic_yield_context<Executor>)>>::type>(
-          declval<detail::initiate_spawn<Executor>>(),
-          token, static_cast<F&&>(function)))
+        typename result_of<F(basic_yield_context<Executor>)>::type>::type>(
+          declval<detail::initiate_spawn<Executor> >(),
+          token, BOOST_ASIO_MOVE_CAST(F)(function))))
 {
-  return (spawn)(ctx.get_executor(), static_cast<F&&>(function),
-      static_cast<CompletionToken&&>(token));
+  return (spawn)(ctx.get_executor(), BOOST_ASIO_MOVE_CAST(F)(function),
+      BOOST_ASIO_MOVE_CAST(CompletionToken)(token));
 }
 
 #if defined(BOOST_ASIO_HAS_BOOST_CONTEXT_FIBER)
 
 template <typename Executor, typename StackAllocator, typename F,
     BOOST_ASIO_COMPLETION_TOKEN_FOR(typename detail::spawn_signature<
-      result_of_t<F(basic_yield_context<Executor>)>>::type)
+      typename result_of<F(basic_yield_context<Executor>)>::type>::type)
         CompletionToken>
-inline auto spawn(const Executor& ex, allocator_arg_t,
-    StackAllocator&& stack_allocator, F&& function, CompletionToken&& token,
-    constraint_t<
+inline BOOST_ASIO_INITFN_AUTO_RESULT_TYPE_PREFIX(CompletionToken,
+    typename detail::spawn_signature<
+      typename result_of<F(basic_yield_context<Executor>)>::type>::type)
+spawn(const Executor& ex, allocator_arg_t,
+    BOOST_ASIO_MOVE_ARG(StackAllocator) stack_allocator,
+    BOOST_ASIO_MOVE_ARG(F) function,
+    BOOST_ASIO_MOVE_ARG(CompletionToken) token,
+    typename constraint<
       is_executor<Executor>::value || execution::is_executor<Executor>::value
-    >)
-  -> decltype(
+    >::type)
+  BOOST_ASIO_INITFN_AUTO_RESULT_TYPE_SUFFIX((
     async_initiate<CompletionToken,
       typename detail::spawn_signature<
-        result_of_t<F(basic_yield_context<Executor>)>>::type>(
-          declval<detail::initiate_spawn<Executor>>(),
+        typename result_of<F(basic_yield_context<Executor>)>::type>::type>(
+          declval<detail::initiate_spawn<Executor> >(),
           token, allocator_arg_t(),
-          static_cast<StackAllocator&&>(stack_allocator),
-          static_cast<F&&>(function)))
+          BOOST_ASIO_MOVE_CAST(StackAllocator)(stack_allocator),
+          BOOST_ASIO_MOVE_CAST(F)(function))))
 {
   return async_initiate<CompletionToken,
     typename detail::spawn_signature<
-      result_of_t<F(basic_yield_context<Executor>)>>::type>(
+      typename result_of<F(basic_yield_context<Executor>)>::type>::type>(
         detail::initiate_spawn<Executor>(ex), token, allocator_arg_t(),
-        static_cast<StackAllocator&&>(stack_allocator),
-        static_cast<F&&>(function));
+        BOOST_ASIO_MOVE_CAST(StackAllocator)(stack_allocator),
+        BOOST_ASIO_MOVE_CAST(F)(function));
 }
 
 template <typename ExecutionContext, typename StackAllocator, typename F,
     BOOST_ASIO_COMPLETION_TOKEN_FOR(typename detail::spawn_signature<
-      result_of_t<F(basic_yield_context<
-        typename ExecutionContext::executor_type>)>>::type) CompletionToken>
-inline auto spawn(ExecutionContext& ctx, allocator_arg_t,
-    StackAllocator&& stack_allocator, F&& function, CompletionToken&& token,
-    constraint_t<
+      typename result_of<F(basic_yield_context<
+        typename ExecutionContext::executor_type>)>::type>::type)
+          CompletionToken>
+inline BOOST_ASIO_INITFN_AUTO_RESULT_TYPE_PREFIX(CompletionToken,
+    typename detail::spawn_signature<
+      typename result_of<F(basic_yield_context<
+        typename ExecutionContext::executor_type>)>::type>::type)
+spawn(ExecutionContext& ctx, allocator_arg_t,
+    BOOST_ASIO_MOVE_ARG(StackAllocator) stack_allocator,
+    BOOST_ASIO_MOVE_ARG(F) function,
+    BOOST_ASIO_MOVE_ARG(CompletionToken) token,
+    typename constraint<
       is_convertible<ExecutionContext&, execution_context&>::value
-    >)
-  -> decltype(
+    >::type)
+  BOOST_ASIO_INITFN_AUTO_RESULT_TYPE_SUFFIX((
     async_initiate<CompletionToken,
       typename detail::spawn_signature<
-        result_of_t<F(basic_yield_context<
-          typename ExecutionContext::executor_type>)>>::type>(
+        typename result_of<F(basic_yield_context<
+          typename ExecutionContext::executor_type>)>::type>::type>(
             declval<detail::initiate_spawn<
-              typename ExecutionContext::executor_type>>(),
+              typename ExecutionContext::executor_type> >(),
             token, allocator_arg_t(),
-            static_cast<StackAllocator&&>(stack_allocator),
-            static_cast<F&&>(function)))
+            BOOST_ASIO_MOVE_CAST(StackAllocator)(stack_allocator),
+            BOOST_ASIO_MOVE_CAST(F)(function))))
 {
   return (spawn)(ctx.get_executor(), allocator_arg_t(),
-      static_cast<StackAllocator&&>(stack_allocator),
-      static_cast<F&&>(function), static_cast<CompletionToken&&>(token));
+      BOOST_ASIO_MOVE_CAST(StackAllocator)(stack_allocator),
+      BOOST_ASIO_MOVE_CAST(F)(function),
+      BOOST_ASIO_MOVE_CAST(CompletionToken)(token));
 }
 
 template <typename Executor, typename StackAllocator, typename F,
     BOOST_ASIO_COMPLETION_TOKEN_FOR(typename detail::spawn_signature<
-      result_of_t<F(basic_yield_context<Executor>)>>::type) CompletionToken>
-inline auto spawn(const basic_yield_context<Executor>& ctx, allocator_arg_t,
-    StackAllocator&& stack_allocator, F&& function, CompletionToken&& token,
-    constraint_t<
+      typename result_of<F(basic_yield_context<Executor>)>::type>::type)
+        CompletionToken>
+inline BOOST_ASIO_INITFN_AUTO_RESULT_TYPE_PREFIX(CompletionToken,
+    typename detail::spawn_signature<
+      typename result_of<F(basic_yield_context<Executor>)>::type>::type)
+spawn(const basic_yield_context<Executor>& ctx, allocator_arg_t,
+    BOOST_ASIO_MOVE_ARG(StackAllocator) stack_allocator,
+    BOOST_ASIO_MOVE_ARG(F) function,
+    BOOST_ASIO_MOVE_ARG(CompletionToken) token,
+    typename constraint<
       is_executor<Executor>::value || execution::is_executor<Executor>::value
-    >)
-  -> decltype(
+    >::type)
+  BOOST_ASIO_INITFN_AUTO_RESULT_TYPE_SUFFIX((
     async_initiate<CompletionToken,
       typename detail::spawn_signature<
-        result_of_t<F(basic_yield_context<Executor>)>>::type>(
-          declval<detail::initiate_spawn<Executor>>(), token,
-          allocator_arg_t(), static_cast<StackAllocator&&>(stack_allocator),
-          static_cast<F&&>(function)))
+        typename result_of<F(basic_yield_context<Executor>)>::type>::type>(
+          declval<detail::initiate_spawn<Executor> >(),
+          token, allocator_arg_t(),
+          BOOST_ASIO_MOVE_CAST(StackAllocator)(stack_allocator),
+          BOOST_ASIO_MOVE_CAST(F)(function))))
 {
   return (spawn)(ctx.get_executor(), allocator_arg_t(),
-      static_cast<StackAllocator&&>(stack_allocator),
-      static_cast<F&&>(function), static_cast<CompletionToken&&>(token));
+      BOOST_ASIO_MOVE_CAST(StackAllocator)(stack_allocator),
+      BOOST_ASIO_MOVE_CAST(F)(function),
+      BOOST_ASIO_MOVE_CAST(CompletionToken)(token));
 }
 
 #endif // defined(BOOST_ASIO_HAS_BOOST_CONTEXT_FIBER)
+
+#if defined(BOOST_ASIO_HAS_BOOST_COROUTINE)
+
+namespace detail {
+
+template <typename Executor, typename Function, typename Handler>
+class old_spawn_entry_point
+{
+public:
+  template <typename F, typename H>
+  old_spawn_entry_point(const Executor& ex,
+      BOOST_ASIO_MOVE_ARG(F) f, BOOST_ASIO_MOVE_ARG(H) h)
+    : executor_(ex),
+      function_(BOOST_ASIO_MOVE_CAST(F)(f)),
+      handler_(BOOST_ASIO_MOVE_CAST(H)(h))
+  {
+  }
+
+  void operator()(spawned_thread_base* spawned_thread)
+  {
+    const basic_yield_context<Executor> yield(spawned_thread, executor_);
+    this->call(yield,
+        void_type<typename result_of<Function(
+          basic_yield_context<Executor>)>::type>());
+  }
+
+private:
+  void call(const basic_yield_context<Executor>& yield, void_type<void>)
+  {
+    function_(yield);
+    BOOST_ASIO_MOVE_OR_LVALUE(Handler)(handler_)();
+  }
+
+  template <typename T>
+  void call(const basic_yield_context<Executor>& yield, void_type<T>)
+  {
+    BOOST_ASIO_MOVE_OR_LVALUE(Handler)(handler_)(function_(yield));
+  }
+
+  Executor executor_;
+  Function function_;
+  Handler handler_;
+};
+
+inline void default_spawn_handler() {}
+
+} // namespace detail
+
+template <typename Function>
+inline void spawn(BOOST_ASIO_MOVE_ARG(Function) function,
+    const boost::coroutines::attributes& attributes)
+{
+  typedef typename decay<Function>::type function_type;
+
+  typename associated_executor<function_type>::type ex(
+      (get_associated_executor)(function));
+
+  boost::asio::spawn(ex, BOOST_ASIO_MOVE_CAST(Function)(function), attributes);
+}
+
+template <typename Handler, typename Function>
+void spawn(BOOST_ASIO_MOVE_ARG(Handler) handler,
+    BOOST_ASIO_MOVE_ARG(Function) function,
+    const boost::coroutines::attributes& attributes,
+    typename constraint<
+      !is_executor<typename decay<Handler>::type>::value &&
+      !execution::is_executor<typename decay<Handler>::type>::value &&
+      !is_convertible<Handler&, execution_context&>::value>::type)
+{
+  typedef typename decay<Handler>::type handler_type;
+  typedef typename decay<Function>::type function_type;
+  typedef typename associated_executor<handler_type>::type executor_type;
+
+  executor_type ex((get_associated_executor)(handler));
+
+  (dispatch)(ex,
+      detail::spawned_thread_resumer(
+        detail::spawned_coroutine_thread::spawn(
+          detail::old_spawn_entry_point<executor_type,
+            function_type, void (*)()>(
+              ex, BOOST_ASIO_MOVE_CAST(Function)(function),
+              &detail::default_spawn_handler), attributes)));
+}
+
+template <typename Executor, typename Function>
+void spawn(basic_yield_context<Executor> ctx,
+    BOOST_ASIO_MOVE_ARG(Function) function,
+    const boost::coroutines::attributes& attributes)
+{
+  typedef typename decay<Function>::type function_type;
+
+  (dispatch)(ctx.get_executor(),
+      detail::spawned_thread_resumer(
+        detail::spawned_coroutine_thread::spawn(
+          detail::old_spawn_entry_point<Executor,
+            function_type, void (*)()>(ctx.get_executor(),
+              BOOST_ASIO_MOVE_CAST(Function)(function),
+              &detail::default_spawn_handler), attributes)));
+}
+
+template <typename Function, typename Executor>
+inline void spawn(const Executor& ex,
+    BOOST_ASIO_MOVE_ARG(Function) function,
+    const boost::coroutines::attributes& attributes,
+    typename constraint<
+      is_executor<Executor>::value || execution::is_executor<Executor>::value
+    >::type)
+{
+  boost::asio::spawn(boost::asio::strand<Executor>(ex),
+      BOOST_ASIO_MOVE_CAST(Function)(function), attributes);
+}
+
+template <typename Function, typename Executor>
+inline void spawn(const strand<Executor>& ex,
+    BOOST_ASIO_MOVE_ARG(Function) function,
+    const boost::coroutines::attributes& attributes)
+{
+  boost::asio::spawn(boost::asio::bind_executor(
+        ex, &detail::default_spawn_handler),
+      BOOST_ASIO_MOVE_CAST(Function)(function), attributes);
+}
+
+#if !defined(BOOST_ASIO_NO_TS_EXECUTORS)
+
+template <typename Function>
+inline void spawn(const boost::asio::io_context::strand& s,
+    BOOST_ASIO_MOVE_ARG(Function) function,
+    const boost::coroutines::attributes& attributes)
+{
+  boost::asio::spawn(boost::asio::bind_executor(
+        s, &detail::default_spawn_handler),
+      BOOST_ASIO_MOVE_CAST(Function)(function), attributes);
+}
+
+#endif // !defined(BOOST_ASIO_NO_TS_EXECUTORS)
+
+template <typename Function, typename ExecutionContext>
+inline void spawn(ExecutionContext& ctx,
+    BOOST_ASIO_MOVE_ARG(Function) function,
+    const boost::coroutines::attributes& attributes,
+    typename constraint<is_convertible<
+      ExecutionContext&, execution_context&>::value>::type)
+{
+  boost::asio::spawn(ctx.get_executor(),
+      BOOST_ASIO_MOVE_CAST(Function)(function), attributes);
+}
+
+#endif // defined(BOOST_ASIO_HAS_BOOST_COROUTINE)
 
 } // namespace asio
 } // namespace boost

@@ -48,9 +48,8 @@ namespace experimental {
  * the asynchronous operation completes, and the result of the operation is
  * returned.
  *
- * Note that this token is not the most efficient (use the default completion
- * token @c boost::asio::deferred for that) but does provide type erasure, as it
- * will always return a @c coro.
+ * Note that this token is not the most efficient (use @c boost::asio::deferred
+ * for that) but does provide type erasure, as it will always return a @c coro.
  */
 template <typename Allocator = std::allocator<void>>
 struct use_coro_t
@@ -61,7 +60,7 @@ struct use_coro_t
   typedef Allocator allocator_type;
 
   /// Default constructor.
-  constexpr use_coro_t(
+  BOOST_ASIO_CONSTEXPR use_coro_t(
       allocator_type allocator = allocator_type{}
 #if defined(BOOST_ASIO_ENABLE_HANDLER_TRACKING)
 # if defined(BOOST_ASIO_HAS_SOURCE_LOCATION)
@@ -85,6 +84,7 @@ struct use_coro_t
   {
   }
 
+
   /// Specify an alternate allocator.
   template <typename OtherAllocator>
   use_coro_t<OtherAllocator> rebind(const OtherAllocator& allocator) const
@@ -99,7 +99,7 @@ struct use_coro_t
   }
 
   /// Constructor used to specify file name, line, and function name.
-  constexpr use_coro_t(const char* file_name,
+  BOOST_ASIO_CONSTEXPR use_coro_t(const char* file_name,
       int line, const char* function_name,
       allocator_type allocator = allocator_type{}) :
 #if defined(BOOST_ASIO_ENABLE_HANDLER_TRACKING)
@@ -127,13 +127,13 @@ struct use_coro_t
     /// Construct the adapted executor from the inner executor type.
     template <typename InnerExecutor1>
     executor_with_default(const InnerExecutor1& ex,
-        constraint_t<
-          conditional_t<
+        typename constraint<
+          conditional<
             !is_same<InnerExecutor1, executor_with_default>::value,
             is_convertible<InnerExecutor1, InnerExecutor>,
             false_type
-          >::value
-        > = 0) noexcept
+          >::type::value
+        >::type = 0) BOOST_ASIO_NOEXCEPT
       : InnerExecutor(ex)
     {
     }
@@ -141,21 +141,25 @@ struct use_coro_t
 
   /// Type alias to adapt an I/O object to use @c use_coro_t as its
   /// default completion token type.
+#if defined(BOOST_ASIO_HAS_ALIAS_TEMPLATES) \
+  || defined(GENERATING_DOCUMENTATION)
   template <typename T>
   using as_default_on_t = typename T::template rebind_executor<
-      executor_with_default<typename T::executor_type>>::other;
+      executor_with_default<typename T::executor_type> >::other;
+#endif // defined(BOOST_ASIO_HAS_ALIAS_TEMPLATES)
+       //   || defined(GENERATING_DOCUMENTATION)
 
   /// Function helper to adapt an I/O object to use @c use_coro_t as its
   /// default completion token type.
   template <typename T>
-  static typename decay_t<T>::template rebind_executor<
-      executor_with_default<typename decay_t<T>::executor_type>
+  static typename decay<T>::type::template rebind_executor<
+      executor_with_default<typename decay<T>::type::executor_type>
     >::other
-  as_default_on(T&& object)
+  as_default_on(BOOST_ASIO_MOVE_ARG(T) object)
   {
-    return typename decay_t<T>::template rebind_executor<
-        executor_with_default<typename decay_t<T>::executor_type>
-      >::other(static_cast<T&&>(object));
+    return typename decay<T>::type::template rebind_executor<
+        executor_with_default<typename decay<T>::type::executor_type>
+      >::other(BOOST_ASIO_MOVE_CAST(T)(object));
   }
 
 #if defined(BOOST_ASIO_ENABLE_HANDLER_TRACKING)
@@ -174,9 +178,11 @@ private:
  * See the documentation for boost::asio::use_coro_t for a usage example.
  */
 #if defined(GENERATING_DOCUMENTATION)
-BOOST_ASIO_INLINE_VARIABLE constexpr use_coro_t<> use_coro;
-#else
-BOOST_ASIO_INLINE_VARIABLE constexpr use_coro_t<> use_coro(0, 0, 0);
+constexpr use_coro_t<> use_coro;
+#elif defined(BOOST_ASIO_HAS_CONSTEXPR)
+constexpr use_coro_t<> use_coro(0, 0, 0);
+#elif defined(BOOST_ASIO_MSVC)
+__declspec(selectany) use_coro_t<> use_coro(0, 0, 0);
 #endif
 
 } // namespace experimental

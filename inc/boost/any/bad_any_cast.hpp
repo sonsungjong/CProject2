@@ -1,4 +1,4 @@
-// Copyright Antony Polukhin, 2020-2025.
+// Copyright Antony Polukhin, 2020-2023.
 //
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
@@ -32,7 +32,7 @@ class BOOST_SYMBOL_VISIBLE bad_any_cast :
 #endif
 {
 public:
-    const char * what() const BOOST_NOEXCEPT_OR_NOTHROW override
+    const char * what() const BOOST_NOEXCEPT_OR_NOTHROW BOOST_OVERRIDE
     {
         return "boost::bad_any_cast: "
                "failed conversion using boost::any_cast";

@@ -28,7 +28,7 @@ namespace urls {
         @ref encoded_size,
         @ref pct_string_view.
 */
-struct encoding_opts
+struct BOOST_URL_DECL encoding_opts
 {
     /** True if spaces encode to and from plus signs
 
@@ -67,21 +67,12 @@ struct encoding_opts
     */
     bool disallow_null = false;
 
-    /** Constructs an `encoding_opts` object with the specified options.
-
-        @param space_as_plus If true, spaces will be encoded as plus signs.
-        @param lower_case If true, hexadecimal digits will be emitted as lower case.
-        @param disallow_null If true, null characters will not be allowed.
-     */
-    BOOST_CXX14_CONSTEXPR
-    inline
+#ifndef BOOST_URL_DOCS
     encoding_opts(
-        bool const space_as_plus = false,
-        bool const lower_case = false,
-        bool const disallow_null = false) noexcept
-        : space_as_plus(space_as_plus)
-        , lower_case(lower_case)
-        , disallow_null(disallow_null) {}
+        bool space_as_plus_ = false,
+        bool lower_case_ = false,
+        bool disallow_null_ = false) noexcept;
+#endif
 };
 
 } // urls

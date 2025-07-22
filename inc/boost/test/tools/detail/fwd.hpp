@@ -42,6 +42,8 @@ class assertion_result;
 
 namespace tt_detail {
 
+inline bool dummy_cond() { return false; }
+
 // ************************************************************************** //
 // **************        types of supported assertions         ************** //
 // ************************************************************************** //

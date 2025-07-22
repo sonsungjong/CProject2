@@ -140,7 +140,7 @@ struct access
             >
     >
 {
-    using ctype = coordinate_type_t<Sequence>;
+    typedef typename coordinate_type<Sequence>::type ctype;
 
     static inline ctype get(Sequence const& point)
     {
@@ -165,7 +165,7 @@ struct tag
             >
     >
 {
-    using type = point_tag;
+    typedef point_tag type;
 };
 
 

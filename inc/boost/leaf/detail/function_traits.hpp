@@ -1,7 +1,8 @@
 #ifndef BOOST_LEAF_DETAIL_FUNCTION_TRAITS_HPP_INCLUDED
 #define BOOST_LEAF_DETAIL_FUNCTION_TRAITS_HPP_INCLUDED
 
-// Copyright 2018-2024 Emil Dotchevski and Reverge Studios, Inc.
+// Copyright 2018-2022 Emil Dotchevski and Reverge Studios, Inc.
+
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -11,7 +12,7 @@
 
 namespace boost { namespace leaf {
 
-namespace detail
+namespace leaf_detail
 {
     template <class T> struct remove_noexcept { using type = T; };
     template <class R, class... A>  struct remove_noexcept<R(*)(A...) noexcept> { using type = R(*)(A...); };
@@ -96,4 +97,4 @@ namespace detail
 
 } }
 
-#endif // BOOST_LEAF_DETAIL_FUNCTION_TRAITS_HPP_INCLUDED
+#endif

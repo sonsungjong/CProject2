@@ -43,7 +43,7 @@
 #include <cassert>
 
 #if defined( BOOST_USE_WINDOWS_H )
-#include <windows.h>
+#include <Windows.h>
 #else
 
 #if defined (WIN32_PLATFORM_PSPC)

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019-2025 Ruben Perez Hidalgo (rubenperez038 at gmail dot com)
+// Copyright (c) 2019-2023 Ruben Perez Hidalgo (rubenperez038 at gmail dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -10,13 +10,15 @@
 
 #pragma once
 
+#include <boost/mysql/detail/config.hpp>
 #include <boost/mysql/detail/row_impl.hpp>
 
 namespace boost {
 namespace mysql {
 namespace detail {
 
-inline std::size_t get_string_size(field_view f)
+BOOST_MYSQL_STATIC_OR_INLINE
+std::size_t get_string_size(field_view f) noexcept
 {
     switch (f.kind())
     {
@@ -26,7 +28,8 @@ inline std::size_t get_string_size(field_view f)
     }
 }
 
-inline unsigned char* copy_string(unsigned char* buffer_it, field_view& f)
+BOOST_MYSQL_STATIC_OR_INLINE
+unsigned char* copy_string(unsigned char* buffer_it, field_view& f) noexcept
 {
     auto str = f.get_string();
     if (!str.empty())
@@ -38,7 +41,8 @@ inline unsigned char* copy_string(unsigned char* buffer_it, field_view& f)
     return buffer_it;
 }
 
-inline unsigned char* copy_blob(unsigned char* buffer_it, field_view& f)
+BOOST_MYSQL_STATIC_OR_INLINE
+unsigned char* copy_blob(unsigned char* buffer_it, field_view& f) noexcept
 {
     auto b = f.get_blob();
     if (!b.empty())
@@ -50,7 +54,8 @@ inline unsigned char* copy_blob(unsigned char* buffer_it, field_view& f)
     return buffer_it;
 }
 
-inline std::size_t copy_string_as_offset(unsigned char* buffer_first, std::size_t offset, field_view& f)
+BOOST_MYSQL_STATIC_OR_INLINE
+std::size_t copy_string_as_offset(unsigned char* buffer_first, std::size_t offset, field_view& f) noexcept
 {
     auto str = f.get_string();
     if (!str.empty())
@@ -62,7 +67,8 @@ inline std::size_t copy_string_as_offset(unsigned char* buffer_first, std::size_
     return 0;
 }
 
-inline std::size_t copy_blob_as_offset(unsigned char* buffer_first, std::size_t offset, field_view& f)
+BOOST_MYSQL_STATIC_OR_INLINE
+std::size_t copy_blob_as_offset(unsigned char* buffer_first, std::size_t offset, field_view& f) noexcept
 {
     auto str = f.get_blob();
     if (!str.empty())
@@ -74,7 +80,8 @@ inline std::size_t copy_blob_as_offset(unsigned char* buffer_first, std::size_t 
     return 0;
 }
 
-inline void copy_strings(std::vector<field_view>& fields, std::vector<unsigned char>& string_buffer)
+BOOST_MYSQL_STATIC_OR_INLINE
+void copy_strings(std::vector<field_view>& fields, std::vector<unsigned char>& string_buffer)
 {
     // Calculate the required size for the new strings
     std::size_t size = 0;
@@ -100,7 +107,8 @@ inline void copy_strings(std::vector<field_view>& fields, std::vector<unsigned c
     BOOST_ASSERT(buffer_it == string_buffer.data() + size);
 }
 
-inline field_view offset_to_string_view(field_view fv, const std::uint8_t* buffer_first)
+BOOST_MYSQL_STATIC_OR_INLINE
+field_view offset_to_string_view(field_view fv, const std::uint8_t* buffer_first) noexcept
 {
     auto& impl = detail::access::get_impl(fv);
     if (impl.is_string_offset())

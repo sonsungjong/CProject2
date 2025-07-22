@@ -1,4 +1,4 @@
-// Copyright Antony Polukhin, 2016-2025.
+// Copyright Antony Polukhin, 2016-2023.
 //
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
@@ -11,11 +11,7 @@
 #   define BOOST_STACKTRACE_LINK
 #endif
 
-#if !defined(BOOST_STACKTRACE_LINK) && defined(BOOST_STACKTRACE_STATIC_LINK)
-#   define BOOST_STACKTRACE_LINK
-#endif
-
-#if defined(BOOST_STACKTRACE_LINK) && !defined(BOOST_STACKTRACE_DYN_LINK) && !defined(BOOST_STACKTRACE_STATIC_LINK) && defined(BOOST_ALL_DYN_LINK)
+#if defined(BOOST_STACKTRACE_LINK) && !defined(BOOST_STACKTRACE_DYN_LINK) && defined(BOOST_ALL_DYN_LINK)
 #   define BOOST_STACKTRACE_DYN_LINK
 #endif
 

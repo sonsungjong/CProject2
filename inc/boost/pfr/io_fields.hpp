@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2025 Antony Polukhin
+// Copyright (c) 2016-2023 Antony Polukhin
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -118,8 +118,6 @@ std::basic_istream<Char, Traits>& operator>>(std::basic_istream<Char, Traits>& i
     return in;
 }
 
-BOOST_PFR_BEGIN_MODULE_EXPORT
-
 template <class Char, class Traits, class T>
 std::basic_istream<Char, Traits>& operator>>(std::basic_istream<Char, Traits>& in, io_fields_impl<const T&>&& ) {
     static_assert(sizeof(T) && false, "====================> Boost.PFR: Attempt to use istream operator on a boost::pfr::io_fields wrapped type T with const qualifier.");
@@ -132,11 +130,7 @@ std::basic_istream<Char, Traits>& operator>>(std::basic_istream<Char, Traits>& i
     return in;
 }
 
-BOOST_PFR_END_MODULE_EXPORT
-
 } // namespace detail
-
-BOOST_PFR_BEGIN_MODULE_EXPORT
 
 /// IO manipulator to read/write \aggregate `value` field-by-field.
 ///
@@ -164,8 +158,6 @@ template <class T>
 auto io_fields(T&& value) noexcept {
     return detail::io_fields_impl<T>{std::forward<T>(value)};
 }
-
-BOOST_PFR_END_MODULE_EXPORT
 
 }} // namespace boost::pfr
 

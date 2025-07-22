@@ -80,22 +80,12 @@ public:
     buffered_channel & operator=( buffered_channel const&) = delete;
 
     bool is_closed() const noexcept {
-        detail::spinlock_lock lk{splk_, std::defer_lock};
-        for(;;) {            
-            if(lk.try_lock())
-                break;
-            context::active()->yield();            
-        }
+        detail::spinlock_lock lk{ splk_ };
         return is_closed_();
     }
 
     void close() noexcept {
-        detail::spinlock_lock lk{splk_, std::defer_lock};
-        for(;;) {            
-            if(lk.try_lock())
-                break;
-            context::active()->yield();            
-        }
+        detail::spinlock_lock lk{ splk_ };
         if ( ! closed_) {
             closed_ = true;
             waiting_producers_.notify_all();
@@ -104,12 +94,7 @@ public:
     }
 
     channel_op_status try_push( value_type const& value) {
-        detail::spinlock_lock lk{splk_, std::defer_lock};
-        for(;;) {            
-            if(lk.try_lock())
-                break;
-            context::active()->yield();            
-        }
+        detail::spinlock_lock lk{ splk_ };
         if ( BOOST_UNLIKELY( is_closed_() ) ) {
             return channel_op_status::closed;
         }
@@ -122,14 +107,8 @@ public:
         return channel_op_status::success;
     }
 
-    channel_op_status try_push( value_type && value) {        
-               
-        detail::spinlock_lock lk{splk_, std::defer_lock};
-        for(;;) {            
-            if(lk.try_lock())
-                break;
-            context::active()->yield();            
-        }
+    channel_op_status try_push( value_type && value) {
+        detail::spinlock_lock lk{ splk_ };
         if ( BOOST_UNLIKELY( is_closed_() ) ) {
             return channel_op_status::closed;
         }
@@ -145,11 +124,7 @@ public:
     channel_op_status push( value_type const& value) {
         context * active_ctx = context::active();
         for (;;) {
-            detail::spinlock_lock lk{splk_, std::try_to_lock};
-            if (!lk) {
-                active_ctx->yield();
-                continue;
-            }
+            detail::spinlock_lock lk{ splk_ };
             if ( BOOST_UNLIKELY( is_closed_() ) ) {
                 return channel_op_status::closed;
             }
@@ -167,11 +142,7 @@ public:
     channel_op_status push( value_type && value) {
         context * active_ctx = context::active();
         for (;;) {
-            detail::spinlock_lock lk{splk_, std::try_to_lock};
-            if (!lk) {
-                active_ctx->yield();
-                continue;
-            }
+            detail::spinlock_lock lk{ splk_ };
             if ( BOOST_UNLIKELY( is_closed_() ) ) {
                 return channel_op_status::closed;
             }
@@ -207,11 +178,7 @@ public:
         context * active_ctx = context::active();
         std::chrono::steady_clock::time_point timeout_time = detail::convert( timeout_time_);
         for (;;) {
-            detail::spinlock_lock lk{splk_, std::try_to_lock};
-            if (!lk) {
-                active_ctx->yield();
-                continue;
-            }
+            detail::spinlock_lock lk{ splk_ };
             if ( BOOST_UNLIKELY( is_closed_() ) ) {
                 return channel_op_status::closed;
             }
@@ -234,11 +201,7 @@ public:
         context * active_ctx = context::active();
         std::chrono::steady_clock::time_point timeout_time = detail::convert( timeout_time_);
         for (;;) {
-            detail::spinlock_lock lk{splk_, std::try_to_lock};
-            if (!lk) {
-                active_ctx->yield();
-                continue;
-            }
+            detail::spinlock_lock lk{ splk_ };
             if ( BOOST_UNLIKELY( is_closed_() ) ) {
                 return channel_op_status::closed;
             }
@@ -257,12 +220,7 @@ public:
     }
 
     channel_op_status try_pop( value_type & value) {
-        detail::spinlock_lock lk{splk_, std::defer_lock};
-        for(;;) {            
-            if(lk.try_lock())
-                break;
-            context::active()->yield();            
-        }
+        detail::spinlock_lock lk{ splk_ };
         if ( is_empty_() ) {
             return is_closed_()
                 ? channel_op_status::closed
@@ -277,11 +235,7 @@ public:
     channel_op_status pop( value_type & value) {
         context * active_ctx = context::active();
         for (;;) {
-            detail::spinlock_lock lk{splk_, std::try_to_lock};
-            if (!lk) {
-                active_ctx->yield();
-                continue;
-            }
+            detail::spinlock_lock lk{ splk_ };
             if ( is_empty_() ) {
                 if ( BOOST_UNLIKELY( is_closed_() ) ) {
                     return channel_op_status::closed;
@@ -299,11 +253,7 @@ public:
     value_type value_pop() {
         context * active_ctx = context::active();
         for (;;) {
-            detail::spinlock_lock lk{splk_, std::try_to_lock};
-            if (!lk) {
-                active_ctx->yield();
-                continue;
-            }
+            detail::spinlock_lock lk{ splk_ };
             if ( is_empty_() ) {
                 if ( BOOST_UNLIKELY( is_closed_() ) ) {
                     throw fiber_error{
@@ -333,11 +283,7 @@ public:
         context * active_ctx = context::active();
         std::chrono::steady_clock::time_point timeout_time = detail::convert( timeout_time_);
         for (;;) {
-            detail::spinlock_lock lk{splk_, std::try_to_lock};
-            if (!lk) {
-                active_ctx->yield();
-                continue;
-            }
+            detail::spinlock_lock lk{ splk_ };
             if ( is_empty_() ) {
                 if ( BOOST_UNLIKELY( is_closed_() ) ) {
                     return channel_op_status::closed;

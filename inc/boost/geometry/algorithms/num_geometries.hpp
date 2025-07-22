@@ -51,7 +51,12 @@ namespace dispatch
 template
 <
     typename Geometry,
-    typename Tag = tag_cast_t<tag_t<Geometry>, single_tag, multi_tag>
+    typename Tag = typename tag_cast
+                            <
+                                typename tag<Geometry>::type,
+                                single_tag,
+                                multi_tag
+                            >::type
 >
 struct num_geometries: not_implemented<Tag>
 {};

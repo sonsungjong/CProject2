@@ -1,7 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2020-2024, Oracle and/or its affiliates.
-// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// Copyright (c) 2020-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
@@ -41,10 +40,12 @@ struct intersection_areal_areal_
     <
         typename Areal1,
         typename Areal2,
+        typename RobustPolicy,
         typename Strategy
     >
     static inline void apply(Areal1 const& areal1,
                              Areal2 const& areal2,
+                             RobustPolicy const& robust_policy,
                              GeometryOut& geometry_out,
                              Strategy const& strategy)
     {
@@ -53,7 +54,7 @@ struct intersection_areal_areal_
                 Areal1, Areal2,
                 typename boost::range_value<GeometryOut>::type,
                 overlay_intersection
-            >::apply(areal1, areal2,
+            >::apply(areal1, areal2, robust_policy,
                      geometry::range::back_inserter(geometry_out),
                      strategy);
     }
@@ -68,17 +69,19 @@ struct intersection_areal_areal_<TupledOut, tupled_output_tag>
     <
         typename Areal1,
         typename Areal2,
+        typename RobustPolicy,
         typename Strategy
     >
     static inline void apply(Areal1 const& areal1,
                              Areal2 const& areal2,
+                             RobustPolicy const& robust_policy,
                              TupledOut& geometry_out,
                              Strategy const& strategy)
     {
-        using single_out = typename geometry::detail::output_geometry_value
+        typedef typename geometry::detail::output_geometry_value
             <
                 TupledOut
-            >::type;
+            >::type single_out;
 
         boost::ignore_unused
             <
@@ -89,21 +92,29 @@ struct intersection_areal_areal_<TupledOut, tupled_output_tag>
                     >
             >();
 
-        using areal = geometry::detail::output_geometry_access
+        typedef geometry::detail::output_geometry_access
             <
                 single_out, polygon_tag, polygon_tag
-            >;
-        using linear = geometry::detail::output_geometry_access
+            > areal;
+        typedef geometry::detail::output_geometry_access
             <
                 single_out, linestring_tag, linestring_tag
-            >;
-        using pointlike = geometry::detail::output_geometry_access
+            > linear;
+        typedef geometry::detail::output_geometry_access
             <
                 single_out, point_tag, point_tag
-            >;
+            > pointlike;
+
+        typedef typename geometry::tuples::element
+            <
+                areal::index, TupledOut
+            >::type areal_out_type;
+
+        // NOTE: The same robust_policy is used in each call of
+        //   intersection_insert. Is that correct?
 
         // A * A -> A
-        call_intersection(areal1, areal2,
+        call_intersection(areal1, areal2, robust_policy,
                           areal::get(geometry_out),
                           strategy);
 
@@ -113,6 +124,7 @@ struct intersection_areal_areal_<TupledOut, tupled_output_tag>
         // L * L -> (L, P)
         call_intersection(geometry::detail::boundary_view<Areal1 const>(areal1),
                           geometry::detail::boundary_view<Areal2 const>(areal2),
+                          robust_policy,
                           ! is_areal_empty
                             ? temp_out
                             : geometry_out,
@@ -122,29 +134,24 @@ struct intersection_areal_areal_<TupledOut, tupled_output_tag>
         {
             // NOTE: the original areal geometry could be used instead of boundary here
             //   however this results in static assert failure related to rescale policy
-            // After the removing of rescaling replacing boundary with areal geometry results in
-            // some tests failing.
-            using areal_out_type = typename geometry::tuples::element
-            <
-                areal::index, TupledOut
-            >::type;
-
-            using areal_out_boundary_type = geometry::detail::boundary_view
+            typedef geometry::detail::boundary_view
                 <
                     areal_out_type const
-                >;
+                > areal_out_boundary_type;
 
             areal_out_boundary_type areal_out_boundary(areal::get(geometry_out));
 
             // L - L -> L
             call_difference(linear::get(temp_out),
                             areal_out_boundary,
+                            robust_policy,
                             linear::get(geometry_out),
                             strategy);
 
             // P - L -> P
             call_difference(pointlike::get(temp_out),
                             areal_out_boundary,
+                            robust_policy,
                             pointlike::get(geometry_out),
                             strategy);
         }
@@ -157,11 +164,13 @@ private:
     <
         typename Geometry1,
         typename Geometry2,
+        typename RobustPolicy,
         typename GeometryOut,
         typename Strategy
     >
     static inline void call_intersection(Geometry1 const& geometry1,
                                          Geometry2 const& geometry2,
+                                         RobustPolicy const& robust_policy,
                                          GeometryOut& geometry_out,
                                          Strategy const& strategy)
     {
@@ -176,6 +185,7 @@ private:
                 overlay_intersection
             >::apply(geometry1,
                      geometry2,
+                     robust_policy,
                      geometry::detail::output_geometry_back_inserter(geometry_out),
                      strategy);
     }
@@ -184,11 +194,13 @@ private:
     <
         typename Geometry1,
         typename Geometry2,
+        typename RobustPolicy,
         typename GeometryOut,
         typename Strategy
     >
     static inline void call_difference(Geometry1 const& geometry1,
                                        Geometry2 const& geometry2,
+                                       RobustPolicy const& robust_policy,
                                        GeometryOut& geometry_out,
                                        Strategy const& strategy)
     {
@@ -200,6 +212,7 @@ private:
                 overlay_difference
             >::apply(geometry1,
                      geometry2,
+                     robust_policy,
                      geometry::range::back_inserter(geometry_out),
                      strategy);
     }
@@ -212,18 +225,20 @@ struct intersection_areal_areal
     <
         typename Areal1,
         typename Areal2,
+        typename RobustPolicy,
         typename GeometryOut,
         typename Strategy
     >
     static inline bool apply(Areal1 const& areal1,
                              Areal2 const& areal2,
+                             RobustPolicy const& robust_policy,
                              GeometryOut& geometry_out,
                              Strategy const& strategy)
     {
         intersection_areal_areal_
             <
                 GeometryOut
-            >::apply(areal1, areal2, geometry_out, strategy);
+            >::apply(areal1, areal2, robust_policy, geometry_out, strategy);
 
         return true;
     }

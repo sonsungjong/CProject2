@@ -37,7 +37,7 @@ BOOST_PROCESS_V2_BEGIN_NAMESPACE
 namespace detail
 {
 
-template<typename Executor = net::any_io_executor>
+template<typename Executor = BOOST_PROCESS_V2_ASIO_NAMESPACE::any_io_executor>
 struct basic_process_handle_fd_or_signal
 {
     using native_handle_type = int;
@@ -59,7 +59,7 @@ struct basic_process_handle_fd_or_signal
     basic_process_handle_fd_or_signal(ExecutionContext &context,
                                 typename std::enable_if<
                                         std::is_convertible<ExecutionContext &,
-                                                net::execution_context &>::value
+                                                BOOST_PROCESS_V2_ASIO_NAMESPACE::execution_context &>::value
                                 >::type * = nullptr)
             : pid_(-1), descriptor_(context)
     {
@@ -70,7 +70,7 @@ struct basic_process_handle_fd_or_signal
                                       pid_type pid,
                                       typename std::enable_if<
                                           std::is_convertible<ExecutionContext &,
-                                              net::execution_context &>::value
+                                              BOOST_PROCESS_V2_ASIO_NAMESPACE::execution_context &>::value
                                           >::type * = nullptr)
             : pid_(pid), descriptor_(context)
     {
@@ -81,7 +81,7 @@ struct basic_process_handle_fd_or_signal
                                       pid_type pid, native_handle_type process_handle,
                                       typename std::enable_if<
                                           std::is_convertible<ExecutionContext &,
-                                              net::execution_context &>::value
+                                              BOOST_PROCESS_V2_ASIO_NAMESPACE::execution_context &>::value
                                           >::type * = nullptr)
             : pid_(pid), descriptor_(context, process_handle)
     {
@@ -255,8 +255,6 @@ struct basic_process_handle_fd_or_signal
             return;
         if (::kill(pid_, SIGKILL) == -1)
             ec = get_last_error();
-        else
-            wait(exit_status, ec);
     }
 
     void terminate(native_exit_code_type &exit_status)
@@ -283,9 +281,10 @@ struct basic_process_handle_fd_or_signal
         if (process_is_running(res))
             return true;
         else
+        {
             exit_code = code;
-
-        return false;
+            return false;
+        }
     }
 
     bool running(native_exit_code_type &exit_code)
@@ -305,35 +304,37 @@ struct basic_process_handle_fd_or_signal
         return pid_ != -1;
     }
 
+    template<BOOST_PROCESS_V2_COMPLETION_TOKEN_FOR(void(error_code, int))
+    WaitHandler BOOST_PROCESS_V2_DEFAULT_COMPLETION_TOKEN_TYPE(executor_type)>
+    BOOST_PROCESS_V2_INITFN_AUTO_RESULT_TYPE(WaitHandler, void (error_code, native_exit_code_type))
+    async_wait(WaitHandler &&handler BOOST_ASIO_DEFAULT_COMPLETION_TOKEN(executor_type))
+    {
+        return BOOST_PROCESS_V2_ASIO_NAMESPACE::async_compose<WaitHandler, void(error_code, native_exit_code_type)>(
+                async_wait_op_{descriptor_, signal_set_, pid_}, handler, descriptor_);
+    }
+
   private:
     template<typename>
     friend
     struct basic_process_handle_fd_or_signal;
     pid_type pid_ = -1;
-    net::posix::basic_stream_descriptor<Executor> descriptor_;
-    net::basic_signal_set<Executor> signal_set_{descriptor_.get_executor(), SIGCHLD};
+    BOOST_PROCESS_V2_ASIO_NAMESPACE::posix::basic_stream_descriptor<Executor> descriptor_;
+    BOOST_PROCESS_V2_ASIO_NAMESPACE::basic_signal_set<Executor> signal_set_{descriptor_.get_executor(), SIGCHLD};
 
     struct async_wait_op_
     {
-        net::posix::basic_descriptor<Executor> &descriptor;
-        net::basic_signal_set<Executor> &handle;
+        BOOST_PROCESS_V2_ASIO_NAMESPACE::posix::basic_descriptor<Executor> &descriptor;
+        BOOST_PROCESS_V2_ASIO_NAMESPACE::basic_signal_set<Executor> &handle;
         pid_type pid_;
         bool needs_post = true;
 
         template<typename Self>
-        void operator()(Self && self)
-        {
-          self.reset_cancellation_state(asio::enable_total_cancellation());
-          (*this)(std::move(self), error_code{});
-        }
-
-        template<typename Self>
-        void operator()(Self &&self, error_code ec, int = 0)
+        void operator()(Self &&self, error_code ec = {}, int = 0)
         {
             native_exit_code_type exit_code{};
             int wait_res = -1;
             if (pid_ <= 0) // error, complete early
-                ec = net::error::bad_descriptor;
+                ec = BOOST_PROCESS_V2_ASIO_NAMESPACE::error::bad_descriptor;
             else 
             {
                 wait_res = ::waitpid(pid_, &exit_code, WNOHANG);
@@ -346,7 +347,7 @@ struct basic_process_handle_fd_or_signal
                 needs_post = false;
                 if (descriptor.is_open())
                     descriptor.async_wait(
-                            net::posix::descriptor_base::wait_read,
+                            BOOST_PROCESS_V2_ASIO_NAMESPACE::posix::descriptor_base::wait_read, 
                             std::move(self));
                 else
                     handle.async_wait(std::move(self));
@@ -368,22 +369,12 @@ struct basic_process_handle_fd_or_signal
             const auto exec = self.get_executor();
             completer cpl{ec, exit_code, std::move(self)};
             if (needs_post)
-                net::post(exec, std::move(cpl));
+                BOOST_PROCESS_V2_ASIO_NAMESPACE::post(exec, std::move(cpl));
             else
-                net::dispatch(exec, std::move(cpl));
+                BOOST_PROCESS_V2_ASIO_NAMESPACE::dispatch(exec, std::move(cpl));
 
         }
     };
- public:
-    template<BOOST_PROCESS_V2_COMPLETION_TOKEN_FOR(void(error_code, int))
-             WaitHandler = net::default_completion_token_t<executor_type>>
-    auto async_wait(WaitHandler &&handler = net::default_completion_token_t<executor_type>())
-      -> decltype(net::async_compose<WaitHandler, void(error_code, native_exit_code_type)>(
-                  async_wait_op_{descriptor_, signal_set_, pid_}, handler, descriptor_))
-    {
-        return net::async_compose<WaitHandler, void(error_code, native_exit_code_type)>(
-                async_wait_op_{descriptor_, signal_set_, pid_}, handler, descriptor_);
-    }
 };
 }
 

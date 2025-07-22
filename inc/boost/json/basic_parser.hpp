@@ -280,7 +280,7 @@ class basic_parser
         num1,  num2,  num3,  num4,
         num5,  num6,  num7,  num8,
         exp1,  exp2,  exp3,
-        val1,  val2, val3
+        val1,  val2
     };
 
     struct number
@@ -299,7 +299,7 @@ class basic_parser
     Handler h_;
 
     number num_;
-    system::error_code ec_;
+    error_code ec_;
     detail::stack st_;
     detail::utf8_sequence seq_;
     unsigned u1_;
@@ -407,16 +407,14 @@ class basic_parser
         std::integral_constant<bool, StackEmpty_> stack_empty,
         std::integral_constant<bool, AllowComments_> allow_comments,
         /*std::integral_constant<bool, AllowTrailing_>*/ bool allow_trailing,
-        /*std::integral_constant<bool, AllowBadUTF8_>*/ bool allow_bad_utf8,
-        bool allow_bad_utf16);
+        /*std::integral_constant<bool, AllowBadUTF8_>*/ bool allow_bad_utf8);
 
     template<bool AllowComments_/*,
         bool AllowTrailing_, bool AllowBadUTF8_*/>
     const char* resume_value(const char* p,
         std::integral_constant<bool, AllowComments_> allow_comments,
         /*std::integral_constant<bool, AllowTrailing_>*/ bool allow_trailing,
-        /*std::integral_constant<bool, AllowBadUTF8_>*/ bool allow_bad_utf8,
-        bool allow_bad_utf16);
+        /*std::integral_constant<bool, AllowBadUTF8_>*/ bool allow_bad_utf8);
 
     template<bool StackEmpty_, bool AllowComments_/*,
         bool AllowTrailing_, bool AllowBadUTF8_*/>
@@ -424,8 +422,7 @@ class basic_parser
         std::integral_constant<bool, StackEmpty_> stack_empty,
         std::integral_constant<bool, AllowComments_> allow_comments,
         /*std::integral_constant<bool, AllowTrailing_>*/ bool allow_trailing,
-        /*std::integral_constant<bool, AllowBadUTF8_>*/ bool allow_bad_utf8,
-        bool allow_bad_utf16);
+        /*std::integral_constant<bool, AllowBadUTF8_>*/ bool allow_bad_utf8);
 
     template<bool StackEmpty_, bool AllowComments_/*,
         bool AllowTrailing_, bool AllowBadUTF8_*/>
@@ -433,32 +430,40 @@ class basic_parser
         std::integral_constant<bool, StackEmpty_> stack_empty,
         std::integral_constant<bool, AllowComments_> allow_comments,
         /*std::integral_constant<bool, AllowTrailing_>*/ bool allow_trailing,
-        /*std::integral_constant<bool, AllowBadUTF8_>*/ bool allow_bad_utf8,
-        bool allow_bad_utf16);
+        /*std::integral_constant<bool, AllowBadUTF8_>*/ bool allow_bad_utf8);
 
-    template<class Literal>
-    const char* parse_literal(const char* p, Literal literal);
+    template<int Literal>
+    const char* parse_literal(const char* p,
+        std::integral_constant<int, Literal> literal);
 
-    template<bool StackEmpty_, bool IsKey_>
+    template<bool StackEmpty_, bool IsKey_/*,
+        bool AllowBadUTF8_*/>
     const char* parse_string(const char* p,
         std::integral_constant<bool, StackEmpty_> stack_empty,
         std::integral_constant<bool, IsKey_> is_key,
-        bool allow_bad_utf8,
-        bool allow_bad_utf16);
-
-    template<bool StackEmpty_>
-    const char* parse_escaped(
-        const char* p,
-        std::size_t& total,
-        std::integral_constant<bool, StackEmpty_> stack_empty,
-        bool is_key,
-        bool allow_bad_utf16);
+        /*std::integral_constant<bool, AllowBadUTF8_>*/ bool allow_bad_utf8);
 
     template<bool StackEmpty_, char First_, number_precision Numbers_>
     const char* parse_number(const char* p,
         std::integral_constant<bool, StackEmpty_> stack_empty,
         std::integral_constant<char, First_> first,
         std::integral_constant<number_precision, Numbers_> numbers);
+
+    template<bool StackEmpty_, bool IsKey_/*,
+        bool AllowBadUTF8_*/>
+    const char* parse_unescaped(const char* p,
+        std::integral_constant<bool, StackEmpty_> stack_empty,
+        std::integral_constant<bool, IsKey_> is_key,
+        /*std::integral_constant<bool, AllowBadUTF8_>*/ bool allow_bad_utf8);
+
+    template<bool StackEmpty_/*, bool IsKey_,
+        bool AllowBadUTF8_*/>
+    const char* parse_escaped(
+        const char* p,
+        std::size_t total,
+        std::integral_constant<bool, StackEmpty_> stack_empty,
+        /*std::integral_constant<bool, IsKey_>*/ bool is_key,
+        /*std::integral_constant<bool, AllowBadUTF8_>*/ bool allow_bad_utf8);
 
     // intentionally private
     std::size_t
@@ -511,6 +516,8 @@ public:
 
         @param args Optional additional arguments
         forwarded to the handler's constructor.
+
+        @see parse_options
     */
     template<class... Args>
     explicit
@@ -564,7 +571,7 @@ public:
         @par Exception Safety
         No-throw guarantee.
     */
-    system::error_code
+    error_code
     last_error() const noexcept
     {
         return ec_;
@@ -633,7 +640,7 @@ public:
         instead.
     */
     void
-    fail(system::error_code ec) noexcept;
+    fail(error_code ec) noexcept;
 
     /** Parse some of an input string as JSON, incrementally.
 
@@ -685,13 +692,13 @@ public:
 
         @param ec Set to the error, if any occurred.
     */
-    /** @{ */
+/** @{ */
     std::size_t
     write_some(
         bool more,
         char const* data,
         std::size_t size,
-        system::error_code& ec);
+        error_code& ec);
 
     std::size_t
     write_some(
@@ -699,7 +706,7 @@ public:
         char const* data,
         std::size_t size,
         std::error_code& ec);
-    /** @} */
+/** @} */
 };
 
 } // namespace json

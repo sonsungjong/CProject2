@@ -10,7 +10,6 @@
 #ifndef BOOST_PROPERTY_TREE_DETAIL_JSON_PARSER_WRITE_HPP_INCLUDED
 #define BOOST_PROPERTY_TREE_DETAIL_JSON_PARSER_WRITE_HPP_INCLUDED
 
-#include <boost/property_tree/json_parser/error.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/next_prior.hpp>
 #include <boost/type_traits/make_unsigned.hpp>
@@ -159,10 +158,7 @@ namespace boost { namespace property_tree { namespace json_parser
         if (!verify_json(pt, 0))
             BOOST_PROPERTY_TREE_THROW(json_parser_error("ptree contains data that cannot be represented in JSON format", filename, 0));
         write_json_helper(stream, pt, 0, pretty);
-
-        if (pretty) stream << std::endl;
-        else stream << std::flush;
-
+        stream << std::endl;
         if (!stream.good())
             BOOST_PROPERTY_TREE_THROW(json_parser_error("write error", filename, 0));
     }

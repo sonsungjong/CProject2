@@ -27,7 +27,6 @@ namespace urls {
 
     @par BNF
     @code
-    query         = *( pchar / "/" / "?" )
     @endcode
 
     @par Exception Safety

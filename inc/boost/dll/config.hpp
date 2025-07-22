@@ -1,4 +1,4 @@
-// Copyright Antony Polukhin, 2018-2025.
+// Copyright Antony Polukhin, 2018-2023.
 //
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt
@@ -15,13 +15,27 @@
 #   pragma once
 #endif
 
-#ifdef BOOST_DLL_DOXYGEN
-/// Define this macro to make Boost.DLL use C++17's std::filesystem::path and std::system_error.
-#define BOOST_DLL_USE_STD_FS BOOST_DLL_USE_STD_FS
+#include <boost/config/pragma_message.hpp>
+#if defined(BOOST_NO_CXX11_RVALUE_REFERENCES) || \
+    defined(BOOST_NO_CXX11_AUTO_DECLARATIONS) || \
+    defined(BOOST_NO_CXX11_CONSTEXPR) || \
+    defined(BOOST_NO_CXX11_NULLPTR) || \
+    defined(BOOST_NO_CXX11_NOEXCEPT) || \
+    defined(BOOST_NO_CXX11_DEFAULTED_FUNCTIONS) || \
+    defined(BOOST_NO_CXX11_FINAL) || \
+    defined(BOOST_NO_CXX11_ALIGNOF) || \
+    defined(BOOST_NO_CXX11_STATIC_ASSERT) || \
+    defined(BOOST_NO_CXX11_SMART_PTR) || \
+    defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST) || \
+    defined(BOOST_NO_CXX11_HDR_TYPE_TRAITS)
 
-/// Define this macro to make Boost.DLL use boost::shared_ptr instead of std::shared_ptr. This macro will be removed
-/// after a few releases, consider migrating to std::shared_ptr. 
-#define BOOST_DLL_USE_BOOST_SHARED_PTR BOOST_DLL_USE_BOOST_SHARED_PTR
+BOOST_PRAGMA_MESSAGE("C++03 support is deprecated in Boost.DLL 1.82 and will be removed in Boost.DLL 1.84.")
+
+#endif
+
+#ifdef BOOST_DLL_DOXYGEN
+/// Define this macro to make Boost.DLL use C++17's std::filesystem::path, std::system_error and std::error_code.
+#define BOOST_DLL_USE_STD_FS BOOST_DLL_USE_STD_FS
 
 /// This namespace contains aliases to the Boost or C++17 classes. Aliases are configured using BOOST_DLL_USE_STD_FS macro.
 namespace boost { namespace dll { namespace fs {
@@ -42,17 +56,19 @@ using system_error = std::conditional_t<BOOST_DLL_USE_STD_FS, std::system_error,
 
 #endif
 
-
 #ifdef BOOST_DLL_USE_STD_FS
 #include <filesystem>
-
 #include <system_error>
 
 namespace boost { namespace dll { namespace fs {
 
 using namespace std::filesystem;
+
 using std::error_code;
 using std::system_error;
+using std::make_error_code;
+using std::errc;
+using std::system_category;
 
 }}}
 
@@ -60,41 +76,22 @@ using std::system_error;
 
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
-#include <boost/system/system_error.hpp>
 #include <boost/system/error_code.hpp>
+#include <boost/system/system_error.hpp>
 
 namespace boost { namespace dll { namespace fs {
 
 using namespace boost::filesystem;
+
 using boost::system::error_code;
 using boost::system::system_error;
+using boost::system::errc::make_error_code;
+namespace errc = boost::system::errc;
+using boost::system::system_category;
 
 }}}
 
 #endif // BOOST_DLL_USE_STD_FS
-
-
-#ifdef BOOST_DLL_USE_BOOST_SHARED_PTR
-
-#include <boost/make_shared.hpp>
-
-namespace boost { namespace dll { namespace detail {
-    template <class T>
-    using shared_ptr = boost::shared_ptr<T>;
-    using boost::make_shared;
-}}}
-
-#else  // BOOST_DLL_USE_STD_FS
-
-#include <memory>
-
-namespace boost { namespace dll { namespace detail {
-    template <class T>
-    using shared_ptr = std::shared_ptr<T>;
-    using std::make_shared;
-}}}
-
-#endif  // BOOST_DLL_USE_STD_FS
 
 #endif // BOOST_DLL_DETAIL_PUSH_OPTIONS_HPP
 

@@ -13,6 +13,7 @@
 #if BOOST_BEAST_USE_WIN32_FILE
 
 #include <boost/beast/core/async_base.hpp>
+#include <boost/beast/core/bind_handler.hpp>
 #include <boost/beast/core/buffers_range.hpp>
 #include <boost/beast/core/detail/clamp.hpp>
 #include <boost/beast/core/detail/is_invocable.hpp>
@@ -509,23 +510,17 @@ public:
     }
 };
 
-template<class Protocol, class Executor>
 struct run_write_some_win32_op
 {
-    net::basic_stream_socket<Protocol, Executor>* stream;
-
-    using executor_type = typename net::basic_stream_socket<Protocol, Executor>::executor_type;
-
-    executor_type
-    get_executor() const noexcept
-    {
-        return stream->get_executor();
-    }
-
-    template<bool isRequest, class Fields, class WriteHandler>
+    template<
+        class Protocol, class Executor,
+        bool isRequest, class Fields,
+        class WriteHandler>
     void
     operator()(
         WriteHandler&& h,
+        net::basic_stream_socket<
+            Protocol, Executor>* s,
         serializer<isRequest,
             basic_file_body<file_win32>, Fields>* sr)
     {
@@ -542,7 +537,7 @@ struct run_write_some_win32_op
             Protocol, Executor,
             isRequest, Fields,
             typename std::decay<WriteHandler>::type>(
-                std::forward<WriteHandler>(h), *stream, *sr);
+                std::forward<WriteHandler>(h), *s, *sr);
     }
 };
 
@@ -635,8 +630,9 @@ async_write_some(
     return net::async_initiate<
         WriteHandler,
         void(error_code, std::size_t)>(
-            detail::run_write_some_win32_op<Protocol, Executor>{&sock},
+            detail::run_write_some_win32_op{},
             handler,
+            &sock,
             &sr);
 }
 

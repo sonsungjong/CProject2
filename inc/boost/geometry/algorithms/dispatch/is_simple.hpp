@@ -23,7 +23,7 @@ namespace dispatch
 {
 
 
-template <typename Geometry, typename Tag = tag_t<Geometry>>
+template <typename Geometry, typename Tag = typename tag<Geometry>::type>
 struct is_simple
     : not_implemented<Geometry>
 {};

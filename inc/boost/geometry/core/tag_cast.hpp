@@ -3,7 +3,6 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
-// Copyright (c) 2024 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2020.
 // Modifications copyright (c) 2020, Oracle and/or its affiliates.
@@ -42,14 +41,15 @@ namespace boost { namespace geometry
 template <typename Tag, typename ...BaseTags>
 struct tag_cast
 {
-    using type = Tag;
+    typedef Tag type;
 };
 
 #ifndef DOXYGEN_NO_SPECIALIZATIONS
 
 template <typename Tag, typename BaseTag, typename ...BaseTags>
 struct tag_cast<Tag, BaseTag, BaseTags...>
-    : std::conditional
+{
+    typedef std::conditional_t
         <
           std::is_base_of<BaseTag, Tag>::value,
           BaseTag,
@@ -57,14 +57,11 @@ struct tag_cast<Tag, BaseTag, BaseTags...>
             <
                 Tag, BaseTags...
             >::type
-        >
-{};
+        > type;
+};
 
 #endif // DOXYGEN_NO_SPECIALIZATIONS
 
-
-template <typename Tag, typename ...BaseTags>
-using tag_cast_t = typename tag_cast<Tag, BaseTags...>::type;
 
 }} // namespace boost::geometry
 

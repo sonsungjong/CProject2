@@ -1,4 +1,4 @@
-/* Copyright 2016-2024 Joaquin M Lopez Munoz.
+/* Copyright 2016-2020 Joaquin M Lopez Munoz.
  * Distributed under the Boost Software License, Version 1.0.
  * (See accompanying file LICENSE_1_0.txt or copy at
  * http://www.boost.org/LICENSE_1_0.txt)
@@ -14,9 +14,7 @@
 #endif
 
 #include <algorithm>
-#include <boost/config.hpp>
 #include <boost/poly_collection/detail/auto_iterator.hpp>
-#include <boost/poly_collection/detail/copyable.hpp>
 #include <boost/poly_collection/detail/functional.hpp>
 #include <boost/poly_collection/detail/iterator_traits.hpp>
 #include <boost/poly_collection/detail/segment_split.hpp>
@@ -39,11 +37,6 @@
  * being a particular example).
  */
 
-#if defined(BOOST_MSVC)
-#pragma warning(push)
-#pragma warning(disable:4714) /* marked as __forceinline not inlined */
-#endif
-
 namespace boost{
 
 namespace poly_collection{
@@ -63,12 +56,9 @@ template<
   typename... Ts,typename Iterator,typename Predicate,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE
 bool all_of(const Iterator& first,const Iterator& last,Predicate pred)
 {
-  using model_type=typename iterator_traits<Iterator>::model_type;
-
-  auto alg=restitute_range<model_type,Ts...>(std_all_of{},pred);
+  auto alg=restitute_range<Ts...>(std_all_of{},pred);
   for(auto i:detail::segment_split(first,last))if(!alg(i))return false;
   return true;
 }
@@ -79,12 +69,9 @@ template<
   typename... Ts,typename Iterator,typename Predicate,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE bool any_of(
-  const Iterator& first,const Iterator& last,Predicate pred)
+bool any_of(const Iterator& first,const Iterator& last,Predicate pred)
 {
-  using model_type=typename iterator_traits<Iterator>::model_type;
-
-  auto alg=restitute_range<model_type,Ts...>(std_any_of{},pred);
+  auto alg=restitute_range<Ts...>(std_any_of{},pred);
   for(auto i:detail::segment_split(first,last))if(alg(i))return true;
   return false;
 }
@@ -95,12 +82,9 @@ template<
   typename... Ts,typename Iterator,typename Predicate,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE bool none_of(
-  const Iterator& first,const Iterator& last,Predicate pred)
+bool none_of(const Iterator& first,const Iterator& last,Predicate pred)
 {
-  using model_type=typename iterator_traits<Iterator>::model_type;
-
-  auto alg=restitute_range<model_type,Ts...>(std_none_of{},pred);
+  auto alg=restitute_range<Ts...>(std_none_of{},pred);
   for(auto i:detail::segment_split(first,last))if(!alg(i))return false;
   return true;
 }
@@ -115,16 +99,13 @@ struct for_each_alg
   }
 };
 
-template<typename... Ts,typename Iterator,typename Function,
+template<
+  typename... Ts,typename Iterator,typename Function,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE Function for_each(
-  const Iterator& first,const Iterator& last,Function f)
+Function for_each(const Iterator& first,const Iterator& last,Function f)
 {
-  using model_type=typename iterator_traits<Iterator>::model_type;
-
-  for_each_segment(
-    first,last,restitute_range<model_type,Ts...>(for_each_alg{},f));
+  for_each_segment(first,last,restitute_range<Ts...>(for_each_alg{},f));
   return f;
 }
 
@@ -145,20 +126,19 @@ template<
   typename... Ts,typename Iterator,typename Size,typename Function,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE Iterator for_each_n(const Iterator& first,Size n,Function f)
+Iterator for_each_n(const Iterator& first,Size n,Function f)
 {
   using traits=iterator_traits<Iterator>;
-  using model_type=typename traits::model_type;
   using local_base_iterator=typename traits::local_base_iterator;
 
   if(n<=0)return first;
 
-  auto alg=restitute_iterator<model_type,Ts...>(
+  auto alg=restitute_iterator<Ts...>(
          cast_return<local_base_iterator>(for_each_n_alg{}));
   auto lbit=traits::local_base_iterator_from(first);
   auto sit=traits::base_segment_info_iterator_from(first);
   for(;;){
-    Size m=static_cast<Size>(sit->end()-lbit);
+    auto m=sit->end()-lbit;
     if(n<=m){
       auto it=alg(sit->type_info(),lbit,n,f);
       return traits::iterator_from(
@@ -178,14 +158,13 @@ template<
   typename Iterator,typename... Args,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE Iterator generic_find(
+Iterator generic_find(
   const Iterator& first,const Iterator& last,Args&&... args)
 {
   using traits=iterator_traits<Iterator>;
-  using model_type=typename traits::model_type;
   using local_base_iterator=typename traits::local_base_iterator;
 
-  auto alg=restitute_range<model_type,Ts...>(
+  auto alg=restitute_range<Ts...>(
     cast_return<local_base_iterator>(Algorithm{}),
     std::forward<Args>(args)...);
   for(auto i:detail::segment_split(first,last)){
@@ -203,8 +182,7 @@ template<
   typename... Ts,typename Iterator,typename T,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE Iterator find(
-  const Iterator& first,const Iterator& last,const T& x)
+Iterator find(const Iterator& first,const Iterator& last,const T& x)
 {
   return generic_find<std_find,Ts...>(first,last,x);
 }
@@ -215,8 +193,7 @@ template<
   typename... Ts,typename Iterator,typename Predicate,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE Iterator find_if(
-  const Iterator& first,const Iterator& last,Predicate pred)
+Iterator find_if(const Iterator& first,const Iterator& last,Predicate pred)
 {
   return generic_find<std_find_if,Ts...>(first,last,pred);
 }
@@ -227,8 +204,7 @@ template<
   typename... Ts,typename Iterator,typename Predicate,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE Iterator find_if_not(
-  const Iterator& first,const Iterator& last,Predicate pred)
+Iterator find_if_not(const Iterator& first,const Iterator& last,Predicate pred)
 {
   return generic_find<std_find_if_not,Ts...>(first,last,pred);
 }
@@ -241,7 +217,7 @@ template<
   typename... Ts,typename Iterator,typename ForwardIterator,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE Iterator find_first_of(
+Iterator find_first_of(
   const Iterator& first1,const Iterator& last1,
   ForwardIterator first2,ForwardIterator last2)
 {
@@ -253,7 +229,7 @@ template<
   typename ForwardIterator,typename BinaryPredicate,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE Iterator find_first_of(
+Iterator find_first_of(
   const Iterator& first1,const Iterator& last1,
   ForwardIterator first2,ForwardIterator last2,BinaryPredicate pred)
 {
@@ -264,27 +240,23 @@ template<typename... Ts>
 struct adjacent_find_alg
 {
   template<
-    typename LocalIterator,typename BinaryPredicate,
-    typename TypeIndex,typename LocalBaseIterator
+    typename LocalIterator,typename BinaryPredicate,typename LocalBaseIterator
   >
   LocalBaseIterator operator()(
     LocalIterator first,LocalIterator last,BinaryPredicate pred,
-    bool& carry,TypeIndex& prev_info, /* note the &s */
+    bool& carry,const std::type_info* prev_info, /* note the &s */
     LocalBaseIterator& prev)const
   {
-    using traits=iterator_traits<LocalIterator>;
-    using model_type=typename traits::model_type;
-
     if(first==last)return LocalBaseIterator{last};
     if(carry){
-      auto p=restitute_iterator<model_type,Ts...>(deref_to(pred));
-      if(p(prev_info,prev,first))return prev;
+      auto p=restitute_iterator<Ts...>(deref_to(pred));
+      if(p(*prev_info,prev,first))return prev;
     }
     auto res=std::adjacent_find(first,last,pred);
     if(res==last){
       carry=true;
-      prev_info=traits::template index<
-        typename std::iterator_traits<LocalIterator>::value_type>();
+      prev_info=&typeid(
+        typename std::iterator_traits<LocalIterator>::value_type);
       prev=LocalBaseIterator{last-1};
     }
     else carry=false;
@@ -296,15 +268,14 @@ template<
   typename... Ts,typename Iterator,typename BinaryPredicate,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE Iterator adjacent_find(
+Iterator adjacent_find(
   const Iterator& first,const Iterator& last,BinaryPredicate pred)
 {
   using traits=iterator_traits<Iterator>;
   using local_base_iterator=typename traits::local_base_iterator;
 
   bool                  carry=false;
-  auto                  prev_info=
-                          make_copyable(traits::template index<void>());
+  const std::type_info* prev_info{&typeid(void)};
   local_base_iterator   prev;
   return generic_find<adjacent_find_alg<Ts...>,Ts...>(
     first,last,pred,carry,prev_info,prev);  
@@ -314,8 +285,7 @@ template<
   typename... Ts,typename Iterator,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE Iterator adjacent_find(
-  const Iterator& first,const Iterator& last)
+Iterator adjacent_find(const Iterator& first,const Iterator& last)
 {
   return algorithm::adjacent_find<Ts...>(first,last,transparent_equal_to{});
 }
@@ -325,13 +295,10 @@ template<
   typename Iterator,typename... Args,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE std::ptrdiff_t generic_count(
+std::ptrdiff_t generic_count(
   const Iterator& first,const Iterator& last,Args&&... args)
 {
-  using model_type=typename iterator_traits<Iterator>::model_type;
-
-  auto alg=restitute_range<model_type,Ts...>(
-    Algorithm{},std::forward<Args>(args)...);
+  auto alg=restitute_range<Ts...>(Algorithm{},std::forward<Args>(args)...);
   std::ptrdiff_t res=0;
   for(auto i:detail::segment_split(first,last))res+=alg(i);
   return res;
@@ -343,8 +310,7 @@ template<
   typename... Ts,typename Iterator,typename T,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE std::ptrdiff_t count(
-  const Iterator& first,const Iterator& last,const T& x)
+std::ptrdiff_t count(const Iterator& first,const Iterator& last,const T& x)
 {
   return generic_count<std_count,Ts...>(first,last,x);
 }
@@ -355,7 +321,7 @@ template<
   typename... Ts,typename Iterator,typename Predicate,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE std::ptrdiff_t count_if(
+std::ptrdiff_t count_if(
   const Iterator& first,const Iterator& last,Predicate pred)
 {
   return generic_count<std_count_if,Ts...>(first,last,pred);
@@ -400,7 +366,7 @@ template<
   typename InputIterator,typename BinaryPredicate,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE std::pair<Iterator,InputIterator> mismatch(
+std::pair<Iterator,InputIterator> mismatch(
   const Iterator& first1,const Iterator& last1,
   InputIterator first2,BinaryPredicate pred)
 {
@@ -412,7 +378,7 @@ template<
   typename... Ts,typename Iterator,typename InputIterator,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE std::pair<Iterator,InputIterator> mismatch(
+std::pair<Iterator,InputIterator> mismatch(
   const Iterator& first1,const Iterator& last1,InputIterator first2)
 {
   return algorithm::mismatch<Ts...>(
@@ -424,7 +390,7 @@ template<
   typename InputIterator,typename BinaryPredicate,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE std::pair<Iterator,InputIterator> mismatch(
+std::pair<Iterator,InputIterator> mismatch(
   const Iterator& first1,const Iterator& last1,
   InputIterator first2,InputIterator last2,BinaryPredicate pred)
 {
@@ -436,7 +402,7 @@ template<
   typename... Ts,typename Iterator,typename InputIterator,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE std::pair<Iterator,InputIterator> mismatch(
+std::pair<Iterator,InputIterator> mismatch(
   const Iterator& first1,const Iterator& last1,
   InputIterator first2,InputIterator last2)
 {
@@ -481,13 +447,11 @@ template<
   typename InputIterator,typename BinaryPredicate,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE bool equal(
+bool equal(
   const Iterator& first1,const Iterator& last1,
   InputIterator first2,BinaryPredicate pred)
 {
-  using model_type=typename iterator_traits<Iterator>::model_type;
-
-  auto alg=restitute_range<model_type,Ts...>(equal_alg{},first2,pred);
+  auto alg=restitute_range<Ts...>(equal_alg{},first2,pred);
   for(auto i:detail::segment_split(first1,last1))if(!alg(i))return false;
   return true;
 }
@@ -496,7 +460,7 @@ template<
   typename... Ts,typename Iterator,typename InputIterator,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE bool equal(
+bool equal(
   const Iterator& first1,const Iterator& last1,InputIterator first2)
 {
   return algorithm::equal<Ts...>(first1,last1,first2,transparent_equal_to{});
@@ -507,13 +471,11 @@ template<
   typename InputIterator,typename BinaryPredicate,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE bool equal(
+bool equal(
   const Iterator& first1,const Iterator& last1,
   InputIterator first2,InputIterator last2,BinaryPredicate pred)
 {
-  using model_type=typename iterator_traits<Iterator>::model_type;
-
-  auto alg=restitute_range<model_type,Ts...>(equal_alg{},first2,last2,pred);
+  auto alg=restitute_range<Ts...>(equal_alg{},first2,last2,pred);
   for(auto i:detail::segment_split(first1,last1))if(!alg(i))return false;
   return first2==last2;
 }
@@ -522,7 +484,7 @@ template<
   typename... Ts,typename Iterator,typename InputIterator,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE bool equal(
+bool equal(
   const Iterator& first1,const Iterator& last1,
   InputIterator first2,InputIterator last2)
 {
@@ -534,8 +496,7 @@ template<
   typename Iterator,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE std::ptrdiff_t fast_distance(
-  const Iterator& first,const Iterator& last)
+std::ptrdiff_t fast_distance(const Iterator& first,const Iterator& last)
 {
   using traits=iterator_traits<Iterator>;
 
@@ -565,19 +526,18 @@ template<
   typename ForwardIterator,typename BinaryPredicate,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE bool is_permutation_suffix(
+bool is_permutation_suffix(
   const Iterator& first1,const Iterator& last1,
   ForwardIterator first2,ForwardIterator last2,BinaryPredicate pred)
 {
   using traits=iterator_traits<Iterator>;
-  using model_type=typename traits::model_type;
 
   auto send=traits::end_base_segment_info_iterator_from(last1);
   for(auto i:detail::segment_split(first1,last1)){
     for(auto lbscan=i.begin();lbscan!=i.end();++lbscan){
       auto& info=i.type_info();
       auto p=head_closure(
-        restitute_iterator<model_type,Ts...>(deref_1st_to(pred)),info,lbscan);
+        restitute_iterator<Ts...>(deref_1st_to(pred)),info,lbscan);
       auto scan=traits::iterator_from(lbscan,send);
       if(algorithm::find_if<Ts...>(first1,scan,p)!=scan)continue;
       std::ptrdiff_t matches=std::count_if(first2,last2,p);
@@ -593,7 +553,7 @@ template<
   typename ForwardIterator,typename BinaryPredicate,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE bool is_permutation(
+bool is_permutation(
   Iterator first1,Iterator last1,ForwardIterator first2,BinaryPredicate pred)
 {
   std::tie(first1,first2)=algorithm::mismatch<Ts...>(first1,last1,first2,pred);
@@ -605,7 +565,7 @@ template<
   typename... Ts,typename Iterator,typename ForwardIterator,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE bool is_permutation(
+bool is_permutation(
   const Iterator& first1,const Iterator& last1,ForwardIterator first2)
 {
   return algorithm::is_permutation<Ts...>(
@@ -617,7 +577,7 @@ template<
   typename ForwardIterator,typename BinaryPredicate,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE bool is_permutation(
+bool is_permutation(
   Iterator first1,Iterator last1,
   ForwardIterator first2,ForwardIterator last2,BinaryPredicate pred)
 {
@@ -632,7 +592,7 @@ template<
   typename... Ts,typename Iterator,typename ForwardIterator,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE bool is_permutation(
+bool is_permutation(
   const Iterator& first1,const Iterator& last1,
   ForwardIterator first2,ForwardIterator last2)
 {
@@ -645,7 +605,7 @@ template<
   typename ForwardIterator,typename BinaryPredicate,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE Iterator search(
+Iterator search(
   const Iterator& first1,const Iterator& last1,
   ForwardIterator first2,ForwardIterator last2,BinaryPredicate pred)
 {
@@ -666,7 +626,7 @@ template<
   typename... Ts,typename Iterator,typename ForwardIterator,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE Iterator search(
+Iterator search(
   const Iterator& first1,const Iterator& last1,
   ForwardIterator first2,ForwardIterator last2)
 {
@@ -679,7 +639,7 @@ template<
   typename ForwardIterator,typename BinaryPredicate,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE Iterator find_end(
+Iterator find_end(
   Iterator first1,Iterator last1,
   ForwardIterator first2,ForwardIterator last2,BinaryPredicate pred)
 {
@@ -699,7 +659,7 @@ template<
   typename... Ts,typename Iterator,typename ForwardIterator,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE Iterator find_end(
+Iterator find_end(
   const Iterator& first1,const Iterator& last1,
   ForwardIterator first2,ForwardIterator last2)
 {
@@ -735,19 +695,18 @@ template<
   typename Size,typename T,typename BinaryPredicate,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE Iterator search_n(
+Iterator search_n(
   const Iterator& first,const Iterator& last,
   Size count,const T& x,BinaryPredicate pred)
 {
   using traits=iterator_traits<Iterator>;
-  using model_type=typename traits::model_type;
   using local_base_iterator=typename traits::local_base_iterator;
 
   if(count<=0)return first;
 
   bool                carry=false;
   auto                remain=count;
-  auto                alg=restitute_range<model_type,Ts...>(
+  auto                alg=restitute_range<Ts...>(
                         cast_return<local_base_iterator>(search_n_alg{}),
                         count,carry,remain,x,pred);
   local_base_iterator prev;
@@ -769,7 +728,7 @@ template<
   typename Size,typename T,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE Iterator search_n(
+Iterator search_n(
   const Iterator& first,const Iterator& last,Size count,const T& x)
 {
   return algorithm::search_n<Ts...>(
@@ -781,13 +740,11 @@ template<
   typename Iterator,typename OutputIterator,typename... Args,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE OutputIterator generic_copy(
+OutputIterator generic_copy(
   const Iterator& first,const Iterator& last,OutputIterator res,Args&&... args)
 {
-  using model_type=typename iterator_traits<Iterator>::model_type;
-
   for(auto i:detail::segment_split(first,last)){
-    auto alg=restitute_range<model_type,Ts...>(
+    auto alg=restitute_range<Ts...>(
       Algorithm{},res,std::forward<Args>(args)...);
     res=alg(i);
   }
@@ -800,7 +757,7 @@ template<
   typename... Ts,typename Iterator,typename OutputIterator,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE OutputIterator copy(
+OutputIterator copy(
   const Iterator& first,const Iterator& last,OutputIterator res)
 {
   return generic_copy<std_copy,Ts...>(first,last,res);
@@ -812,19 +769,17 @@ template<
   typename... Ts,typename Iterator,typename Size,typename OutputIterator,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE OutputIterator copy_n(
-  const Iterator& first,Size count,OutputIterator res)
+OutputIterator copy_n(const Iterator& first,Size count,OutputIterator res)
 {
   using traits=iterator_traits<Iterator>;
-  using model_type=typename traits::model_type;
 
   if(count<=0)return res;
 
   auto lbit=traits::local_base_iterator_from(first);
   auto sit=traits::base_segment_info_iterator_from(first);
   for(;;){
-    auto n=(std::min)(count,static_cast<Size>(sit->end()-lbit));
-    auto alg=restitute_iterator<model_type,Ts...>(std_copy_n{},n,res);
+    auto n=(std::min)(count,sit->end()-lbit);
+    auto alg=restitute_iterator<Ts...>(std_copy_n{},n,res);
     res=alg(sit->type_info(),lbit);
     if((count-=n)==0)break;
     ++sit;
@@ -839,7 +794,7 @@ template<
   typename... Ts,typename Iterator,typename OutputIterator,typename Predicate,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE OutputIterator copy_if(
+OutputIterator copy_if(
   const Iterator& first,const Iterator& last,OutputIterator res,Predicate pred)
 {
   return generic_copy<std_copy_if,Ts...>(first,last,res,pred);
@@ -851,7 +806,7 @@ template<
   typename... Ts,typename Iterator,typename OutputIterator,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE OutputIterator move(
+OutputIterator move(
   const Iterator& first,const Iterator& last,OutputIterator res)
 {
   return generic_copy<std_move,Ts...>(first,last,res);
@@ -864,7 +819,7 @@ template<
   typename OutputIterator,typename UnaryOperation,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE OutputIterator transform(
+OutputIterator transform(
   const Iterator& first,const Iterator& last,
   OutputIterator res,UnaryOperation op)
 {
@@ -892,7 +847,7 @@ template<
   typename OutputIterator,typename BinaryOperation,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE OutputIterator transform(
+OutputIterator transform(
   const Iterator& first1,const Iterator& last1,InputIterator first2,
   OutputIterator res,BinaryOperation op)
 {
@@ -923,7 +878,7 @@ template<
   typename... Ts,typename Iterator,typename OutputIterator,typename T,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE OutputIterator replace_copy(
+OutputIterator replace_copy(
   const Iterator& first,const Iterator& last,OutputIterator res,
   const T& old_x,const T& new_x)
 {
@@ -958,7 +913,7 @@ template<
   typename Predicate,typename T,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE OutputIterator replace_copy_if(
+OutputIterator replace_copy_if(
   const Iterator& first,const Iterator& last,OutputIterator res,
   Predicate pred,const T& new_x)
 {
@@ -971,7 +926,7 @@ template<
   typename... Ts,typename Iterator,typename OutputIterator,typename T,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE OutputIterator remove_copy(
+OutputIterator remove_copy(
   const Iterator& first,const Iterator& last,OutputIterator res,const T& x)
 {
   return generic_copy<std_remove_copy,Ts...>(first,last,res,x);  
@@ -984,7 +939,7 @@ template<
   typename... Ts,typename Iterator,typename OutputIterator,typename Predicate,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE OutputIterator remove_copy_if(
+OutputIterator remove_copy_if(
   const Iterator& first,const Iterator& last,OutputIterator res,Predicate pred)
 {
   return generic_copy<std_remove_copy_if,Ts...>(first,last,res,pred);  
@@ -995,26 +950,23 @@ struct unique_copy_alg
 {
   template<
     typename LocalIterator,typename OutputIterator,
-    typename BinaryPredicate,typename TypeIndex,typename LocalBaseIterator
+    typename BinaryPredicate,typename LocalBaseIterator
   >
   OutputIterator operator()(
     LocalIterator first,LocalIterator last,
     OutputIterator res, BinaryPredicate pred,
-    bool& carry,TypeIndex& prev_info, /* note the &s */
+    bool& carry,const std::type_info* prev_info, /* note the &s */
     LocalBaseIterator& prev)const
   {
-    using traits=iterator_traits<LocalIterator>;
-    using model_type=typename traits::model_type;
-
     if(carry){
-      auto p=restitute_iterator<model_type,Ts...>(deref_to(pred));
-      for(;first!=last;++first)if(!p(prev_info,prev,first))break;
+      auto p=restitute_iterator<Ts...>(deref_to(pred));
+      for(;first!=last;++first)if(!p(*prev_info,prev,first))break;
     }
     if(first==last)return res;
     res=std::unique_copy(first,last,res,pred);
     carry=true;
-    prev_info=traits::template index<
-      typename std::iterator_traits<LocalIterator>::value_type>();
+    prev_info=&typeid(
+      typename std::iterator_traits<LocalIterator>::value_type);
     prev=LocalBaseIterator{last-1};
     return res;
   }
@@ -1025,7 +977,7 @@ template<
   typename OutputIterator,typename BinaryPredicate,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE OutputIterator unique_copy(
+OutputIterator unique_copy(
   const Iterator& first,const Iterator& last,
   OutputIterator res,BinaryPredicate pred)
 {
@@ -1033,8 +985,7 @@ BOOST_FORCEINLINE OutputIterator unique_copy(
   using local_base_iterator=typename traits::local_base_iterator;
 
   bool                  carry=false;
-  auto                  prev_info=
-                          make_copyable(traits::template index<void>());
+  const std::type_info* prev_info{&typeid(void)};
   local_base_iterator   prev;
   return generic_copy<unique_copy_alg<Ts...>,Ts...>(
     first,last,res,pred,carry,prev_info,prev);  
@@ -1044,7 +995,7 @@ template<
   typename... Ts,typename Iterator,typename OutputIterator,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE OutputIterator unique_copy(
+OutputIterator unique_copy(
   const Iterator& first,const Iterator& last,OutputIterator res)
 {
   return algorithm::unique_copy<Ts...>(first,last,res,transparent_equal_to{});
@@ -1054,7 +1005,7 @@ template<
   typename... Ts,typename Iterator,typename OutputIterator,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE OutputIterator rotate_copy(
+OutputIterator rotate_copy(
   const Iterator& first,const Iterator& middle,const Iterator& last,
   OutputIterator res)
 {
@@ -1089,17 +1040,15 @@ template<
   typename Distance,typename UniformRandomBitGenerator,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE OutputIterator sample(
+OutputIterator sample(
   const Iterator& first,const Iterator& last,
   OutputIterator res,Distance n,UniformRandomBitGenerator&& g)
 {
-  using model_type=typename iterator_traits<Iterator>::model_type;
-
-  Distance m=static_cast<Distance>(algorithm::fast_distance(first,last));
+  Distance m=algorithm::fast_distance(first,last);
   n=(std::min)(n,m);
 
   for(auto i:detail::segment_split(first,last)){
-    auto alg=restitute_range<model_type,Ts...>(sample_alg{},res,n,m,g);
+    auto alg=restitute_range<Ts...>(sample_alg{},res,n,m,g);
     res=alg(i);
     if(n==0)return res;
   }
@@ -1110,8 +1059,7 @@ template<
   typename... Ts,typename Iterator,typename Predicate,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE bool is_partitioned(
-  const Iterator& first,const Iterator& last,Predicate pred)
+bool is_partitioned(const Iterator& first,const Iterator& last,Predicate pred)
 {
   auto it=algorithm::find_if_not<Ts...>(first,last,pred);
   if(it==last)return true;
@@ -1126,15 +1074,12 @@ template<
   typename OutputIterator1,typename OutputIterator2,typename Predicate,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE std::pair<OutputIterator1,OutputIterator2> partition_copy(
+std::pair<OutputIterator1,OutputIterator2> partition_copy(
   const Iterator& first,const Iterator& last,
   OutputIterator1 rest,OutputIterator2 resf,Predicate pred)
 {
-  using model_type=typename iterator_traits<Iterator>::model_type;
-
   for(auto i:detail::segment_split(first,last)){
-    auto alg=restitute_range<model_type,Ts...>(
-      std_partition_copy{},rest,resf,pred);
+    auto alg=restitute_range<Ts...>(std_partition_copy{},rest,resf,pred);
     std::tie(rest,resf)=alg(i);
   }
   return {rest,resf};
@@ -1149,9 +1094,7 @@ struct partition_point_pred
   bool operator()(const Iterator& it)const
   {
     using traits=iterator_traits<Iterator>;
-    using model_type=typename traits::model_type;
-
-    auto p=restitute_iterator<model_type,Ts...>(deref_to(pred));
+    auto p=restitute_iterator<Ts...>(deref_to(pred));
     return p(
       traits::base_segment_info_iterator_from(it)->type_info(),
       traits::local_base_iterator_from(it));
@@ -1164,7 +1107,7 @@ template<
   typename... Ts,typename Iterator,typename Predicate,
   enable_if_poly_collection_iterator<Iterator> =nullptr
 >
-BOOST_FORCEINLINE Iterator partition_point(
+Iterator partition_point(
   const Iterator& first,const Iterator& last,Predicate pred)
 {
   auto_iterator<Iterator>               afirst{first},alast{last};
@@ -1239,9 +1182,5 @@ using detail::algorithm::partition_point;
 } /* namespace poly_collection */
 
 } /* namespace boost */
-
-#if defined(BOOST_MSVC)
-#pragma warning(pop) /* C4714 */
-#endif
 
 #endif

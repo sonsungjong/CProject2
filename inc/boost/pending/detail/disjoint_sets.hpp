@@ -6,8 +6,6 @@
 #ifndef BOOST_DETAIL_DISJOINT_SETS_HPP
 #define BOOST_DETAIL_DISJOINT_SETS_HPP
 
-#include <cassert>
-
 namespace boost
 {
 
@@ -52,11 +50,13 @@ namespace detail
     /* the postcondition of link sets is:
      component_representative(i) == component_representative(j)
      */
-    template < class ParentPA, class RankPA, class Vertex>
-    inline void link_sets(ParentPA p, RankPA rank, Vertex i, Vertex j)
+    template < class ParentPA, class RankPA, class Vertex,
+        class ComponentRepresentative >
+    inline void link_sets(ParentPA p, RankPA rank, Vertex i, Vertex j,
+        ComponentRepresentative comp_rep)
     {
-        assert(i == get(p, i));
-        assert(j == get(p, j));
+        i = comp_rep(p, i);
+        j = comp_rep(p, j);
         if (i == j)
             return;
         if (get(rank, i) > get(rank, j))

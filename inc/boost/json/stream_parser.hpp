@@ -89,17 +89,19 @@ namespace json {
     first obtained from an optional, caller-owned
     buffer specified upon construction. When that
     is exhausted, the next allocation uses the
-    `boost::container::pmr::memory_resource` passed to the constructor; if
+    @ref memory_resource passed to the constructor; if
     no such argument is specified, the default memory
     resource is used. Temporary storage is freed only
     when the parser is destroyed; The performance of
     parsing multiple JSON texts may be improved by reusing
     the same parser instance.
 \n
-    It is important to note that the `boost::container::pmr::memory_resource`
-    supplied upon construction is used for temporary storage only, and not for
-    allocating the elements which make up the parsed value. That other memory
-    resource is optionally supplied in each call to @ref reset.
+    It is important to note that the @ref memory_resource
+    supplied upon construction is used for temporary
+    storage only, and not for allocating the elements
+    which make up the parsed value. That other memory
+    resource is optionally supplied in each call
+    to @ref reset.
 
     @par Duplicate Keys
 
@@ -429,9 +431,9 @@ public:
         @par Exception Safety
         No-throw guarantee.
 
-        @param sp A pointer to the `boost::container::pmr::memory_resource` to
-        use for the resulting @ref value. The parser will acquire shared
-        ownership.
+        @param sp A pointer to the @ref memory_resource
+        to use for the resulting @ref value. The parser
+        will acquire shared ownership.
     */
     BOOST_JSON_DECL
     void
@@ -509,13 +511,13 @@ public:
 
         @param ec Set to the error, if any occurred.
     */
-    /** @{ */
+/** @{ */
     BOOST_JSON_DECL
     std::size_t
     write_some(
         char const* data,
         std::size_t size,
-        system::error_code& ec);
+        error_code& ec);
 
     BOOST_JSON_DECL
     std::size_t
@@ -523,7 +525,7 @@ public:
         char const* data,
         std::size_t size,
         std::error_code& ec);
-    /** @} */
+/** @} */
 
     /** Parse a buffer containing all or part of a complete JSON text.
 
@@ -571,7 +573,7 @@ public:
         @param size The number of characters pointed to
         by `data`.
 
-        @throw `boost::system::system_error` Thrown on error.
+        @throw system_error Thrown on error.
     */
     BOOST_JSON_DECL
     std::size_t
@@ -623,11 +625,11 @@ public:
 
         @param ec Set to the error, if any occurred.
     */
-    /** @{ */
+/** @{ */
     std::size_t
     write_some(
         string_view s,
-        system::error_code& ec)
+        error_code& ec)
     {
         return write_some(
             s.data(), s.size(), ec);
@@ -641,7 +643,7 @@ public:
         return write_some(
             s.data(), s.size(), ec);
     }
-    /** @} */
+/** @} */
 
     /** Parse a buffer containing all or part of a complete JSON text.
 
@@ -685,7 +687,7 @@ public:
 
         @param s The character string to parse.
 
-        @throw `boost::system::system_error` Thrown on error.
+        @throw system_error Thrown on error.
     */
     std::size_t
     write_some(
@@ -740,13 +742,13 @@ public:
 
         @param ec Set to the error, if any occurred.
     */
-    /** @{ */
+/** @{ */
     BOOST_JSON_DECL
     std::size_t
     write(
         char const* data,
         std::size_t size,
-        system::error_code& ec);
+        error_code& ec);
 
     BOOST_JSON_DECL
     std::size_t
@@ -754,7 +756,7 @@ public:
         char const* data,
         std::size_t size,
         std::error_code& ec);
-    /** @} */
+/** @} */
 
     /** Parse a buffer containing all or part of a complete JSON text.
 
@@ -799,7 +801,7 @@ public:
         @param size The number of characters pointed to
         by `data`.
 
-        @throw `boost::system::system_error` Thrown on error.
+        @throw system_error Thrown on error.
     */
     BOOST_JSON_DECL
     std::size_t
@@ -848,11 +850,11 @@ public:
 
         @param ec Set to the error, if any occurred.
     */
-    /** @{ */
+/** @{ */
     std::size_t
     write(
         string_view s,
-        system::error_code& ec)
+        error_code& ec)
     {
         return write(
             s.data(), s.size(), ec);
@@ -866,7 +868,7 @@ public:
         return write(
             s.data(), s.size(), ec);
     }
-    /** @} */
+/** @} */
 
     /** Parse a buffer containing all or part of a complete JSON text.
 
@@ -907,7 +909,7 @@ public:
 
         @param s The character string to parse.
 
-        @throw `boost::system::system_error` Thrown on error.
+        @throw system_error Thrown on error.
     */
     std::size_t
     write(
@@ -950,15 +952,15 @@ public:
 
         @param ec Set to the error, if any occurred.
     */
-    /** @{ */
+/** @{ */
     BOOST_JSON_DECL
     void
-    finish(system::error_code& ec);
+    finish(error_code& ec);
 
     BOOST_JSON_DECL
     void
     finish(std::error_code& ec);
-    /** @} */
+/** @} */
 
     /** Indicate the end of JSON input.
 
@@ -991,7 +993,7 @@ public:
         Upon error or exception, subsequent calls will
         fail until @ref reset is called to parse a new JSON text.
 
-        @throw `boost::system::system_error` Thrown on error.
+        @throw system_error Thrown on error.
     */
     BOOST_JSON_DECL
     void
@@ -1018,7 +1020,7 @@ public:
         @return The parsed value. Ownership of this
         value is transferred to the caller.
 
-        @throw `boost::system::system_error` Thrown on failure.
+        @throw system_error Thrown on failure.
     */
     BOOST_JSON_DECL
     value

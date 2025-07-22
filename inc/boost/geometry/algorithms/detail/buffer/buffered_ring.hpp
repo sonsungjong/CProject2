@@ -108,7 +108,7 @@ namespace traits
 template <typename Ring>
 struct tag<geometry::detail::buffer::buffered_ring<Ring> >
 {
-    using type = ring_tag;
+    typedef ring_tag type;
 };
 
 
@@ -129,13 +129,13 @@ struct closure<geometry::detail::buffer::buffered_ring<Ring> >
 template <typename Ring>
 struct point_type<geometry::detail::buffer::buffered_ring_collection<Ring> >
 {
-    using type = geometry::point_type_t<Ring>;
+    typedef typename geometry::point_type<Ring>::type type;
 };
 
 template <typename Ring>
 struct tag<geometry::detail::buffer::buffered_ring_collection<Ring> >
 {
-    using type = geometry::detail::buffer::buffered_ring_collection_tag;
+    typedef geometry::detail::buffer::buffered_ring_collection_tag type;
 };
 
 
@@ -154,7 +154,7 @@ struct ring_type
     detail::buffer::buffered_ring_collection<Ring>
 >
 {
-    using type = Ring;
+    typedef Ring type;
 };
 
 
@@ -177,7 +177,7 @@ struct point_order<detail::buffer::buffered_ring_collection_tag,
 template <>
 struct single_tag_of<detail::buffer::buffered_ring_collection_tag>
 {
-    using type = ring_tag;
+    typedef ring_tag type;
 };
 
 
@@ -269,7 +269,7 @@ template<>
 struct get_ring<detail::buffer::buffered_ring_collection_tag>
 {
     template<typename MultiGeometry>
-    static inline ring_type_t<MultiGeometry> const& apply(
+    static inline typename ring_type<MultiGeometry>::type const& apply(
                 ring_identifier const& id,
                 MultiGeometry const& multi_ring)
     {

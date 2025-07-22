@@ -22,8 +22,6 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISJOINT_LINEAR_SEGMENT_OR_BOX_HPP
 
 
-#include <boost/range/size.hpp>
-
 #include <boost/geometry/algorithms/detail/disjoint/multirange_geometry.hpp>
 #include <boost/geometry/algorithms/dispatch/disjoint.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
@@ -45,7 +43,7 @@ namespace detail { namespace disjoint
 template
 <
     typename SegmentOrBox,
-    typename Tag = tag_t<SegmentOrBox>
+    typename Tag = typename tag<SegmentOrBox>::type
 >
 struct disjoint_point_segment_or_box
     : not_implemented<Tag>
@@ -86,7 +84,7 @@ struct disjoint_range_segment_or_box
                              SegmentOrBox const& segment_or_box,
                              Strategy const& strategy)
     {
-        using point_type = point_type_t<Range>;
+        using point_type = typename point_type<Range>::type;
         using range_segment = typename geometry::model::referring_segment<point_type const>;
 
         detail::closed_view<Range const> const view(range);
@@ -135,7 +133,7 @@ template
 <
     typename Linear,
     typename SegmentOrBox,
-    typename Tag = tag_t<Linear>
+    typename Tag = typename tag<Linear>::type
 >
 struct disjoint_linear_segment_or_box
     : not_implemented<Linear, SegmentOrBox>

@@ -1,5 +1,4 @@
 //  (C) Copyright John Maddock 2006.
-//  (C) Copyright Matt Borland 2024.
 //  Use, modification and distribution are subject to the
 //  Boost Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -18,23 +17,16 @@
 #pragma once
 #endif
 
-#include <boost/math/tools/config.hpp>
+#include <cstdint>
 #include <boost/math/tools/toms748_solve.hpp>
 
-namespace boost{ namespace math{ 
-
-#ifdef BOOST_MATH_HAS_NVRTC
-template <typename T, typename Policy>
-BOOST_MATH_GPU_ENABLED auto erfc_inv(T x, const Policy&);
-#endif
-   
-namespace detail{
+namespace boost{ namespace math{ namespace detail{
 
 template <class T, class Policy>
 struct gamma_inva_t
 {
-   BOOST_MATH_GPU_ENABLED gamma_inva_t(T z_, T p_, bool invert_) : z(z_), p(p_), invert(invert_) {}
-   BOOST_MATH_GPU_ENABLED T operator()(T a)
+   gamma_inva_t(T z_, T p_, bool invert_) : z(z_), p(p_), invert(invert_) {}
+   T operator()(T a)
    {
       return invert ? p - boost::math::gamma_q(a, z, Policy()) : boost::math::gamma_p(a, z, Policy()) - p;
    }
@@ -44,7 +36,7 @@ private:
 };
 
 template <class T, class Policy>
-BOOST_MATH_GPU_ENABLED T inverse_poisson_cornish_fisher(T lambda, T p, T q, const Policy& pol)
+T inverse_poisson_cornish_fisher(T lambda, T p, T q, const Policy& pol)
 {
    BOOST_MATH_STD_USING
    // mean:
@@ -75,7 +67,7 @@ BOOST_MATH_GPU_ENABLED T inverse_poisson_cornish_fisher(T lambda, T p, T q, cons
 }
 
 template <class T, class Policy>
-BOOST_MATH_GPU_ENABLED T gamma_inva_imp(const T& z, const T& p, const T& q, const Policy& pol)
+T gamma_inva_imp(const T& z, const T& p, const T& q, const Policy& pol)
 {
    BOOST_MATH_STD_USING  // for ADL of std lib math functions
    //
@@ -159,7 +151,7 @@ BOOST_MATH_GPU_ENABLED T gamma_inva_imp(const T& z, const T& p, const T& q, cons
 } // namespace detail
 
 template <class T1, class T2, class Policy>
-BOOST_MATH_GPU_ENABLED inline typename tools::promote_args<T1, T2>::type
+inline typename tools::promote_args<T1, T2>::type
    gamma_p_inva(T1 x, T2 p, const Policy& pol)
 {
    typedef typename tools::promote_args<T1, T2>::type result_type;
@@ -189,7 +181,7 @@ BOOST_MATH_GPU_ENABLED inline typename tools::promote_args<T1, T2>::type
 }
 
 template <class T1, class T2, class Policy>
-BOOST_MATH_GPU_ENABLED inline typename tools::promote_args<T1, T2>::type
+inline typename tools::promote_args<T1, T2>::type
    gamma_q_inva(T1 x, T2 q, const Policy& pol)
 {
    typedef typename tools::promote_args<T1, T2>::type result_type;
@@ -219,14 +211,14 @@ BOOST_MATH_GPU_ENABLED inline typename tools::promote_args<T1, T2>::type
 }
 
 template <class T1, class T2>
-BOOST_MATH_GPU_ENABLED inline typename tools::promote_args<T1, T2>::type
+inline typename tools::promote_args<T1, T2>::type
    gamma_p_inva(T1 x, T2 p)
 {
    return boost::math::gamma_p_inva(x, p, policies::policy<>());
 }
 
 template <class T1, class T2>
-BOOST_MATH_GPU_ENABLED inline typename tools::promote_args<T1, T2>::type
+inline typename tools::promote_args<T1, T2>::type
    gamma_q_inva(T1 x, T2 q)
 {
    return boost::math::gamma_q_inva(x, q, policies::policy<>());

@@ -76,7 +76,7 @@ namespace strategy { namespace within
 
 struct cartesian_point_point
 {
-    using cs_tag = cartesian_tag;
+    typedef cartesian_tag cs_tag;
 
     template <typename Point1, typename Point2>
     static inline bool apply(Point1 const& point1, Point2 const& point2)

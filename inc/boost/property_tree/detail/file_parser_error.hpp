@@ -12,7 +12,6 @@
 
 #include <boost/property_tree/ptree.hpp>
 #include <string>
-#include <sstream>
 
 namespace boost { namespace property_tree
 {
@@ -24,7 +23,7 @@ namespace boost { namespace property_tree
     public:
 
         ///////////////////////////////////////////////////////////////////////
-        // Construction
+        // Construction & destruction
 
         // Construct error
         file_parser_error(const std::string &msg,
@@ -32,6 +31,12 @@ namespace boost { namespace property_tree
                           unsigned long l) :
             ptree_error(format_what(msg, file, l)),
             m_message(msg), m_filename(file), m_line(l)
+        {
+        }
+
+        ~file_parser_error() throw() BOOST_OVERRIDE
+            // gcc 3.4.2 complains about lack of throw specifier on compiler
+            // generated dtor
         {
         }
 

@@ -38,8 +38,8 @@ template
 <
     typename Input,
     typename Output,
-    typename TagIn = tag_t<Input>,
-    typename TagOut = tag_t<Output>
+    typename TagIn = typename tag<Input>::type,
+    typename TagOut = typename tag<Output>::type
 >
 struct buffer_dc : not_implemented<TagIn, TagOut>
 {};
@@ -48,8 +48,8 @@ template
 <
     typename Input,
     typename Output,
-    typename TagIn = tag_t<Input>,
-    typename TagOut = tag_t<Output>
+    typename TagIn = typename tag<Input>::type,
+    typename TagOut = typename tag<Output>::type
 >
 struct buffer_all : not_implemented<TagIn, TagOut>
 {};
@@ -64,7 +64,7 @@ namespace resolve_dynamic
 template
 <
     typename Input,
-    typename TagIn = geometry::tag_t<Input>
+    typename TagIn = typename geometry::tag<Input>::type
 >
 struct buffer_dc
 {
@@ -101,7 +101,7 @@ struct buffer_dc<Input, dynamic_geometry_tag>
 template
 <
     typename Input,
-    typename TagIn = geometry::tag_t<Input>
+    typename TagIn = typename geometry::tag<Input>::type
 >
 struct buffer_all
 {

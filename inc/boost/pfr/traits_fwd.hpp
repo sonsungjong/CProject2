@@ -11,12 +11,8 @@
 
 namespace boost { namespace pfr {
 
-BOOST_PFR_BEGIN_MODULE_EXPORT
-
 template<class T, class WhatFor>
 struct is_reflectable;
-
-BOOST_PFR_END_MODULE_EXPORT
 
 }} // namespace boost::pfr
 

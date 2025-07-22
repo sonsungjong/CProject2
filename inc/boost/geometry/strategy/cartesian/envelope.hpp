@@ -41,7 +41,7 @@ template <typename CalculationType = void>
 class cartesian
 {
 public:
-    using cs_tag = cartesian_tag;
+    typedef cartesian_tag cs_tag;
 
     // Linestring, Ring, Polygon
 

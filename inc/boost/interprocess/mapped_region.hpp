@@ -477,7 +477,7 @@ inline mapped_region::mapped_region
                                  (native_mapping_handle,
                                  map_access,
                                  ::boost::ulong_long_type(offset - page_offset),
-                                 static_cast<std::size_t>(page_offset) + size,
+                                 static_cast<std::size_t>(page_offset + size),
                                  const_cast<void*>(address));
       //Check error
       if(!base){
@@ -807,19 +807,10 @@ inline bool mapped_region::advise(advice_types advice)
       default:
       return false;
    }
-   int ret = -1;
    switch(mode){
       #if defined(POSIX_MADV_NORMAL)
          case mode_padv:
-         {
-         ret = posix_madvise(this->priv_map_address(), this->priv_map_size(), unix_advice);
-         #ifdef __CYGWIN__
-         //Cygwin returns EINVAL in some valid use cases due to DiscardVirtualMemory limitations
-         if (ret == EINVAL)
-            ret = 0;
-         #endif
-         return 0 == ret;
-         }
+         return 0 == posix_madvise(this->priv_map_address(), this->priv_map_size(), unix_advice);
       #endif
       #if defined(MADV_NORMAL)
          case mode_madv:
@@ -831,6 +822,7 @@ inline bool mapped_region::advise(advice_types advice)
       #endif
       default:
       return false;
+
    }
 }
 

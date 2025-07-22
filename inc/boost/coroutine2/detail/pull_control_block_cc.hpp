@@ -30,7 +30,7 @@ struct pull_coroutine< T >::control_block {
     state_t                                                         state;
     std::exception_ptr                                              except;
     bool                                                            bvalid;
-    alignas(T) unsigned char                                        storage[sizeof(T)];
+    typename std::aligned_storage< sizeof( T), alignof( T) >::type  storage;
 
     static void destroy( control_block * cb) noexcept;
 
@@ -71,7 +71,7 @@ struct pull_coroutine< T & >::control_block {
     state_t                                                                     state;
     std::exception_ptr                                                          except;
     bool                                                                        bvalid;
-    alignas(holder) unsigned char                                               storage[sizeof(holder)];
+    typename std::aligned_storage< sizeof( holder), alignof( holder) >::type    storage;
 
     static void destroy( control_block * cb) noexcept;
 

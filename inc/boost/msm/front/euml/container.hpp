@@ -19,8 +19,6 @@
 #include <boost/mpl/not.hpp>
 #include <boost/msm/front/euml/operator.hpp>
 #include <boost/type_traits.hpp>
-#include <boost/fusion/container/set.hpp>
-
 
 BOOST_MPL_HAS_XXX_TRAIT_DEF(iterator_category)
 
@@ -44,7 +42,7 @@ struct Front_ : euml_action<Front_<T> >
             typename ::boost::remove_reference<
                 typename get_result_type<T,EVT,FSM,SourceState,TargetState>::type>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -99,7 +97,7 @@ struct Back_ : euml_action<Back_<T> >
             typename ::boost::remove_reference<
                 typename get_result_type<T,EVT,FSM,SourceState,TargetState>::type>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -154,7 +152,7 @@ struct Begin_ : euml_action<Begin_<T> >
             typename ::boost::remove_reference<
                 typename get_result_type<T,EVT,FSM,SourceState,TargetState>::type>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -209,7 +207,7 @@ struct End_ : euml_action<End_<T> >
             typename ::boost::remove_reference<
                 typename get_result_type<T,EVT,FSM,SourceState,TargetState>::type>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -263,7 +261,7 @@ struct RBegin_ : euml_action<RBegin_<T> >
             typename ::boost::remove_reference<
                 typename get_result_type<T,EVT,FSM,SourceState,TargetState>::type>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -318,7 +316,7 @@ struct REnd_ : euml_action<REnd_<T> >
             typename ::boost::remove_reference<
                 typename get_result_type<T,EVT,FSM,SourceState,TargetState>::type>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -368,7 +366,7 @@ struct Push_Back_ : euml_action<Push_Back_<Container,Element> >
     {
         typedef void type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     void operator()(EVT const& evt, FSM& fsm,SourceState& src,TargetState& tgt)const
@@ -410,7 +408,7 @@ struct Pop_Back_ : euml_action<Pop_Back_<Container> >
     {
         typedef void type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     void operator()(EVT const& evt, FSM& fsm,SourceState& src,TargetState& tgt)const
@@ -452,7 +450,7 @@ struct Push_Front_ : euml_action<Push_Front_<Container,Element> >
     {
         typedef void type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     void operator()(EVT const& evt, FSM& fsm,SourceState& src,TargetState& tgt)const
@@ -494,7 +492,7 @@ struct Pop_Front_ : euml_action<Pop_Front_<Container> >
     {
         typedef void type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     void operator()(EVT const& evt, FSM& fsm,SourceState& src,TargetState& tgt)const
@@ -536,7 +534,7 @@ struct Clear_ : euml_action<Clear_<Container> >
     {
         typedef void type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     void operator()(EVT const& evt, FSM& fsm,SourceState& src,TargetState& tgt)const
@@ -578,7 +576,7 @@ struct ListReverse_ : euml_action<ListReverse_<Container> >
     {
         typedef void type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     void operator()(EVT const& evt, FSM& fsm,SourceState& src,TargetState& tgt)const
@@ -620,7 +618,7 @@ struct ListUnique_ : euml_action<ListUnique_<Container,Predicate,Enable> >
     {
         typedef void type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     void operator()(EVT const& evt, FSM& fsm,SourceState& src,TargetState& tgt)const
@@ -648,7 +646,7 @@ struct ListUnique_<Container,Predicate,
     {
         typedef void type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     void operator()(EVT const& evt, FSM& fsm,SourceState& src,TargetState& tgt)const
@@ -690,7 +688,7 @@ struct ListSort_ : euml_action<ListSort_<Container,Predicate,Enable> >
     {
         typedef void type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     void operator()(EVT const& evt, FSM& fsm,SourceState& src,TargetState& tgt)const
@@ -718,7 +716,7 @@ struct ListSort_<Container,Predicate,
     {
         typedef void type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     void operator()(EVT const& evt, FSM& fsm,SourceState& src,TargetState& tgt)const
@@ -764,7 +762,7 @@ struct Capacity_ : euml_action<Capacity_<Container> >
             typename ::boost::remove_reference<
                 typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -818,7 +816,7 @@ struct Size_ : euml_action<Size_<Container> >
             typename ::boost::remove_reference<
                 typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -872,7 +870,7 @@ struct Max_Size_ : euml_action<Max_Size_<Container> >
             typename ::boost::remove_reference<
                 typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -922,7 +920,7 @@ struct Reserve_ : euml_action<Reserve_<Container,Value> >
     {
         typedef void type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     void operator()(EVT const& evt, FSM& fsm,SourceState& src,TargetState& tgt)const
@@ -964,7 +962,7 @@ struct Resize_ : euml_action<Resize_<Container,Num,Value> >
     {
         typedef void type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     void operator()(EVT const& evt, FSM& fsm,SourceState& src,TargetState& tgt)const
@@ -991,7 +989,7 @@ struct Resize_<Container,Num,Value,typename ::boost::disable_if<typename ::boost
     {
         typedef void type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     void operator()(EVT const& evt, FSM& fsm,SourceState& src,TargetState& tgt)const
@@ -1034,7 +1032,7 @@ struct Insert_ : euml_action<Insert_<Container,Param1,Param2,Param3> >
     {
         typedef void type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     void operator()(EVT const& evt, FSM& fsm,SourceState& src,TargetState& tgt)const
@@ -1070,7 +1068,7 @@ struct Insert_ < Container,Param1,Param2,void>
             typename ::boost::remove_reference<
                 typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     // version for transition + second param not an iterator (meaning that, Container is not an associative container)
     template <class EVT,class FSM,class SourceState,class TargetState>
@@ -1166,7 +1164,7 @@ struct Insert_ < Container,Param1,void,void>
                 typename ::boost::remove_reference<
                     typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type>::type>::type,bool> type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -1216,7 +1214,7 @@ struct Swap_ : euml_action<Swap_<Container1,Container2> >
     {
         typedef void type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     void operator()(EVT const& evt, FSM& fsm,SourceState& src,TargetState& tgt)const
@@ -1258,7 +1256,7 @@ struct Erase_ : euml_action<Erase_<Container,Iterator1,Iterator2> >
     {
         typedef typename get_result_type<Iterator1,EVT,FSM,SourceState,TargetState>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     typename ::boost::enable_if<
@@ -1294,7 +1292,7 @@ struct Erase_<Container,Iterator1,Iterator2,
     {
         typedef typename get_result_type<Iterator1,EVT,FSM,SourceState,TargetState>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     typename ::boost::enable_if<
@@ -1344,7 +1342,7 @@ struct Empty_ : euml_action<Empty_<Container> >
     {
         typedef bool type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     bool operator()(EVT const& evt, FSM& fsm,SourceState& src,TargetState& tgt)const
@@ -1386,7 +1384,7 @@ struct ListRemove_ : euml_action<ListRemove_<Container,Element> >
     {
         typedef void type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     void operator()(EVT const& evt, FSM& fsm,SourceState& src,TargetState& tgt)const
@@ -1428,7 +1426,7 @@ struct ListRemove_If_ : euml_action<ListRemove_If_<Container,Element> >
     {
         typedef void type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     void operator()(EVT const& evt, FSM& fsm,SourceState& src,TargetState& tgt)const
@@ -1470,7 +1468,7 @@ struct ListMerge_ : euml_action<ListMerge_<Container,ToMerge,Predicate,Enable> >
     {
         typedef void type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     void operator()(EVT const& evt, FSM& fsm,SourceState& src,TargetState& tgt)const
@@ -1498,7 +1496,7 @@ struct ListMerge_<Container,ToMerge,Predicate,
     {
         typedef void type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     void operator()(EVT const& evt, FSM& fsm,SourceState& src,TargetState& tgt)const
@@ -1540,7 +1538,7 @@ struct Splice_ : euml_action<Splice_<Container,Param1,Param2,Param3,Param4,Enabl
     {
         typedef void type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -1579,7 +1577,7 @@ struct Splice_<Container,Param1,Param2,Param3,Param4,
     {
         typedef void type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     void operator()(EVT const& evt, FSM& fsm,SourceState& src,TargetState& tgt)const
@@ -1609,7 +1607,7 @@ struct Splice_<Container,Param1,Param2,Param3,Param4,
     {
         typedef void type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     void operator()(EVT const& evt, FSM& fsm,SourceState& src,TargetState& tgt)const
@@ -1659,7 +1657,7 @@ struct StringFind_ : euml_action<StringFind_<Container,Param1,Param2,Param3> >
         typedef typename remove_reference<
             typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type>::type::size_type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     typename transition_action_result<EVT,FSM,SourceState,TargetState>::type
@@ -1694,7 +1692,7 @@ struct StringFind_ < Container,Param1,void,void>
         typedef typename remove_reference<
             typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type>::type::size_type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     typename transition_action_result<EVT,FSM,SourceState,TargetState>::type
@@ -1726,7 +1724,7 @@ struct StringFind_ <Container,Param1,Param2,void>
         typedef typename remove_reference<
             typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type>::type::size_type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     typename transition_action_result<EVT,FSM,SourceState,TargetState>::type
@@ -1785,7 +1783,7 @@ struct StringRFind_ <
         typedef typename remove_reference<
             typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type>::type::size_type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     typename transition_action_result<EVT,FSM,SourceState,TargetState>::type
@@ -1827,7 +1825,7 @@ struct StringRFind_ <
         typedef typename remove_reference<
             typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type>::type::size_type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     typename transition_action_result<EVT,FSM,SourceState,TargetState>::type
@@ -1864,7 +1862,7 @@ struct StringRFind_<
         typedef typename remove_reference<
             typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type>::type::size_type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     typename transition_action_result<EVT,FSM,SourceState,TargetState>::type
@@ -1913,7 +1911,7 @@ struct StringFindFirstOf_ : euml_action<StringFindFirstOf_<Container,Param1,Para
         typedef typename remove_reference<
             typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type>::type::size_type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     typename transition_action_result<EVT,FSM,SourceState,TargetState>::type
@@ -1946,7 +1944,7 @@ struct StringFindFirstOf_ <Container,Param1,void,void>
         typedef typename remove_reference<
             typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type>::type::size_type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     typename transition_action_result<EVT,FSM,SourceState,TargetState>::type
@@ -1978,7 +1976,7 @@ struct StringFindFirstOf_ <Container,Param1,Param2,void>
         typedef typename remove_reference<
             typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type>::type::size_type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     typename transition_action_result<EVT,FSM,SourceState,TargetState>::type
@@ -2038,7 +2036,7 @@ struct StringFindFirstNotOf_ <
         typedef typename remove_reference<
             typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type>::type::size_type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     typename transition_action_result<EVT,FSM,SourceState,TargetState>::type
@@ -2080,7 +2078,7 @@ struct StringFindFirstNotOf_ <
         typedef typename remove_reference<
             typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type>::type::size_type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     typename transition_action_result<EVT,FSM,SourceState,TargetState>::type
@@ -2117,7 +2115,7 @@ struct StringFindFirstNotOf_<
         typedef typename remove_reference<
             typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type>::type::size_type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     typename transition_action_result<EVT,FSM,SourceState,TargetState>::type
@@ -2179,7 +2177,7 @@ struct StringFindLastOf_ <
         typedef typename remove_reference<
             typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type>::type::size_type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     typename transition_action_result<EVT,FSM,SourceState,TargetState>::type
@@ -2221,7 +2219,7 @@ struct StringFindLastOf_ <
         typedef typename remove_reference<
             typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type>::type::size_type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     typename transition_action_result<EVT,FSM,SourceState,TargetState>::type
@@ -2258,7 +2256,7 @@ struct StringFindLastOf_<
         typedef typename remove_reference<
             typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type>::type::size_type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     typename transition_action_result<EVT,FSM,SourceState,TargetState>::type
@@ -2320,7 +2318,7 @@ struct StringFindLastNotOf_ <
         typedef typename remove_reference<
             typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type>::type::size_type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     typename transition_action_result<EVT,FSM,SourceState,TargetState>::type
@@ -2362,7 +2360,7 @@ struct StringFindLastNotOf_ <
         typedef typename remove_reference<
             typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type>::type::size_type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     typename transition_action_result<EVT,FSM,SourceState,TargetState>::type
@@ -2399,7 +2397,7 @@ struct StringFindLastNotOf_<
         typedef typename remove_reference<
             typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type>::type::size_type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     typename transition_action_result<EVT,FSM,SourceState,TargetState>::type
@@ -2448,7 +2446,7 @@ struct Npos_ : euml_action<Npos_<Container> >
     {
         typedef typename Container::size_type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     typename transition_action_result<EVT,FSM,SourceState,TargetState>::type
@@ -2478,7 +2476,7 @@ struct Associative_Erase_ : euml_action<Associative_Erase_<Container,Param1,Para
     {
         typedef void type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -2520,7 +2518,7 @@ struct Associative_Erase_ < Container,Param1,void>
             typename ::boost::remove_reference<
                 typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     // version for transition + param is an iterator
     template <class EVT,class FSM,class SourceState,class TargetState>
@@ -2629,7 +2627,7 @@ struct Associative_Find_ : euml_action<Associative_Find_<T,Param> >
             typename ::boost::remove_reference<
                 typename get_result_type<T,EVT,FSM,SourceState,TargetState>::type>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -2684,7 +2682,7 @@ struct AssociativeCount_ : euml_action<AssociativeCount_<Container,Param> >
             typename ::boost::remove_reference<
                 typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -2738,7 +2736,7 @@ struct Associative_Lower_Bound_ : euml_action<Associative_Lower_Bound_<T,Param> 
             typename ::boost::remove_reference<
                 typename get_result_type<T,EVT,FSM,SourceState,TargetState>::type>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -2794,7 +2792,7 @@ struct Associative_Upper_Bound_ : euml_action<Associative_Upper_Bound_<T,Param> 
             typename ::boost::remove_reference<
                 typename get_result_type<T,EVT,FSM,SourceState,TargetState>::type>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -2850,7 +2848,7 @@ struct First_ : euml_action<First_<T> >
             typename ::boost::remove_reference<
                 typename get_result_type<T,EVT,FSM,SourceState,TargetState>::type>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -2905,7 +2903,7 @@ struct Second_ : euml_action<Second_<T> >
             typename ::boost::remove_reference<
                 typename get_result_type<T,EVT,FSM,SourceState,TargetState>::type>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -2968,7 +2966,7 @@ struct Associative_Equal_Range_ : euml_action<Associative_Equal_Range_<T,Param> 
                 typename ::boost::remove_reference<
                     typename get_result_type<T,EVT,FSM,SourceState,TargetState>::type>::type>::type > type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -3022,7 +3020,7 @@ struct Substr_ : euml_action<Substr_<Container,Param1,Param2> >
         typedef typename remove_reference<
             typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     typename transition_action_result<EVT,FSM,SourceState,TargetState>::type
@@ -3056,7 +3054,7 @@ struct Substr_ <Container,void,void>
         typedef typename remove_reference<
             typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     typename transition_action_result<EVT,FSM,SourceState,TargetState>::type
@@ -3088,7 +3086,7 @@ struct Substr_ < Container,Param1,void>
         typedef typename remove_reference<
             typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     typename transition_action_result<EVT,FSM,SourceState,TargetState>::type
@@ -3132,7 +3130,7 @@ struct StringCompare_ : euml_action<StringCompare_<Container,Param1,Param2,Param
     {
         typedef int type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -3169,7 +3167,7 @@ struct StringCompare_<Container,Param1,void,void,void>
     {
         typedef int type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -3205,7 +3203,7 @@ struct StringCompare_<Container,Param1,Param2,void,void>
     {
         typedef int type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -3241,7 +3239,7 @@ struct StringCompare_<Container,Param1,Param2,Param3,void>
     {
         typedef int type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -3294,7 +3292,7 @@ struct Append_ : euml_action<Append_<Container,Param1,Param2,Param3> >
     {
         typedef typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -3331,7 +3329,7 @@ struct Append_<Container,Param1,void,void>
     {
         typedef typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -3367,7 +3365,7 @@ struct Append_<Container,Param1,Param2,void>
     {
         typedef typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -3418,7 +3416,7 @@ struct StringInsert_ : euml_action<StringInsert_<Container,Param1,Param2,Param3,
     {
         typedef typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -3455,7 +3453,7 @@ struct StringInsert_ <Container,Param1,Param2,void,void>
     {
         typedef typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -3490,7 +3488,7 @@ struct StringInsert_<Container,Param1,Param2,Param3,void>
     {
         typedef typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -3543,7 +3541,7 @@ struct StringErase_ : euml_action<StringErase_<Container,Param1,Param2> >
     {
         typedef typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     typename transition_action_result<EVT,FSM,SourceState,TargetState>::type
@@ -3575,7 +3573,7 @@ struct StringErase_ <Container,void,void>
     {
         typedef typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     typename transition_action_result<EVT,FSM,SourceState,TargetState>::type
@@ -3605,7 +3603,7 @@ struct StringErase_ <Container,Param1,void>
     {
         typedef typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     typename transition_action_result<EVT,FSM,SourceState,TargetState>::type
@@ -3650,7 +3648,7 @@ struct StringAssign_ : euml_action<StringAssign_<Container,Param1,Param2,Param3>
     {
         typedef typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -3688,7 +3686,7 @@ struct StringAssign_ <
     {
         typedef typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -3724,7 +3722,7 @@ struct StringAssign_<Container,Param1,Param2,void>
     {
         typedef typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -3774,7 +3772,7 @@ struct StringReplace_ : euml_action<StringReplace_<Container,Param1,Param2,Param
     {
         typedef typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -3812,7 +3810,7 @@ struct StringReplace_<Container,Param1,Param2,Param3,void>
     {
         typedef typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -3871,7 +3869,7 @@ struct CStr_ : euml_action<CStr_<Container> >
                 typename ::boost::remove_reference<
                     typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type>::type>::type>::type* type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -3927,7 +3925,7 @@ struct StringData_ : euml_action<StringData_<Container> >
                 typename ::boost::remove_reference<
                     typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type>::type>::type>::type* type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -3992,7 +3990,7 @@ struct StringCopy_<
             typename ::boost::remove_reference<
                 typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     typename transition_action_result<EVT,FSM,SourceState,TargetState>::type
@@ -4031,7 +4029,7 @@ struct StringCopy_<
             typename ::boost::remove_reference<
                 typename get_result_type<Container,EVT,FSM,SourceState,TargetState>::type>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState> 
     typename transition_action_result<EVT,FSM,SourceState,TargetState>::type

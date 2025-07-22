@@ -43,7 +43,7 @@ namespace beast {
 
     @li Buffer sequences representing the readable and writable
     bytes, returned by @ref data and @ref prepare, will have
-    a type of net::const_buffer or net::mutable_buffer.
+    length one.
 
     Upon construction, a maximum size for the buffer may be
     specified. If this limit is exceeded, the `std::length_error`

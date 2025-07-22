@@ -1,5 +1,5 @@
 // Copyright 2014 Renato Tegon Forti, Antony Polukhin.
-// Copyright Antony Polukhin, 2015-2025.
+// Copyright Antony Polukhin, 2015-2023.
 //
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt
@@ -13,10 +13,9 @@
 #include <boost/dll/detail/posix/path_from_handle.hpp>
 #include <boost/dll/detail/posix/program_location_impl.hpp>
 
-#include <boost/core/invoke_swap.hpp>
+#include <boost/move/utility.hpp>
+#include <boost/swap.hpp>
 #include <boost/predef/os.h>
-
-#include <utility>  // std::move
 
 #include <dlfcn.h>
 #include <cstring> // strncmp
@@ -34,28 +33,27 @@
 namespace boost { namespace dll { namespace detail {
 
 class shared_library_impl {
+
+    BOOST_MOVABLE_BUT_NOT_COPYABLE(shared_library_impl)
+
 public:
     typedef void* native_handle_t;
 
-    shared_library_impl() noexcept
-        : handle_(nullptr)
+    shared_library_impl() BOOST_NOEXCEPT
+        : handle_(NULL)
     {}
 
-    ~shared_library_impl() noexcept {
+    ~shared_library_impl() BOOST_NOEXCEPT {
         unload();
     }
 
-    shared_library_impl(shared_library_impl&& sl) noexcept
+    shared_library_impl(BOOST_RV_REF(shared_library_impl) sl) BOOST_NOEXCEPT
         : handle_(sl.handle_)
     {
-        sl.handle_ = nullptr;
+        sl.handle_ = NULL;
     }
 
-    explicit shared_library_impl(native_handle_t handle) noexcept
-        : handle_(handle)
-    {}
-
-    shared_library_impl & operator=(shared_library_impl&& sl) noexcept {
+    shared_library_impl & operator=(BOOST_RV_REF(shared_library_impl) sl) BOOST_NOEXCEPT {
         swap(sl);
         return *this;
     }
@@ -71,7 +69,7 @@ public:
         return actual_path;
     }
 
-    void load(boost::dll::fs::path sl, load_mode::type portable_mode, std::error_code &ec) {
+    void load(boost::dll::fs::path sl, load_mode::type portable_mode, boost::dll::fs::error_code &ec) {
         typedef int native_mode_t;
         native_mode_t native_mode = static_cast<native_mode_t>(portable_mode);
         unload();
@@ -79,8 +77,8 @@ public:
         // Do not allow opening NULL paths. User must use program_location() instead
         if (sl.empty()) {
             boost::dll::detail::reset_dlerror();
-            ec = std::make_error_code(
-                std::errc::bad_file_descriptor
+            ec = boost::dll::fs::make_error_code(
+                boost::dll::fs::errc::bad_file_descriptor
             );
 
             return;
@@ -126,8 +124,8 @@ public:
             boost::dll::fs::path loc = boost::dll::detail::program_location_impl(prog_loc_err);
             if (boost::dll::fs::exists(actual_path) && !boost::dll::fs::equivalent(sl, loc, prog_loc_err)) {
                 // decorated path exists : current error is not a bad file descriptor and we are not trying to load the executable itself
-                ec = std::make_error_code(
-                    std::errc::executable_format_error
+                ec = boost::dll::fs::make_error_code(
+                    boost::dll::fs::errc::executable_format_error
                 );
                 return;
             }
@@ -140,8 +138,8 @@ public:
             return;
         }
 
-        ec = std::make_error_code(
-            std::errc::bad_file_descriptor
+        ec = boost::dll::fs::make_error_code(
+            boost::dll::fs::errc::bad_file_descriptor
         );
 
         // Maybe user wanted to load the executable itself? Checking...
@@ -156,20 +154,20 @@ public:
             // returned handle is for the main program.
             ec.clear();
             boost::dll::detail::reset_dlerror();
-            handle_ = dlopen(nullptr, native_mode);
+            handle_ = dlopen(NULL, native_mode);
             if (!handle_) {
-                ec = std::make_error_code(
-                    std::errc::bad_file_descriptor
+                ec = boost::dll::fs::make_error_code(
+                    boost::dll::fs::errc::bad_file_descriptor
                 );
             }
         }
     }
 
-    bool is_loaded() const noexcept {
+    bool is_loaded() const BOOST_NOEXCEPT {
         return (handle_ != 0);
     }
 
-    void unload() noexcept {
+    void unload() BOOST_NOEXCEPT {
         if (!is_loaded()) {
             return;
         }
@@ -178,11 +176,11 @@ public:
         handle_ = 0;
     }
 
-    void swap(shared_library_impl& rhs) noexcept {
-        boost::core::invoke_swap(handle_, rhs.handle_);
+    void swap(shared_library_impl& rhs) BOOST_NOEXCEPT {
+        boost::swap(handle_, rhs.handle_);
     }
 
-    boost::dll::fs::path full_module_path(std::error_code &ec) const {
+    boost::dll::fs::path full_module_path(boost::dll::fs::error_code &ec) const {
         return boost::dll::detail::path_from_handle(handle_, ec);
     }
 
@@ -195,12 +193,12 @@ public:
 #endif
     }
 
-    void* symbol_addr(const char* sb, std::error_code &ec) const noexcept {
+    void* symbol_addr(const char* sb, boost::dll::fs::error_code &ec) const BOOST_NOEXCEPT {
         // dlsym - obtain the address of a symbol from a dlopen object
         void* const symbol = dlsym(handle_, sb);
-        if (symbol == nullptr) {
-            ec = std::make_error_code(
-                std::errc::invalid_seek
+        if (symbol == NULL) {
+            ec = boost::dll::fs::make_error_code(
+                boost::dll::fs::errc::invalid_seek
             );
         }
 
@@ -212,7 +210,7 @@ public:
         return symbol;
     }
 
-    native_handle_t native() const noexcept {
+    native_handle_t native() const BOOST_NOEXCEPT {
         return handle_;
     }
 

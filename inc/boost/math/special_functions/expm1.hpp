@@ -1,5 +1,4 @@
 //  (C) Copyright John Maddock 2006.
-//  (C) Copyright Matt Borland 2024.
 //  Use, modification and distribution are subject to the
 //  Boost Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -11,10 +10,10 @@
 #pragma once
 #endif
 
+#include <cmath>
+#include <cstdint>
+#include <limits>
 #include <boost/math/tools/config.hpp>
-
-#ifndef BOOST_MATH_HAS_NVRTC
-
 #include <boost/math/tools/series.hpp>
 #include <boost/math/tools/precision.hpp>
 #include <boost/math/tools/big_constant.hpp>
@@ -22,9 +21,6 @@
 #include <boost/math/tools/rational.hpp>
 #include <boost/math/special_functions/math_fwd.hpp>
 #include <boost/math/tools/assert.hpp>
-#include <boost/math/tools/numeric_limits.hpp>
-#include <boost/math/tools/type_traits.hpp>
-#include <boost/math/tools/cstdint.hpp>
 
 #if defined(__GNUC__) && defined(BOOST_MATH_USE_FLOAT128)
 //
@@ -49,10 +45,10 @@ namespace detail
   {
      typedef T result_type;
 
-     BOOST_MATH_GPU_ENABLED expm1_series(T x)
+     expm1_series(T x)
         : k(0), m_x(x), m_term(1) {}
 
-     BOOST_MATH_GPU_ENABLED T operator()()
+     T operator()()
      {
         ++k;
         m_term *= m_x;
@@ -60,7 +56,7 @@ namespace detail
         return m_term;
      }
 
-     BOOST_MATH_GPU_ENABLED int count()const
+     int count()const
      {
         return k;
      }
@@ -78,28 +74,26 @@ struct expm1_initializer
 {
    struct init
    {
-      BOOST_MATH_GPU_ENABLED init()
+      init()
       {
          do_init(tag());
       }
       template <int N>
-      BOOST_MATH_GPU_ENABLED static void do_init(const boost::math::integral_constant<int, N>&){}
-      BOOST_MATH_GPU_ENABLED static void do_init(const boost::math::integral_constant<int, 64>&)
+      static void do_init(const std::integral_constant<int, N>&){}
+      static void do_init(const std::integral_constant<int, 64>&)
       {
          expm1(T(0.5));
       }
-      BOOST_MATH_GPU_ENABLED static void do_init(const boost::math::integral_constant<int, 113>&)
+      static void do_init(const std::integral_constant<int, 113>&)
       {
          expm1(T(0.5));
       }
-      BOOST_MATH_GPU_ENABLED void force_instantiate()const{}
+      void force_instantiate()const{}
    };
-   BOOST_MATH_STATIC const init initializer;
-   BOOST_MATH_GPU_ENABLED static void force_instantiate()
+   static const init initializer;
+   static void force_instantiate()
    {
-      #ifndef BOOST_MATH_HAS_GPU_SUPPORT
       initializer.force_instantiate();
-      #endif
    }
 };
 
@@ -112,7 +106,7 @@ const typename expm1_initializer<T, Policy, tag>::init expm1_initializer<T, Poli
 // This version uses a Taylor series expansion for 0.5 > |x| > epsilon.
 //
 template <class T, class Policy>
-T expm1_imp(T x, const boost::math::integral_constant<int, 0>&, const Policy& pol)
+T expm1_imp(T x, const std::integral_constant<int, 0>&, const Policy& pol)
 {
    BOOST_MATH_STD_USING
 
@@ -134,7 +128,7 @@ T expm1_imp(T x, const boost::math::integral_constant<int, 0>&, const Policy& po
    if(a < tools::epsilon<T>())
       return x;
    detail::expm1_series<T> s(x);
-   boost::math::uintmax_t max_iter = policies::get_max_series_iterations<Policy>();
+   std::uintmax_t max_iter = policies::get_max_series_iterations<Policy>();
 
    T result = tools::sum_series(s, policies::get_epsilon<T, Policy>(), max_iter);
 
@@ -143,7 +137,7 @@ T expm1_imp(T x, const boost::math::integral_constant<int, 0>&, const Policy& po
 }
 
 template <class T, class P>
-BOOST_MATH_GPU_ENABLED T expm1_imp(T x, const boost::math::integral_constant<int, 53>&, const P& pol)
+T expm1_imp(T x, const std::integral_constant<int, 53>&, const P& pol)
 {
    BOOST_MATH_STD_USING
 
@@ -161,16 +155,16 @@ BOOST_MATH_GPU_ENABLED T expm1_imp(T x, const boost::math::integral_constant<int
    if(a < tools::epsilon<T>())
       return x;
 
-   BOOST_MATH_STATIC const float Y = 0.10281276702880859e1f;
-   BOOST_MATH_STATIC const T n[] = { static_cast<T>(-0.28127670288085937e-1), static_cast<T>(0.51278186299064534e0), static_cast<T>(-0.6310029069350198e-1), static_cast<T>(0.11638457975729296e-1), static_cast<T>(-0.52143390687521003e-3), static_cast<T>(0.21491399776965688e-4) };
-   BOOST_MATH_STATIC const T d[] = { 1, static_cast<T>(-0.45442309511354755e0), static_cast<T>(0.90850389570911714e-1), static_cast<T>(-0.10088963629815502e-1), static_cast<T>(0.63003407478692265e-3), static_cast<T>(-0.17976570003654402e-4) };
+   static const float Y = 0.10281276702880859e1f;
+   static const T n[] = { static_cast<T>(-0.28127670288085937e-1), static_cast<T>(0.51278186299064534e0), static_cast<T>(-0.6310029069350198e-1), static_cast<T>(0.11638457975729296e-1), static_cast<T>(-0.52143390687521003e-3), static_cast<T>(0.21491399776965688e-4) };
+   static const T d[] = { 1, static_cast<T>(-0.45442309511354755e0), static_cast<T>(0.90850389570911714e-1), static_cast<T>(-0.10088963629815502e-1), static_cast<T>(0.63003407478692265e-3), static_cast<T>(-0.17976570003654402e-4) };
 
    T result = x * Y + x * tools::evaluate_polynomial(n, x) / tools::evaluate_polynomial(d, x);
    return result;
 }
 
 template <class T, class P>
-BOOST_MATH_GPU_ENABLED T expm1_imp(T x, const boost::math::integral_constant<int, 64>&, const P& pol)
+T expm1_imp(T x, const std::integral_constant<int, 64>&, const P& pol)
 {
    BOOST_MATH_STD_USING
 
@@ -188,8 +182,8 @@ BOOST_MATH_GPU_ENABLED T expm1_imp(T x, const boost::math::integral_constant<int
    if(a < tools::epsilon<T>())
       return x;
 
-   BOOST_MATH_STATIC const float Y = 0.10281276702880859375e1f;
-   BOOST_MATH_STATIC const T n[] = {
+   static const float Y = 0.10281276702880859375e1f;
+   static const T n[] = {
       BOOST_MATH_BIG_CONSTANT(T, 64, -0.281276702880859375e-1),
        BOOST_MATH_BIG_CONSTANT(T, 64, 0.512980290285154286358e0),
        BOOST_MATH_BIG_CONSTANT(T, 64, -0.667758794592881019644e-1),
@@ -198,7 +192,7 @@ BOOST_MATH_GPU_ENABLED T expm1_imp(T x, const boost::math::integral_constant<int
        BOOST_MATH_BIG_CONSTANT(T, 64, 0.447441185192951335042e-4),
        BOOST_MATH_BIG_CONSTANT(T, 64, -0.714539134024984593011e-6)
    };
-   BOOST_MATH_STATIC const T d[] = {
+   static const T d[] = {
       BOOST_MATH_BIG_CONSTANT(T, 64, 1.0),
       BOOST_MATH_BIG_CONSTANT(T, 64, -0.461477618025562520389e0),
       BOOST_MATH_BIG_CONSTANT(T, 64, 0.961237488025708540713e-1),
@@ -213,7 +207,7 @@ BOOST_MATH_GPU_ENABLED T expm1_imp(T x, const boost::math::integral_constant<int
 }
 
 template <class T, class P>
-BOOST_MATH_GPU_ENABLED T expm1_imp(T x, const boost::math::integral_constant<int, 113>&, const P& pol)
+T expm1_imp(T x, const std::integral_constant<int, 113>&, const P& pol)
 {
    BOOST_MATH_STD_USING
 
@@ -265,7 +259,7 @@ BOOST_MATH_GPU_ENABLED T expm1_imp(T x, const boost::math::integral_constant<int
 } // namespace detail
 
 template <class T, class Policy>
-BOOST_MATH_GPU_ENABLED inline typename tools::promote_args<T>::type expm1(T x, const Policy& /* pol */)
+inline typename tools::promote_args<T>::type expm1(T x, const Policy& /* pol */)
 {
    typedef typename tools::promote_args<T>::type result_type;
    typedef typename policies::evaluation<result_type, Policy>::type value_type;
@@ -277,7 +271,7 @@ BOOST_MATH_GPU_ENABLED inline typename tools::promote_args<T>::type expm1(T x, c
       policies::discrete_quantile<>,
       policies::assert_undefined<> >::type forwarding_policy;
 
-   typedef boost::math::integral_constant<int,
+   typedef std::integral_constant<int,
       precision_type::value <= 0 ? 0 :
       precision_type::value <= 53 ? 53 :
       precision_type::value <= 64 ? 64 :
@@ -300,58 +294,24 @@ BOOST_MATH_GPU_ENABLED inline typename tools::promote_args<T>::type expm1(T x, c
 
 #if defined(BOOST_HAS_EXPM1) && !(defined(__osf__) && defined(__DECCXX_VER))
 #  ifdef BOOST_MATH_USE_C99
-BOOST_MATH_GPU_ENABLED inline float expm1(float x, const policies::policy<>&){ return ::expm1f(x); }
+inline float expm1(float x, const policies::policy<>&){ return ::expm1f(x); }
 #     ifndef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
 inline long double expm1(long double x, const policies::policy<>&){ return ::expm1l(x); }
 #     endif
 #  else
 inline float expm1(float x, const policies::policy<>&){ return static_cast<float>(::expm1(x)); }
 #  endif
-BOOST_MATH_GPU_ENABLED inline double expm1(double x, const policies::policy<>&){ return ::expm1(x); }
+inline double expm1(double x, const policies::policy<>&){ return ::expm1(x); }
 #endif
 
 template <class T>
-BOOST_MATH_GPU_ENABLED inline typename tools::promote_args<T>::type expm1(T x)
+inline typename tools::promote_args<T>::type expm1(T x)
 {
    return expm1(x, policies::policy<>());
 }
 
 } // namespace math
 } // namespace boost
-
-#else // Special handling for NVRTC 
-
-namespace boost {
-namespace math {
-
-template <typename T>
-BOOST_MATH_GPU_ENABLED auto expm1(T x)
-{
-   return ::expm1(x);
-}
-
-template <>
-BOOST_MATH_GPU_ENABLED auto expm1(float x)
-{
-   return ::expm1f(x);
-}
-
-template <typename T, typename Policy>
-BOOST_MATH_GPU_ENABLED auto expm1(T x, const Policy&)
-{
-   return ::expm1(x);
-}
-
-template <typename Policy>
-BOOST_MATH_GPU_ENABLED auto expm1(float x, const Policy&)
-{
-   return ::expm1f(x);
-}
-
-} // Namespace math
-} // Namespace boost
-
-#endif // BOOST_MATH_HAS_NVRTC
 
 #endif // BOOST_MATH_HYPOT_INCLUDED
 

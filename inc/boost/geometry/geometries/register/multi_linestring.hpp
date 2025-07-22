@@ -33,7 +33,7 @@
 */
 #define BOOST_GEOMETRY_REGISTER_MULTI_LINESTRING(MultiLineString) \
 namespace boost { namespace geometry { namespace traits {  \
-    template<> struct tag<MultiLineString> { using type = multi_linestring_tag; }; \
+    template<> struct tag<MultiLineString> { typedef multi_linestring_tag type; }; \
 }}}
 
 
@@ -52,7 +52,7 @@ namespace boost { namespace geometry { namespace traits {  \
 */
 #define BOOST_GEOMETRY_REGISTER_MULTI_LINESTRING_TEMPLATED(MultiLineString) \
 namespace boost { namespace geometry { namespace traits {  \
-    template<typename LineString> struct tag< MultiLineString<LineString> > { using type = multi_linestring_tag; }; \
+    template<typename LineString> struct tag< MultiLineString<LineString> > { typedef multi_linestring_tag type; }; \
 }}}
 
 

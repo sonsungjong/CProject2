@@ -11,7 +11,9 @@
 //
 //  See http://www.boost.org/libs/smart_ptr/ for documentation.
 
+#include <boost/smart_ptr/detail/requires_cxx11.hpp>
 #include <boost/smart_ptr/enable_shared_from_this.hpp>
+#include <boost/smart_ptr/detail/sp_noexcept.hpp>
 
 namespace boost
 {
@@ -30,7 +32,7 @@ template<class T> shared_ptr<T> shared_from( T * p )
     return shared_ptr<T>( p->enable_shared_from_this<enable_shared_from>::shared_from_this(), p );
 }
 
-template<class T> weak_ptr<T> weak_from( T * p ) noexcept
+template<class T> weak_ptr<T> weak_from( T * p ) BOOST_SP_NOEXCEPT
 {
     return weak_ptr<T>( p->enable_shared_from_this<enable_shared_from>::weak_from_this(), p );
 }

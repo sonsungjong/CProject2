@@ -21,9 +21,9 @@
 
 #include <boost/container/detail/config_begin.hpp>
 #include <boost/container/detail/workaround.hpp>
+#include <boost/static_assert.hpp>
 #include <boost/container/detail/placement_new.hpp>
 #include <boost/move/detail/to_raw_pointer.hpp>
-#include <boost/move/detail/launder.hpp>
 #include <boost/container/allocator_traits.hpp>
 #include <boost/container/detail/mpl.hpp>
 
@@ -32,12 +32,6 @@
 
 #include <boost/container/detail/mpl.hpp>
 #include <boost/assert.hpp>
-
-//GCC 12 is confused about maybe uninitialized allocators
-#if defined(BOOST_GCC) && (BOOST_GCC >= 120000) && (BOOST_GCC < 130000)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#endif
 
 
 //!\file
@@ -66,11 +60,11 @@ class node_handle_friend
    public:
 
    template<class NH>
-   inline static void destroy_alloc(NH &nh) BOOST_NOEXCEPT
+   BOOST_CONTAINER_FORCEINLINE static void destroy_alloc(NH &nh) BOOST_NOEXCEPT
    {  nh.destroy_alloc();  }
 
    template<class NH>
-   inline static typename NH::node_pointer &get_node_pointer(NH &nh) BOOST_NOEXCEPT
+   BOOST_CONTAINER_FORCEINLINE static typename NH::node_pointer &get_node_pointer(NH &nh) BOOST_NOEXCEPT
    {  return nh.get_node_pointer();  }
 };
 
@@ -147,7 +141,7 @@ class node_handle
    }
 
    void destroy_alloc() BOOST_NOEXCEPT
-   {  move_detail::launder_cast<nallocator_type*>(&m_nalloc_storage)->~nallocator_type();  }
+   {  static_cast<nallocator_type*>((void*)m_nalloc_storage.data)->~nallocator_type();  }
 
    node_pointer &get_node_pointer() BOOST_NOEXCEPT
    {  return m_ptr;  }
@@ -232,7 +226,7 @@ class node_handle
       if(was_nh_non_null){
          if(was_this_non_null){
             this->destroy_deallocate_node();
-            BOOST_IF_CONSTEXPR(nator_traits::propagate_on_container_move_assignment::value){
+            if(nator_traits::propagate_on_container_move_assignment::value){
                this->node_alloc() = ::boost::move(nh.node_alloc());
             }
          }
@@ -258,7 +252,7 @@ class node_handle
    //! <b>Throws</b>: Nothing.
    value_type& value() const BOOST_NOEXCEPT
    {
-      BOOST_CONTAINER_STATIC_ASSERT((dtl::is_same<KeyMapped, void>::value));
+      BOOST_STATIC_ASSERT((dtl::is_same<KeyMapped, void>::value));
       BOOST_ASSERT(!empty());
       return m_ptr->get_data();
    }
@@ -273,7 +267,7 @@ class node_handle
    //! <b>Requires</b>: Modifying the key through the returned reference is permitted.
    key_type& key() const BOOST_NOEXCEPT
    {
-      BOOST_CONTAINER_STATIC_ASSERT((!dtl::is_same<KeyMapped, void>::value));
+      BOOST_STATIC_ASSERT((!dtl::is_same<KeyMapped, void>::value));
       BOOST_ASSERT(!empty());
       return const_cast<key_type &>(KeyMapped().key_of_value(m_ptr->get_data()));
    }
@@ -286,7 +280,7 @@ class node_handle
    //! <b>Throws</b>: Nothing.
    mapped_type& mapped() const BOOST_NOEXCEPT
    {
-      BOOST_CONTAINER_STATIC_ASSERT((!dtl::is_same<KeyMapped, void>::value));
+      BOOST_STATIC_ASSERT((!dtl::is_same<KeyMapped, void>::value));
       BOOST_ASSERT(!empty());
       return KeyMapped().mapped_of_value(m_ptr->get_data());
    }
@@ -305,10 +299,10 @@ class node_handle
    //! <b>Returns</b>: m_ptr != nullptr.
    //!
    #ifdef BOOST_CONTAINER_DOXYGEN_INVOKED
-   inline explicit operator bool
+   BOOST_CONTAINER_FORCEINLINE explicit operator bool
    #else
    private: struct bool_conversion {int for_bool; int for_arg(); }; typedef int bool_conversion::* explicit_bool_arg;
-   public: inline operator explicit_bool_arg
+   public: BOOST_CONTAINER_FORCEINLINE operator explicit_bool_arg
    #endif
       ()const BOOST_NOEXCEPT
    {  return m_ptr ? &bool_conversion::for_bool  : explicit_bool_arg(0);  }
@@ -336,7 +330,7 @@ class node_handle
 
       if(was_nh_non_null){
          if(was_this_non_null){
-            BOOST_IF_CONSTEXPR(nator_traits::propagate_on_container_swap::value){
+            if(nator_traits::propagate_on_container_swap::value){
                ::boost::adl_move_swap(this->node_alloc(), nh.node_alloc());
             }
          }
@@ -349,7 +343,6 @@ class node_handle
          nh.move_construct_alloc(this->node_alloc());
          this->destroy_alloc();
       }
-
       ::boost::adl_move_swap(m_ptr, nh.m_ptr);
    }
 
@@ -382,7 +375,7 @@ class node_handle
    nallocator_type &node_alloc() BOOST_NOEXCEPT
    {
       BOOST_ASSERT(!empty());
-      return *move_detail::launder_cast<nallocator_type*>(&m_nalloc_storage);
+      return *static_cast<nallocator_type*>((void*)m_nalloc_storage.data);
    }
 
 
@@ -392,7 +385,7 @@ class node_handle
    const nallocator_type &node_alloc() const BOOST_NOEXCEPT
    {
       BOOST_ASSERT(!empty());
-      return *move_detail::launder_cast<const nallocator_type*>(&m_nalloc_storage);
+      return *static_cast<const nallocator_type*>((const void*)m_nalloc_storage.data);
    }
 
    //! <b>Effects</b>: x.swap(y).
@@ -446,10 +439,6 @@ struct insert_return_type_base
 
 }  //namespace container {
 }  //namespace boost {
-
-#if defined(BOOST_GCC) && (BOOST_GCC >= 120000) && (BOOST_GCC < 130000)
-#pragma GCC diagnostic pop
-#endif
 
 #include <boost/container/detail/config_end.hpp>
 

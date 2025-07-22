@@ -118,12 +118,13 @@ public :
                 RangeOut& range_out) const
     {
         boost::ignore_unused(perp_left_point);
+        typedef typename coordinate_type<Point>::type coordinate_type;
 
-        using promoted_type = typename geometry::select_most_precise
+        typedef typename geometry::select_most_precise
         <
-            coordinate_type_t<Point>,
+            coordinate_type,
             double
-        >::type;
+        >::type promoted_type;
 
         promoted_type const dist_left = distance.apply(penultimate_point, ultimate_point, buffer_side_left);
         promoted_type const dist_right = distance.apply(penultimate_point, ultimate_point, buffer_side_right);
@@ -164,7 +165,7 @@ public :
         return distance;
     }
 
-    //! Returns the piece_type (round end)
+    //! Returns the piece_type (flat end)
     static inline piece_type get_piece_type()
     {
         return buffered_round_end;

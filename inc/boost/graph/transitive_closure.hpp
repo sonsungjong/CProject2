@@ -151,7 +151,7 @@ void transitive_closure(const Graph& g, GraphTC& tc,
             cg_vertex v = *i;
             if (!in_a_chain[v])
             {
-                chains.emplace_back();
+                chains.resize(chains.size() + 1);
                 std::vector< cg_vertex >& chain = chains.back();
                 for (;;)
                 {

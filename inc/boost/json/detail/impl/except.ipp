@@ -22,11 +22,11 @@ namespace detail {
 
 void
 throw_system_error(
-    system::error_code const& ec,
+    error_code const& ec,
     source_location const& loc)
 {
     throw_exception(
-        system::system_error(ec),
+        system_error(ec),
         loc);
 }
 
@@ -35,11 +35,11 @@ throw_system_error(
     error e,
     source_location const* loc)
 {
-    system::error_code ec;
+    error_code ec;
     ec.assign(e, loc);
 
     throw_exception(
-        system::system_error(ec),
+        system_error(ec),
         *loc);
 }
 

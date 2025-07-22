@@ -83,8 +83,8 @@ struct distance_result
     : strategy::distance::services::return_type
         <
             typename distance_result_strategy_type<Geometry1, Geometry2, Strategy>::type,
-            point_type_t<Geometry1>,
-            point_type_t<Geometry2>
+            typename point_type<Geometry1>::type,
+            typename point_type<Geometry2>::type
         >
 {};
 

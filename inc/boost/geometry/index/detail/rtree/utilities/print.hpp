@@ -134,11 +134,10 @@ struct print_indexable<Indexable, segment_tag>
 template <typename Indexable> inline
 void print_indexable(std::ostream & os, Indexable const& i)
 {
-    dispatch::print_indexable
-        <
-            Indexable,
-            tag_t<Indexable>
-        >::apply(os, i);
+    dispatch::print_indexable<
+        Indexable,
+        typename tag<Indexable>::type
+    >::apply(os, i);
 }
 
 } // namespace utilities

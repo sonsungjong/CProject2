@@ -20,8 +20,6 @@
 #include <boost/mpl/set.hpp>
 #include <boost/type_traits.hpp>
 
-#include <boost/fusion/container/set.hpp>
-
 BOOST_MPL_HAS_XXX_TRAIT_DEF(reference)
 BOOST_MPL_HAS_XXX_TRAIT_DEF(key_type)
 
@@ -89,7 +87,7 @@ struct If_Else_<Condition,Action1,Action2
     {
         typedef typename get_result_type<Action1,EVT,FSM,SourceState,TargetState>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -134,7 +132,7 @@ struct If_Else_<Condition,Action1,Action2
     {
         typedef bool type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     bool operator()(EVT const& evt, FSM& fsm,SourceState& src,TargetState& tgt)const
@@ -193,7 +191,7 @@ struct If_Then_<Condition,Action1
     {
         typedef typename get_result_type<Action1,EVT,FSM,SourceState,TargetState>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -236,7 +234,7 @@ struct If_Then_<Condition,Action1
     {
         typedef bool type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     bool operator()(EVT const& evt, FSM& fsm,SourceState& src,TargetState& tgt)const
@@ -288,7 +286,7 @@ struct While_Do_ : euml_action<While_Do_<Condition,Body> >
         typedef void type;
     };
 
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     void operator()(EVT const& evt, FSM& fsm,SourceState& src,TargetState& tgt)const
@@ -344,7 +342,7 @@ struct Do_While_ : euml_action<Do_While_<Condition,Body> >
         typedef void type;
     };
 
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     void operator()(EVT const& evt, FSM& fsm,SourceState& src,TargetState& tgt)const
@@ -400,7 +398,7 @@ struct For_Loop_ : euml_action<For_Loop_<Begin,End,EndLoop,Body> >
         typedef void type;
     };
 
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     void operator()(EVT const& evt, FSM& fsm,SourceState& src,TargetState& tgt)const
@@ -470,7 +468,7 @@ struct Deref_ : euml_action<Deref_<T> >
                     >::value_type
         >::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -507,7 +505,7 @@ struct Pre_inc_ : euml_action<Pre_inc_<T> >
     {
         typedef typename get_result_type<T,EVT,FSM,SourceState,TargetState>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -543,7 +541,7 @@ struct Pre_dec_ : euml_action<Pre_dec_<T> >
     {
         typedef typename get_result_type<T,EVT,FSM,SourceState,TargetState>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -581,7 +579,7 @@ struct Post_inc_ : euml_action<Post_inc_<T> >
         typedef typename ::boost::remove_reference<
             typename get_result_type<T,EVT,FSM,SourceState,TargetState>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -619,7 +617,7 @@ struct Post_dec_ : euml_action<Post_dec_<T> >
         typedef typename ::boost::remove_reference<
             typename get_result_type<T,EVT,FSM,SourceState,TargetState>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -656,7 +654,7 @@ struct Plus_ : euml_action<Plus_<T1,T2> >
         typedef typename ::boost::remove_reference<
             typename get_result_type<T1,EVT,FSM,SourceState,TargetState>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -692,7 +690,7 @@ struct Minus_ : euml_action<Minus_<T1,T2> >
         typedef typename ::boost::remove_reference<
             typename get_result_type<T1,EVT,FSM,SourceState,TargetState>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -728,7 +726,7 @@ struct Multiplies_ : euml_action<Multiplies_<T1,T2> >
         typedef typename ::boost::remove_reference<
             typename get_result_type<T1,EVT,FSM,SourceState,TargetState>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -764,7 +762,7 @@ struct Divides_ : euml_action<Divides_<T1,T2> >
         typedef typename ::boost::remove_reference<
             typename get_result_type<T1,EVT,FSM,SourceState,TargetState>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -800,7 +798,7 @@ struct Modulus_ : euml_action<Modulus_<T1,T2> >
         typedef typename ::boost::remove_reference<
             typename get_result_type<T1,EVT,FSM,SourceState,TargetState>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -836,7 +834,7 @@ struct Bitwise_And_ : euml_action<Bitwise_And_<T1,T2> >
         typedef typename ::boost::remove_reference<
             typename get_result_type<T1,EVT,FSM,SourceState,TargetState>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -872,7 +870,7 @@ struct Bitwise_Or_ : euml_action<Bitwise_Or_<T1,T2> >
         typedef typename ::boost::remove_reference<
             typename get_result_type<T1,EVT,FSM,SourceState,TargetState>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -908,7 +906,7 @@ struct Bitwise_Xor_ : euml_action<Bitwise_Xor_<T1,T2> >
         typedef typename ::boost::remove_reference<
             typename get_result_type<T1,EVT,FSM,SourceState,TargetState>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -972,7 +970,7 @@ struct Subscript_ : euml_action<Subscript_<T1,T2> >
              >
         >::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -1006,7 +1004,7 @@ struct Plus_Assign_ : euml_action<Plus_Assign_<T1,T2> >
     {
         typedef typename get_result_type<T1,EVT,FSM,SourceState,TargetState>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -1040,7 +1038,7 @@ struct Minus_Assign_ : euml_action<Minus_Assign_<T1,T2> >
     {
         typedef typename get_result_type<T1,EVT,FSM,SourceState,TargetState>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -1074,7 +1072,7 @@ struct Multiplies_Assign_ : euml_action<Multiplies_Assign_<T1,T2> >
     {
         typedef typename get_result_type<T1,EVT,FSM,SourceState,TargetState>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -1108,7 +1106,7 @@ struct Divides_Assign_ : euml_action<Divides_Assign_<T1,T2> >
     {
         typedef typename get_result_type<T1,EVT,FSM,SourceState,TargetState>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -1142,7 +1140,7 @@ struct Modulus_Assign_ : euml_action<Modulus_Assign_<T1,T2> >
     {
         typedef typename get_result_type<T1,EVT,FSM,SourceState,TargetState>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -1176,7 +1174,7 @@ struct ShiftLeft_Assign_ : euml_action<ShiftLeft_Assign_<T1,T2> >
     {
         typedef typename get_result_type<T1,EVT,FSM,SourceState,TargetState>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -1210,7 +1208,7 @@ struct ShiftRight_Assign_ : euml_action<ShiftRight_Assign_<T1,T2> >
     {
         typedef typename get_result_type<T1,EVT,FSM,SourceState,TargetState>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -1244,7 +1242,7 @@ struct ShiftLeft_ : euml_action<ShiftLeft_<T1,T2> >
     {
         typedef typename get_result_type<T1,EVT,FSM,SourceState,TargetState>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -1278,7 +1276,7 @@ struct ShiftRight_ : euml_action<ShiftRight_<T1,T2> >
     {
         typedef typename get_result_type<T1,EVT,FSM,SourceState,TargetState>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -1313,7 +1311,7 @@ struct Assign_ : euml_action<Assign_<T1,T2> >
     {
         typedef typename get_result_type<T1,EVT,FSM,SourceState,TargetState>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -1349,7 +1347,7 @@ struct Unary_Plus_ : euml_action<Unary_Plus_<T1> >
         typedef typename ::boost::remove_reference<
             typename get_result_type<T1,EVT,FSM,SourceState,TargetState>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -1385,7 +1383,7 @@ struct Unary_Minus_ : euml_action<Unary_Minus_<T1> >
         typedef typename ::boost::remove_reference<
             typename get_result_type<T1,EVT,FSM,SourceState,TargetState>::type>::type type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     typename ::boost::enable_if<
@@ -1419,7 +1417,7 @@ struct Less_ : euml_action<Less_<T1,T2> >
     {
         typedef bool type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     bool operator()(EVT const& evt, FSM& fsm,SourceState& src,TargetState& tgt)const
@@ -1445,7 +1443,7 @@ struct LessEqual_ : euml_action<LessEqual_<T1,T2> >
     {
         typedef bool type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     bool operator()(EVT const& evt, FSM& fsm,SourceState& src,TargetState& tgt)const
@@ -1471,7 +1469,7 @@ struct Greater_ : euml_action<Greater_<T1,T2> >
     {
         typedef bool type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     bool operator()(EVT const& evt, FSM& fsm,SourceState& src,TargetState& tgt)const
@@ -1497,7 +1495,7 @@ struct GreaterEqual_ : euml_action<GreaterEqual_<T1,T2> >
     {
         typedef bool type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     bool operator()(EVT const& evt, FSM& fsm,SourceState& src,TargetState& tgt)const
@@ -1523,7 +1521,7 @@ struct EqualTo_ : euml_action<EqualTo_<T1,T2> >
     {
         typedef bool type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     bool operator()(EVT const& evt, FSM& fsm,SourceState& src,TargetState& tgt)const
@@ -1549,7 +1547,7 @@ struct NotEqualTo_ : euml_action<NotEqualTo_<T1,T2> >
     {
         typedef bool type;
     };
-    typedef ::boost::fusion::set<state_action_tag,action_tag> tag_type;
+    typedef ::boost::mpl::set<state_action_tag,action_tag> tag_type;
 
     template <class EVT,class FSM,class SourceState,class TargetState>
     bool operator()(EVT const& evt, FSM& fsm,SourceState& src,TargetState& tgt)const

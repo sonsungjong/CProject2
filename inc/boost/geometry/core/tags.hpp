@@ -135,25 +135,22 @@ struct single_tag_of
 template <>
 struct single_tag_of<multi_point_tag>
 {
-    using type = point_tag;
+    typedef point_tag type;
 };
 
 template <>
 struct single_tag_of<multi_linestring_tag>
 {
-    using type = linestring_tag;
+    typedef linestring_tag type;
 };
 
 template <>
 struct single_tag_of<multi_polygon_tag>
 {
-    using type = polygon_tag;
+    typedef polygon_tag type;
 };
 
 #endif
-
-template <typename Tag>
-using single_tag_of_t = typename single_tag_of<Tag>::type;
 
 
 }} // namespace boost::geometry

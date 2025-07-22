@@ -25,9 +25,6 @@
 #include <boost/geometry/strategies/cartesian/point_in_box.hpp> // spherical
 #include <boost/geometry/strategies/spherical/ssf.hpp>
 
-#include <boost/geometry/util/numeric_cast.hpp>
-
-
 namespace boost { namespace geometry
 {
 
@@ -65,7 +62,7 @@ struct generic_segment_box
                     <
                         std::is_same
                             <
-                                geometry::cs_tag_t<segment_type>,
+                                typename geometry::cs_tag<segment_type>::type,
                                 spherical_polar_tag
                             >::value,
                         spherical_polar_tag, spherical_equatorial_tag
@@ -107,15 +104,15 @@ struct generic_segment_box
         // disjoint but vertex not computed
         if (disjoint_result == disjoint_info_type::disjoint_no_vertex)
         {
-            using coor_t = coordinate_type_t<SegmentPoint>;
+            typedef typename coordinate_type<SegmentPoint>::type CT;
 
             geometry::model::box<SegmentPoint> mbr;
             geometry::envelope(seg, mbr, strategies);
 
-            coor_t lon1 = geometry::get_as_radian<0>(p0);
-            coor_t lat1 = geometry::get_as_radian<1>(p0);
-            coor_t lon2 = geometry::get_as_radian<0>(p1);
-            coor_t lat2 = geometry::get_as_radian<1>(p1);
+            CT lon1 = geometry::get_as_radian<0>(p0);
+            CT lat1 = geometry::get_as_radian<1>(p0);
+            CT lon2 = geometry::get_as_radian<0>(p1);
+            CT lat2 = geometry::get_as_radian<1>(p1);
 
             if (lon1 > lon2)
             {
@@ -123,22 +120,22 @@ struct generic_segment_box
                 std::swap(lat1, lat2);
             }
 
-            coor_t vertex_lat;
-            coor_t lat_sum = lat1 + lat2;
-            if (lat_sum > coor_t(0))
+            CT vertex_lat;
+            CT lat_sum = lat1 + lat2;
+            if (lat_sum > CT(0))
             {
                 vertex_lat = geometry::get_as_radian<geometry::max_corner, 1>(mbr);
             } else {
                 vertex_lat = geometry::get_as_radian<geometry::min_corner, 1>(mbr);
             }
 
-            coor_t alp1;
+            CT alp1;
             strategies.azimuth().apply(lon1, lat1, lon2, lat2, alp1);
 
             // TODO: formula should not call strategy!
-            coor_t vertex_lon = geometry::formula::vertex_longitude
+            CT vertex_lon = geometry::formula::vertex_longitude
                     <
-                        coor_t,
+                        CT,
                         cs_tag
                     >::apply(lon1, lat1, lon2, lat2,
                              vertex_lat, alp1, strategies.azimuth());
@@ -151,7 +148,7 @@ struct generic_segment_box
         if (less_equal(geometry::get_as_radian<0>(bottom_left),
                        geometry::get_as_radian<0>(p_max)))
         {
-            result = util::numeric_cast<ReturnType>(
+            result = boost::numeric_cast<ReturnType>(
                 strategies.distance(bottom_left, seg).apply(bottom_left, p0, p1));
         }
         else
@@ -216,7 +213,7 @@ struct spherical_segment_box
           >
     {};
 
-    using cs_tag = spherical_tag;
+    typedef spherical_tag cs_tag;
 
     // constructors
 

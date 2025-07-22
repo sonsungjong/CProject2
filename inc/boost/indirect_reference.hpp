@@ -1,5 +1,5 @@
-#ifndef BOOST_INDIRECT_REFERENCE_DWA200415_HPP
-#define BOOST_INDIRECT_REFERENCE_DWA200415_HPP
+#ifndef INDIRECT_REFERENCE_DWA200415_HPP
+# define INDIRECT_REFERENCE_DWA200415_HPP
 
 //
 // Copyright David Abrahams 2004. Use, modification and distribution is
@@ -11,36 +11,33 @@
 // http://www.boost.org/libs/iterator/doc/pointee.html
 //
 
-#include <type_traits>
-
-#include <boost/detail/is_incrementable.hpp>
-#include <boost/iterator/iterator_traits.hpp>
-#include <boost/pointee.hpp>
+# include <boost/detail/is_incrementable.hpp>
+# include <boost/iterator/iterator_traits.hpp>
+# include <boost/type_traits/remove_cv.hpp>
+# include <boost/mpl/eval_if.hpp>
+# include <boost/pointee.hpp>
 
 namespace boost {
-namespace detail {
 
-template< typename P >
-struct smart_ptr_reference
+namespace detail
 {
-    using type = boost::pointee_t< P >&;
-};
+  template <class P>
+  struct smart_ptr_reference
+  {
+      typedef typename boost::pointee<P>::type& type;
+  };
+}
 
-} // namespace detail
-
-template< typename P >
-struct indirect_reference :
-    std::conditional<
-        detail::is_incrementable< P >::value,
-        iterator_reference< P >,
-        detail::smart_ptr_reference< P >
-    >::type
+template <class P>
+struct indirect_reference
+  : mpl::eval_if<
+        detail::is_incrementable<P>
+      , iterator_reference<P>
+      , detail::smart_ptr_reference<P>
+    >
 {
 };
-
-template< typename P >
-using indirect_reference_t = typename indirect_reference< P >::type;
 
 } // namespace boost
 
-#endif // BOOST_INDIRECT_REFERENCE_DWA200415_HPP
+#endif // INDIRECT_REFERENCE_DWA200415_HPP

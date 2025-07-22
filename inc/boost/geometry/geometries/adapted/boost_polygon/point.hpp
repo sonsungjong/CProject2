@@ -40,21 +40,21 @@ namespace traits
 template <typename CoordinateType>
 struct tag<boost::polygon::point_data<CoordinateType> >
 {
-    using type = point_tag;
+    typedef point_tag type;
 };
 
 
 template <typename CoordinateType>
 struct coordinate_type<boost::polygon::point_data<CoordinateType> >
 {
-    using type = CoordinateType;
+    typedef CoordinateType type;
 };
 
 
 template <typename CoordinateType>
 struct coordinate_system<boost::polygon::point_data<CoordinateType> >
 {
-    using type = cs::cartesian;
+    typedef cs::cartesian type;
 };
 
 

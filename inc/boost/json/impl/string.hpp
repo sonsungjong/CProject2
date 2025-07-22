@@ -238,14 +238,6 @@ append(
         tmp.data(), tmp.size());
 }
 
-char&
-string::at(std::size_t pos, source_location const& loc)
-{
-
-    auto const& self = *this;
-    return const_cast< char& >( self.at(pos, loc) );
-}
-
 } // namespace json
 } // namespace boost
 

@@ -1,5 +1,5 @@
 // Copyright 2008 Gautam Sewani
-// Copyright 2024 Matt Borland
+//
 // Use, modification and distribution are subject to the
 // Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt
@@ -8,17 +8,12 @@
 #ifndef BOOST_MATH_DISTRIBUTIONS_LOGISTIC
 #define BOOST_MATH_DISTRIBUTIONS_LOGISTIC
 
-#include <boost/math/tools/config.hpp>
-#include <boost/math/tools/numeric_limits.hpp>
-#include <boost/math/tools/tuple.hpp>
-#include <boost/math/tools/precision.hpp>
 #include <boost/math/distributions/fwd.hpp>
 #include <boost/math/distributions/detail/common_error_handling.hpp>
 #include <boost/math/distributions/complement.hpp>
 #include <boost/math/special_functions/log1p.hpp>
 #include <boost/math/constants/constants.hpp>
-#include <boost/math/policies/policy.hpp>
-#include <boost/math/policies/error_handling.hpp>
+#include <utility>
 
 namespace boost { namespace math { 
 
@@ -29,22 +24,22 @@ namespace boost { namespace math {
       typedef RealType value_type;
       typedef Policy policy_type;
       
-      BOOST_MATH_GPU_ENABLED logistic_distribution(RealType l_location=0, RealType l_scale=1) // Constructor.
+      logistic_distribution(RealType l_location=0, RealType l_scale=1) // Constructor.
         : m_location(l_location), m_scale(l_scale) 
       {
-        constexpr auto function = "boost::math::logistic_distribution<%1%>::logistic_distribution";
+        static const char* function = "boost::math::logistic_distribution<%1%>::logistic_distribution";
         
         RealType result;
         detail::check_scale(function, l_scale, &result, Policy());
         detail::check_location(function, l_location, &result, Policy());
       }
       // Accessor functions.
-      BOOST_MATH_GPU_ENABLED RealType scale()const
+      RealType scale()const
       {
         return m_scale;
       }
       
-      BOOST_MATH_GPU_ENABLED RealType location()const
+      RealType location()const
       {
         return m_location;
       }
@@ -65,26 +60,26 @@ namespace boost { namespace math {
     #endif
 
     template <class RealType, class Policy>
-    BOOST_MATH_GPU_ENABLED inline const boost::math::pair<RealType, RealType> range(const logistic_distribution<RealType, Policy>& /* dist */)
+    inline const std::pair<RealType, RealType> range(const logistic_distribution<RealType, Policy>& /* dist */)
     { // Range of permissible values for random variable x.
       using boost::math::tools::max_value;
-      return boost::math::pair<RealType, RealType>(
-         boost::math::numeric_limits<RealType>::has_infinity ? -boost::math::numeric_limits<RealType>::infinity() : -max_value<RealType>(), 
-         boost::math::numeric_limits<RealType>::has_infinity ? boost::math::numeric_limits<RealType>::infinity() : max_value<RealType>());
+      return std::pair<RealType, RealType>(
+         std::numeric_limits<RealType>::has_infinity ? -std::numeric_limits<RealType>::infinity() : -max_value<RealType>(), 
+         std::numeric_limits<RealType>::has_infinity ? std::numeric_limits<RealType>::infinity() : max_value<RealType>());
     }
     
     template <class RealType, class Policy>
-    BOOST_MATH_GPU_ENABLED inline const boost::math::pair<RealType, RealType> support(const logistic_distribution<RealType, Policy>& /* dist */)
+    inline const std::pair<RealType, RealType> support(const logistic_distribution<RealType, Policy>& /* dist */)
     { // Range of supported values for random variable x.
       // This is range where cdf rises from 0 to 1, and outside it, the pdf is zero.
       using boost::math::tools::max_value;
-      return boost::math::pair<RealType, RealType>(-max_value<RealType>(), max_value<RealType>()); // - to + infinity
+      return std::pair<RealType, RealType>(-max_value<RealType>(), max_value<RealType>()); // - to + infinity
     }
      
     template <class RealType, class Policy>
-    BOOST_MATH_GPU_ENABLED inline RealType pdf(const logistic_distribution<RealType, Policy>& dist, const RealType& x)
+    inline RealType pdf(const logistic_distribution<RealType, Policy>& dist, const RealType& x)
     {
-       constexpr auto function = "boost::math::pdf(const logistic_distribution<%1%>&, %1%)";
+       static const char* function = "boost::math::pdf(const logistic_distribution<%1%>&, %1%)";
        RealType scale = dist.scale();
        RealType location = dist.location();
        RealType result = 0;
@@ -119,12 +114,12 @@ namespace boost { namespace math {
     } 
     
     template <class RealType, class Policy>
-    BOOST_MATH_GPU_ENABLED inline RealType cdf(const logistic_distribution<RealType, Policy>& dist, const RealType& x)
+    inline RealType cdf(const logistic_distribution<RealType, Policy>& dist, const RealType& x)
     {
        RealType scale = dist.scale();
        RealType location = dist.location();
        RealType result = 0; // of checks.
-       constexpr auto function = "boost::math::cdf(const logistic_distribution<%1%>&, %1%)";
+       static const char* function = "boost::math::cdf(const logistic_distribution<%1%>&, %1%)";
        if(false == detail::check_scale(function, scale, &result, Policy()))
        {
           return result;
@@ -154,12 +149,12 @@ namespace boost { namespace math {
     }
 
     template <class RealType, class Policy>
-    BOOST_MATH_GPU_ENABLED inline RealType logcdf(const logistic_distribution<RealType, Policy>& dist, const RealType& x)
+    inline RealType logcdf(const logistic_distribution<RealType, Policy>& dist, const RealType& x)
     {
        RealType scale = dist.scale();
        RealType location = dist.location();
        RealType result = 0; // of checks.
-       constexpr auto function = "boost::math::cdf(const logistic_distribution<%1%>&, %1%)";
+       static const char* function = "boost::math::cdf(const logistic_distribution<%1%>&, %1%)";
        if(false == detail::check_scale(function, scale, &result, Policy()))
        {
           return result;
@@ -197,13 +192,13 @@ namespace boost { namespace math {
     } 
     
     template <class RealType, class Policy>
-    BOOST_MATH_GPU_ENABLED inline RealType quantile(const logistic_distribution<RealType, Policy>& dist, const RealType& p)
+    inline RealType quantile(const logistic_distribution<RealType, Policy>& dist, const RealType& p)
     {
        BOOST_MATH_STD_USING
        RealType location = dist.location();
        RealType scale = dist.scale();
 
-       constexpr auto function = "boost::math::quantile(const logistic_distribution<%1%>&, %1%)";
+       static const char* function = "boost::math::quantile(const logistic_distribution<%1%>&, %1%)";
 
        RealType result = 0;
        if(false == detail::check_scale(function, scale, &result, Policy()))
@@ -233,13 +228,13 @@ namespace boost { namespace math {
      } // RealType quantile(const logistic_distribution<RealType, Policy>& dist, const RealType& p)
     
     template <class RealType, class Policy>
-    BOOST_MATH_GPU_ENABLED inline RealType cdf(const complemented2_type<logistic_distribution<RealType, Policy>, RealType>& c)
+    inline RealType cdf(const complemented2_type<logistic_distribution<RealType, Policy>, RealType>& c)
     {
        BOOST_MATH_STD_USING
        RealType location = c.dist.location();
        RealType scale = c.dist.scale();
        RealType x = c.param;
-       constexpr auto function = "boost::math::cdf(const complement(logistic_distribution<%1%>&), %1%)";
+       static const char* function = "boost::math::cdf(const complement(logistic_distribution<%1%>&), %1%)";
 
        RealType result = 0;
        if(false == detail::check_scale(function, scale, &result, Policy()))
@@ -268,13 +263,13 @@ namespace boost { namespace math {
     } 
 
     template <class RealType, class Policy>
-    BOOST_MATH_GPU_ENABLED inline RealType logcdf(const complemented2_type<logistic_distribution<RealType, Policy>, RealType>& c)
+    inline RealType logcdf(const complemented2_type<logistic_distribution<RealType, Policy>, RealType>& c)
     {
        BOOST_MATH_STD_USING
        RealType location = c.dist.location();
        RealType scale = c.dist.scale();
        RealType x = c.param;
-       constexpr auto function = "boost::math::cdf(const complement(logistic_distribution<%1%>&), %1%)";
+       static const char* function = "boost::math::cdf(const complement(logistic_distribution<%1%>&), %1%)";
 
        RealType result = 0;
        if(false == detail::check_scale(function, scale, &result, Policy()))
@@ -304,12 +299,12 @@ namespace boost { namespace math {
     }  
 
     template <class RealType, class Policy>
-    BOOST_MATH_GPU_ENABLED inline RealType quantile(const complemented2_type<logistic_distribution<RealType, Policy>, RealType>& c)
+    inline RealType quantile(const complemented2_type<logistic_distribution<RealType, Policy>, RealType>& c)
     {
        BOOST_MATH_STD_USING
        RealType scale = c.dist.scale();
        RealType location = c.dist.location();
-       constexpr auto function = "boost::math::quantile(const complement(logistic_distribution<%1%>&), %1%)";
+       static const char* function = "boost::math::quantile(const complement(logistic_distribution<%1%>&), %1%)";
        RealType result = 0;
        if(false == detail::check_scale(function, scale, &result, Policy()))
           return result;
@@ -340,13 +335,13 @@ namespace boost { namespace math {
     } 
     
     template <class RealType, class Policy>
-    BOOST_MATH_GPU_ENABLED inline RealType mean(const logistic_distribution<RealType, Policy>& dist)
+    inline RealType mean(const logistic_distribution<RealType, Policy>& dist)
     {
       return dist.location();
     } // RealType mean(const logistic_distribution<RealType, Policy>& dist)
     
     template <class RealType, class Policy>
-    BOOST_MATH_GPU_ENABLED inline RealType variance(const logistic_distribution<RealType, Policy>& dist)
+    inline RealType variance(const logistic_distribution<RealType, Policy>& dist)
     {
       BOOST_MATH_STD_USING
       RealType scale = dist.scale();
@@ -354,36 +349,36 @@ namespace boost { namespace math {
     } // RealType variance(const logistic_distribution<RealType, Policy>& dist)
     
     template <class RealType, class Policy>
-    BOOST_MATH_GPU_ENABLED inline RealType mode(const logistic_distribution<RealType, Policy>& dist)
+    inline RealType mode(const logistic_distribution<RealType, Policy>& dist)
     {
       return dist.location();
     }
     
     template <class RealType, class Policy>
-    BOOST_MATH_GPU_ENABLED inline RealType median(const logistic_distribution<RealType, Policy>& dist)
+    inline RealType median(const logistic_distribution<RealType, Policy>& dist)
     {
       return dist.location();
     }
     template <class RealType, class Policy>
-    BOOST_MATH_GPU_ENABLED inline RealType skewness(const logistic_distribution<RealType, Policy>& /*dist*/)
+    inline RealType skewness(const logistic_distribution<RealType, Policy>& /*dist*/)
     {
       return 0;
     } // RealType skewness(const logistic_distribution<RealType, Policy>& dist)
     
     template <class RealType, class Policy>
-    BOOST_MATH_GPU_ENABLED inline RealType kurtosis_excess(const logistic_distribution<RealType, Policy>& /*dist*/)
+    inline RealType kurtosis_excess(const logistic_distribution<RealType, Policy>& /*dist*/)
     {
       return static_cast<RealType>(6)/5; 
     } // RealType kurtosis_excess(const logistic_distribution<RealType, Policy>& dist)
 
     template <class RealType, class Policy>
-    BOOST_MATH_GPU_ENABLED inline RealType kurtosis(const logistic_distribution<RealType, Policy>& dist)
+    inline RealType kurtosis(const logistic_distribution<RealType, Policy>& dist)
     {
       return kurtosis_excess(dist) + 3;
     } // RealType kurtosis_excess(const logistic_distribution<RealType, Policy>& dist)
 
     template <class RealType, class Policy>
-    BOOST_MATH_GPU_ENABLED inline RealType entropy(const logistic_distribution<RealType, Policy>& dist)
+    inline RealType entropy(const logistic_distribution<RealType, Policy>& dist)
     {
        using std::log;
        return 2 + log(dist.scale());

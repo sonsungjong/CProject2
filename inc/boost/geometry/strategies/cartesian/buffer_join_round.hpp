@@ -128,12 +128,18 @@ public :
                 DistanceType const& buffer_distance,
                 RangeOut& range_out) const
     {
-        using promoted_type = typename geometry::select_most_precise
+        typedef typename coordinate_type<Point>::type coordinate_type;
+        typedef typename boost::range_value<RangeOut>::type output_point_type;
+
+        typedef typename geometry::select_most_precise
             <
-                coordinate_type_t<Point>,
-                geometry::coordinate_type_t<typename boost::range_value<RangeOut>::type>,
+                typename geometry::select_most_precise
+                    <
+                        coordinate_type,
+                        typename geometry::coordinate_type<output_point_type>::type
+                    >::type,
                 double
-            >::type;
+            >::type promoted_type;
 
         geometry::equal_to<Point> equals;
         if (equals(perp1, perp2))

@@ -54,11 +54,6 @@ namespace detail
         {
         }
 
-        accumulator_visitor(accumulator_visitor const &other)
-          : args(other.args)
-        {
-        }
-
         template<typename Accumulator>
         void operator ()(Accumulator &accumulator) const
         {
@@ -66,7 +61,7 @@ namespace detail
         }
 
     private:
-        BOOST_DELETED_FUNCTION(accumulator_visitor &operator =(accumulator_visitor const &))
+        accumulator_visitor &operator =(accumulator_visitor const &);
         Args const &args;
     };
 

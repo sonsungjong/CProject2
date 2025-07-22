@@ -12,8 +12,6 @@
 
 #include <iterator>
 
-#include <boost/range/size.hpp>
-
 #include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/algorithms/detail/closest_points/range_to_geometry_rtree.hpp>
 #include <boost/geometry/algorithms/detail/closest_points/utilities.hpp>
@@ -125,7 +123,7 @@ struct segment_to_multipoint
     {
         using linestring_type = geometry::model::linestring
             <
-                point_type_t<Segment>
+                typename point_type<Segment>::type
             >;
         linestring_type linestring;
         convert(segment, linestring);
@@ -150,7 +148,7 @@ struct multipoint_to_segment
     {
         using linestring_type = geometry::model::linestring
             <
-                point_type_t<Segment>
+                typename point_type<Segment>::type
             >;
         linestring_type linestring;
         convert(segment, linestring);

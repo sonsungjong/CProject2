@@ -77,11 +77,13 @@ namespace boost {
       class slot_call_iterator_t
         : public boost::iterator_facade<slot_call_iterator_t<Function, Iterator, ConnectionBody>,
         typename Function::result_type,
-        boost::single_pass_traversal_tag>
+        boost::single_pass_traversal_tag,
+        typename boost::add_reference<typename boost::add_const<typename Function::result_type>::type>::type >
       {
         typedef boost::iterator_facade<slot_call_iterator_t<Function, Iterator, ConnectionBody>,
           typename Function::result_type,
-          boost::single_pass_traversal_tag>
+          boost::single_pass_traversal_tag,
+          typename boost::add_reference<typename boost::add_const<typename Function::result_type>::type>::type >
         inherited;
 
         typedef typename Function::result_type result_type;
@@ -105,7 +107,7 @@ namespace boost {
           if (!cache->result) {
             BOOST_TRY
             {
-              cache->result = cache->f(*iter);
+              cache->result.reset(cache->f(*iter));
             }
             BOOST_CATCH(expired_slot &)
             {

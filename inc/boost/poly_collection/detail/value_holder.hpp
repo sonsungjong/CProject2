@@ -1,4 +1,4 @@
-/* Copyright 2016-2024 Joaquin M Lopez Munoz.
+/* Copyright 2016-2018 Joaquin M Lopez Munoz.
  * Distributed under the Boost Software License, Version 1.0.
  * (See accompanying file LICENSE_1_0.txt or copy at
  * http://www.boost.org/LICENSE_1_0.txt)
@@ -13,6 +13,7 @@
 #pragma once
 #endif
 
+#include <boost/core/addressof.hpp>
 #include <boost/poly_collection/detail/is_constructible.hpp>
 #include <boost/poly_collection/detail/is_equality_comparable.hpp>
 #include <boost/poly_collection/detail/is_nothrow_eq_comparable.hpp>
@@ -47,13 +48,6 @@ namespace detail{
  * Emplacing is explicitly signalled with value_holder_emplacing_ctor to
  * protect us from greedy T's constructible from anything (like
  * boost::type_erasure::any).
- * 
- * If specified, the second arg in value_holder<T,U> is a type
- * from where T will be copy/move constructed, rather than T itself.
- * T must be (nothrow) copy/move constructible iff it is (nothrow)
- * constructible from const U&/U&&. This serves the use case where a segment
- * for U does not store Us but objects of some other type (=T) constructed
- * from them.
  */
 
 struct value_holder_emplacing_ctor_t{};
@@ -64,26 +58,27 @@ template<typename T>
 class value_holder_base
 {
 protected:
-  alignas(T) unsigned char s[sizeof(T)];
+  typename std::aligned_storage<sizeof(T),alignof(T)>::type s;
 };
 
-template<typename T,typename U=T>
+template<typename T>
 class value_holder:public value_holder_base<T>
 {
-  template<typename Q>
+  template<typename U>
   using enable_if_not_emplacing_ctor_t=typename std::enable_if<
     !std::is_same<
-      typename std::decay<Q>::type,value_holder_emplacing_ctor_t
+      typename std::decay<U>::type,value_holder_emplacing_ctor_t
     >::value
   >::type*;
 
-  using is_nothrow_move_constructible=std::is_nothrow_move_constructible<U>;
-  using is_copy_constructible=std::is_copy_constructible<U>;
-  using is_nothrow_copy_constructible=std::is_nothrow_copy_constructible<U>;
-  using is_move_assignable=std::is_move_assignable<U>;
-  using is_nothrow_move_assignable=std::is_nothrow_move_assignable<U>;
-  using is_equality_comparable=detail::is_equality_comparable<U>;
-  using is_nothrow_equality_comparable=detail::is_nothrow_equality_comparable<U>;
+  using is_nothrow_move_constructible=std::is_nothrow_move_constructible<T>;
+  using is_copy_constructible=std::is_copy_constructible<T>;
+  using is_nothrow_copy_constructible=std::is_nothrow_copy_constructible<T>;
+  using is_move_assignable=std::is_move_assignable<T>;
+  using is_nothrow_move_assignable=std::is_nothrow_move_assignable<T>;
+  using is_equality_comparable=detail::is_equality_comparable<T>;
+  using is_nothrow_equality_comparable=
+    detail::is_nothrow_equality_comparable<T>;
 
   T*       data()noexcept{return reinterpret_cast<T*>(&this->s);}
   const T* data()const noexcept
@@ -97,14 +92,14 @@ public:
     typename Allocator,
     enable_if_not_emplacing_ctor_t<Allocator> =nullptr
   >
-  value_holder(Allocator& al,const U& x)
+  value_holder(Allocator& al,const T& x)
     noexcept(is_nothrow_copy_constructible::value)
-    {allocator_copy(al,x);}
+    {copy(al,x);}
   template<
     typename Allocator,
     enable_if_not_emplacing_ctor_t<Allocator> =nullptr
   >
-  value_holder(Allocator& al,U&& x)
+  value_holder(Allocator& al,T&& x)
     noexcept(is_nothrow_move_constructible::value)
     {std::allocator_traits<Allocator>::construct(al,data(),std::move(x));}
   template<
@@ -120,7 +115,7 @@ public:
   >
   value_holder(Allocator& al,const value_holder& x)
     noexcept(is_nothrow_copy_constructible::value)
-    {allocator_copy(al,x.value());}
+    {copy(al,x.value());}
   template<
     typename Allocator,
     enable_if_not_emplacing_ctor_t<Allocator> =nullptr
@@ -135,10 +130,10 @@ public:
    * following to make their life easier.
    */
 
-  value_holder(const U& x)
+  value_holder(const T& x)
     noexcept(is_nothrow_copy_constructible::value)
     {copy(x);}
-  value_holder(U&& x)
+  value_holder(T&& x)
     noexcept(is_nothrow_move_constructible::value)
     {::new ((void*)data()) T(std::move(x));}
   template<typename... Args>
@@ -169,37 +164,31 @@ public:
   }
 
 private:
-  template<typename Allocator,typename Q>
-  void allocator_copy(Allocator& al,const Q& x)
-  {
-    allocator_copy(al,x,is_copy_constructible{});
-  }
+  template<typename Allocator>
+  void copy(Allocator& al,const T& x){copy(al,x,is_copy_constructible{});}
 
-  template<typename Allocator,typename Q>
-  void allocator_copy(Allocator& al,const Q& x,std::true_type)
+  template<typename Allocator>
+  void copy(Allocator& al,const T& x,std::true_type)
   {
     std::allocator_traits<Allocator>::construct(al,data(),x);
   }
 
-  template<typename Allocator,typename Q>
-  void allocator_copy(Allocator&,const Q&,std::false_type)
+  template<typename Allocator>
+  void copy(Allocator&,const T&,std::false_type)
   {
-    throw not_copy_constructible{typeid(U)};
+    throw not_copy_constructible{typeid(T)};
   }
 
-  template<typename Q>
-  void copy(const Q& x){copy(x,is_copy_constructible{});}
+  void copy(const T& x){copy(x,is_copy_constructible{});}
 
-  template<typename Q>
-  void copy(const Q& x,std::true_type)
+  void copy(const T& x,std::true_type)
   {
     ::new (data()) T(x);
   }
 
-  template<typename Q>
-  void copy(const Q&,std::false_type)
+  void copy(const T&,std::false_type)
   {
-    throw not_copy_constructible{typeid(U)};
+    throw not_copy_constructible{typeid(T)};
   }
 
   void move_assign(T&& x){move_assign(std::move(x),is_move_assignable{});}
@@ -216,7 +205,7 @@ private:
     static_assert(is_nothrow_move_constructible::value,
       "type should be move assignable or nothrow move constructible");
 
-    if(data()!=std::addressof(x)){
+    if(data()!=boost::addressof(x)){
       value().~T();
       ::new (data()) T(std::move(x));
     }

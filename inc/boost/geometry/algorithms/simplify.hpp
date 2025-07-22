@@ -3,7 +3,7 @@
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
-// Copyright (c) 2023-2024 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2018-2023.
 // Modifications copyright (c) 2018-2023 Oracle and/or its affiliates.
@@ -61,7 +61,6 @@
 #include <boost/geometry/strategies/simplify/geographic.hpp>
 #include <boost/geometry/strategies/simplify/spherical.hpp>
 
-#include <boost/geometry/util/constexpr.hpp>
 #include <boost/geometry/util/type_traits_std.hpp>
 
 #ifdef BOOST_GEOMETRY_DEBUG_DOUGLAS_PEUCKER
@@ -393,7 +392,7 @@ private :
         auto const cdistance_strategy = strategies::distance::detail::make_comparable(strategies)
             .distance(detail::dummy_point(), detail::dummy_point());
 
-        using point_type = geometry::point_type_t<Ring>;
+        using point_type = typename geometry::point_type<Ring>::type;
         using cdistance_type = decltype(cdistance_strategy.apply(
             std::declval<point_type>(), std::declval<point_type>()));
 
@@ -430,10 +429,10 @@ public :
             return;
         }
 
-        constexpr bool is_closed_in = geometry::closure<RingIn>::value == closed;
-        constexpr bool is_closed_out = geometry::closure<RingOut>::value == closed;
-        constexpr bool is_clockwise_in = geometry::point_order<RingIn>::value == clockwise;
-        constexpr bool is_clockwise_out = geometry::point_order<RingOut>::value == clockwise;
+        bool const is_closed_in = geometry::closure<RingIn>::value == closed;
+        bool const is_closed_out = geometry::closure<RingOut>::value == closed;
+        bool const is_clockwise_in = geometry::point_order<RingIn>::value == clockwise;
+        bool const is_clockwise_out = geometry::point_order<RingOut>::value == clockwise;
 
         // TODO: instead of area() use calculate_point_order() ?
 
@@ -444,7 +443,7 @@ public :
         // Rotate it into a copied vector
         // (vector, because source type might not support rotation)
         // (duplicate end point will be simplified away)
-        using point_type = geometry::point_type_t<RingIn>;
+        typedef typename geometry::point_type<RingIn>::type point_type;
 
         std::vector<point_type> rotated;
         rotated.reserve(size + 1); // 1 because open rings are closed
@@ -483,13 +482,10 @@ public :
             // Do not duplicate the closing point
             auto rot_end = boost::end(ring);
             std::size_t rot_index = index;
-            if BOOST_GEOMETRY_CONSTEXPR (is_closed_in)
+            if (BOOST_GEOMETRY_CONDITION(is_closed_in) && size > 1)
             {
-                if (size > 1)
-                {
-                    --rot_end;
-                    if (rot_index == size - 1) { rot_index = 0; }
-                }
+                --rot_end;
+                if (rot_index == size - 1) { rot_index = 0; }
             }
 
             std::rotate_copy(boost::begin(ring), range::pos(ring, rot_index),
@@ -501,12 +497,9 @@ public :
             simplify_range<0>::apply(rotated, out, max_distance, impl, strategies);
 
             // Open output if needed
-            if BOOST_GEOMETRY_CONSTEXPR (! is_closed_out)
+            if (BOOST_GEOMETRY_CONDITION(! is_closed_out) && boost::size(out) > 1)
             {
-                if (boost::size(out) > 1)
-                {
-                    range::pop_back(out);
-                }
+                range::pop_back(out);
             }
 
             // TODO: instead of area() use calculate_point_order() ?
@@ -539,7 +532,7 @@ public :
             rotated.clear();
         }
 
-        if BOOST_GEOMETRY_CONSTEXPR (is_clockwise_in != is_clockwise_out)
+        if (BOOST_GEOMETRY_CONDITION(is_clockwise_in != is_clockwise_out))
         {
             std::reverse(boost::begin(out), boost::end(out));
         }
@@ -653,7 +646,11 @@ struct has_same_tag_as
 {
     template <typename OtherGeometry>
     struct pred
-        : std::is_same<geometry::tag_t<Geometry>, geometry::tag_t<OtherGeometry>>
+        : std::is_same
+            <
+                typename geometry::tag<Geometry>::type,
+                typename geometry::tag<OtherGeometry>::type
+            >
     {};
 };
 
@@ -685,8 +682,8 @@ template
 <
     typename GeometryIn,
     typename GeometryOut,
-    typename TagIn = tag_t<GeometryIn>,
-    typename TagOut = tag_t<GeometryOut>
+    typename TagIn = typename tag<GeometryIn>::type,
+    typename TagOut = typename tag<GeometryOut>::type
 >
 struct simplify: not_implemented<TagIn, TagOut>
 {};
@@ -747,7 +744,7 @@ struct simplify<MultiPolygonIn, MultiPolygonOut, multi_polygon_tag, multi_polygo
 template
 <
     typename Geometry,
-    typename Tag = tag_t<Geometry>
+    typename Tag = typename tag<Geometry>::type
 >
 struct simplify_insert: not_implemented<Tag>
 {};
@@ -822,8 +819,8 @@ struct simplify<default_strategy, false>
                              default_strategy)
     {
         // NOTE: Alternatively take two geometry types in default_strategy
-        using cs_tag1_t = geometry::cs_tag_t<GeometryIn>;
-        using cs_tag2_t = geometry::cs_tag_t<GeometryOut>;
+        using cs_tag1_t = typename geometry::cs_tag<GeometryIn>::type;
+        using cs_tag2_t = typename geometry::cs_tag<GeometryOut>::type;
         BOOST_GEOMETRY_STATIC_ASSERT(
             (std::is_same<cs_tag1_t, cs_tag2_t>::value),
             "Incompatible coordinate systems",
@@ -911,8 +908,8 @@ namespace resolve_dynamic {
 template
 <
     typename GeometryIn, typename GeometryOut,
-    typename TagIn = tag_t<GeometryIn>,
-    typename TagOut = tag_t<GeometryOut>
+    typename TagIn = typename tag<GeometryIn>::type,
+    typename TagOut = typename tag<GeometryOut>::type
 >
 struct simplify
 {
@@ -979,6 +976,7 @@ struct simplify<GeometryIn, GeometryOut, geometry_collection_tag, geometry_colle
 \tparam GeometryOut The output geometry
 \tparam Distance A numerical distance measure
 \tparam Strategy A type fulfilling a SimplifyStrategy concept
+\param strategy A strategy to calculate simplification
 \param geometry input geometry, to be simplified
 \param out output geometry, simplified version of the input geometry
 \param max_distance distance (in units of input coordinates) of a vertex
@@ -1074,7 +1072,7 @@ inline void simplify_insert(Geometry const& geometry, OutputIterator out,
 {
     // Concept: output point type = point type of input geometry
     concepts::check<Geometry const>();
-    concepts::check<point_type_t<Geometry>>();
+    concepts::check<typename point_type<Geometry>::type>();
 
     simplify_insert(geometry, out, max_distance, default_strategy());
 }

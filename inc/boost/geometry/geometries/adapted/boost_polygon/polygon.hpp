@@ -35,7 +35,7 @@ namespace traits
 template <typename CoordinateType>
 struct tag<boost::polygon::polygon_with_holes_data<CoordinateType> >
 {
-    using type = polygon_tag;
+    typedef polygon_tag type;
 };
 
 template <typename CoordinateType>

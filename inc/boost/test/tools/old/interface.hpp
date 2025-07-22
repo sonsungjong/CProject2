@@ -72,7 +72,7 @@ do {                                                                            
         ::boost::test_tools::tt_detail::TL,                                     \
         ::boost::test_tools::tt_detail::CT                                      \
         BOOST_JOIN( BOOST_TEST_TOOL_PASS_ARGS, frwd_type )( ARGS ) );           \
-} while( 0 )                                                                    \
+} while( ::boost::test_tools::tt_detail::dummy_cond() )                         \
 /**/
 
 //____________________________________________________________________________//
@@ -110,7 +110,7 @@ do {                                                                            
                               "exception \"" BOOST_STRINGIZE( E )"\" raised as expected" postfix,   \
                               TL, CHECK_MSG, _  );                                      \
     }                                                                                   \
-} while( 0 )                                                                            \
+} while( ::boost::test_tools::tt_detail::dummy_cond() )                                 \
 /**/
 
 //____________________________________________________________________________//
@@ -140,7 +140,7 @@ do {                                                                            
         BOOST_TEST_TOOL_IMPL( 2, false, "unexpected exception thrown by " BOOST_STRINGIZE( S ),    \
                               TL, CHECK_MSG, _ );                                       \
     }                                                                                   \
-} while( 0 )                                                                            \
+} while( ::boost::test_tools::tt_detail::dummy_cond() )                                 \
 /**/
 
 #define BOOST_WARN_NO_THROW( S )            BOOST_CHECK_NO_THROW_IMPL( S, WARN )

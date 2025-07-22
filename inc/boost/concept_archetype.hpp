@@ -422,8 +422,6 @@ namespace boost {
     };
     typedef const T* pointer;
     typedef std::ptrdiff_t difference_type;
-    input_iterator_archetype() { }
-    input_iterator_archetype(const self&) { }
     self& operator=(const self&) { return *this;  }
     bool operator==(const self&) const { return true; }
     bool operator!=(const self&) const { return true; }
@@ -443,8 +441,6 @@ namespace boost {
     typedef const T& reference;
     typedef const T* pointer;
     typedef std::ptrdiff_t difference_type;
-    input_iterator_archetype_no_proxy() { }
-    input_iterator_archetype_no_proxy(const self&) { }
     self& operator=(const self&) { return *this;  }
     bool operator==(const self&) const { return true; }
     bool operator!=(const self&) const { return true; }
@@ -497,7 +493,6 @@ namespace boost {
     typedef const T* pointer;
     typedef std::ptrdiff_t difference_type;
     input_output_iterator_archetype() { }
-    input_output_iterator_archetype(const self&) { }
     self& operator=(const self&) { return *this;  }
     bool operator==(const self&) const { return true; }
     bool operator!=(const self&) const { return true; }
@@ -518,7 +513,6 @@ namespace boost {
     typedef T const* pointer;
     typedef std::ptrdiff_t difference_type;
     forward_iterator_archetype() { }
-    forward_iterator_archetype(const self&) { }
     self& operator=(const self&) { return *this;  }
     bool operator==(const self&) const { return true; }
     bool operator!=(const self&) const { return true; }
@@ -539,7 +533,6 @@ namespace boost {
     typedef T* pointer;
     typedef std::ptrdiff_t difference_type;
     mutable_forward_iterator_archetype() { }
-    mutable_forward_iterator_archetype(const self&) { }
     self& operator=(const self&) { return *this;  }
     bool operator==(const self&) const { return true; }
     bool operator!=(const self&) const { return true; }
@@ -560,7 +553,6 @@ namespace boost {
     typedef T* pointer;
     typedef std::ptrdiff_t difference_type;
     bidirectional_iterator_archetype() { }
-    bidirectional_iterator_archetype(const self&) { }
     self& operator=(const self&) { return *this;  }
     bool operator==(const self&) const { return true; }
     bool operator!=(const self&) const { return true; }
@@ -583,7 +575,6 @@ namespace boost {
     typedef T* pointer;
     typedef std::ptrdiff_t difference_type;
     mutable_bidirectional_iterator_archetype() { }
-    mutable_bidirectional_iterator_archetype(const self&) { }
     self& operator=(const self&) { return *this;  }
     bool operator==(const self&) const { return true; }
     bool operator!=(const self&) const { return true; }
@@ -606,7 +597,6 @@ namespace boost {
     typedef T* pointer;
     typedef std::ptrdiff_t difference_type;
     random_access_iterator_archetype() { }
-    random_access_iterator_archetype(const self&) { }
     self& operator=(const self&) { return *this;  }
     bool operator==(const self&) const { return true; }
     bool operator!=(const self&) const { return true; }
@@ -647,7 +637,6 @@ namespace boost {
     typedef T* pointer;
     typedef std::ptrdiff_t difference_type;
     mutable_random_access_iterator_archetype() { }
-    mutable_random_access_iterator_archetype(const self&) { }
     self& operator=(const self&) { return *this;  }
     bool operator==(const self&) const { return true; }
     bool operator!=(const self&) const { return true; }

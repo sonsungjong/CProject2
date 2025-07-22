@@ -40,7 +40,7 @@ template
 <
     typename Geometry1,
     typename Point,
-    typename CsTag = cs_tag_t<Point>
+    typename CsTag = typename cs_tag<Point>::type
 >
 struct strategy_convex_hull
 {

@@ -1,4 +1,4 @@
-// Copyright Antony Polukhin, 2016-2025.
+// Copyright Antony Polukhin, 2016-2023.
 //
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
@@ -17,7 +17,6 @@
 #include <boost/stacktrace/detail/to_hex_array.hpp>
 #include <boost/stacktrace/detail/location_from_symbol.hpp>
 #include <boost/stacktrace/detail/to_dec_array.hpp>
-#include <boost/stacktrace/detail/addr_base.hpp>
 #include <boost/core/demangle.hpp>
 
 #include <cstdio>
@@ -41,12 +40,7 @@ public:
         if (!Base::res.empty()) {
             Base::res = boost::core::demangle(Base::res.c_str());
         } else {
-#ifdef BOOST_STACKTRACE_DISABLE_OFFSET_ADDR_BASE
             Base::res = to_hex_array(addr).data();
-#else
-            const auto addr_base = boost::stacktrace::detail::get_own_proc_addr_base(addr);
-            Base::res = to_hex_array(reinterpret_cast<uintptr_t>(addr) - addr_base).data();
-#endif
         }
 
         if (Base::prepare_source_location(addr)) {
@@ -96,8 +90,8 @@ std::string frame::name() const {
     }
 
 #if !defined(BOOST_WINDOWS) && !defined(__CYGWIN__)
-    boost::stacktrace::detail::Dl_info dli;
-    const bool dl_ok = !!boost::stacktrace::detail::dladdr(addr_, dli);
+    ::Dl_info dli;
+    const bool dl_ok = !!::dladdr(const_cast<void*>(addr_), &dli); // `dladdr` on Solaris accepts nonconst addresses
     if (dl_ok && dli.dli_sname) {
         return boost::core::demangle(dli.dli_sname);
     }

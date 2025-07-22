@@ -126,7 +126,7 @@ namespace boost {
                     off += static_cast<off_type>(putend_ - pptr());
                 else if(way == ::std::ios_base::beg)
                     off += static_cast<off_type>(pbase() - pptr());
-                else
+                else if(way != ::std::ios_base::beg)
                     return pos_type(off_type(-1));                    
                 if(pbase() <= off+pptr() && off+pptr() <= putend_)
                     // set pptr
