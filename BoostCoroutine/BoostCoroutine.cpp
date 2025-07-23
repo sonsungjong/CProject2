@@ -27,13 +27,19 @@ boost_1_83_0 폴더 -> 관리자 권한으로 cmd 실행 -> .\bootstrap.bat 입력하여 실행
 #include <boost/asio/co_spawn.hpp>
 #include <boost/asio/detached.hpp>
 #include <boost/asio/cancellation_signal.hpp>
+#include <boost/asio/steady_timer.hpp>
 #include <iostream>
+#include <thread>
+#include <atomic>
+#include <cstdio>
 #include <chrono>
+
+
+
 
 
 int main()
 {
-    printf("hello\n");
 
     return 0;
 }
