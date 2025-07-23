@@ -12,7 +12,7 @@
 CLzrSerialRS485::CLzrSerialRS485()
 	: m_pCenter(nullptr)
 	, m_serial(m_io)
-	, m_vecTempBuf(8192)
+	, m_vecTempBuf(65535)
 	//, m_recvRingBuf(4 * 1024 * 1024)				// 4MB
 {
 	m_nSerialBaudRate = 460800U;
@@ -79,7 +79,7 @@ void CLzrSerialRS485::stop()
 
 void CLzrSerialRS485::recvSerialMsg()
 {
-	printf("recvSerialMsg 생성\n");
+	//printf("recvSerialMsg 생성\n");
 	m_serial.async_read_some(boost::asio::buffer(m_vecTempBuf), 
 		[this](boost::system::error_code ec, std::size_t sizeLen)
 		{
@@ -89,7 +89,10 @@ void CLzrSerialRS485::recvSerialMsg()
 				std::vector<unsigned char> vecData(m_vecTempBuf.begin(), m_vecTempBuf.begin() + sizeLen);
 				m_queueRecv.push(std::move(vecData));
 
+				printf("수신 버퍼: %zd\n", vecData.size());
+
 				m_vecTempBuf.clear();
+				m_vecTempBuf.resize(65535);			// 반드시
 				recvSerialMsg();
 			}
 			else {
