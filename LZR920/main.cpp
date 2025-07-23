@@ -21,22 +21,21 @@ boost_1_83_0 폴더 -> 관리자 권한으로 cmd 실행 -> .\bootstrap.bat 입�
 
 #include "LzrStruct.h"
 
+#ifdef _WIN32
 #ifdef _DEBUG
-#pragma comment(lib, "libboost_system-vc143-mt-gd-x64-1_88.lib")
-#pragma comment(lib, "libboost_locale-vc143-mt-gd-x64-1_88.lib")
-#pragma comment(lib, "libboost_container-vc143-mt-gd-x64-1_88.lib")
-#pragma comment(lib, "libboost_json-vc143-mt-gd-x64-1_88.lib")
-#pragma comment(lib, "libboost_context-vc143-mt-gd-x64-1_88.lib")
-#pragma comment(lib, "libboost_coroutine-vc143-mt-gd-x64-1_88.lib")
+#pragma comment(lib, "libboost_system-vc143-mt-gd-x64-1_83.lib")
+#pragma comment(lib, "libboost_locale-vc143-mt-gd-x64-1_83.lib")
+#pragma comment(lib, "libboost_container-vc143-mt-gd-x64-1_83.lib")
+#pragma comment(lib, "libboost_json-vc143-mt-gd-x64-1_83.lib")
+#pragma comment(lib, "libboost_context-vc143-mt-gd-x64-1_83.lib")
 #else
-#pragma comment(lib, "libboost_system-vc143-mt-x64-1_88.lib")
-#pragma comment(lib, "libboost_locale-vc143-mt-x64-1_88.lib")
-#pragma comment(lib, "libboost_container-vc143-mt-x64-1_88.lib")
-#pragma comment(lib, "libboost_json-vc143-mt-x64-1_88.lib")
-#pragma comment(lib, "libboost_context-vc143-mt-x64-1_88.lib")
-#pragma comment(lib, "libboost_coroutine-vc143-mt-x64-1_88.lib")
+#pragma comment(lib, "libboost_system-vc143-mt-x64-1_83.lib")
+#pragma comment(lib, "libboost_locale-vc143-mt-x64-1_83.lib")
+#pragma comment(lib, "libboost_container-vc143-mt-x64-1_83.lib")
+#pragma comment(lib, "libboost_json-vc143-mt-x64-1_83.lib")
+#pragma comment(lib, "libboost_context-vc143-mt-x64-1_83.lib")
 #endif
-
+#endif
 
 #include "LzrSerialRS485.h"
 #include "LzrTCPServer.h"

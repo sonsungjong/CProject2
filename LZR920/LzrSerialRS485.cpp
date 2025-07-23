@@ -111,7 +111,7 @@ void CLzrSerialRS485::processRecvMsg()
 	{
 		std::vector<unsigned char> recvData = m_queueRecv.wait_pop();
 
-		if (m_pCenter)
+		if (m_pCenter && recvData.size() > 0)
 		{
 			m_pCenter->onRecvSerialMessage(recvData);
 		}
