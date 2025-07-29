@@ -42,32 +42,47 @@ public:
 
     void receive()
     {
-        while (1)
+        try {
+            while (1)
+            {
+                char buf[1024] = { 0 };
+                boost::system::error_code err;
+
+                size_t len = m_socket.read_some(boost::asio::buffer(buf), err);
+
+                if (err == boost::asio::error::eof)
+                {
+                    break;
+                }
+                else if (err)
+                {
+                    throw boost::system::system_error(err);
+                }
+
+                // 수신 메시지를 변수에 저장
+                m_recv_msg = std::string(buf, len);
+                printf("\n==서버로부터받은것 :%s==\n", m_recv_msg.c_str());
+
+                // 변환
+                TCHAR wmsg[1024] = { 0 };
+                int origin_len = (int)strlen(m_recv_msg.c_str());
+                int ilen = MultiByteToWideChar(CP_ACP, 0, m_recv_msg.c_str(), origin_len, NULL, NULL);
+                MultiByteToWideChar(CP_ACP, 0, m_recv_msg.c_str(), origin_len, wmsg, ilen);
+
+                TestRecvPrint(wmsg);            // 테스트 수신 출력
+            }
+        }
+        catch (const boost::system::system_error& e)
         {
-            char buf[1024] = { 0 };
-            boost::system::error_code err;
-            size_t len = m_socket.read_some(boost::asio::buffer(buf), err);
-
-            if (err == boost::asio::error::eof)
-            {
-                break;
-            }
-            else if (err) 
-            {
-                throw boost::system::system_error(err);
-            }
-
-            // 수신 메시지를 변수에 저장
-            m_recv_msg = std::string(buf, len);
-            printf("\n==서버로부터받은것 :%s==\n", m_recv_msg.c_str());
-
-            // 변환
-            TCHAR wmsg[1024] = { 0 };
-            int origin_len = (int)strlen(m_recv_msg.c_str());
-            int ilen = MultiByteToWideChar(CP_ACP, 0, m_recv_msg.c_str(), origin_len, NULL, NULL);
-            MultiByteToWideChar(CP_ACP, 0, m_recv_msg.c_str(), origin_len, wmsg, ilen);
-
-            TestRecvPrint(wmsg);            // 테스트 수신 출력
+            printf("소켓 에러 발생: %s\n", e.what());
+        }
+        catch (const std::exception& e)
+        {
+            printf("예외 발생: %s\n", e.what());
+        }
+        catch (...)
+        {
+            printf("알 수 없는 예외 발생\n");
         }
     }               // receive()
 

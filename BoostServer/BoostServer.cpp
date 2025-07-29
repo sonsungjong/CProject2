@@ -17,6 +17,7 @@ boost_1_83_0 폴더 -> 관리자 권한으로 cmd 실행 -> .\bootstrap.bat 입력하여 실행
 #include <deque>
 #include <memory>
 #include <set>
+#include <unordered_map>
 #include <thread>
 #include <boost/asio.hpp>
 #include <boost/locale.hpp>
@@ -108,8 +109,29 @@ class ChatServer {
 public:
     ChatServer(short port)
         : m_io_context()
-        , m_acceptor(m_io_context, tcp::endpoint(tcp::v4(), port))
+        , m_acceptor(m_io_context)
+        , m_port(port)
     {
+        boost::system::error_code ec;
+        tcp::endpoint endpoint(tcp::v4(), m_port);
+        m_acceptor.open(endpoint.protocol(), ec);
+
+        if (!ec) {
+            m_acceptor.set_option(boost::asio::socket_base::reuse_address(true), ec);
+
+            if (!ec) {
+                m_acceptor.bind(endpoint, ec);
+
+                if (!ec) {
+                    m_acceptor.listen(boost::asio::socket_base::max_listen_connections, ec);
+
+                    if (!ec) {
+
+                    }
+                }
+            }
+        }
+
         accept();
     }
 
@@ -145,8 +167,9 @@ private:
                     m_clients.insert(connection);
                 }
 
-                accept();
-            });
+                accept();               // 다음 클라이언트 대기
+            }
+        );
     }
 
     
@@ -154,6 +177,7 @@ private:
     boost::asio::io_context m_io_context;
     tcp::acceptor m_acceptor;
     std::set<ClientConnectionPtr> m_clients;
+    unsigned short m_port;
 };
 
 int main() {
