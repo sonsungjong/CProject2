@@ -109,7 +109,7 @@ int main()
     _tsetlocale(0, _T(""));
 
     std::string server = "127.0.0.1";
-    std::string port = "5000";
+    std::string port = "9004";
 
     SocketClient client(server, port);
 

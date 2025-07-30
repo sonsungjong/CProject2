@@ -34,7 +34,7 @@ boost_1_83_0 폴더 -> 관리자 권한으로 cmd 실행 -> .\bootstrap.bat 입력하여 실행
 #endif
 
 using boost::asio::ip::tcp;
-const int DEFAULT_PORT = 5000;
+const int DEFAULT_PORT = 9004;
 
 class ClientConnection;
 using ClientConnectionPtr = std::shared_ptr<ClientConnection>;
