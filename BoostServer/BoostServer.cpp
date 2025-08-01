@@ -180,7 +180,7 @@ private:
     unsigned short m_port;
 };
 
-int main() {
+int main1() {
     setlocale(LC_ALL, "");
 
     try {
