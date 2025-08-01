@@ -33,11 +33,7 @@ boost_1_83_0 폴더 -> 관리자 권한으로 cmd 실행 -> .\bootstrap.bat 입력하여 실행
 #pragma comment(lib, "libboost_locale-vc142-mt-x64-1_83.lib")
 #endif
 
-using boost::asio::ip::tcp;
 const int DEFAULT_PORT = 9004;
-
-class ClientConnection;
-using ClientConnectionPtr = std::shared_ptr<ClientConnection>;
 
 
 class CTCPServer {
@@ -48,7 +44,7 @@ public:
     {
         m_port = port;
         boost::system::error_code ec;
-        tcp::endpoint endpoint(tcp::v4(), m_port);
+        boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), m_port);
         m_acceptor.open(endpoint.protocol(), ec);
 
         if (!ec) {
@@ -74,15 +70,34 @@ public:
         stopServer();
     }
 
+    // TCP 서버 시작
     void startServer() {
         m_io_context.run();
     }
 
+    // TCP 서버 종료
     void stopServer() {
         m_io_context.stop();
     }
 
-    // 브로드캐스트
+    // 클라이언트 접속포트 생성
+    void startAccept() {
+        auto socket = std::make_shared<boost::asio::ip::tcp::socket>(m_io_context);
+        m_acceptor.async_accept(*socket, [this, socket](boost::system::error_code ec) {
+            if (!ec) {
+                auto endpoint = socket->remote_endpoint();
+                unsigned short client_port = endpoint.port();
+                m_clients[client_port] = socket;
+
+                std::cout << "클라이언트 접속: 포트 " << client_port << " (총 " << m_clients.size() << "명)\n";
+
+                startRecv(client_port, socket);
+            }
+            startAccept();
+            });
+    }
+
+    // 브로드캐스트 전송
     void sendMsgAllClients(std::string msg)
     {
         for (auto& client : m_clients) {
@@ -103,7 +118,7 @@ public:
     }
 
     // 메시지 전송
-    void sendMessage(std::shared_ptr<tcp::socket> socket, const std::string& msg) {
+    void sendMessage(std::shared_ptr<boost::asio::ip::tcp::socket> socket, const std::string& msg) {
         auto write_buf = std::make_shared<std::string>(msg);
         boost::asio::async_write(*socket, boost::asio::buffer(*write_buf),
             [socket, write_buf](boost::system::error_code ec, std::size_t) {
@@ -114,7 +129,7 @@ public:
     }
 
     // 
-    void startRecv(unsigned short client_port, std::shared_ptr<tcp::socket> socket) {
+    void startRecv(unsigned short client_port, std::shared_ptr<boost::asio::ip::tcp::socket> socket) {
         auto buffer = std::make_shared<std::vector<char>>(4096);
 
         socket->async_read_some(boost::asio::buffer(*buffer),
@@ -139,30 +154,11 @@ public:
             });
     }
 
-    void startAccept() {
-        auto socket = std::make_shared<tcp::socket>(m_io_context);
-        m_acceptor.async_accept(*socket, [this, socket](boost::system::error_code ec) {
-            if (!ec) {
-                auto endpoint = socket->remote_endpoint();
-                unsigned short client_port = endpoint.port();
-                m_clients[client_port] = socket;
-
-                std::cout << "클라이언트 접속: 포트 " << client_port << " (총 " << m_clients.size() << "명)\n";
-
-                startRecv(client_port, socket);
-            }
-            startAccept();
-            });
-    }
-
 private:
-
-    
-
     boost::asio::io_context m_io_context;
-    tcp::acceptor m_acceptor;
+    boost::asio::ip::tcp::acceptor m_acceptor;
     unsigned short m_port;
-    std::unordered_map<unsigned short, std::shared_ptr<tcp::socket>> m_clients;
+    std::unordered_map<unsigned short, std::shared_ptr<boost::asio::ip::tcp::socket>> m_clients;
 };
 
 int main() {
@@ -171,8 +167,6 @@ int main() {
     printf("버전2 부스트 서버\n");
 
     try {
-        //boost::asio::io_context io_context;
-
         short port = DEFAULT_PORT;
 
         CTCPServer server(port);
