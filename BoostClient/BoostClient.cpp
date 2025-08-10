@@ -44,7 +44,7 @@ public:
     {
         while (1)
         {
-            char buf[1024] = { 0 };
+            char buf[10000] = { 0 };
             boost::system::error_code err;
             size_t len = m_socket.read_some(boost::asio::buffer(buf), err);
 
@@ -59,15 +59,15 @@ public:
 
             // 수신 메시지를 변수에 저장
             m_recv_msg = std::string(buf, len);
-            printf("\n==서버로부터받은것 :%s==\n", m_recv_msg.c_str());
+            printf("\n==서버로부터받은 사이즈 :%d==\n", m_recv_msg.size());
 
             // 변환
-            TCHAR wmsg[1024] = { 0 };
-            int origin_len = (int)strlen(m_recv_msg.c_str());
-            int ilen = MultiByteToWideChar(CP_ACP, 0, m_recv_msg.c_str(), origin_len, NULL, NULL);
-            MultiByteToWideChar(CP_ACP, 0, m_recv_msg.c_str(), origin_len, wmsg, ilen);
+            //TCHAR wmsg[10000] = { 0 };
+            //int origin_len = (int)strlen(m_recv_msg.c_str());
+            //int ilen = MultiByteToWideChar(CP_ACP, 0, m_recv_msg.c_str(), origin_len, NULL, NULL);
+            //MultiByteToWideChar(CP_ACP, 0, m_recv_msg.c_str(), origin_len, wmsg, ilen);
 
-            TestRecvPrint(wmsg);            // 테스트 수신 출력
+            //TestRecvPrint(wmsg);            // 테스트 수신 출력
         }
     }               // receive()
 
@@ -93,22 +93,22 @@ int main()
 {
     _tsetlocale(0, _T(""));
 
-    std::string server = "127.0.0.1";
-    std::string port = "5000";
+    std::string server_ip = "127.0.0.1";
+    std::string server_port = "9004";
 
-    SocketClient client(server, port);
+    SocketClient client(server_ip, server_port);
 
     std::thread receive_thread(&SocketClient::receive, &client);
 
-    TCHAR w_msg[1024] = { 0, };
-    char msg[1024] = { 0, };
+    TCHAR w_msg[10000] = { 0, };
+    char msg[10000] = { 0, };
 
     while (1) {
         printf("입력>>");
         rewind(stdin);
         memset(msg, 0, sizeof(msg));
         memset(w_msg, 0, sizeof(w_msg));
-        _tscanf_s(_T("%[^\n]s"), w_msg, 1024);
+        _tscanf_s(_T("%[^\n]s"), w_msg, 10000);
         int len = WideCharToMultiByte(CP_ACP, 0, w_msg, -1, NULL, 0, NULL, NULL);
         WideCharToMultiByte(CP_ACP, 0, w_msg, -1, msg, len, NULL, NULL);
 
